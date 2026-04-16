@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Backend / AI
+*.pt
+*.pth
+*.exe
+*.mp4
+*.pdf
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# System
+Thumbs.db
+Desktop.ini

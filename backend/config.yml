@@ -1,0 +1,24 @@
+model:
+  type: "legacy"                  # or "x3d_m" for future upgrade
+  confidence_threshold: 0.75
+  frame_window_size: 32           # STRICT: never change this
+  device: "cuda"                  # auto-fallback to cpu
+  stride: 16
+
+notifications:
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+
+database:
+  path: "./sentinel.db"
+
+storage:
+  thumbnails_dir: "./thumbnails"
+  evidence_dir: "./evidence_clips"
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
