@@ -750,3 +750,31 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 24 candidate: add a small copy-to-clipboard action for the policy timestamp (for support/debug tickets) inside Face Policy Controls.
+
+### Update 024 - 2026-04-18
+
+Step 24 policy timestamp copy action delivered:
+
+- Updated `components/incident-panel.tsx`:
+  - added `copyPolicyUpdatedAt()` handler with robust clipboard flow
+  - supports native clipboard API and fallback copy path
+  - added compact `COPY` button next to the policy-updated hint
+  - button is disabled while reload is running or when no timestamp is available
+- Operator UX behavior:
+  - success toast:
+    - `Policy timestamp copied.`
+  - graceful fallback toast when timestamp/copy is unavailable.
+
+Validation performed:
+
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 8 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Closure status:
+
+- Face-policy operator UX track is now closed for Steps 22, 23, and 24.
+- Remaining known blocker outside this UI track:
+  - CI workflow file publish (Step 21) depends on GitHub token/workflow permissions.

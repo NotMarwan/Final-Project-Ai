@@ -6,7 +6,7 @@ import {
   ShieldAlert, XCircle, Download, ChevronRight,
   ShieldCheck, Loader2, CheckCircle2, AlertCircle,
   SlidersHorizontal, CheckCheck, Info, X,
-  FileSearch, Sparkles, Timer, FileDown, UserRound, ScanFace
+  FileSearch, Sparkles, Timer, FileDown, UserRound, ScanFace, Copy
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -362,6 +362,37 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
     }
   }, [loadFacePolicy, addToast])
 
+  const copyPolicyUpdatedAt = useCallback(async () => {
+    const raw = (facePolicyUpdatedAt ?? "").trim()
+    if (!raw) {
+      addToast("No policy timestamp available yet.", "info")
+      return
+    }
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(raw)
+      } else if (typeof document !== "undefined") {
+        const textarea = document.createElement("textarea")
+        textarea.value = raw
+        textarea.setAttribute("readonly", "true")
+        textarea.style.position = "fixed"
+        textarea.style.opacity = "0"
+        textarea.style.pointerEvents = "none"
+        document.body.appendChild(textarea)
+        textarea.select()
+        const copied = document.execCommand("copy")
+        document.body.removeChild(textarea)
+        if (!copied) throw new Error("copy-failed")
+      } else {
+        throw new Error("clipboard-unavailable")
+      }
+      addToast("Policy timestamp copied.", "success")
+    } catch {
+      addToast("Copy failed. Please copy manually.", "error")
+    }
+  }, [facePolicyUpdatedAt, addToast])
+
   useEffect(() => {
     void loadFacePolicy()
   }, [loadFacePolicy])
@@ -413,6 +444,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
             onReloadPolicy={reloadFacePolicyFromDisk}
             reloadBusy={facePolicyReloadBusy}
             policyUpdatedAt={facePolicyUpdatedAt}
+            onCopyPolicyUpdatedAt={copyPolicyUpdatedAt}
             containerRef={facePolicyControlsRef}
             highlight={facePolicyPulse}
           />
@@ -618,6 +650,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
           onReloadPolicy={reloadFacePolicyFromDisk}
           reloadBusy={facePolicyReloadBusy}
           policyUpdatedAt={facePolicyUpdatedAt}
+          onCopyPolicyUpdatedAt={copyPolicyUpdatedAt}
           containerRef={facePolicyControlsRef}
           highlight={facePolicyPulse}
         />
@@ -730,6 +763,7 @@ function FacePolicyControls({
   onReloadPolicy,
   reloadBusy,
   policyUpdatedAt,
+  onCopyPolicyUpdatedAt,
   containerRef,
   highlight,
 }: {
@@ -745,6 +779,7 @@ function FacePolicyControls({
   onReloadPolicy: () => void
   reloadBusy: boolean
   policyUpdatedAt: string | null
+  onCopyPolicyUpdatedAt: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
   highlight?: boolean
 }) {
@@ -769,9 +804,22 @@ function FacePolicyControls({
           {reloadBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "RELOAD"}
         </Button>
       </div>
-      <p className="mb-2.5 text-[10px] font-mono text-muted-foreground">
-        Policy Updated: {formatPolicyUpdatedHint(policyUpdatedAt)}
-      </p>
+      <div className="mb-2.5 flex items-center gap-2">
+        <p className="text-[10px] font-mono text-muted-foreground">
+          Policy Updated: {formatPolicyUpdatedHint(policyUpdatedAt)}
+        </p>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onCopyPolicyUpdatedAt}
+          disabled={!policyUpdatedAt || reloadBusy}
+          className="ml-auto h-6 min-w-[78px] gap-1.5 px-2 text-[9px] font-semibold"
+          title="Copy policy timestamp"
+        >
+          <Copy className="h-3 w-3" />
+          COPY
+        </Button>
+      </div>
 
       <div className="space-y-2.5">
         <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
