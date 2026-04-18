@@ -249,3 +249,31 @@ Validation performed:
 Immediate next implementation target:
 
 - Build Step 5: render known labels and unknown numeric tags clearly in frontend live view and incident panel.
+
+### Update 006 - 2026-04-18
+
+Step 5 UI rendering delivered:
+
+- Extended frontend alert payload typing in `components/video-player.tsx`:
+  - added `FaceSummaryPayload`, `FaceObservation`, and `FaceUnknownDetail` interfaces
+  - connected optional `faceSummary` into `LiveAlert`
+- Added live-view face overlay card in `components/video-player.tsx` (during active alert):
+  - shows `Known` and `Unknown` counts
+  - shows recognized labels
+  - shows unknown numeric IDs (`U-...`)
+- Added dedicated Face Intelligence section in `components/incident-panel.tsx`:
+  - status badge (`ACTIVE/OFF`)
+  - total/known/unknown metrics
+  - recognized people chips
+  - unknown IDs chips
+  - compact unknown timeline list (`durationFrames`, `hitStreak`)
+- Aligned frontend API base fallback to the active backend default (`http://localhost:8002`) for consistent local testing.
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build` completed successfully.
+
+Immediate next implementation target:
+
+- Build Step 6: quality guardrails (confidence gates, anti-flicker refinements, identity-label policy toggle, and expanded recognition audit trail).

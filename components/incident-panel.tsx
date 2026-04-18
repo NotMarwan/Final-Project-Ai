@@ -6,7 +6,7 @@ import {
   ShieldAlert, XCircle, Download, ChevronRight,
   ShieldCheck, Loader2, CheckCircle2, AlertCircle,
   SlidersHorizontal, CheckCheck, Info, X,
-  FileSearch, Sparkles, Timer, FileDown
+  FileSearch, Sparkles, Timer, FileDown, UserRound, ScanFace
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +15,7 @@ import type { LiveAlert } from "@/components/video-player"
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const API_BASE          = "http://localhost:8000"
+const API_BASE          = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
 const MAX_POLL_ATTEMPTS = 20
 const POLL_INTERVAL_MS  = 1_500
 const TOAST_DURATION_MS = 4_500
@@ -268,6 +268,14 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   }
 
   // ── Render: active incident ────────────────────────────────────────────────
+  const faceSummary = alert.faceSummary
+  const recognizedPeople = faceSummary?.recognized ?? []
+  const unknownIds = faceSummary?.unknownIds ?? []
+  const unknownDetails = faceSummary?.unknownDetails ?? []
+  const knownCount = faceSummary?.recognizedCount ?? recognizedPeople.length
+  const unknownCount = faceSummary?.unknownCount ?? unknownIds.length
+  const totalFaces = faceSummary?.totalFaces ?? knownCount + unknownCount
+
   return (
     <div className="relative flex h-full flex-col gap-4 p-4">
 
@@ -320,6 +328,69 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
       </div>
 
       {/* ── Floor plan / Camera Location (ديناميكي بناءً على الكاميرا) ───────────────── */}
+      <div className="rounded-xl border border-border bg-card shadow-inner">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-2.5 bg-muted/20">
+          <ScanFace className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-semibold text-foreground">Face Intelligence</span>
+          <Badge variant="outline" className="ml-auto h-5 border-primary/30 bg-primary/10 font-mono text-[9px] text-primary">
+            {faceSummary?.enabled ? "ACTIVE" : "OFF"}
+          </Badge>
+        </div>
+
+        <div className="flex flex-col gap-3 p-4">
+          <div className="grid grid-cols-3 gap-2">
+            <FaceMetric label="Total" value={String(totalFaces)} tone="text-foreground" />
+            <FaceMetric label="Known" value={String(knownCount)} tone="text-success" />
+            <FaceMetric label="Unknown" value={String(unknownCount)} tone="text-warning" />
+          </div>
+
+          {recognizedPeople.length > 0 && (
+            <div className="rounded-lg border border-success/20 bg-success/5 p-2.5">
+              <p className="mb-1.5 text-[10px] uppercase tracking-wider text-success/80 font-semibold">Recognized People</p>
+              <div className="flex flex-wrap gap-1.5">
+                {recognizedPeople.slice(0, 8).map((person, idx) => {
+                  const label = person?.label ?? person?.personId ?? `Known-${idx + 1}`
+                  return (
+                    <span key={`${label}-${idx}`} className="inline-flex items-center gap-1 rounded border border-success/30 bg-success/10 px-2 py-0.5 font-mono text-[10px] text-success">
+                      <UserRound className="h-3 w-3" />
+                      {label}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {unknownIds.length > 0 && (
+            <div className="rounded-lg border border-warning/20 bg-warning/5 p-2.5">
+              <p className="mb-1.5 text-[10px] uppercase tracking-wider text-warning/90 font-semibold">Unknown IDs</p>
+              <div className="flex flex-wrap gap-1.5">
+                {unknownIds.slice(0, 12).map((id) => (
+                  <span key={id} className="rounded border border-warning/30 bg-warning/10 px-2 py-0.5 font-mono text-[10px] text-warning">
+                    {id}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {unknownDetails.length > 0 && (
+            <div className="rounded-lg border border-border/70 bg-background/60 p-2.5">
+              <p className="mb-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Unknown Timeline</p>
+              <div className="max-h-24 space-y-1 overflow-y-auto custom-scrollbar pr-1">
+                {unknownDetails.slice(0, 12).map((item) => (
+                  <div key={`${item.id}-${item.lastSeenFrame}`} className="flex items-center justify-between rounded border border-border/60 bg-card px-2 py-1">
+                    <span className="font-mono text-[10px] text-foreground">{item.id}</span>
+                    <span className="font-mono text-[10px] text-muted-foreground">frames: {item.durationFrames}</span>
+                    <span className="font-mono text-[10px] text-muted-foreground">hits: {item.hitStreak}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="flex items-center gap-2 border-b border-border px-4 py-2.5 bg-muted/20">
           <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -516,5 +587,14 @@ function MetadataRow({ icon, label, value }: { icon: React.ReactNode; label: str
 }
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
+
+function FaceMetric({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className="rounded-lg border border-border/60 bg-background/60 px-2 py-1.5 text-center">
+      <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
+      <p className={cn("font-mono text-xs font-bold", tone)}>{value}</p>
+    </div>
+  )
+}
 
 const _sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
