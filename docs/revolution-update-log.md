@@ -343,3 +343,28 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 8 candidate: add lightweight integration tests for `/face/policy` and face-summary masking behavior to lock regression risk.
+
+### Update 009 - 2026-04-18
+
+Step 8 integration tests delivered:
+
+- Added backend test suite folder:
+  - `backend/tests/`
+- Added lightweight integration tests in:
+  - `backend/tests/test_face_policy.py`
+- Coverage included:
+  - `/face/policy` runtime update flow (identity labeling toggle, recognition audit toggle, cooldown update)
+  - `GET /face/status` policy reflection after update
+  - face-summary masking behavior via `_public_face_summary(...)` when identity labeling is disabled
+- Test harness safeguards:
+  - disables capture loop in test runtime (`AI_SENTINEL_ENABLE_CAPTURE_LOOP=false`) so tests stay fast and deterministic.
+
+Validation performed:
+
+- Test run passed:
+  - `python -m unittest discover -s backend/tests -p "test_*.py" -v`
+  - 2 tests passed.
+
+Immediate next implementation target:
+
+- Step 9 candidate: add edge-case tests (empty policy payload -> `400`, alias consistency across multiple known observations, and audit cooldown boundary behavior).
