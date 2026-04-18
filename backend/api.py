@@ -1068,6 +1068,28 @@ async def face_policy_update(body: FacePolicyRequest, request: Request):
     }
 
 
+@app.post("/face/policy/reload", summary="Reload face policy overrides from disk")
+async def face_policy_reload(request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    status = face_engine.reload_policy_overrides()
+    policy = status.get("policy", {})
+    audit_logger.record(
+        "face_policy_reload",
+        "success",
+        role=role,
+        details={
+            "identityLabelingEnabled": policy.get("identityLabelingEnabled"),
+            "recognitionAuditEnabled": policy.get("recognitionAuditEnabled"),
+            "recognitionAuditCooldownSec": policy.get("recognitionAuditCooldownSec"),
+        },
+    )
+    return {
+        "status": "success",
+        "policy": policy,
+        "face": status,
+    }
+
+
 @app.get("/face/registry", summary="List known people registry")
 async def face_registry(request: Request, include_embeddings: bool = False):
     security_controller.authorize(request, required_role="viewer")

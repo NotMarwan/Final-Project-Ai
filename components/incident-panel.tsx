@@ -64,6 +64,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
   const [faceAuditBusy, setFaceAuditBusy] = useState(false)
   const [faceAuditCooldown, setFaceAuditCooldown] = useState(25)
   const [faceAuditCooldownBusy, setFaceAuditCooldownBusy] = useState(false)
+  const [facePolicyReloadBusy, setFacePolicyReloadBusy] = useState(false)
 
   const toastCounter        = useRef(0)
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -339,6 +340,24 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
     debounceFaceAuditCooldownRef.current = setTimeout(() => sendFaceAuditCooldown(value), THRESHOLD_DEBOUNCE_MS)
   }, [sendFaceAuditCooldown])
 
+  const reloadFacePolicyFromDisk = useCallback(async () => {
+    setFacePolicyReloadBusy(true)
+    try {
+      const res = await fetch(`${API_BASE}/face/policy/reload`, { method: "POST" })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body?.detail ?? `Server error ${res.status}`)
+      }
+      await loadFacePolicy()
+      addToast("Face policy reloaded from disk.", "success")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to reload policy from disk."
+      addToast(msg, "error")
+    } finally {
+      setFacePolicyReloadBusy(false)
+    }
+  }, [loadFacePolicy, addToast])
+
   useEffect(() => {
     void loadFacePolicy()
   }, [loadFacePolicy])
@@ -387,6 +406,8 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
             onToggleIdentity={toggleIdentityLabeling}
             onToggleAudit={toggleFaceAudit}
             onChangeAuditCooldown={handleFaceAuditCooldownChange}
+            onReloadPolicy={reloadFacePolicyFromDisk}
+            reloadBusy={facePolicyReloadBusy}
             containerRef={facePolicyControlsRef}
             highlight={facePolicyPulse}
           />
@@ -589,6 +610,8 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
           onToggleIdentity={toggleIdentityLabeling}
           onToggleAudit={toggleFaceAudit}
           onChangeAuditCooldown={handleFaceAuditCooldownChange}
+          onReloadPolicy={reloadFacePolicyFromDisk}
+          reloadBusy={facePolicyReloadBusy}
           containerRef={facePolicyControlsRef}
           highlight={facePolicyPulse}
         />
@@ -698,6 +721,8 @@ function FacePolicyControls({
   onToggleIdentity,
   onToggleAudit,
   onChangeAuditCooldown,
+  onReloadPolicy,
+  reloadBusy,
   containerRef,
   highlight,
 }: {
@@ -710,6 +735,8 @@ function FacePolicyControls({
   onToggleIdentity: () => void
   onToggleAudit: () => void
   onChangeAuditCooldown: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onReloadPolicy: () => void
+  reloadBusy: boolean
   containerRef?: React.RefObject<HTMLDivElement | null>
   highlight?: boolean
 }) {
@@ -724,6 +751,15 @@ function FacePolicyControls({
       <div className="mb-2.5 flex items-center gap-2">
         <ScanFace className="h-3.5 w-3.5 text-primary" />
         <span className="text-xs font-semibold text-foreground">Face Policy Controls</span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onReloadPolicy}
+          disabled={reloadBusy}
+          className="ml-auto h-7 min-w-[96px] text-[10px] font-semibold"
+        >
+          {reloadBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "RELOAD"}
+        </Button>
       </div>
 
       <div className="space-y-2.5">

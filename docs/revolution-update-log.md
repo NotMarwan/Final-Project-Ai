@@ -660,3 +660,39 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 21 candidate: when CI workflow push permission is available, finalize/push the workflow file update to remote.
+
+### Update 021 - 2026-04-18
+
+Runtime policy reload + test hardening delivered:
+
+- Added backend endpoint in `backend/api.py`:
+  - `POST /face/policy/reload`
+  - reloads policy overrides from disk without restarting backend
+  - writes audit entry `face_policy_reload`
+- Enhanced policy payloads:
+  - `GET /face/policy` now includes `policyFetchedAt`
+  - policy status now exposes `policyUpdatedAt` (from overrides file metadata)
+- Added engine-level reload support in `backend/face_intel.py`:
+  - `reload_policy_overrides()`
+  - keeps summary policy fields in sync after reload
+- Updated Incident Panel controls in `components/incident-panel.tsx`:
+  - added `RELOAD` button inside Face Policy Controls
+  - triggers `/face/policy/reload` then refreshes displayed values
+- Hardened tests in `backend/tests/test_face_policy.py`:
+  - face-policy API tests now use temp override paths via env (no project-file side effects)
+  - added reload endpoint coverage
+  - verifies `policyFetchedAt` and `policyUpdatedAt` fields.
+
+Validation performed:
+
+- Backend syntax compile passed:
+  - `python -m py_compile backend/api.py backend/face_intel.py`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 8 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 22 candidate: expose a tiny "policy updated at" hint in UI (tooltip or compact line) for operator diagnostics.

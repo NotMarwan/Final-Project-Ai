@@ -1,12 +1,17 @@
 import importlib.util
+import json
 import os
 import sys
+import tempfile
 import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+
+_TEST_TEMP_DIR = tempfile.TemporaryDirectory()
+_TEST_TMP_PATH = Path(_TEST_TEMP_DIR.name)
 
 
 def _install_lightweight_stubs():
@@ -61,6 +66,8 @@ def _load_api_module():
 
     os.environ["AI_SENTINEL_ENABLE_CAPTURE_LOOP"] = "false"
     os.environ["ADMIN_API_KEY"] = ""
+    os.environ["FACE_POLICY_OVERRIDES_PATH"] = str((_TEST_TMP_PATH / "face_policy_overrides.json").resolve())
+    os.environ["FACE_KNOWN_REGISTRY_PATH"] = str((_TEST_TMP_PATH / "known_faces_registry.json").resolve())
     _install_lightweight_stubs()
 
     backend_dir_text = str(backend_dir)
@@ -184,6 +191,43 @@ class FacePolicyTests(unittest.TestCase):
             self.assertEqual(policy.get("identityLabelingEnabled"), False)
             self.assertEqual(policy.get("recognitionAuditEnabled"), True)
             self.assertEqual(policy.get("recognitionAuditCooldownSec"), 21)
+            self.assertIsInstance(policy.get("policyUpdatedAt"), str)
+            self.assertTrue(len(policy.get("policyUpdatedAt", "")) > 0)
+
+    def test_face_policy_reload_endpoint_applies_disk_overrides(self):
+        with TestClient(self.api.app) as client:
+            client.post(
+                "/face/policy",
+                json={
+                    "identity_labeling_enabled": False,
+                    "recognition_audit_enabled": False,
+                    "recognition_audit_cooldown_sec": 19,
+                },
+            )
+            policy_response = client.get("/face/policy")
+            self.assertEqual(policy_response.status_code, 200, policy_response.text)
+            policy = policy_response.json().get("policy", {})
+            overrides_path = Path(str(policy.get("policyOverridesPath", "")).strip())
+            self.assertTrue(overrides_path.exists())
+
+            disk_payload = {
+                "identityLabelingEnabled": True,
+                "recognitionAuditEnabled": True,
+                "recognitionAuditCooldownSec": 27,
+                "updatedAt": "2026-04-18T00:00:00+00:00",
+            }
+            overrides_path.write_text(json.dumps(disk_payload), encoding="utf-8")
+
+            reload_response = client.post("/face/policy/reload")
+            self.assertEqual(reload_response.status_code, 200, reload_response.text)
+            body = reload_response.json()
+            self.assertEqual(body.get("status"), "success")
+
+            reloaded_policy = body.get("policy", {})
+            self.assertEqual(reloaded_policy.get("identityLabelingEnabled"), True)
+            self.assertEqual(reloaded_policy.get("recognitionAuditEnabled"), True)
+            self.assertEqual(reloaded_policy.get("recognitionAuditCooldownSec"), 27)
+            self.assertEqual(reloaded_policy.get("policyUpdatedAt"), "2026-04-18T00:00:00+00:00")
 
     def test_public_face_summary_alias_is_consistent_per_person(self):
         raw_summary = {

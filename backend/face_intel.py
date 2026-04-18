@@ -119,6 +119,7 @@ class FaceIntelEngine:
         self._known_tracks: Dict[str, Dict[str, object]] = {}
         self._known_registry: List[Dict[str, object]] = []
         self._last_summary: Dict[str, object] = self._empty_summary()
+        self._policy_updated_at: str = ""
         self._cascade = None
 
         self._init_detector()
@@ -163,17 +164,25 @@ class FaceIntelEngine:
             1,
             _as_int(payload.get("recognitionAuditCooldownSec"), self.config.recognition_audit_cooldown_sec),
         )
+        self._policy_updated_at = str(payload.get("updatedAt", "")).strip()
 
     def _save_policy_overrides(self) -> None:
         path = self._policy_overrides_path()
         path.parent.mkdir(parents=True, exist_ok=True)
+        self._policy_updated_at = datetime.now(timezone.utc).isoformat()
         payload = {
             "identityLabelingEnabled": bool(self.config.identity_labeling_enabled),
             "recognitionAuditEnabled": bool(self.config.recognition_audit_enabled),
             "recognitionAuditCooldownSec": int(self.config.recognition_audit_cooldown_sec),
-            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": self._policy_updated_at,
         }
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def reload_policy_overrides(self) -> Dict[str, object]:
+        with self._lock:
+            self._load_policy_overrides()
+            self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
+            return self.status()
 
     def _init_detector(self) -> None:
         if self.config.detector_backend != "haar":
@@ -909,6 +918,7 @@ class FaceIntelEngine:
                     "recognitionAuditEnabled": self.config.recognition_audit_enabled,
                     "recognitionAuditCooldownSec": self.config.recognition_audit_cooldown_sec,
                     "policyOverridesPath": str(self._policy_overrides_path()),
+                    "policyUpdatedAt": self._policy_updated_at,
                 },
                 "maxKnownAgeFrames": self.config.max_known_age_frames,
                 "maxUnknownAgeFrames": self.config.max_unknown_age_frames,
