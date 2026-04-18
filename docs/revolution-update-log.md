@@ -110,3 +110,36 @@ Immediate next implementation target:
 
 - Build Step 1 (face pipeline skeleton) with placeholders and config wiring.
 
+### Update 002 - 2026-04-18
+
+Step 1 implementation delivered:
+
+- Added `backend/face_intel.py` with explicit skeleton interfaces:
+  - `detect_faces(frame)`
+  - `extract_embedding(face_crop)`
+  - `match_known_face(embedding)`
+  - `assign_unknown_id(embedding, track_hint)`
+- Added a configurable `FaceIntelConfig` with env overrides.
+- Added optional OpenCV Haar detector mode for pilot testing (`detector_backend: haar`).
+- Added known-registry loader from local JSON file path.
+- Added unknown-person numeric indexing (`U-001`, `U-002`, ...) with short-term stability logic.
+- Enriched alert payloads with `faceSummary`.
+- Added API endpoints:
+  - `GET /face/status`
+  - `POST /face/session/reset`
+- Added face subsystem to `GET /system/status`.
+- Added configuration wiring in:
+  - `backend/config.yml`
+  - `backend/.env.example`
+- Added starter registry template:
+  - `backend/known_faces_registry.example.json`
+
+Notes:
+
+- Face module is feature-flagged and safe by default (`FACE_INTEL_ENABLED=false`).
+- Roles remain simplified as requested.
+- Deferred items remain deferred with no change in decision.
+
+Immediate next implementation target:
+
+- Build Step 2 (Known Registry management): add maintenance endpoint/script and registration workflow for documented attendees.

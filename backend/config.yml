@@ -38,6 +38,15 @@ audio:
   scream_threshold: 0.55
   loudness_threshold: 0.40
 
+face_intel:
+  enabled: false
+  detector_backend: "none"        # set to "haar" for OpenCV Haar face detector in pilot mode
+  known_match_threshold: 0.45
+  unknown_match_threshold: 0.30
+  max_unknown_age_frames: 90
+  min_face_size: 36
+  known_registry_path: "./known_faces_registry.json"
+
 server:
   host: "0.0.0.0"
   port: 8000

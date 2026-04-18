@@ -29,6 +29,7 @@ try:
     from .security import AccessController, AuditLogger
     from .evidence import EvidenceLedger
     from .audio import AudioRiskAnalyzer
+    from .face_intel import FaceIntelEngine
     from .notifications import TelegramNotifier
     from .reporting import build_incident_pdf
 except ImportError:
@@ -37,6 +38,7 @@ except ImportError:
     from security import AccessController, AuditLogger
     from evidence import EvidenceLedger
     from audio import AudioRiskAnalyzer
+    from face_intel import FaceIntelEngine
     from notifications import TelegramNotifier
     from reporting import build_incident_pdf
 
@@ -55,12 +57,82 @@ def _parse_source(raw: str) -> Union[str, int]:
     except ValueError:
         return raw
 
-CAMERA_SOURCES: Dict[str, Union[str, int]] = {
-    "CAM-01": _parse_source(os.getenv("CAM1_SOURCE", "cam1.mp4")),
-    "CAM-02": _parse_source(os.getenv("CAM2_SOURCE", "cam2.mp4")),
-    "CAM-03": _parse_source(os.getenv("CAM3_SOURCE", "cam3.mp4")),
-}
-DEFAULT_CAMERA_ID = "CAM-01"
+def _resolve_profiles_path() -> Path:
+    raw = os.getenv("CAMERA_PROFILES_PATH", "camera_profiles.yml")
+    path = Path(raw)
+    return path if path.is_absolute() else BASE_DIR / path
+
+
+def _camera_source_from_profile(payload: dict) -> Optional[Union[str, int]]:
+    if not isinstance(payload, dict):
+        return None
+    if payload.get("enabled") is False:
+        return None
+
+    rtsp = payload.get("rtsp")
+    if isinstance(rtsp, dict):
+        high = rtsp.get("high")
+        low = rtsp.get("low")
+        for candidate in (high, low):
+            if isinstance(candidate, str) and candidate.strip():
+                return candidate.strip()
+
+    source = payload.get("source")
+    if isinstance(source, int):
+        return source
+    if isinstance(source, str) and source.strip():
+        return _parse_source(source.strip())
+
+    return None
+
+
+def _load_profile_camera_sources(path: Path) -> Dict[str, Union[str, int]]:
+    if not path.exists():
+        return {}
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            profile_doc = yaml.safe_load(f) or {}
+    except Exception as exc:
+        print(f"[System] Failed to read camera profile file: {exc}")
+        return {}
+
+    cameras = profile_doc.get("cameras")
+    if not isinstance(cameras, dict):
+        return {}
+
+    loaded: Dict[str, Union[str, int]] = {}
+    for camera_id, payload in cameras.items():
+        if not isinstance(camera_id, str):
+            continue
+        source = _camera_source_from_profile(payload)
+        if source is not None:
+            loaded[camera_id] = source
+    return loaded
+
+
+def _default_camera_sources() -> Dict[str, Union[str, int]]:
+    return {
+        "CAM-01": _parse_source(os.getenv("CAM1_SOURCE", "cam1.mp4")),
+        "CAM-02": _parse_source(os.getenv("CAM2_SOURCE", "cam2.mp4")),
+        "CAM-03": _parse_source(os.getenv("CAM3_SOURCE", "cam3.mp4")),
+    }
+
+
+def _load_camera_sources() -> Dict[str, Union[str, int]]:
+    profile_path = _resolve_profiles_path()
+    profile_sources = _load_profile_camera_sources(profile_path)
+    if profile_sources:
+        print(f"[System] Loaded {len(profile_sources)} camera(s) from {profile_path}")
+        return profile_sources
+    print("[System] Using CAMERA_SOURCES from environment/default values.")
+    return _default_camera_sources()
+
+
+CAMERA_SOURCES: Dict[str, Union[str, int]] = _load_camera_sources()
+DEFAULT_CAMERA_ID = os.getenv("DEFAULT_CAMERA_ID", next(iter(CAMERA_SOURCES), "CAM-01"))
+if DEFAULT_CAMERA_ID not in CAMERA_SOURCES and CAMERA_SOURCES:
+    DEFAULT_CAMERA_ID = next(iter(CAMERA_SOURCES))
 
 WEIGHTS_PATH = os.getenv("WEIGHTS_PATH", "best_model.pt")
 THRESHOLD    = float(os.getenv("THRESHOLD", str(config['model']['confidence_threshold'])))
@@ -102,6 +174,7 @@ security_controller = AccessController.from_settings(config, os.environ)
 audit_logger = AuditLogger.from_settings(config, BASE_DIR)
 evidence_ledger = EvidenceLedger.from_settings(config, BASE_DIR)
 audio_analyzer = AudioRiskAnalyzer.from_settings(config)
+face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
 CAPTURE_LOOP_ENABLED = _env_flag("AI_SENTINEL_ENABLE_CAPTURE_LOOP", default=True)
 
 if GROQ_ENABLED:
@@ -159,6 +232,9 @@ class AppState:
         
         self._snapshot_lock = threading.Lock()
         self._snapshot_paths: Dict[str, str] = {}
+        
+        self._face_lock = threading.Lock()
+        self._face_summary: Dict[str, object] = {}
         
         self._pipeline_lock = threading.Lock()
         self._pipeline: Optional[ViolenceInferencePipeline] = None
@@ -276,6 +352,14 @@ class AppState:
         with self._snapshot_lock:
             raw = self._snapshot_paths.get(alert_id)
         return Path(raw) if raw else None
+
+    def store_face_summary(self, summary: Dict[str, object]):
+        with self._face_lock:
+            self._face_summary = dict(summary)
+
+    def get_face_summary(self) -> Dict[str, object]:
+        with self._face_lock:
+            return dict(self._face_summary)
 
 state = AppState()
 
@@ -449,6 +533,8 @@ def capture_loop():
         ring.append(raw.copy())
         motion_score = _estimate_motion_score(previous_raw_frame, raw)
         previous_raw_frame = raw.copy()
+        face_summary = face_engine.analyze_frame(raw)
+        state.store_face_summary(face_summary)
 
         ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
@@ -486,6 +572,13 @@ def capture_loop():
                 "motionScore": fusion["motionScore"],
                 "weaponScore": fusion["weaponScore"],
                 "fusionReason": fusion["reason"],
+                "faceSummary": {
+                    "enabled": bool(face_summary.get("enabled", False)),
+                    "totalFaces": int(face_summary.get("totalFaces", 0)),
+                    "recognized": face_summary.get("recognized", []),
+                    "unknownIds": face_summary.get("unknownIds", []),
+                    "unknownCount": int(face_summary.get("unknownCount", 0)),
+                },
             }
 
             state.register_alert(alert_payload)
@@ -534,6 +627,7 @@ def capture_loop():
             ring.clear()
             active_post_queues.clear()
             pipeline.reset()
+            face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             if device.type == "cuda":
                 torch.cuda.empty_cache()
             
@@ -767,6 +861,19 @@ async def audio_status():
     return audio_analyzer.status()
 
 
+@app.get("/face/status", summary="Face intelligence status")
+async def face_status():
+    return face_engine.status()
+
+
+@app.post("/face/session/reset", summary="Reset face unknown-id session")
+async def face_session_reset(request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    face_engine.reset_session(reason=f"manual-reset-by-{role}")
+    audit_logger.record("face_session_reset", "success", role=role)
+    return {"status": "success", "face": face_engine.status()}
+
+
 @app.get("/system/status", summary="Combined system status")
 async def system_status():
     return {
@@ -788,6 +895,7 @@ async def system_status():
         "security": security_controller.status(),
         "audit": audit_logger.status(),
         "audio": audio_analyzer.status(),
+        "face": face_engine.status(),
         "storage": {
             "evidence": str(EVIDENCE_DIR),
             "thumbnails": str(THUMBNAILS_DIR),
