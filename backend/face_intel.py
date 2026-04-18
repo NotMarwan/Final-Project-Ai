@@ -40,6 +40,11 @@ class FaceIntelConfig:
     detector_backend: str = "none"
     known_match_threshold: float = 0.45
     unknown_match_threshold: float = 0.30
+    unknown_match_relax_factor: float = 1.35
+    unknown_min_iou: float = 0.08
+    unknown_strong_iou: float = 0.55
+    unknown_embedding_weight: float = 0.70
+    unknown_iou_weight: float = 0.30
     max_unknown_age_frames: int = 90
     min_face_size: int = 36
     known_registry_path: str = "./known_faces_registry.json"
@@ -55,6 +60,17 @@ class FaceIntelConfig:
             detector_backend=str(env.get("FACE_DETECTOR_BACKEND", face_cfg.get("detector_backend", "none"))).strip().lower(),
             known_match_threshold=_as_float(env.get("FACE_KNOWN_MATCH_THRESHOLD"), _as_float(face_cfg.get("known_match_threshold"), 0.45)),
             unknown_match_threshold=_as_float(env.get("FACE_UNKNOWN_MATCH_THRESHOLD"), _as_float(face_cfg.get("unknown_match_threshold"), 0.30)),
+            unknown_match_relax_factor=_as_float(
+                env.get("FACE_UNKNOWN_MATCH_RELAX_FACTOR"),
+                _as_float(face_cfg.get("unknown_match_relax_factor"), 1.35),
+            ),
+            unknown_min_iou=_as_float(env.get("FACE_UNKNOWN_MIN_IOU"), _as_float(face_cfg.get("unknown_min_iou"), 0.08)),
+            unknown_strong_iou=_as_float(env.get("FACE_UNKNOWN_STRONG_IOU"), _as_float(face_cfg.get("unknown_strong_iou"), 0.55)),
+            unknown_embedding_weight=_as_float(
+                env.get("FACE_UNKNOWN_EMBEDDING_WEIGHT"),
+                _as_float(face_cfg.get("unknown_embedding_weight"), 0.70),
+            ),
+            unknown_iou_weight=_as_float(env.get("FACE_UNKNOWN_IOU_WEIGHT"), _as_float(face_cfg.get("unknown_iou_weight"), 0.30)),
             max_unknown_age_frames=_as_int(env.get("FACE_MAX_UNKNOWN_AGE_FRAMES"), _as_int(face_cfg.get("max_unknown_age_frames"), 90)),
             min_face_size=_as_int(env.get("FACE_MIN_FACE_SIZE"), _as_int(face_cfg.get("min_face_size"), 36)),
             known_registry_path=str(env.get("FACE_KNOWN_REGISTRY_PATH", face_cfg.get("known_registry_path", "./known_faces_registry.json"))),
@@ -193,6 +209,31 @@ class FaceIntelEngine:
     @staticmethod
     def _distance(a: np.ndarray, b: np.ndarray) -> float:
         return float(np.linalg.norm(a - b))
+
+    @staticmethod
+    def _bbox_iou(a: Tuple[int, int, int, int], b: Tuple[int, int, int, int]) -> float:
+        ax, ay, aw, ah = a
+        bx, by, bw, bh = b
+        ax2, ay2 = ax + aw, ay + ah
+        bx2, by2 = bx + bw, by + bh
+
+        ix1 = max(ax, bx)
+        iy1 = max(ay, by)
+        ix2 = min(ax2, bx2)
+        iy2 = min(ay2, by2)
+
+        iw = max(0, ix2 - ix1)
+        ih = max(0, iy2 - iy1)
+        inter = float(iw * ih)
+        if inter <= 0:
+            return 0.0
+
+        area_a = float(max(0, aw) * max(0, ah))
+        area_b = float(max(0, bw) * max(0, bh))
+        denom = area_a + area_b - inter
+        if denom <= 0:
+            return 0.0
+        return inter / denom
 
     def list_known_people(self, include_embeddings: bool = False) -> List[Dict[str, object]]:
         people: List[Dict[str, object]] = []
@@ -431,8 +472,16 @@ class FaceIntelEngine:
             "distance": round(best_dist, 4),
         }
 
-    def assign_unknown_id(self, embedding: np.ndarray, track_hint: Optional[str] = None) -> str:
-        del track_hint
+    def assign_unknown_id(self, embedding: np.ndarray, track_hint: Optional[Dict[str, object]] = None) -> str:
+        current_bbox: Optional[Tuple[int, int, int, int]] = None
+        if isinstance(track_hint, dict):
+            raw_bbox = track_hint.get("bbox")
+            if isinstance(raw_bbox, (list, tuple)) and len(raw_bbox) == 4:
+                try:
+                    current_bbox = (int(raw_bbox[0]), int(raw_bbox[1]), int(raw_bbox[2]), int(raw_bbox[3]))
+                except Exception:
+                    current_bbox = None
+
         with self._lock:
             stale_ids = []
             for unknown_id, track in self._unknown_tracks.items():
@@ -443,27 +492,60 @@ class FaceIntelEngine:
                 self._unknown_tracks.pop(unknown_id, None)
 
             best_id = None
+            best_iou = 0.0
             best_dist = 999.0
+            best_score = 999.0
             for unknown_id, track in self._unknown_tracks.items():
                 ref = track.get("embedding")
                 if not isinstance(ref, np.ndarray) or ref.shape != embedding.shape:
                     continue
                 dist = self._distance(embedding, ref)
-                if dist < best_dist:
+                prev_bbox = track.get("bbox")
+                iou = 0.0
+                if current_bbox is not None and isinstance(prev_bbox, tuple) and len(prev_bbox) == 4:
+                    iou = self._bbox_iou(current_bbox, prev_bbox)
+
+                score = (
+                    self.config.unknown_embedding_weight * dist
+                    + self.config.unknown_iou_weight * (1.0 - iou)
+                )
+
+                if score < best_score:
+                    best_score = score
                     best_dist = dist
+                    best_iou = iou
                     best_id = unknown_id
 
-            if best_id is not None and best_dist <= self.config.unknown_match_threshold:
+            dist_ok = best_dist <= self.config.unknown_match_threshold
+            relaxed_dist_ok = best_dist <= (self.config.unknown_match_threshold * self.config.unknown_match_relax_factor)
+            iou_ok = best_iou >= self.config.unknown_min_iou
+            strong_iou_ok = best_iou >= self.config.unknown_strong_iou
+
+            should_reuse = False
+            if best_id is not None:
+                if dist_ok:
+                    should_reuse = True
+                elif strong_iou_ok and relaxed_dist_ok:
+                    should_reuse = True
+                elif iou_ok and dist_ok:
+                    should_reuse = True
+
+            if should_reuse and best_id is not None:
                 self._unknown_tracks[best_id]["embedding"] = embedding
                 self._unknown_tracks[best_id]["lastSeenFrame"] = self._frame_index
+                if current_bbox is not None:
+                    self._unknown_tracks[best_id]["bbox"] = current_bbox
+                self._unknown_tracks[best_id]["hitStreak"] = int(self._unknown_tracks[best_id].get("hitStreak", 0)) + 1
                 return best_id
 
             self._unknown_counter += 1
             unknown_id = f"U-{self._unknown_counter:03d}"
             self._unknown_tracks[unknown_id] = {
                 "embedding": embedding,
+                "bbox": current_bbox,
                 "firstSeenFrame": self._frame_index,
                 "lastSeenFrame": self._frame_index,
+                "hitStreak": 1,
             }
             return unknown_id
 
@@ -477,7 +559,10 @@ class FaceIntelEngine:
                 self._last_summary["frameIndex"] = frame_idx
                 return dict(self._last_summary)
 
-        detections = self.detect_faces(frame)
+        detections = sorted(
+            self.detect_faces(frame),
+            key=lambda d: (int(d["bbox"][1]), int(d["bbox"][0])),
+        )
         recognized: List[Dict[str, object]] = []
         unknown_ids: List[str] = []
         observations: List[Dict[str, object]] = []
@@ -498,7 +583,10 @@ class FaceIntelEngine:
                     recognized.append(known)
                 kind = "known"
             else:
-                face_id = self.assign_unknown_id(embedding)
+                face_id = self.assign_unknown_id(
+                    embedding,
+                    track_hint={"bbox": (int(x), int(y), int(w), int(h))},
+                )
                 label = face_id
                 confidence = 0.0
                 if face_id not in unknown_ids:
@@ -544,6 +632,11 @@ class FaceIntelEngine:
                 "thresholds": {
                     "knownMatch": self.config.known_match_threshold,
                     "unknownMatch": self.config.unknown_match_threshold,
+                    "unknownMatchRelaxFactor": self.config.unknown_match_relax_factor,
+                    "unknownMinIoU": self.config.unknown_min_iou,
+                    "unknownStrongIoU": self.config.unknown_strong_iou,
+                    "unknownEmbeddingWeight": self.config.unknown_embedding_weight,
+                    "unknownIoUWeight": self.config.unknown_iou_weight,
                 },
                 "maxUnknownAgeFrames": self.config.max_unknown_age_frames,
                 "lastSummary": dict(self._last_summary),

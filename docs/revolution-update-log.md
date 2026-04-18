@@ -178,3 +178,37 @@ Validation performed:
 Immediate next implementation target:
 
 - Build Step 3 (unknown ID stabilization upgrade): add track hints (bbox IoU) and stronger anti-flicker smoothing for numbered unknown faces.
+
+### Update 004 - 2026-04-18
+
+Step 3 implementation delivered:
+
+- Upgraded unknown-face tracking to use hybrid matching:
+  - embedding distance
+  - bounding-box IoU (`track_hint`)
+  - weighted combined scoring
+- Added anti-flicker reuse rules so unknown IDs do not switch quickly on small movement:
+  - direct distance gate
+  - relaxed distance with strong IoU gate
+  - minimum IoU gate for spatial continuity
+- Added per-track fields for stabilization:
+  - last bbox
+  - hit streak
+  - first/last seen frame
+- Added stable processing order of detections (`y,x` sorted) to reduce numbering jitter.
+- Exposed new tuning parameters in config/env/status:
+  - `unknown_match_relax_factor`
+  - `unknown_min_iou`
+  - `unknown_strong_iou`
+  - `unknown_embedding_weight`
+  - `unknown_iou_weight`
+
+Validation performed:
+
+- Syntax compile passed for face and API modules.
+- Runtime probe passed for face status.
+- Unit-style runtime check passed for unknown ID reuse under moving bbox conditions.
+
+Immediate next implementation target:
+
+- Build Step 4 polish: attach richer face-event metadata (first_seen/last_seen per unknown ID) into alert payload and report pipeline.
