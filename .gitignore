@@ -45,3 +45,10 @@ __pycache__/
 # System
 Thumbs.db
 Desktop.ini
+
+# Local runtime artifacts
+*.err.log
+*.out.log
+backend/face_policy_overrides.json
+backend/known_faces_registry.json
+backend/camera_profiles.yml

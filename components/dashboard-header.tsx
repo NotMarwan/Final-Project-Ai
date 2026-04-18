@@ -26,9 +26,18 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
     : facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled
       ? "success"
       : "danger"
+  const syncTier = !facePolicySynced
+    ? "LOST"
+    : facePolicySyncAgeSec === null
+      ? "--"
+      : facePolicySyncAgeSec < 10
+        ? "<10s"
+        : facePolicySyncAgeSec < 60
+          ? "<1m"
+          : ">1m"
   const facePolicyValue = !facePolicySynced
-    ? "SYNC:LOST"
-    : `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s | SYNC:${facePolicySyncAgeSec ?? 0}s`
+    ? "SYNC:LOST | RETRY"
+    : `SYNC:${syncTier} | ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | CD:${facePolicy.recognitionAuditCooldownSec}s`
 
   return (
     <header className="glass flex items-center justify-between px-6 py-3">

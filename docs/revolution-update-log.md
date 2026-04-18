@@ -627,3 +627,36 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 19 candidate: render relative age in compact tiers (`<10s`, `<1m`, `>1m`) to reduce header width pressure.
+
+### Update 020 - 2026-04-18
+
+One-session closure pack delivered (UI + CI + local hygiene):
+
+- Step 19 compact sync-age tiers delivered in `components/dashboard-header.tsx`:
+  - replaced raw seconds with compact tiers:
+    - `<10s`, `<1m`, `>1m`
+  - policy badge now uses compact layout:
+    - `SYNC:<tier> | ID:<mode> | AUD:<mode> | CD:<seconds>`
+  - unsynced state now explicitly shows:
+    - `SYNC:LOST | RETRY`
+- CI workflow scope tightened in `.github/workflows/face-policy-tests.yml`:
+  - added `workflow_dispatch`
+  - added `push` / `pull_request` path filters so workflow runs only on relevant face-policy files
+- Local workspace hygiene improved in `.gitignore` (non-destructive):
+  - ignores local runtime artifacts:
+    - `*.err.log`, `*.out.log`
+    - `backend/face_policy_overrides.json`
+    - `backend/known_faces_registry.json`
+    - `backend/camera_profiles.yml`
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+
+Immediate next implementation target:
+
+- Step 21 candidate: when CI workflow push permission is available, finalize/push the workflow file update to remote.
