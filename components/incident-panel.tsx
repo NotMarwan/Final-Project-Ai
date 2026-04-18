@@ -55,10 +55,19 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   // شريط الكولداون (Alert Timeout)
   const [cooldown,      setCooldown]      = useState<number>(60)
   const [cooldownBusy,  setCooldownBusy]  = useState(false)
+  
+  // Face policy controls
+  const [faceIdentityLabeling, setFaceIdentityLabeling] = useState(true)
+  const [faceIdentityBusy, setFaceIdentityBusy] = useState(false)
+  const [faceAuditEnabled, setFaceAuditEnabled] = useState(true)
+  const [faceAuditBusy, setFaceAuditBusy] = useState(false)
+  const [faceAuditCooldown, setFaceAuditCooldown] = useState(25)
+  const [faceAuditCooldownBusy, setFaceAuditCooldownBusy] = useState(false)
 
   const toastCounter        = useRef(0)
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const debounceCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceFaceAuditCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── Reset export state when a new alert arrives ────────────────────────────
   useEffect(() => {
@@ -239,9 +248,92 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
     debounceCooldownRef.current = setTimeout(() => sendCooldown(value), THRESHOLD_DEBOUNCE_MS)
   }, [sendCooldown])
 
+  const loadFacePolicy = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/face/status`)
+      if (!res.ok) return
+      const payload = await res.json()
+      const policy = payload?.policy ?? {}
+      if (typeof policy.identityLabelingEnabled === "boolean") setFaceIdentityLabeling(policy.identityLabelingEnabled)
+      if (typeof policy.recognitionAuditEnabled === "boolean") setFaceAuditEnabled(policy.recognitionAuditEnabled)
+      if (typeof policy.recognitionAuditCooldownSec === "number") setFaceAuditCooldown(policy.recognitionAuditCooldownSec)
+    } catch {
+      // Keep local defaults when API is unreachable.
+    }
+  }, [])
+
+  const sendFacePolicy = useCallback(async (body: Record<string, unknown>) => {
+    const res = await fetch(`${API_BASE}/face/policy`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+      const responseBody = await res.json().catch(() => ({}))
+      throw new Error(responseBody?.detail ?? `Server error ${res.status}`)
+    }
+  }, [])
+
+  const toggleIdentityLabeling = useCallback(async () => {
+    const next = !faceIdentityLabeling
+    setFaceIdentityLabeling(next)
+    setFaceIdentityBusy(true)
+    try {
+      await sendFacePolicy({ identity_labeling_enabled: next })
+      addToast(next ? "Identity labels enabled." : "Identity labels masked.", "success")
+    } catch (err) {
+      setFaceIdentityLabeling(!next)
+      const msg = err instanceof Error ? err.message : "Failed to update identity policy."
+      addToast(msg, "error")
+    } finally {
+      setFaceIdentityBusy(false)
+    }
+  }, [faceIdentityLabeling, sendFacePolicy, addToast])
+
+  const toggleFaceAudit = useCallback(async () => {
+    const next = !faceAuditEnabled
+    setFaceAuditEnabled(next)
+    setFaceAuditBusy(true)
+    try {
+      await sendFacePolicy({ recognition_audit_enabled: next })
+      addToast(next ? "Face audit enabled." : "Face audit paused.", "success")
+    } catch (err) {
+      setFaceAuditEnabled(!next)
+      const msg = err instanceof Error ? err.message : "Failed to update face audit policy."
+      addToast(msg, "error")
+    } finally {
+      setFaceAuditBusy(false)
+    }
+  }, [faceAuditEnabled, sendFacePolicy, addToast])
+
+  const sendFaceAuditCooldown = useCallback(async (value: number) => {
+    setFaceAuditCooldownBusy(true)
+    try {
+      await sendFacePolicy({ recognition_audit_cooldown_sec: value })
+      addToast(`Face audit cooldown set to ${value}s`, "success")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to update face audit cooldown."
+      addToast(msg, "error")
+    } finally {
+      setFaceAuditCooldownBusy(false)
+    }
+  }, [sendFacePolicy, addToast])
+
+  const handleFaceAuditCooldownChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value)
+    setFaceAuditCooldown(value)
+    if (debounceFaceAuditCooldownRef.current !== null) clearTimeout(debounceFaceAuditCooldownRef.current)
+    debounceFaceAuditCooldownRef.current = setTimeout(() => sendFaceAuditCooldown(value), THRESHOLD_DEBOUNCE_MS)
+  }, [sendFaceAuditCooldown])
+
+  useEffect(() => {
+    void loadFacePolicy()
+  }, [loadFacePolicy])
+
   useEffect(() => () => {
     if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current)
     if (debounceCooldownRef.current !== null) clearTimeout(debounceCooldownRef.current)
+    if (debounceFaceAuditCooldownRef.current !== null) clearTimeout(debounceFaceAuditCooldownRef.current)
   }, [])
 
   // ── Render: no active incident ─────────────────────────────────────────────
@@ -260,6 +352,17 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
         <div className="mt-4 space-y-3">
           <ThresholdSlider value={threshold} busy={thresholdBusy} onChange={handleThresholdChange} />
           <CooldownSlider value={cooldown} busy={cooldownBusy} onChange={handleCooldownChange} />
+          <FacePolicyControls
+            identityLabeling={faceIdentityLabeling}
+            identityBusy={faceIdentityBusy}
+            auditEnabled={faceAuditEnabled}
+            auditBusy={faceAuditBusy}
+            auditCooldown={faceAuditCooldown}
+            auditCooldownBusy={faceAuditCooldownBusy}
+            onToggleIdentity={toggleIdentityLabeling}
+            onToggleAudit={toggleFaceAudit}
+            onChangeAuditCooldown={handleFaceAuditCooldownChange}
+          />
         </div>
         
         <ToastStack toasts={toasts} onDismiss={dismissToast} />
@@ -332,6 +435,9 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
         <div className="flex items-center gap-2 border-b border-border px-4 py-2.5 bg-muted/20">
           <ScanFace className="h-3.5 w-3.5 text-primary" />
           <span className="text-xs font-semibold text-foreground">Face Intelligence</span>
+          <Badge variant="outline" className={cn("h-5 border font-mono text-[9px]", faceSummary?.identityLabelingEnabled === false ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success")}>
+            {faceSummary?.identityLabelingEnabled === false ? "MASKED" : "IDENTITY ON"}
+          </Badge>
           <Badge variant="outline" className="ml-auto h-5 border-primary/30 bg-primary/10 font-mono text-[9px] text-primary">
             {faceSummary?.enabled ? "ACTIVE" : "OFF"}
           </Badge>
@@ -446,6 +552,17 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
       <div className="flex flex-col gap-3 pt-3 border-t border-border">
         <ThresholdSlider value={threshold} busy={thresholdBusy} onChange={handleThresholdChange} />
         <CooldownSlider value={cooldown} busy={cooldownBusy} onChange={handleCooldownChange} />
+        <FacePolicyControls
+          identityLabeling={faceIdentityLabeling}
+          identityBusy={faceIdentityBusy}
+          auditEnabled={faceAuditEnabled}
+          auditBusy={faceAuditBusy}
+          auditCooldown={faceAuditCooldown}
+          auditCooldownBusy={faceAuditCooldownBusy}
+          onToggleIdentity={toggleIdentityLabeling}
+          onToggleAudit={toggleFaceAudit}
+          onChangeAuditCooldown={handleFaceAuditCooldownChange}
+        />
       </div>
 
       {/* ── Action buttons ────────────────────────────────────────────── */}
@@ -541,6 +658,78 @@ function CooldownSlider({ value, busy, onChange }: { value: number; busy: boolea
 }
 
 // ─── Toast stack ─────────────────────────────────────────────────────────────
+
+function FacePolicyControls({
+  identityLabeling,
+  identityBusy,
+  auditEnabled,
+  auditBusy,
+  auditCooldown,
+  auditCooldownBusy,
+  onToggleIdentity,
+  onToggleAudit,
+  onChangeAuditCooldown,
+}: {
+  identityLabeling: boolean
+  identityBusy: boolean
+  auditEnabled: boolean
+  auditBusy: boolean
+  auditCooldown: number
+  auditCooldownBusy: boolean
+  onToggleIdentity: () => void
+  onToggleAudit: () => void
+  onChangeAuditCooldown: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-3.5 shadow-sm">
+      <div className="mb-2.5 flex items-center gap-2">
+        <ScanFace className="h-3.5 w-3.5 text-primary" />
+        <span className="text-xs font-semibold text-foreground">Face Policy Controls</span>
+      </div>
+
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Identity Labels</p>
+            <p className="text-[11px] text-foreground/90">Show real known names in alerts.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={onToggleIdentity} disabled={identityBusy} className={cn("h-7 min-w-[96px] text-[10px] font-semibold", identityLabeling ? "border-success/30 bg-success/10 text-success hover:bg-success/20" : "border-warning/30 bg-warning/10 text-warning hover:bg-warning/20")}>
+            {identityBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : identityLabeling ? "ON" : "MASKED"}
+          </Button>
+        </div>
+
+        <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Recognition Audit</p>
+            <p className="text-[11px] text-foreground/90">Write known/unknown sightings to audit log.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={onToggleAudit} disabled={auditBusy} className={cn("h-7 min-w-[96px] text-[10px] font-semibold", auditEnabled ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-secondary/30 text-muted-foreground hover:bg-secondary")}>
+            {auditBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : auditEnabled ? "ENABLED" : "PAUSED"}
+          </Button>
+        </div>
+
+        <div className="rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
+          <div className="mb-2 flex items-center gap-2">
+            <Timer className="h-3.5 w-3.5 text-primary" />
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Audit Cooldown</p>
+            {auditCooldownBusy ? <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" /> : <span className="ml-auto font-mono text-[11px] font-bold text-primary">{auditCooldown}s</span>}
+          </div>
+          <input
+            type="range"
+            min={5}
+            max={120}
+            step={5}
+            value={auditCooldown}
+            onChange={onChangeAuditCooldown}
+            aria-label="Face audit cooldown"
+            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-secondary outline-none"
+            style={{ background: `linear-gradient(to right,#22c55e 0%,#22c55e ${((auditCooldown - 5) / 115) * 100}%,rgb(30 41 59) ${((auditCooldown - 5) / 115) * 100}%,rgb(30 41 59) 100%)` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ToastStack({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
   if (toasts.length === 0) return null

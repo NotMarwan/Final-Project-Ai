@@ -30,6 +30,7 @@ export interface FaceUnknownDetail {
 
 export interface FaceSummaryPayload {
   enabled: boolean
+  identityLabelingEnabled?: boolean
   frameIndex?: number
   totalFaces: number
   recognized: Array<{ personId?: string; label?: string; confidence?: number; distance?: number }>

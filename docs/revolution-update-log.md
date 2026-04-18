@@ -312,3 +312,34 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 7 candidate: add operator-side controls in frontend settings for face policy toggles and audit cooldown with safe defaults.
+
+### Update 008 - 2026-04-18
+
+Step 7 operator controls delivered:
+
+- Added frontend policy controls in `components/incident-panel.tsx`:
+  - toggle identity labeling (`ON` / `MASKED`)
+  - toggle recognition audit (`ENABLED` / `PAUSED`)
+  - audit cooldown slider (seconds)
+- Wired controls to backend policy endpoint:
+  - `POST /face/policy`
+  - sends:
+    - `identity_labeling_enabled`
+    - `recognition_audit_enabled`
+    - `recognition_audit_cooldown_sec`
+- Added initial policy sync on UI load:
+  - reads `GET /face/status`
+  - hydrates current policy values into sliders/toggles.
+- Improved face card visibility:
+  - Face Intelligence panel now shows an explicit identity mode badge (`IDENTITY ON` / `MASKED`).
+- Extended face payload typing in `components/video-player.tsx`:
+  - added `identityLabelingEnabled` to `FaceSummaryPayload`.
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 8 candidate: add lightweight integration tests for `/face/policy` and face-summary masking behavior to lock regression risk.
