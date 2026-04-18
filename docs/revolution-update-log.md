@@ -573,3 +573,26 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 17 candidate: add a tiny retry action near `SYNC:LOST` to force immediate policy refresh without waiting for interval.
+
+### Update 018 - 2026-04-18
+
+Step 17 immediate policy-refresh action delivered:
+
+- Updated `app/page.tsx`:
+  - extracted policy fetch into reusable `refreshFacePolicy()`
+  - retained interval refresh behavior
+  - clicking header `Face Policy` indicator now also triggers immediate refresh (retry-now behavior)
+- Outcome:
+  - operators can recover from `SYNC:LOST` state faster without waiting for next interval tick.
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+
+Immediate next implementation target:
+
+- Step 18 candidate: add backend timestamp (`policyFetchedAt`) and display "last synced" age next to policy badge for clearer ops diagnostics.

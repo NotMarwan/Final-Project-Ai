@@ -91,56 +91,51 @@ export default function DashboardPage() {
     }
   }, [connectSSE])
 
-  useEffect(() => {
-    let isMounted = true
-
-    const loadFacePolicy = async () => {
-      try {
-        let policy: Record<string, unknown> = {}
-        const policyRes = await fetch(`${API_BASE}/face/policy`)
-        if (policyRes.ok) {
-          const payload = await policyRes.json()
-          policy = (payload?.policy ?? {}) as Record<string, unknown>
-        } else {
-          const statusRes = await fetch(`${API_BASE}/face/status`)
-          if (!statusRes.ok) return
-          const payload = await statusRes.json()
-          policy = (payload?.policy ?? {}) as Record<string, unknown>
-        }
-
-        if (!isMounted) return
-        setFacePolicy((current) => ({
-          identityLabelingEnabled:
-            typeof policy.identityLabelingEnabled === "boolean"
-              ? policy.identityLabelingEnabled
-              : current.identityLabelingEnabled,
-          recognitionAuditEnabled:
-            typeof policy.recognitionAuditEnabled === "boolean"
-              ? policy.recognitionAuditEnabled
-              : current.recognitionAuditEnabled,
-          recognitionAuditCooldownSec:
-            typeof policy.recognitionAuditCooldownSec === "number"
-              ? policy.recognitionAuditCooldownSec
-              : current.recognitionAuditCooldownSec,
-        }))
-        setFacePolicySynced(true)
-      } catch {
-        if (!isMounted) return
-        // Keep latest known policy on transient network failures, but flag stale sync state.
-        setFacePolicySynced(false)
+  const refreshFacePolicy = useCallback(async () => {
+    try {
+      let policy: Record<string, unknown> = {}
+      const policyRes = await fetch(`${API_BASE}/face/policy`)
+      if (policyRes.ok) {
+        const payload = await policyRes.json()
+        policy = (payload?.policy ?? {}) as Record<string, unknown>
+      } else {
+        const statusRes = await fetch(`${API_BASE}/face/status`)
+        if (!statusRes.ok) throw new Error(`Policy fetch failed: ${statusRes.status}`)
+        const payload = await statusRes.json()
+        policy = (payload?.policy ?? {}) as Record<string, unknown>
       }
-    }
 
-    void loadFacePolicy()
+      setFacePolicy((current) => ({
+        identityLabelingEnabled:
+          typeof policy.identityLabelingEnabled === "boolean"
+            ? policy.identityLabelingEnabled
+            : current.identityLabelingEnabled,
+        recognitionAuditEnabled:
+          typeof policy.recognitionAuditEnabled === "boolean"
+            ? policy.recognitionAuditEnabled
+            : current.recognitionAuditEnabled,
+        recognitionAuditCooldownSec:
+          typeof policy.recognitionAuditCooldownSec === "number"
+            ? policy.recognitionAuditCooldownSec
+            : current.recognitionAuditCooldownSec,
+      }))
+      setFacePolicySynced(true)
+    } catch {
+      // Keep latest known policy on transient network failures, but flag stale sync state.
+      setFacePolicySynced(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshFacePolicy()
     const timer = setInterval(() => {
-      void loadFacePolicy()
+      void refreshFacePolicy()
     }, FACE_POLICY_REFRESH_MS)
 
     return () => {
-      isMounted = false
       clearInterval(timer)
     }
-  }, [])
+  }, [refreshFacePolicy])
 
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
@@ -155,7 +150,8 @@ export default function DashboardPage() {
 
   const handleFacePolicyClick = useCallback(() => {
     setFacePolicyFocusSignal((prev) => prev + 1)
-  }, [])
+    void refreshFacePolicy()
+  }, [refreshFacePolicy])
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
