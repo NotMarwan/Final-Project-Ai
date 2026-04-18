@@ -100,6 +100,9 @@ class EvidenceLedger:
 
         records = self._read_records()
         previous_hash = records[-1]["currentHash"] if records else "GENESIS"
+        face_data = alert.get("faceSummary")
+        if not isinstance(face_data, Mapping):
+            face_data = {}
 
         payload = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -110,6 +113,9 @@ class EvidenceLedger:
             "fusionScore": alert.get("fusionScore"),
             "motionScore": alert.get("motionScore"),
             "weaponScore": alert.get("weaponScore"),
+            "faceRecognizedCount": face_data.get("recognizedCount"),
+            "faceUnknownCount": face_data.get("unknownCount"),
+            "faceUnknownIds": face_data.get("unknownIds", []),
             "clipSha256": sha256_file(clip_path),
             "snapshotSha256": sha256_file(snapshot_path),
             "reportSha256": sha256_file(report_path),

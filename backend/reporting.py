@@ -197,6 +197,36 @@ def build_incident_pdf(
     report_hash = _sha256_text(report_text)
     snapshot_hash = _sha256_file(snapshot_path)
     evidence_hash = _sha256_file(evidence_path)
+    face_summary = alert.get("faceSummary")
+    if not isinstance(face_summary, Mapping):
+        face_summary = {}
+
+    recognized = face_summary.get("recognized", [])
+    if not isinstance(recognized, list):
+        recognized = []
+
+    unknown_ids = face_summary.get("unknownIds", [])
+    if not isinstance(unknown_ids, list):
+        unknown_ids = []
+
+    unknown_details = face_summary.get("unknownDetails", [])
+    if not isinstance(unknown_details, list):
+        unknown_details = []
+
+    recognized_labels: list[str] = []
+    for item in recognized:
+        if not isinstance(item, Mapping):
+            continue
+        label = _safe_str(item.get("label"), _safe_str(item.get("personId"), ""))
+        if label:
+            recognized_labels.append(label)
+
+    unknown_label_join = ", ".join(str(x) for x in unknown_ids[:12]) or "N/A"
+    recognized_label_join = ", ".join(recognized_labels[:8]) or "N/A"
+    if len(unknown_ids) > 12:
+        unknown_label_join += " ..."
+    if len(recognized_labels) > 8:
+        recognized_label_join += " ..."
 
     story: list[Any] = []
     story.append(_rtl_paragraph("تقرير جنائي آلي", title_style))
@@ -216,6 +246,16 @@ def build_incident_pdf(
         ("بصمة اللقطة", snapshot_hash),
         ("بصمة ملف الفيديو", evidence_hash),
     ]
+    meta_rows.extend(
+        [
+            ("Face Intel Enabled", "Yes" if face_summary.get("enabled") else "No"),
+            ("Faces In Event", _safe_str(face_summary.get("totalFaces"), "0")),
+            ("Recognized Count", _safe_str(face_summary.get("recognizedCount"), _safe_str(len(recognized), "0"))),
+            ("Unknown Count", _safe_str(face_summary.get("unknownCount"), _safe_str(len(unknown_ids), "0"))),
+            ("Recognized Labels", recognized_label_join),
+            ("Unknown IDs", unknown_label_join),
+        ]
+    )
 
     story.append(_make_metadata_table(meta_rows, label_style, value_style))
     story.append(Spacer(1, 0.35 * cm))
@@ -234,6 +274,21 @@ def build_incident_pdf(
             story.append(image)
         except Exception:
             story.append(_rtl_paragraph("تعذر تضمين صورة اللقطة داخل التقرير.", body_style))
+        story.append(Spacer(1, 0.2 * cm))
+
+    if unknown_details:
+        story.append(_rtl_paragraph("Face Timeline (Unknown IDs)", section_style))
+        for item in unknown_details[:20]:
+            if not isinstance(item, Mapping):
+                continue
+            line = (
+                f"{_safe_str(item.get('id'), 'U-?')}: "
+                f"first={_safe_str(item.get('firstSeenAt'), 'N/A')}, "
+                f"last={_safe_str(item.get('lastSeenAt'), 'N/A')}, "
+                f"frames={_safe_str(item.get('durationFrames'), '0')}, "
+                f"hits={_safe_str(item.get('hitStreak'), '0')}"
+            )
+            story.append(Paragraph(line, body_left_style))
         story.append(Spacer(1, 0.2 * cm))
 
     notes_rows = [

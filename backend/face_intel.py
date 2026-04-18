@@ -5,6 +5,7 @@ import json
 import os
 import threading
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -483,6 +484,7 @@ class FaceIntelEngine:
                     current_bbox = None
 
         with self._lock:
+            now_iso = datetime.now(timezone.utc).isoformat()
             stale_ids = []
             for unknown_id, track in self._unknown_tracks.items():
                 age = self._frame_index - int(track.get("lastSeenFrame", 0))
@@ -533,6 +535,7 @@ class FaceIntelEngine:
             if should_reuse and best_id is not None:
                 self._unknown_tracks[best_id]["embedding"] = embedding
                 self._unknown_tracks[best_id]["lastSeenFrame"] = self._frame_index
+                self._unknown_tracks[best_id]["lastSeenAt"] = now_iso
                 if current_bbox is not None:
                     self._unknown_tracks[best_id]["bbox"] = current_bbox
                 self._unknown_tracks[best_id]["hitStreak"] = int(self._unknown_tracks[best_id].get("hitStreak", 0)) + 1
@@ -545,9 +548,34 @@ class FaceIntelEngine:
                 "bbox": current_bbox,
                 "firstSeenFrame": self._frame_index,
                 "lastSeenFrame": self._frame_index,
+                "firstSeenAt": now_iso,
+                "lastSeenAt": now_iso,
                 "hitStreak": 1,
             }
             return unknown_id
+
+    def _unknown_details_for_ids(self, unknown_ids: List[str]) -> List[Dict[str, object]]:
+        details: List[Dict[str, object]] = []
+        with self._lock:
+            for unknown_id in unknown_ids:
+                track = self._unknown_tracks.get(unknown_id)
+                if not track:
+                    continue
+                first_seen = int(track.get("firstSeenFrame", 0))
+                last_seen = int(track.get("lastSeenFrame", first_seen))
+                details.append(
+                    {
+                        "id": unknown_id,
+                        "firstSeenFrame": first_seen,
+                        "lastSeenFrame": last_seen,
+                        "durationFrames": max(0, last_seen - first_seen + 1),
+                        "firstSeenAt": str(track.get("firstSeenAt", "")),
+                        "lastSeenAt": str(track.get("lastSeenAt", "")),
+                        "hitStreak": int(track.get("hitStreak", 0)),
+                        "lastBbox": list(track.get("bbox") or ()),
+                    }
+                )
+        return details
 
     def analyze_frame(self, frame: np.ndarray) -> Dict[str, object]:
         with self._lock:
@@ -604,14 +632,17 @@ class FaceIntelEngine:
             )
 
         with self._lock:
+            unknown_details = self._unknown_details_for_ids(unknown_ids)
             self._last_summary = {
                 "enabled": True,
                 "detector": self.config.detector_backend,
                 "frameIndex": frame_idx,
                 "totalFaces": len(observations),
                 "recognized": recognized,
+                "recognizedCount": len(recognized),
                 "unknownIds": unknown_ids,
                 "unknownCount": len(unknown_ids),
+                "unknownDetails": unknown_details,
                 "observations": observations,
             }
             return dict(self._last_summary)

@@ -212,3 +212,40 @@ Validation performed:
 Immediate next implementation target:
 
 - Build Step 4 polish: attach richer face-event metadata (first_seen/last_seen per unknown ID) into alert payload and report pipeline.
+
+### Update 005 - 2026-04-18
+
+Step 4 polish delivered:
+
+- Enriched face-event metadata in `backend/face_intel.py`:
+  - `unknownDetails` now includes:
+    - `id`
+    - `firstSeenFrame`
+    - `lastSeenFrame`
+    - `durationFrames`
+    - `firstSeenAt`
+    - `lastSeenAt`
+    - `hitStreak`
+    - `lastBbox`
+  - Added `recognizedCount` to frame summary.
+- Attached richer face payload in alerts from `backend/api.py`:
+  - `frameIndex`
+  - `recognizedCount`
+  - `unknownDetails`
+- Extended PDF report output in `backend/reporting.py`:
+  - face metadata rows (recognized/unknown counts and labels)
+  - unknown timeline section (`first/last seen`, frames, hits)
+- Extended evidence ledger in `backend/evidence.py` with face fields:
+  - `faceRecognizedCount`
+  - `faceUnknownCount`
+  - `faceUnknownIds`
+
+Validation performed:
+
+- Syntax compile passed.
+- Runtime checks confirmed new face metadata keys in summaries and status.
+- Unknown-ID stability checks remain passing after metadata enrichment.
+
+Immediate next implementation target:
+
+- Build Step 5: render known labels and unknown numeric tags clearly in frontend live view and incident panel.

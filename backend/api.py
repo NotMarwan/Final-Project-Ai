@@ -585,10 +585,13 @@ def capture_loop():
                 "fusionReason": fusion["reason"],
                 "faceSummary": {
                     "enabled": bool(face_summary.get("enabled", False)),
+                    "frameIndex": int(face_summary.get("frameIndex", 0)),
                     "totalFaces": int(face_summary.get("totalFaces", 0)),
                     "recognized": face_summary.get("recognized", []),
+                    "recognizedCount": int(face_summary.get("recognizedCount", len(face_summary.get("recognized", [])))),
                     "unknownIds": face_summary.get("unknownIds", []),
                     "unknownCount": int(face_summary.get("unknownCount", 0)),
+                    "unknownDetails": face_summary.get("unknownDetails", []),
                 },
             }
 
