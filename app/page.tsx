@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [selectedAlert, setSelectedAlert] = useState<LiveAlert | null>(null)
   const [privacyMode, setPrivacyMode] = useState(false)
   const [sseConnected, setSseConnected] = useState(false)
+  const [facePolicyFocusSignal, setFacePolicyFocusSignal] = useState(0)
   const [facePolicy, setFacePolicy] = useState<FacePolicyState>({
     identityLabelingEnabled: true,
     recognitionAuditEnabled: true,
@@ -148,6 +149,10 @@ export default function DashboardPage() {
     setPrivacyMode(val)
   }, [])
 
+  const handleFacePolicyClick = useCallback(() => {
+    setFacePolicyFocusSignal((prev) => prev + 1)
+  }, [])
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
       <DashboardHeader 
@@ -155,6 +160,7 @@ export default function DashboardPage() {
         onPrivacyToggle={handlePrivacyToggle} 
         sseConnected={sseConnected} 
         totalAlerts={alerts.length} 
+        onFacePolicyClick={handleFacePolicyClick}
         facePolicy={facePolicy}
       />
       
@@ -189,7 +195,7 @@ export default function DashboardPage() {
               alerts={alerts}
               focusCameraId={selectedAlert?.cameraId ?? latestAlertForVideo?.cameraId ?? "CAM-01"}
             />
-            <IncidentPanel alert={selectedAlert} />
+            <IncidentPanel alert={selectedAlert} focusFacePolicySignal={facePolicyFocusSignal} />
           </div>
         </aside>
       </div>

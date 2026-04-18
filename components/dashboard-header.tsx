@@ -10,6 +10,7 @@ interface DashboardHeaderProps {
   onPrivacyToggle: (value: boolean) => void
   sseConnected: boolean
   totalAlerts: number
+  onFacePolicyClick?: () => void
   facePolicy: {
     identityLabelingEnabled: boolean
     recognitionAuditEnabled: boolean
@@ -17,7 +18,7 @@ interface DashboardHeaderProps {
   }
 }
 
-export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, facePolicy }: DashboardHeaderProps) {
+export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, onFacePolicyClick, facePolicy }: DashboardHeaderProps) {
   const facePolicyVariant: "success" | "info" | "danger" =
     facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled ? "success" : "danger"
   const facePolicyValue = `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s`
@@ -36,7 +37,13 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
           <StatusIndicator icon={sseConnected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />} label={sseConnected ? "System Online" : "Reconnecting..."} variant={sseConnected ? "success" : "danger"} />
           <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="3" variant="info" />
           <StatusIndicator icon={<AlertTriangle className="h-3.5 w-3.5" />} label="Alerts This Session" value={String(totalAlerts)} variant={totalAlerts > 0 ? "danger" : "info"} />
-          <StatusIndicator icon={<ScanFace className="h-3.5 w-3.5" />} label="Face Policy" value={facePolicyValue} variant={facePolicyVariant} />
+          <StatusIndicator
+            icon={<ScanFace className="h-3.5 w-3.5" />}
+            label="Face Policy"
+            value={facePolicyValue}
+            variant={facePolicyVariant}
+            onClick={onFacePolicyClick}
+          />
         </div>
         <div className="h-6 w-px bg-border" />
         <div className="flex items-center gap-2">
@@ -49,11 +56,32 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
   )
 }
 
-function StatusIndicator({ icon, label, value, variant }: { icon: React.ReactNode, label: string, value?: string, variant: "success" | "info" | "danger" }) {
+function StatusIndicator({
+  icon,
+  label,
+  value,
+  variant,
+  onClick,
+}: {
+  icon: React.ReactNode
+  label: string
+  value?: string
+  variant: "success" | "info" | "danger"
+  onClick?: () => void
+}) {
   const dotColor = { success: "bg-success", info: "bg-primary", danger: "bg-danger" }
   const textColor = { success: "text-success", info: "text-primary", danger: "text-danger" }
+  const clickable = typeof onClick === "function"
   return (
-    <div className="flex items-center gap-2">
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors",
+        clickable ? "cursor-pointer hover:bg-secondary/60" : "cursor-default",
+      )}
+      title={clickable ? "Open Face Policy Controls" : undefined}
+    >
       <span className="relative flex h-2 w-2 flex-shrink-0">
         <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", dotColor[variant], variant === "danger" ? "animate-ping" : "animate-none")} />
         <span className={cn("relative inline-flex h-2 w-2 rounded-full", dotColor[variant])} />
@@ -61,6 +89,6 @@ function StatusIndicator({ icon, label, value, variant }: { icon: React.ReactNod
       <span className={cn("text-xs font-medium", textColor[variant])}>{icon}</span>
       <span className="text-xs text-muted-foreground">{label}</span>
       {value !== undefined && <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px] text-secondary-foreground">{value}</Badge>}
-    </div>
+    </button>
   )
 }

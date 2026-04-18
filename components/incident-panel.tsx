@@ -39,11 +39,12 @@ type ExportPhase =
 
 interface IncidentPanelProps {
   alert: LiveAlert | null
+  focusFacePolicySignal?: number
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function IncidentPanel({ alert }: IncidentPanelProps) {
+export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPanelProps) {
   const [exportState,   setExportState]   = useState<ExportPhase>({ phase: "idle" })
   const [reportState,   setReportState]   = useState<ExportPhase>({ phase: "idle" })
   const [toasts,        setToasts]        = useState<Toast[]>([])
@@ -68,6 +69,9 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const debounceCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const debounceFaceAuditCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const facePolicyPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const facePolicyControlsRef = useRef<HTMLDivElement | null>(null)
+  const [facePolicyPulse, setFacePolicyPulse] = useState(false)
 
   // ── Reset export state when a new alert arrives ────────────────────────────
   useEffect(() => {
@@ -339,10 +343,22 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
     void loadFacePolicy()
   }, [loadFacePolicy])
 
+  useEffect(() => {
+    if (focusFacePolicySignal <= 0) return
+    const section = facePolicyControlsRef.current
+    if (!section) return
+
+    section.scrollIntoView({ behavior: "smooth", block: "center" })
+    setFacePolicyPulse(true)
+    if (facePolicyPulseTimerRef.current !== null) clearTimeout(facePolicyPulseTimerRef.current)
+    facePolicyPulseTimerRef.current = setTimeout(() => setFacePolicyPulse(false), 1_600)
+  }, [focusFacePolicySignal])
+
   useEffect(() => () => {
     if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current)
     if (debounceCooldownRef.current !== null) clearTimeout(debounceCooldownRef.current)
     if (debounceFaceAuditCooldownRef.current !== null) clearTimeout(debounceFaceAuditCooldownRef.current)
+    if (facePolicyPulseTimerRef.current !== null) clearTimeout(facePolicyPulseTimerRef.current)
   }, [])
 
   // ── Render: no active incident ─────────────────────────────────────────────
@@ -371,6 +387,8 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
             onToggleIdentity={toggleIdentityLabeling}
             onToggleAudit={toggleFaceAudit}
             onChangeAuditCooldown={handleFaceAuditCooldownChange}
+            containerRef={facePolicyControlsRef}
+            highlight={facePolicyPulse}
           />
         </div>
         
@@ -571,6 +589,8 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
           onToggleIdentity={toggleIdentityLabeling}
           onToggleAudit={toggleFaceAudit}
           onChangeAuditCooldown={handleFaceAuditCooldownChange}
+          containerRef={facePolicyControlsRef}
+          highlight={facePolicyPulse}
         />
       </div>
 
@@ -678,6 +698,8 @@ function FacePolicyControls({
   onToggleIdentity,
   onToggleAudit,
   onChangeAuditCooldown,
+  containerRef,
+  highlight,
 }: {
   identityLabeling: boolean
   identityBusy: boolean
@@ -688,9 +710,17 @@ function FacePolicyControls({
   onToggleIdentity: () => void
   onToggleAudit: () => void
   onChangeAuditCooldown: (e: React.ChangeEvent<HTMLInputElement>) => void
+  containerRef?: React.RefObject<HTMLDivElement | null>
+  highlight?: boolean
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3.5 shadow-sm">
+    <div
+      ref={containerRef}
+      className={cn(
+        "rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all duration-500",
+        highlight ? "ring-2 ring-primary/50 shadow-primary/15" : "",
+      )}
+    >
       <div className="mb-2.5 flex items-center gap-2">
         <ScanFace className="h-3.5 w-3.5 text-primary" />
         <span className="text-xs font-semibold text-foreground">Face Policy Controls</span>

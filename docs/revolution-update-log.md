@@ -520,3 +520,30 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 15 candidate: add a click action from header badge to jump/focus the Face Policy controls section inside Incident Panel.
+
+### Update 016 - 2026-04-18
+
+Step 15 header-to-policy focus navigation delivered:
+
+- Updated `components/dashboard-header.tsx`:
+  - `Face Policy` status indicator is now clickable
+  - click emits a callback to open/focus policy controls in the right panel
+- Updated `app/page.tsx`:
+  - added a `facePolicyFocusSignal` channel from header to incident panel
+  - clicking header policy indicator increments signal token
+- Updated `components/incident-panel.tsx`:
+  - listens to focus signal
+  - smoothly scrolls Face Policy Controls into view
+  - applies a short highlight pulse to draw operator attention
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+
+Immediate next implementation target:
+
+- Step 16 candidate: add tiny UX hint tooltip on header policy badge ("Click to open controls") in Arabic/English format for trial users.
