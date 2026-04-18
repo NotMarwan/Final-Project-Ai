@@ -6,7 +6,7 @@ import {
   ShieldAlert, XCircle, Download, ChevronRight,
   ShieldCheck, Loader2, CheckCircle2, AlertCircle,
   SlidersHorizontal, CheckCheck, Info, X,
-  FileSearch, Sparkles, Timer
+  FileSearch, Sparkles, Timer, FileDown
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -45,6 +45,7 @@ interface IncidentPanelProps {
 
 export function IncidentPanel({ alert }: IncidentPanelProps) {
   const [exportState,   setExportState]   = useState<ExportPhase>({ phase: "idle" })
+  const [reportState,   setReportState]   = useState<ExportPhase>({ phase: "idle" })
   const [toasts,        setToasts]        = useState<Toast[]>([])
   
   // شريط الحساسية
@@ -62,6 +63,7 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   // ── Reset export state when a new alert arrives ────────────────────────────
   useEffect(() => {
     setExportState({ phase: "idle" })
+    setReportState({ phase: "idle" })
   }, [alert?.id])
 
   // ── Toast helpers ──────────────────────────────────────────────────────────
@@ -139,6 +141,43 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
       }
     }
   }, [alert, exportState.phase, addToast])
+
+  const handleExportReport = useCallback(async () => {
+    if (!alert) return
+    if (reportState.phase === "downloading") return
+
+    setReportState({ phase: "downloading" })
+
+    try {
+      const res = await fetch(`${API_BASE}/download_report/${alert.id}`)
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        const msg = body?.detail ?? `Server error ${res.status}`
+        setReportState({ phase: "error", message: msg })
+        addToast(`PDF export failed: ${msg}`, "error")
+        return
+      }
+
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+      anchor.href = blobUrl
+      anchor.download = `${alert.id}.pdf`
+      document.body.appendChild(anchor)
+      anchor.click()
+      document.body.removeChild(anchor)
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000)
+
+      setReportState({ phase: "done" })
+      addToast("Forensic PDF report downloaded.", "success")
+      setTimeout(() => setReportState({ phase: "idle" }), 4_000)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Network error — is the API running?"
+      setReportState({ phase: "error", message: msg })
+      addToast(msg, "error")
+    }
+  }, [alert, reportState.phase, addToast])
 
   // ── Threshold slider logic ──────────────────────────────────────────────────
 
@@ -355,6 +394,37 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
             <ExportButtonContent state={exportState} />
           </Button>
         </div>
+
+        <Button
+          variant="outline"
+          onClick={handleExportReport}
+          disabled={reportState.phase === "downloading"}
+          className={cn(
+            "h-10 w-full gap-1.5 border-border text-xs transition-all active:scale-[0.97]",
+            reportState.phase === "done"
+              ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+              : reportState.phase === "error"
+                ? "border-danger/40 bg-danger/10 text-danger hover:bg-danger/20"
+                : "text-foreground hover:bg-secondary"
+          )}
+        >
+          {reportState.phase === "idle" && <>
+            <FileDown className="h-3.5 w-3.5" />
+            Export PDF Report
+          </>}
+          {reportState.phase === "downloading" && <>
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Generating PDF...
+          </>}
+          {reportState.phase === "done" && <>
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            PDF Ready
+          </>}
+          {reportState.phase === "error" && <>
+            <AlertCircle className="h-3.5 w-3.5" />
+            PDF Failed
+          </>}
+        </Button>
       </div>
 
       <ToastStack toasts={toasts} onDismiss={dismissToast} />

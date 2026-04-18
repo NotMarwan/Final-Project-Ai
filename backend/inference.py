@@ -15,7 +15,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models.video import x3d_m
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1. Model Architecture
@@ -24,10 +23,35 @@ from torchvision.models.video import x3d_m
 class X3DViolenceModel(nn.Module):
     def __init__(self, num_classes: int = 2):
         super().__init__()
-        # Load X3D-M spatiotemporal model (Task 2)
-        self.model = x3d_m(weights=None)
-        in_features = self.model.blocks[5].proj.in_features
-        self.model.blocks[5].proj = nn.Linear(in_features, num_classes)
+        # Prefer X3D-M when torchvision exposes it, otherwise fall back to a
+        # supported video backbone that keeps the same single-tensor interface.
+        self.model = self._build_backbone(num_classes)
+
+    @staticmethod
+    def _build_backbone(num_classes: int) -> nn.Module:
+        try:
+            from torchvision.models.video import x3d_m
+
+            model = x3d_m(weights=None)
+            if hasattr(model, "blocks") and len(model.blocks) > 5 and hasattr(model.blocks[5], "proj"):
+                in_features = model.blocks[5].proj.in_features
+                model.blocks[5].proj = nn.Linear(in_features, num_classes)
+                return model
+        except Exception:
+            pass
+
+        try:
+            from torchvision.models.video import r2plus1d_18
+
+            model = r2plus1d_18(weights=None)
+            if hasattr(model, "fc"):
+                in_features = model.fc.in_features
+                model.fc = nn.Linear(in_features, num_classes)
+                return model
+        except Exception as exc:
+            raise RuntimeError(f"Unable to initialize a supported video backbone: {exc}") from exc
+
+        raise RuntimeError("No supported video backbone available for violence model.")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Expected input shape: (batch, 3, 32, 160, 160)

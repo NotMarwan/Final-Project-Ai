@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { AlertFeed } from "@/components/alert-feed"
 import { VideoPlayer } from "@/components/video-player"
 import type { LiveAlert } from "@/components/video-player"
+import { GeoDashboard } from "@/components/geo-dashboard"
 
 const IncidentPanel = dynamic(() => import("@/components/incident-panel").then(mod => mod.IncidentPanel), { ssr: false })
 const AiReport = dynamic(() => import("@/components/ai-report").then(mod => mod.AiReport), { ssr: false })
@@ -75,11 +76,6 @@ export default function DashboardPage() {
     }
   }, [connectSSE])
 
-  useEffect(() => {
-    connectSSE()
-    return () => esRef.current?.close()
-  }, [connectSSE])
-
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
 
@@ -124,8 +120,15 @@ export default function DashboardPage() {
         </main>
 
         {/* شريط جانبي أيمن: تفاصيل الحادث والتحكم (بدون التقرير) */}
-        <aside className="w-80 flex-shrink-0 bg-card/30 overflow-y-auto custom-scrollbar">
-          <IncidentPanel alert={selectedAlert} />
+        <aside className="w-[380px] flex-shrink-0 overflow-y-auto custom-scrollbar border-l border-border bg-card/30">
+          <div className="flex flex-col gap-3 p-3">
+            <GeoDashboard
+              alert={selectedAlert ?? latestAlertForVideo}
+              alerts={alerts}
+              focusCameraId={selectedAlert?.cameraId ?? latestAlertForVideo?.cameraId ?? "CAM-01"}
+            />
+            <IncidentPanel alert={selectedAlert} />
+          </div>
         </aside>
       </div>
     </div>

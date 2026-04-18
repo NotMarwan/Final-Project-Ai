@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+opencv-python
+numpy
+torch
+torchvision
+pyyaml
+python-dotenv
+groq
+reportlab
+arabic-reshaper
+python-bidi

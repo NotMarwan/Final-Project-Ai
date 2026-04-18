@@ -18,6 +18,11 @@ export interface LiveAlert {
   severity:   "critical" | "high" | "medium"
   cameraId:   string
   location:   string
+  fusionScore?: number
+  fusionModel?: string
+  motionScore?: number
+  weaponScore?: number
+  fusionReason?: string
 }
 
 interface VideoPlayerProps {

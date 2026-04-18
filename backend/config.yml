@@ -5,11 +5,20 @@ model:
   device: "cuda"                  # auto-fallback to cpu
   stride: 16
 
+fusion:
+  enabled: true
+  violence_weight: 0.65
+  motion_weight: 0.20
+  weapon_weight: 0.15
+  weapon_threshold: 0.55
+  weapon_boost: 0.12
+
 notifications:
   telegram:
     enabled: false
     bot_token: ""
     chat_id: ""
+    min_severity: "high"
 
 database:
   path: "./sentinel.db"
@@ -17,6 +26,17 @@ database:
 storage:
   thumbnails_dir: "./thumbnails"
   evidence_dir: "./evidence_clips"
+  reports_dir: "./reports"
+  evidence_ledger_path: "./evidence_ledger.jsonl"
+
+security:
+  api_key: ""
+  audit_log_path: "./audit_logs.jsonl"
+
+audio:
+  enabled: false
+  scream_threshold: 0.55
+  loudness_threshold: 0.40
 
 server:
   host: "0.0.0.0"

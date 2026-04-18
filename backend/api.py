@@ -16,12 +16,29 @@ from typing import AsyncGenerator, Dict, Optional, Tuple, Union
 import cv2
 import numpy as np
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel, Field
 
-from inference import ViolenceInferencePipeline, VIOLENCE_CLS
+BASE_DIR = Path(__file__).resolve().parent
+
+try:
+    from .inference import ViolenceInferencePipeline, VIOLENCE_CLS
+    from .fusion import ThreatFusionEngine
+    from .security import AccessController, AuditLogger
+    from .evidence import EvidenceLedger
+    from .audio import AudioRiskAnalyzer
+    from .notifications import TelegramNotifier
+    from .reporting import build_incident_pdf
+except ImportError:
+    from inference import ViolenceInferencePipeline, VIOLENCE_CLS
+    from fusion import ThreatFusionEngine
+    from security import AccessController, AuditLogger
+    from evidence import EvidenceLedger
+    from audio import AudioRiskAnalyzer
+    from notifications import TelegramNotifier
+    from reporting import build_incident_pdf
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Configuration & Environment Setup
@@ -29,7 +46,7 @@ from inference import ViolenceInferencePipeline, VIOLENCE_CLS
 
 load_dotenv()
 
-with open("config.yml", "r") as f:
+with open(BASE_DIR / "config.yml", "r") as f:
     config = yaml.safe_load(f)
 
 def _parse_source(raw: str) -> Union[str, int]:
@@ -54,24 +71,46 @@ TARGET_FPS     = 25
 RING_BUFFER_LEN = 150  
 POST_ALERT_LEN  = 150  
 
-EVIDENCE_DIR = Path(config['storage']['evidence_dir'])
+
+def _env_flag(name: str, default: bool = True) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on", "enabled"}
+
+def _resolve_storage_path(raw_path: str) -> Path:
+    path = Path(raw_path)
+    return path if path.is_absolute() else BASE_DIR / path
+
+
+EVIDENCE_DIR = _resolve_storage_path(config['storage']['evidence_dir'])
 EVIDENCE_DIR.mkdir(exist_ok=True)
 
-THUMBNAILS_DIR = Path(config['storage']['thumbnails_dir'])
+THUMBNAILS_DIR = _resolve_storage_path(config['storage']['thumbnails_dir'])
 THUMBNAILS_DIR.mkdir(exist_ok=True)
+
+REPORTS_DIR = _resolve_storage_path(config['storage'].get('reports_dir', "./reports"))
+REPORTS_DIR.mkdir(exist_ok=True)
 
 # ── Groq Vision-Language Model Setup ──
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_ENABLED = bool(GROQ_API_KEY)
 _groq_client = None
+telegram_notifier = TelegramNotifier.from_settings(config, os.environ)
+fusion_engine = ThreatFusionEngine.from_settings(config)
+security_controller = AccessController.from_settings(config, os.environ)
+audit_logger = AuditLogger.from_settings(config, BASE_DIR)
+evidence_ledger = EvidenceLedger.from_settings(config, BASE_DIR)
+audio_analyzer = AudioRiskAnalyzer.from_settings(config)
+CAPTURE_LOOP_ENABLED = _env_flag("AI_SENTINEL_ENABLE_CAPTURE_LOOP", default=True)
 
 if GROQ_ENABLED:
     try:
         from groq import Groq
         _groq_client = Groq(api_key=GROQ_API_KEY)
-        print("[System] ✓ Groq initialized successfully.")
+        print("[System] Groq initialized successfully.")
     except Exception as exc:
-        print(f"[System] ✗ Failed to initialize Groq VLM: {exc}")
+        print(f"[System] Failed to initialize Groq VLM: {exc}")
         GROQ_ENABLED = False
 
 _VLM_PROMPT = (
@@ -93,6 +132,10 @@ class CameraRequest(BaseModel):
 class CooldownRequest(BaseModel):
     cooldown: float = Field(..., ge=15.0, le=120.0)
 
+class AudioAnalysisRequest(BaseModel):
+    audio_base64: str
+    filename: Optional[str] = None
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Application State Management
 # ─────────────────────────────────────────────────────────────────────────────
@@ -107,6 +150,15 @@ class AppState:
         
         self._evidence_lock = threading.Lock()
         self._evidence_status: Dict[str, str] = {}
+        
+        self._alert_lock = threading.Lock()
+        self._alerts: Dict[str, dict] = {}
+        
+        self._report_lock = threading.Lock()
+        self._report_texts: Dict[str, str] = {}
+        
+        self._snapshot_lock = threading.Lock()
+        self._snapshot_paths: Dict[str, str] = {}
         
         self._pipeline_lock = threading.Lock()
         self._pipeline: Optional[ViolenceInferencePipeline] = None
@@ -196,6 +248,35 @@ class AppState:
         with self._evidence_lock:
             return self._evidence_status.get(alert_id)
 
+    def register_alert(self, payload: dict):
+        alert_id = payload.get("id")
+        if not alert_id:
+            return
+        with self._alert_lock:
+            self._alerts[alert_id] = dict(payload)
+
+    def get_alert(self, alert_id: str) -> Optional[dict]:
+        with self._alert_lock:
+            alert = self._alerts.get(alert_id)
+            return dict(alert) if alert else None
+
+    def store_report_text(self, alert_id: str, report_text: str):
+        with self._report_lock:
+            self._report_texts[alert_id] = report_text
+
+    def get_report_text(self, alert_id: str) -> Optional[str]:
+        with self._report_lock:
+            return self._report_texts.get(alert_id)
+
+    def store_snapshot_path(self, alert_id: str, snapshot_path: str):
+        with self._snapshot_lock:
+            self._snapshot_paths[alert_id] = snapshot_path
+
+    def get_snapshot_path(self, alert_id: str) -> Optional[Path]:
+        with self._snapshot_lock:
+            raw = self._snapshot_paths.get(alert_id)
+        return Path(raw) if raw else None
+
 state = AppState()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -225,10 +306,24 @@ def _write_evidence_clip(alert_id: str, pre_frames: list, post_queue: queue.Queu
                 
         writer.release()
         state.mark_evidence(alert_id, "ready")
-        print(f"[Evidence] ✓ Clip compiled successfully: {alert_id}.mp4")
+        audit_logger.record(
+            "evidence_clip_ready",
+            "success",
+            role="system",
+            alert_id=alert_id,
+            details={"path": str(out_path)},
+        )
+        print(f"[Evidence] Clip compiled successfully: {alert_id}.mp4")
     except Exception as exc:
         state.mark_evidence(alert_id, "error")
-        print(f"[Evidence] ✗ Error writing clip {alert_id}: {exc}")
+        audit_logger.record(
+            "evidence_clip_failed",
+            "error",
+            role="system",
+            alert_id=alert_id,
+            details={"error": str(exc)},
+        )
+        print(f"[Evidence] Error writing clip {alert_id}: {exc}")
 
 def _call_groq_vlm(alert_id: str, frame: np.ndarray):
     global _groq_client
@@ -262,20 +357,54 @@ def _call_groq_vlm(alert_id: str, frame: np.ndarray):
                 temperature=0.5,
             )
             report_text = completion.choices[0].message.content.strip()
-            print(f"[VLM] ✓ Forensic report generated for {alert_id}")
+            print(f"[VLM] Forensic report generated for {alert_id}")
         except Exception as exc:
             report_text = f"[Forensic analysis failed due to network or API error: {exc}]"
-            print(f"[VLM] ✗ {report_text}")
+            print(f"[VLM] {report_text}")
             
     state.broadcast_alert({
         "type": "VLM_Report", 
         "id": alert_id, 
         "report": report_text
     })
+    state.store_report_text(alert_id, report_text)
+    audit_logger.record(
+        "vlm_report_generated",
+        "success" if not report_text.startswith("[Forensic analysis failed") else "error",
+        role="system",
+        alert_id=alert_id,
+        details={"chars": len(report_text)},
+    )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Core Video Capture & Inference Engine
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _encode_snapshot(frame: np.ndarray) -> Optional[bytes]:
+    try:
+        ok, jpg_buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        if not ok:
+            return None
+        return jpg_buf.tobytes()
+    except Exception as exc:
+        print(f"[Telegram] Snapshot encoding failed: {exc}")
+        return None
+
+
+def _estimate_motion_score(previous_frame: Optional[np.ndarray], current_frame: np.ndarray) -> float:
+    if previous_frame is None:
+        return 0.0
+
+    try:
+        prev_gray = cv2.cvtColor(previous_frame, cv2.COLOR_BGR2GRAY)
+        curr_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+        prev_small = cv2.resize(prev_gray, (64, 64), interpolation=cv2.INTER_AREA)
+        curr_small = cv2.resize(curr_gray, (64, 64), interpolation=cv2.INTER_AREA)
+        diff = cv2.absdiff(prev_small, curr_small)
+        return float(diff.mean() / 255.0)
+    except Exception:
+        return 0.0
+
 
 def capture_loop():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -293,6 +422,7 @@ def capture_loop():
     ring = deque(maxlen=RING_BUFFER_LEN)
     active_post_queues = []
     last_alert_time = 0.0
+    previous_raw_frame: Optional[np.ndarray] = None
     state.running = True
 
     while state.running:
@@ -317,6 +447,8 @@ def capture_loop():
 
         clean_frame = pipeline.process_frame(raw)
         ring.append(raw.copy())
+        motion_score = _estimate_motion_score(previous_raw_frame, raw)
+        previous_raw_frame = raw.copy()
 
         ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
@@ -332,8 +464,15 @@ def capture_loop():
             conf = pipeline._last_conf
 
             severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
+            fusion = fusion_engine.assess(
+                violence_confidence=conf,
+                motion_score=motion_score,
+                weapon_score=0.0,
+                base_severity=severity,
+            )
+            severity = fusion["severity"]
 
-            state.broadcast_alert({
+            alert_payload = {
                 "id": alert_id, 
                 "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
                 "isoTime": datetime.now(timezone.utc).isoformat(), 
@@ -342,7 +481,27 @@ def capture_loop():
                 "severity": severity,
                 "cameraId": cam_id, 
                 "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
-            })
+                "fusionScore": fusion["score"],
+                "fusionModel": fusion["model"],
+                "motionScore": fusion["motionScore"],
+                "weaponScore": fusion["weaponScore"],
+                "fusionReason": fusion["reason"],
+            }
+
+            state.register_alert(alert_payload)
+            state.broadcast_alert(alert_payload)
+            audit_logger.record(
+                "alert_detected",
+                "success",
+                role="system",
+                alert_id=alert_id,
+                details={
+                    "cameraId": cam_id,
+                    "severity": severity,
+                    "confidence": round(conf * 100, 1),
+                    "fusionScore": fusion["score"],
+                },
+            )
 
             pre_frames = list(ring)
             post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
@@ -359,6 +518,14 @@ def capture_loop():
                     args=(alert_id, pre_frames[-1].copy()), 
                     daemon=True
                 ).start()
+
+            if pre_frames:
+                snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
+                if snapshot_bytes:
+                    snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
+                    snapshot_path.write_bytes(snapshot_bytes)
+                    state.store_snapshot_path(alert_id, str(snapshot_path))
+                telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
 
         pending = state.consume_pending_switch()
         if pending:
@@ -391,11 +558,19 @@ def capture_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    t = threading.Thread(target=capture_loop, daemon=True)
-    t.start()
+    telegram_notifier.start()
+    t = None
+    state.running = True
+    if CAPTURE_LOOP_ENABLED:
+        t = threading.Thread(target=capture_loop, daemon=True)
+        t.start()
+    else:
+        print("[System] Capture loop disabled via AI_SENTINEL_ENABLE_CAPTURE_LOOP.")
     yield
     state.running = False
-    t.join(timeout=5)
+    if t:
+        t.join(timeout=5)
+    telegram_notifier.stop()
 
 app = FastAPI(lifespan=lifespan, title="AI Sentinel Advanced Backend")
 app.add_middleware(
@@ -439,25 +614,101 @@ async def video_feed():
 async def alerts():
     return StreamingResponse(_sse_generator(state.subscribe()), media_type="text/event-stream")
 
+
+@app.get("/notifications/status", summary="Notification subsystem status")
+async def notifications_status():
+    return {
+        "telegram": telegram_notifier.status(),
+    }
+
+
+@app.post("/notifications/telegram/test", summary="Send a Telegram test alert")
+async def test_telegram_notification(request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    if not telegram_notifier.config.ready:
+        raise HTTPException(status_code=503, detail="Telegram notifications are not configured")
+
+    test_alert = {
+        "id": f"test-{int(time.time() * 1000)}",
+        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+        "isoTime": datetime.now(timezone.utc).isoformat(),
+        "confidence": 100.0,
+        "type": "Telegram Test",
+        "severity": "high",
+        "cameraId": state.get_current_camera_id(),
+        "location": "Test channel",
+    }
+    telegram_notifier.enqueue_alert(test_alert, state.get_frame())
+    audit_logger.record("telegram_test", "queued", role=role, alert_id=test_alert["id"], details={"cameraId": test_alert["cameraId"]})
+    return {"status": "queued", "telegram": telegram_notifier.status()}
+
+
+@app.get("/download_report/{alert_id}", summary="Fetch forensic PDF report")
+async def download_report(alert_id: str, request: Request):
+    role = security_controller.authorize(request, required_role="viewer")
+    alert = state.get_alert(alert_id)
+    if not alert:
+        raise HTTPException(status_code=404, detail="Incident not found")
+
+    report_text = state.get_report_text(alert_id) or "Visual analysis is still pending."
+    snapshot_path = state.get_snapshot_path(alert_id)
+    evidence_path = EVIDENCE_DIR / f"{alert_id}.mp4"
+    output_path = REPORTS_DIR / f"{alert_id}.pdf"
+
+    build_incident_pdf(
+        alert=alert,
+        report_text=report_text,
+        snapshot_path=snapshot_path,
+        evidence_path=evidence_path if evidence_path.exists() else None,
+        output_path=output_path,
+    )
+    evidence_ledger.append_entry(
+        alert=alert,
+        clip_path=evidence_path if evidence_path.exists() else None,
+        snapshot_path=snapshot_path,
+        report_path=output_path,
+        report_text=report_text,
+    )
+    audit_logger.record(
+        "report_download",
+        "success",
+        role=role,
+        alert_id=alert_id,
+        details={"path": str(output_path)},
+    )
+
+    return FileResponse(
+        str(output_path),
+        media_type="application/pdf",
+        filename=f"{alert_id}.pdf",
+    )
+
 @app.post("/switch_camera", summary="Change active camera stream")
-async def switch_camera(body: CameraRequest):
+async def switch_camera(body: CameraRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
     if body.camera_id not in CAMERA_SOURCES:
         raise HTTPException(status_code=400, detail="Unknown camera_id")
     state.request_camera_switch(CAMERA_SOURCES[body.camera_id], body.camera_id)
+    audit_logger.record("switch_camera", "success", role=role, details={"cameraId": body.camera_id})
     return {"status": "success", "camera_id": body.camera_id}
 
 @app.post("/set_threshold", summary="Update model confidence threshold")
-async def set_threshold(body: ThresholdRequest):
+async def set_threshold(body: ThresholdRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
     new_thresh = state.set_threshold(body.threshold)
+    audit_logger.record("set_threshold", "success", role=role, details={"threshold": new_thresh})
     return {"status": "success", "threshold": new_thresh}
 
 @app.post("/set_cooldown", summary="Update time between consecutive alerts")
-async def set_cooldown(body: CooldownRequest):
+async def set_cooldown(body: CooldownRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
     new_cooldown = state.set_cooldown(body.cooldown)
+    audit_logger.record("set_cooldown", "success", role=role, details={"cooldown": new_cooldown})
     return {"status": "success", "cooldown": new_cooldown}
 
 @app.get("/download_evidence/{alert_id}", summary="Fetch recorded DVR clip")
-async def download_evidence(alert_id: str):
+async def download_evidence(alert_id: str, request: Request):
+    role = security_controller.authorize(request, required_role="viewer")
     status = state.get_evidence_status(alert_id)
     if not status:
         raise HTTPException(status_code=404, detail="Evidence not found")
@@ -465,9 +716,86 @@ async def download_evidence(alert_id: str):
         raise HTTPException(status_code=202, detail="Compiling video, try again shortly")
     if status == "error":
         raise HTTPException(status_code=500, detail="Server failed to compile evidence")
-        
+    audit_logger.record("evidence_download", "success", role=role, alert_id=alert_id)
+
     return FileResponse(
         str(EVIDENCE_DIR / f"{alert_id}.mp4"), 
         media_type="video/mp4", 
         filename=f"{alert_id}.mp4"
     )
+
+
+@app.get("/security/status", summary="Access control status")
+async def security_status():
+    return security_controller.status()
+
+
+@app.get("/audit/status", summary="Audit log status")
+async def audit_status():
+    return audit_logger.status()
+
+
+@app.get("/audit/recent", summary="Recent audit events")
+async def audit_recent(limit: int = 20):
+    return {"items": audit_logger.recent(limit=max(1, min(limit, 100)))}
+
+
+@app.get("/evidence_chain/{alert_id}", summary="Evidence ledger entry")
+async def evidence_chain(alert_id: str, request: Request):
+    security_controller.authorize(request, required_role="viewer")
+    record = evidence_ledger.get(alert_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Evidence chain entry not found")
+    return record
+
+
+@app.post("/audio/analyze", summary="Analyze audio clip for distress cues")
+async def analyze_audio(body: AudioAnalysisRequest, request: Request):
+    role = security_controller.authorize(request, required_role="viewer")
+    result = audio_analyzer.analyze_base64_wav(body.audio_base64)
+    audit_logger.record(
+        "audio_analyze",
+        "success" if result.get("detected") else "ok",
+        role=role,
+        details={"filename": body.filename, "score": result.get("score", 0.0)},
+    )
+    return result
+
+
+@app.get("/audio/status", summary="Audio analysis status")
+async def audio_status():
+    return audio_analyzer.status()
+
+
+@app.get("/system/status", summary="Combined system status")
+async def system_status():
+    return {
+        "health": "ok",
+        "model": {
+            "threshold": state.get_threshold(),
+            "cooldown": state.get_cooldown(),
+            "device": "cuda" if torch.cuda.is_available() else "cpu",
+        },
+        "notifications": telegram_notifier.status(),
+        "fusion": {
+            "enabled": fusion_engine.config.enabled,
+            "weights": {
+                "violence": fusion_engine.config.violence_weight,
+                "motion": fusion_engine.config.motion_weight,
+                "weapon": fusion_engine.config.weapon_weight,
+            },
+        },
+        "security": security_controller.status(),
+        "audit": audit_logger.status(),
+        "audio": audio_analyzer.status(),
+        "storage": {
+            "evidence": str(EVIDENCE_DIR),
+            "thumbnails": str(THUMBNAILS_DIR),
+            "reports": str(REPORTS_DIR),
+        },
+    }
+
+
+@app.get("/health", summary="Health check")
+async def health():
+    return await system_status()

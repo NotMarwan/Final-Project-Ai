@@ -25,7 +25,7 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4">
           <StatusIndicator icon={sseConnected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />} label={sseConnected ? "System Online" : "Reconnecting..."} variant={sseConnected ? "success" : "danger"} />
-          <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="1" variant="info" />
+          <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="3" variant="info" />
           <StatusIndicator icon={<AlertTriangle className="h-3.5 w-3.5" />} label="Alerts This Session" value={String(totalAlerts)} variant={totalAlerts > 0 ? "danger" : "info"} />
         </div>
         <div className="h-6 w-px bg-border" />
