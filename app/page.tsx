@@ -19,6 +19,7 @@ interface FacePolicyState {
   identityLabelingEnabled: boolean
   recognitionAuditEnabled: boolean
   recognitionAuditCooldownSec: number
+  policyUpdatedAt: string | null
 }
 
 export default function DashboardPage() {
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     identityLabelingEnabled: true,
     recognitionAuditEnabled: true,
     recognitionAuditCooldownSec: 25,
+    policyUpdatedAt: null,
   })
   const esRef = useRef<EventSource | null>(null)
 
@@ -122,6 +124,10 @@ export default function DashboardPage() {
           typeof policy.recognitionAuditCooldownSec === "number"
             ? policy.recognitionAuditCooldownSec
             : current.recognitionAuditCooldownSec,
+        policyUpdatedAt:
+          typeof policy.policyUpdatedAt === "string" && policy.policyUpdatedAt.trim().length > 0
+            ? policy.policyUpdatedAt
+            : current.policyUpdatedAt,
       }))
       setFacePolicyFetchedAt(fetchedAt)
       setFacePolicySynced(true)

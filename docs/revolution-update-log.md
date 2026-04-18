@@ -696,3 +696,29 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 22 candidate: expose a tiny "policy updated at" hint in UI (tooltip or compact line) for operator diagnostics.
+
+### Update 022 - 2026-04-18
+
+Step 22 policy-updated diagnostics hint delivered:
+
+- Updated policy state model in `app/page.tsx`:
+  - now captures `policyUpdatedAt` from `GET /face/policy`
+  - keeps previous value if API response is temporarily missing the field
+- Updated top bar diagnostics in `components/dashboard-header.tsx`:
+  - Face Policy indicator tooltip now includes compact policy update metadata
+  - format example:
+    - `Policy updated: <1m (2026-04-18 12:34:56Z)`
+  - keeps the existing click action for opening Face Policy controls
+  - keeps badge width unchanged (hint is in tooltip only)
+
+Validation performed:
+
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 8 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 23 candidate: add the same `policyUpdatedAt` hint as a tiny inline line under the RELOAD button in `IncidentPanel` for operators who rely less on hover tooltips.
