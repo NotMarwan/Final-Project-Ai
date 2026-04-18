@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [privacyMode, setPrivacyMode] = useState(false)
   const [sseConnected, setSseConnected] = useState(false)
   const [facePolicyFocusSignal, setFacePolicyFocusSignal] = useState(0)
+  const [facePolicySynced, setFacePolicySynced] = useState(false)
   const [facePolicy, setFacePolicy] = useState<FacePolicyState>({
     identityLabelingEnabled: true,
     recognitionAuditEnabled: true,
@@ -122,8 +123,11 @@ export default function DashboardPage() {
               ? policy.recognitionAuditCooldownSec
               : current.recognitionAuditCooldownSec,
         }))
+        setFacePolicySynced(true)
       } catch {
-        // Keep latest known policy on transient network failures.
+        if (!isMounted) return
+        // Keep latest known policy on transient network failures, but flag stale sync state.
+        setFacePolicySynced(false)
       }
     }
 
@@ -161,6 +165,7 @@ export default function DashboardPage() {
         sseConnected={sseConnected} 
         totalAlerts={alerts.length} 
         onFacePolicyClick={handleFacePolicyClick}
+        facePolicySynced={facePolicySynced}
         facePolicy={facePolicy}
       />
       

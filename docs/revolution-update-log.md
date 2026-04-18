@@ -547,3 +547,29 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 16 candidate: add tiny UX hint tooltip on header policy badge ("Click to open controls") in Arabic/English format for trial users.
+
+### Update 017 - 2026-04-18
+
+Step 16 policy sync-health indicator delivered:
+
+- Updated `app/page.tsx` policy polling:
+  - tracks policy sync health with `facePolicySynced`
+  - sets sync state to `false` on fetch failures
+  - sets sync state to `true` after successful policy fetch
+- Updated `components/dashboard-header.tsx`:
+  - face policy badge now reflects sync health
+  - shows `SYNC:LOST` when policy fetch is unavailable
+  - keeps bilingual tooltip:
+    - `Open Face Policy Controls | افتح إعدادات سياسة الوجوه`
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+
+Immediate next implementation target:
+
+- Step 17 candidate: add a tiny retry action near `SYNC:LOST` to force immediate policy refresh without waiting for interval.

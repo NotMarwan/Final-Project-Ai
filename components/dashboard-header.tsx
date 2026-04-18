@@ -11,6 +11,7 @@ interface DashboardHeaderProps {
   sseConnected: boolean
   totalAlerts: number
   onFacePolicyClick?: () => void
+  facePolicySynced: boolean
   facePolicy: {
     identityLabelingEnabled: boolean
     recognitionAuditEnabled: boolean
@@ -18,10 +19,15 @@ interface DashboardHeaderProps {
   }
 }
 
-export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, onFacePolicyClick, facePolicy }: DashboardHeaderProps) {
-  const facePolicyVariant: "success" | "info" | "danger" =
-    facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled ? "success" : "danger"
-  const facePolicyValue = `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s`
+export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, onFacePolicyClick, facePolicySynced, facePolicy }: DashboardHeaderProps) {
+  const facePolicyVariant: "success" | "info" | "danger" = !facePolicySynced
+    ? "danger"
+    : facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled
+      ? "success"
+      : "danger"
+  const facePolicyValue = !facePolicySynced
+    ? "SYNC:LOST"
+    : `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s`
 
   return (
     <header className="glass flex items-center justify-between px-6 py-3">
@@ -80,7 +86,7 @@ function StatusIndicator({
         "flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors",
         clickable ? "cursor-pointer hover:bg-secondary/60" : "cursor-default",
       )}
-      title={clickable ? "Open Face Policy Controls" : undefined}
+      title={clickable ? "Open Face Policy Controls | افتح إعدادات سياسة الوجوه" : undefined}
     >
       <span className="relative flex h-2 w-2 flex-shrink-0">
         <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", dotColor[variant], variant === "danger" ? "animate-ping" : "animate-none")} />
