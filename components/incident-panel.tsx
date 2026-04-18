@@ -65,6 +65,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
   const [faceAuditCooldown, setFaceAuditCooldown] = useState(25)
   const [faceAuditCooldownBusy, setFaceAuditCooldownBusy] = useState(false)
   const [facePolicyReloadBusy, setFacePolicyReloadBusy] = useState(false)
+  const [facePolicyUpdatedAt, setFacePolicyUpdatedAt] = useState<string | null>(null)
 
   const toastCounter        = useRef(0)
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -271,6 +272,9 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
       if (typeof policy.identityLabelingEnabled === "boolean") setFaceIdentityLabeling(policy.identityLabelingEnabled)
       if (typeof policy.recognitionAuditEnabled === "boolean") setFaceAuditEnabled(policy.recognitionAuditEnabled)
       if (typeof policy.recognitionAuditCooldownSec === "number") setFaceAuditCooldown(policy.recognitionAuditCooldownSec)
+      if (typeof policy.policyUpdatedAt === "string" && policy.policyUpdatedAt.trim().length > 0) {
+        setFacePolicyUpdatedAt(policy.policyUpdatedAt)
+      }
     } catch {
       // Keep local defaults when API is unreachable.
     }
@@ -408,6 +412,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
             onChangeAuditCooldown={handleFaceAuditCooldownChange}
             onReloadPolicy={reloadFacePolicyFromDisk}
             reloadBusy={facePolicyReloadBusy}
+            policyUpdatedAt={facePolicyUpdatedAt}
             containerRef={facePolicyControlsRef}
             highlight={facePolicyPulse}
           />
@@ -612,6 +617,7 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
           onChangeAuditCooldown={handleFaceAuditCooldownChange}
           onReloadPolicy={reloadFacePolicyFromDisk}
           reloadBusy={facePolicyReloadBusy}
+          policyUpdatedAt={facePolicyUpdatedAt}
           containerRef={facePolicyControlsRef}
           highlight={facePolicyPulse}
         />
@@ -723,6 +729,7 @@ function FacePolicyControls({
   onChangeAuditCooldown,
   onReloadPolicy,
   reloadBusy,
+  policyUpdatedAt,
   containerRef,
   highlight,
 }: {
@@ -737,6 +744,7 @@ function FacePolicyControls({
   onChangeAuditCooldown: (e: React.ChangeEvent<HTMLInputElement>) => void
   onReloadPolicy: () => void
   reloadBusy: boolean
+  policyUpdatedAt: string | null
   containerRef?: React.RefObject<HTMLDivElement | null>
   highlight?: boolean
 }) {
@@ -761,6 +769,9 @@ function FacePolicyControls({
           {reloadBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "RELOAD"}
         </Button>
       </div>
+      <p className="mb-2.5 text-[10px] font-mono text-muted-foreground">
+        Policy Updated: {formatPolicyUpdatedHint(policyUpdatedAt)}
+      </p>
 
       <div className="space-y-2.5">
         <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
@@ -859,6 +870,28 @@ function FaceMetric({ label, value, tone }: { label: string; value: string; tone
       <p className={cn("font-mono text-xs font-bold", tone)}>{value}</p>
     </div>
   )
+}
+
+function formatPolicyUpdatedHint(policyUpdatedAt: string | null): string {
+  if (!policyUpdatedAt || policyUpdatedAt.trim().length === 0) {
+    return "Unknown"
+  }
+  const parsed = Date.parse(policyUpdatedAt)
+  if (Number.isNaN(parsed)) {
+    return policyUpdatedAt
+  }
+
+  const ageSeconds = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
+  const ageTier =
+    ageSeconds < 60
+      ? "<1m"
+      : ageSeconds < 600
+        ? "<10m"
+        : ageSeconds < 3600
+          ? "<1h"
+          : ">1h"
+  const utc = new Date(parsed).toISOString().replace("T", " ").replace(".000Z", "Z")
+  return `${ageTier} (${utc})`
 }
 
 const _sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))

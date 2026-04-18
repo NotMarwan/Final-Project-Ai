@@ -722,3 +722,31 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 23 candidate: add the same `policyUpdatedAt` hint as a tiny inline line under the RELOAD button in `IncidentPanel` for operators who rely less on hover tooltips.
+
+### Update 023 - 2026-04-18
+
+Step 23 inline policy-updated hint in Incident Panel delivered:
+
+- Updated `components/incident-panel.tsx` policy state:
+  - now stores `facePolicyUpdatedAt` from policy payloads
+  - keeps policy timestamp in sync when loading/reloading face policy
+- Updated `FacePolicyControls` UI:
+  - added compact line under controls header:
+    - `Policy Updated: <tier> (UTC timestamp)`
+  - values are rendered in compact tiers:
+    - `<1m`, `<10m`, `<1h`, `>1h`
+  - appears in both panel states:
+    - with active incident
+    - with no selected incident
+
+Validation performed:
+
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 8 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 24 candidate: add a small copy-to-clipboard action for the policy timestamp (for support/debug tickets) inside Face Policy Controls.
