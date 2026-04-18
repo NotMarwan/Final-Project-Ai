@@ -1032,9 +1032,11 @@ async def face_policy_get(request: Request):
     security_controller.authorize(request, required_role="viewer")
     status = face_engine.status()
     policy = status.get("policy", {})
+    policy_fetched_at = datetime.now(timezone.utc).isoformat()
     return {
         "status": "success",
         "policy": policy,
+        "policyFetchedAt": policy_fetched_at,
     }
 
 

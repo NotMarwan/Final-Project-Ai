@@ -28,6 +28,8 @@ export default function DashboardPage() {
   const [sseConnected, setSseConnected] = useState(false)
   const [facePolicyFocusSignal, setFacePolicyFocusSignal] = useState(0)
   const [facePolicySynced, setFacePolicySynced] = useState(false)
+  const [facePolicyFetchedAt, setFacePolicyFetchedAt] = useState<string | null>(null)
+  const [facePolicySyncAgeSec, setFacePolicySyncAgeSec] = useState<number | null>(null)
   const [facePolicy, setFacePolicy] = useState<FacePolicyState>({
     identityLabelingEnabled: true,
     recognitionAuditEnabled: true,
@@ -94,10 +96,12 @@ export default function DashboardPage() {
   const refreshFacePolicy = useCallback(async () => {
     try {
       let policy: Record<string, unknown> = {}
+      let fetchedAt = new Date().toISOString()
       const policyRes = await fetch(`${API_BASE}/face/policy`)
       if (policyRes.ok) {
         const payload = await policyRes.json()
         policy = (payload?.policy ?? {}) as Record<string, unknown>
+        fetchedAt = typeof payload?.policyFetchedAt === "string" ? payload.policyFetchedAt : fetchedAt
       } else {
         const statusRes = await fetch(`${API_BASE}/face/status`)
         if (!statusRes.ok) throw new Error(`Policy fetch failed: ${statusRes.status}`)
@@ -119,6 +123,7 @@ export default function DashboardPage() {
             ? policy.recognitionAuditCooldownSec
             : current.recognitionAuditCooldownSec,
       }))
+      setFacePolicyFetchedAt(fetchedAt)
       setFacePolicySynced(true)
     } catch {
       // Keep latest known policy on transient network failures, but flag stale sync state.
@@ -136,6 +141,27 @@ export default function DashboardPage() {
       clearInterval(timer)
     }
   }, [refreshFacePolicy])
+
+  useEffect(() => {
+    if (!facePolicyFetchedAt) {
+      setFacePolicySyncAgeSec(null)
+      return
+    }
+
+    const updateAge = () => {
+      const parsed = Date.parse(facePolicyFetchedAt)
+      if (Number.isNaN(parsed)) {
+        setFacePolicySyncAgeSec(null)
+        return
+      }
+      const ageSec = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
+      setFacePolicySyncAgeSec(ageSec)
+    }
+
+    updateAge()
+    const timer = setInterval(updateAge, 1000)
+    return () => clearInterval(timer)
+  }, [facePolicyFetchedAt])
 
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
@@ -162,6 +188,7 @@ export default function DashboardPage() {
         totalAlerts={alerts.length} 
         onFacePolicyClick={handleFacePolicyClick}
         facePolicySynced={facePolicySynced}
+        facePolicySyncAgeSec={facePolicySyncAgeSec}
         facePolicy={facePolicy}
       />
       

@@ -178,6 +178,7 @@ class FacePolicyTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, response.text)
             body = response.json()
             self.assertEqual(body.get("status"), "success")
+            self.assertIsInstance(body.get("policyFetchedAt"), str)
 
             policy = body.get("policy", {})
             self.assertEqual(policy.get("identityLabelingEnabled"), False)

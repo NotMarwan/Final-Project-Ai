@@ -12,6 +12,7 @@ interface DashboardHeaderProps {
   totalAlerts: number
   onFacePolicyClick?: () => void
   facePolicySynced: boolean
+  facePolicySyncAgeSec: number | null
   facePolicy: {
     identityLabelingEnabled: boolean
     recognitionAuditEnabled: boolean
@@ -19,7 +20,7 @@ interface DashboardHeaderProps {
   }
 }
 
-export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, onFacePolicyClick, facePolicySynced, facePolicy }: DashboardHeaderProps) {
+export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, onFacePolicyClick, facePolicySynced, facePolicySyncAgeSec, facePolicy }: DashboardHeaderProps) {
   const facePolicyVariant: "success" | "info" | "danger" = !facePolicySynced
     ? "danger"
     : facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled
@@ -27,7 +28,7 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
       : "danger"
   const facePolicyValue = !facePolicySynced
     ? "SYNC:LOST"
-    : `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s`
+    : `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s | SYNC:${facePolicySyncAgeSec ?? 0}s`
 
   return (
     <header className="glass flex items-center justify-between px-6 py-3">

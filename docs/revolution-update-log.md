@@ -596,3 +596,34 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 18 candidate: add backend timestamp (`policyFetchedAt`) and display "last synced" age next to policy badge for clearer ops diagnostics.
+
+### Update 019 - 2026-04-18
+
+Step 18 sync-age diagnostics delivered:
+
+- Updated backend `GET /face/policy` in `backend/api.py`:
+  - now returns `policyFetchedAt` (UTC ISO timestamp) with each policy read response
+- Updated frontend policy state handling in `app/page.tsx`:
+  - stores `policyFetchedAt` from backend
+  - computes and refreshes sync age in seconds
+  - passes sync age to header
+- Updated `components/dashboard-header.tsx`:
+  - face policy badge now shows sync age while healthy:
+    - `... | SYNC:<seconds>s`
+  - keeps `SYNC:LOST` when sync is down
+- Extended policy API test in `backend/tests/test_face_policy.py`:
+  - validates `policyFetchedAt` exists and is a string.
+
+Validation performed:
+
+- Backend syntax compile passed:
+  - `python -m py_compile backend/api.py`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 19 candidate: render relative age in compact tiers (`<10s`, `<1m`, `>1m`) to reduce header width pressure.
