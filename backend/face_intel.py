@@ -53,6 +53,7 @@ class FaceIntelConfig:
     max_unknown_age_frames: int = 90
     min_face_size: int = 36
     known_registry_path: str = "./known_faces_registry.json"
+    policy_overrides_path: str = "./face_policy_overrides.json"
     identity_labeling_enabled: bool = True
     recognition_audit_enabled: bool = True
     recognition_audit_cooldown_sec: int = 25
@@ -89,6 +90,9 @@ class FaceIntelConfig:
             max_unknown_age_frames=_as_int(env.get("FACE_MAX_UNKNOWN_AGE_FRAMES"), _as_int(face_cfg.get("max_unknown_age_frames"), 90)),
             min_face_size=_as_int(env.get("FACE_MIN_FACE_SIZE"), _as_int(face_cfg.get("min_face_size"), 36)),
             known_registry_path=str(env.get("FACE_KNOWN_REGISTRY_PATH", face_cfg.get("known_registry_path", "./known_faces_registry.json"))),
+            policy_overrides_path=str(
+                env.get("FACE_POLICY_OVERRIDES_PATH", face_cfg.get("policy_overrides_path", "./face_policy_overrides.json"))
+            ),
             identity_labeling_enabled=_as_bool(
                 env.get("FACE_IDENTITY_LABELING_ENABLED"),
                 _as_bool(face_cfg.get("identity_labeling_enabled"), True),
@@ -119,6 +123,8 @@ class FaceIntelEngine:
 
         self._init_detector()
         self._load_known_registry()
+        self._load_policy_overrides()
+        self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
 
     @classmethod
     def from_settings(cls, settings: dict, env: dict, base_dir: Path) -> "FaceIntelEngine":
@@ -127,6 +133,47 @@ class FaceIntelEngine:
     def _registry_path(self) -> Path:
         raw = Path(self.config.known_registry_path)
         return raw if raw.is_absolute() else self.base_dir / raw
+
+    def _policy_overrides_path(self) -> Path:
+        raw = Path(self.config.policy_overrides_path)
+        return raw if raw.is_absolute() else self.base_dir / raw
+
+    def _load_policy_overrides(self) -> None:
+        path = self._policy_overrides_path()
+        if not path.exists():
+            return
+
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return
+
+        if not isinstance(payload, dict):
+            return
+
+        self.config.identity_labeling_enabled = _as_bool(
+            payload.get("identityLabelingEnabled"),
+            self.config.identity_labeling_enabled,
+        )
+        self.config.recognition_audit_enabled = _as_bool(
+            payload.get("recognitionAuditEnabled"),
+            self.config.recognition_audit_enabled,
+        )
+        self.config.recognition_audit_cooldown_sec = max(
+            1,
+            _as_int(payload.get("recognitionAuditCooldownSec"), self.config.recognition_audit_cooldown_sec),
+        )
+
+    def _save_policy_overrides(self) -> None:
+        path = self._policy_overrides_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "identityLabelingEnabled": bool(self.config.identity_labeling_enabled),
+            "recognitionAuditEnabled": bool(self.config.recognition_audit_enabled),
+            "recognitionAuditCooldownSec": int(self.config.recognition_audit_cooldown_sec),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def _init_detector(self) -> None:
         if self.config.detector_backend != "haar":
@@ -521,17 +568,20 @@ class FaceIntelEngine:
         with self._lock:
             self.config.identity_labeling_enabled = bool(enabled)
             self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
+            self._save_policy_overrides()
             return self.config.identity_labeling_enabled
 
     def set_recognition_audit_enabled(self, enabled: bool) -> bool:
         with self._lock:
             self.config.recognition_audit_enabled = bool(enabled)
+            self._save_policy_overrides()
             return self.config.recognition_audit_enabled
 
     def set_recognition_audit_cooldown_sec(self, seconds: int) -> int:
         with self._lock:
             value = max(1, int(seconds))
             self.config.recognition_audit_cooldown_sec = value
+            self._save_policy_overrides()
             return self.config.recognition_audit_cooldown_sec
 
     def detect_faces(self, frame: np.ndarray, for_enrollment: bool = False) -> List[Dict[str, object]]:
@@ -858,6 +908,7 @@ class FaceIntelEngine:
                     "identityLabelingEnabled": self.config.identity_labeling_enabled,
                     "recognitionAuditEnabled": self.config.recognition_audit_enabled,
                     "recognitionAuditCooldownSec": self.config.recognition_audit_cooldown_sec,
+                    "policyOverridesPath": str(self._policy_overrides_path()),
                 },
                 "maxKnownAgeFrames": self.config.max_known_age_frames,
                 "maxUnknownAgeFrames": self.config.max_unknown_age_frames,

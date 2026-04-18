@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:face-policy": "python -m unittest discover -s backend/tests -p \"test_face_policy.py\" -v"
+    "test:face-policy": "python -m unittest discover -s backend/tests -p \"test_face_policy*.py\" -v"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

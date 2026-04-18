@@ -433,3 +433,35 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 12 candidate: push workflow file after enabling token `workflow` scope, then add path filters.
+
+### Update 013 - 2026-04-18
+
+Step 12 policy persistence delivered:
+
+- Added persistent face-policy overrides in `backend/face_intel.py`:
+  - new config key: `policy_overrides_path`
+  - policy updates from `/face/policy` are now saved to JSON on disk
+  - overrides are reloaded automatically on engine initialization
+- Expanded policy status payload:
+  - `policy.policyOverridesPath` is now exposed in `/face/status`
+- Extended backend configuration surface:
+  - `backend/config.yml` includes `face_intel.policy_overrides_path`
+  - `backend/.env.example` includes `FACE_POLICY_OVERRIDES_PATH`
+- Added dedicated persistence test:
+  - `backend/tests/test_face_policy_persistence.py`
+  - verifies save + reload behavior across engine re-instantiation
+- Updated rapid test command:
+  - `package.json` script `test:face-policy` now runs `test_face_policy*.py`
+  - includes both policy API tests and persistence test.
+
+Validation performed:
+
+- Syntax compile passed:
+  - `python -m py_compile backend/face_intel.py`
+- Test run passed:
+  - `npm run test:face-policy`
+  - 6 tests passed.
+
+Immediate next implementation target:
+
+- Step 13 candidate: add path-filtered CI workflow trigger once workflow push permission (`workflow` scope) is available.

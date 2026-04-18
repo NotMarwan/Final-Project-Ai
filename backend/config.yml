@@ -55,6 +55,7 @@ face_intel:
   max_unknown_age_frames: 90
   min_face_size: 36
   known_registry_path: "./known_faces_registry.json"
+  policy_overrides_path: "./face_policy_overrides.json"
   identity_labeling_enabled: true
   recognition_audit_enabled: true
   recognition_audit_cooldown_sec: 25
