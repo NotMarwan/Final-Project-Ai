@@ -465,3 +465,30 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 13 candidate: add path-filtered CI workflow trigger once workflow push permission (`workflow` scope) is available.
+
+### Update 014 - 2026-04-18
+
+Step 13 dedicated policy-read API delivered:
+
+- Added new endpoint in `backend/api.py`:
+  - `GET /face/policy`
+  - returns current policy object directly (`identityLabelingEnabled`, `recognitionAuditEnabled`, `recognitionAuditCooldownSec`, and path metadata)
+- Frontend policy loader updated in `components/incident-panel.tsx`:
+  - prefers `GET /face/policy`
+  - keeps fallback to `GET /face/status` for compatibility.
+- Extended policy tests in `backend/tests/test_face_policy.py`:
+  - validates `GET /face/policy` reflects current runtime updates.
+
+Validation performed:
+
+- Syntax compile passed:
+  - `python -m py_compile backend/api.py backend/face_intel.py`
+- Policy test suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+- Frontend production build passed:
+  - `npm run build`
+
+Immediate next implementation target:
+
+- Step 14 candidate: expose a small policy-state badge in top-level dashboard status using `GET /face/policy` for quicker operator visibility.

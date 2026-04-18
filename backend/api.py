@@ -1027,6 +1027,17 @@ async def face_status():
     return face_engine.status()
 
 
+@app.get("/face/policy", summary="Get face identity/audit policy")
+async def face_policy_get(request: Request):
+    security_controller.authorize(request, required_role="viewer")
+    status = face_engine.status()
+    policy = status.get("policy", {})
+    return {
+        "status": "success",
+        "policy": policy,
+    }
+
+
 @app.post("/face/policy", summary="Update face identity/audit policy")
 async def face_policy_update(body: FacePolicyRequest, request: Request):
     role = security_controller.authorize(request, required_role="admin")

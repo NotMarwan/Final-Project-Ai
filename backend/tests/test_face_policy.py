@@ -163,6 +163,27 @@ class FacePolicyTests(unittest.TestCase):
             self.assertEqual(response.status_code, 400, response.text)
             self.assertIn("No policy field provided", response.text)
 
+    def test_face_policy_get_endpoint_returns_current_policy(self):
+        with TestClient(self.api.app) as client:
+            client.post(
+                "/face/policy",
+                json={
+                    "identity_labeling_enabled": False,
+                    "recognition_audit_enabled": True,
+                    "recognition_audit_cooldown_sec": 21,
+                },
+            )
+
+            response = client.get("/face/policy")
+            self.assertEqual(response.status_code, 200, response.text)
+            body = response.json()
+            self.assertEqual(body.get("status"), "success")
+
+            policy = body.get("policy", {})
+            self.assertEqual(policy.get("identityLabelingEnabled"), False)
+            self.assertEqual(policy.get("recognitionAuditEnabled"), True)
+            self.assertEqual(policy.get("recognitionAuditCooldownSec"), 21)
+
     def test_public_face_summary_alias_is_consistent_per_person(self):
         raw_summary = {
             "enabled": True,

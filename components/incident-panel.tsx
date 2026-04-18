@@ -250,10 +250,19 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
 
   const loadFacePolicy = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/face/status`)
-      if (!res.ok) return
-      const payload = await res.json()
-      const policy = payload?.policy ?? {}
+      let policy: Record<string, unknown> = {}
+
+      const policyRes = await fetch(`${API_BASE}/face/policy`)
+      if (policyRes.ok) {
+        const policyPayload = await policyRes.json()
+        policy = (policyPayload?.policy ?? {}) as Record<string, unknown>
+      } else {
+        const statusRes = await fetch(`${API_BASE}/face/status`)
+        if (!statusRes.ok) return
+        const statusPayload = await statusRes.json()
+        policy = (statusPayload?.policy ?? {}) as Record<string, unknown>
+      }
+
       if (typeof policy.identityLabelingEnabled === "boolean") setFaceIdentityLabeling(policy.identityLabelingEnabled)
       if (typeof policy.recognitionAuditEnabled === "boolean") setFaceAuditEnabled(policy.recognitionAuditEnabled)
       if (typeof policy.recognitionAuditCooldownSec === "number") setFaceAuditCooldown(policy.recognitionAuditCooldownSec)
