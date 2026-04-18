@@ -390,3 +390,22 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 10 candidate: expose a lightweight `npm` script or backend command alias for running only face-policy tests during rapid iteration.
+
+### Update 011 - 2026-04-18
+
+Step 10 rapid-test command delivered:
+
+- Added dedicated script in `package.json`:
+  - `test:face-policy`
+  - command: `python -m unittest discover -s backend/tests -p "test_face_policy.py" -v`
+- This gives a fast one-command loop for policy/masking regression checks without running full frontend build.
+
+Validation performed:
+
+- Script run passed:
+  - `npm run test:face-policy`
+  - 5 tests passed.
+
+Immediate next implementation target:
+
+- Step 11 candidate: add a minimal CI workflow job to run `npm run test:face-policy` on pushes/PRs.
