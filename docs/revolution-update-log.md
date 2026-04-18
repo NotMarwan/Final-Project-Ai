@@ -143,3 +143,38 @@ Notes:
 Immediate next implementation target:
 
 - Build Step 2 (Known Registry management): add maintenance endpoint/script and registration workflow for documented attendees.
+
+### Update 003 - 2026-04-18
+
+Step 2 implementation delivered:
+
+- Implemented registry CRUD and enrollment in `backend/face_intel.py`:
+  - `list_known_people(include_embeddings=False)`
+  - `get_known_person(person_id, include_embeddings=False)`
+  - `upsert_known_person(person_id, display_name, role)`
+  - `delete_known_person(person_id)`
+  - `clear_person_embeddings(person_id)`
+  - `enroll_person_from_base64(person_id, image_base64, display_name, role)`
+- Added persistent registry save/load with safe JSON serialization for embeddings.
+- Added enrollment flow from `base64` image payload with automatic face crop fallback.
+- Added API models in `backend/api.py`:
+  - `FacePersonUpdateRequest`
+  - `FaceEnrollRequest`
+- Added new endpoints:
+  - `GET /face/registry`
+  - `GET /face/registry/{person_id}`
+  - `PUT /face/registry/{person_id}`
+  - `DELETE /face/registry/{person_id}`
+  - `DELETE /face/registry/{person_id}/embeddings`
+  - `POST /face/registry/{person_id}/enroll`
+- Added audit log records for registry changes and enrollment actions.
+
+Validation performed:
+
+- Syntax compile for `backend/face_intel.py` and `backend/api.py`.
+- Runtime check for upsert and enrollment methods.
+- Runtime check confirmed face status remains available through system status.
+
+Immediate next implementation target:
+
+- Build Step 3 (unknown ID stabilization upgrade): add track hints (bbox IoU) and stronger anti-flicker smoothing for numbered unknown faces.

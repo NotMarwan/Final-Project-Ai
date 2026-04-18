@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -63,6 +65,7 @@ class FaceIntelEngine:
     def __init__(self, config: FaceIntelConfig, base_dir: Path):
         self.config = config
         self.base_dir = base_dir
+        self._lock = threading.RLock()
         self._frame_index = 0
         self._unknown_counter = 0
         self._unknown_tracks: Dict[str, Dict[str, object]] = {}
@@ -114,7 +117,11 @@ class FaceIntelEngine:
             if not isinstance(item, dict):
                 continue
             person_id = str(item.get("person_id", "")).strip()
-            display_name = str(item.get("display_name", person_id)).strip()
+            if not person_id:
+                continue
+
+            display_name = str(item.get("display_name", person_id)).strip() or person_id
+            role = str(item.get("role", "")).strip()
             raw_embeddings = item.get("embeddings", [])
             embeddings: List[np.ndarray] = []
             if isinstance(raw_embeddings, list):
@@ -128,15 +135,47 @@ class FaceIntelEngine:
                     if norm > 0:
                         vec = vec / norm
                     embeddings.append(vec)
-            if person_id and embeddings:
-                loaded.append(
-                    {
-                        "person_id": person_id,
-                        "display_name": display_name or person_id,
-                        "embeddings": embeddings,
-                    }
-                )
+            loaded.append(
+                {
+                    "person_id": person_id,
+                    "display_name": display_name,
+                    "role": role,
+                    "embeddings": embeddings,
+                }
+            )
         self._known_registry = loaded
+
+    def _serialize_registry(self) -> List[Dict[str, object]]:
+        serialized: List[Dict[str, object]] = []
+        for person in self._known_registry:
+            embeddings = person.get("embeddings", [])
+            raw_embeddings: List[List[float]] = []
+            if isinstance(embeddings, list):
+                for emb in embeddings:
+                    if isinstance(emb, np.ndarray):
+                        raw_embeddings.append([float(x) for x in emb.tolist()])
+            serialized.append(
+                {
+                    "person_id": str(person.get("person_id", "")).strip(),
+                    "display_name": str(person.get("display_name", "")).strip(),
+                    "role": str(person.get("role", "")).strip(),
+                    "embeddings": raw_embeddings,
+                }
+            )
+        return serialized
+
+    def _save_known_registry(self) -> None:
+        path = self._registry_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {"people": self._serialize_registry()}
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def _find_person(self, person_id: str) -> Tuple[int, Optional[Dict[str, object]]]:
+        target = person_id.strip()
+        for idx, person in enumerate(self._known_registry):
+            if str(person.get("person_id", "")).strip() == target:
+                return idx, person
+        return -1, None
 
     @staticmethod
     def _empty_summary() -> Dict[str, object]:
@@ -155,16 +194,177 @@ class FaceIntelEngine:
     def _distance(a: np.ndarray, b: np.ndarray) -> float:
         return float(np.linalg.norm(a - b))
 
-    def reset_session(self, reason: str = "manual-reset") -> None:
-        self._unknown_counter = 0
-        self._unknown_tracks.clear()
-        self._last_summary = self._empty_summary()
-        self._last_summary["enabled"] = self.config.enabled
-        self._last_summary["detector"] = self.config.detector_backend
-        self._last_summary["resetReason"] = reason
+    def list_known_people(self, include_embeddings: bool = False) -> List[Dict[str, object]]:
+        people: List[Dict[str, object]] = []
+        with self._lock:
+            for person in self._known_registry:
+                item = {
+                    "personId": str(person.get("person_id", "")).strip(),
+                    "displayName": str(person.get("display_name", "")).strip(),
+                    "role": str(person.get("role", "")).strip(),
+                    "embeddingCount": len(person.get("embeddings", [])),
+                }
+                if include_embeddings:
+                    item["embeddings"] = [
+                        [float(x) for x in emb.tolist()]
+                        for emb in person.get("embeddings", [])
+                        if isinstance(emb, np.ndarray)
+                    ]
+                people.append(item)
+        return people
 
-    def detect_faces(self, frame: np.ndarray) -> List[Dict[str, object]]:
-        if not self.config.enabled:
+    def upsert_known_person(self, person_id: str, display_name: str, role: str = "") -> Dict[str, object]:
+        pid = person_id.strip()
+        if not pid:
+            raise ValueError("person_id is required")
+
+        display = display_name.strip() or pid
+        with self._lock:
+            idx, person = self._find_person(pid)
+            if person is None:
+                person = {
+                    "person_id": pid,
+                    "display_name": display,
+                    "role": role.strip(),
+                    "embeddings": [],
+                }
+                self._known_registry.append(person)
+            else:
+                person["display_name"] = display
+                person["role"] = role.strip()
+                self._known_registry[idx] = person
+            self._save_known_registry()
+            return {
+                "personId": pid,
+                "displayName": str(person.get("display_name", "")).strip(),
+                "role": str(person.get("role", "")).strip(),
+                "embeddingCount": len(person.get("embeddings", [])),
+            }
+
+    def get_known_person(self, person_id: str, include_embeddings: bool = False) -> Optional[Dict[str, object]]:
+        pid = person_id.strip()
+        if not pid:
+            return None
+        with self._lock:
+            _idx, person = self._find_person(pid)
+            if person is None:
+                return None
+            result = {
+                "personId": str(person.get("person_id", "")).strip(),
+                "displayName": str(person.get("display_name", "")).strip(),
+                "role": str(person.get("role", "")).strip(),
+                "embeddingCount": len(person.get("embeddings", [])),
+            }
+            if include_embeddings:
+                result["embeddings"] = [
+                    [float(x) for x in emb.tolist()]
+                    for emb in person.get("embeddings", [])
+                    if isinstance(emb, np.ndarray)
+                ]
+            return result
+
+    def delete_known_person(self, person_id: str) -> bool:
+        pid = person_id.strip()
+        if not pid:
+            return False
+        with self._lock:
+            idx, _person = self._find_person(pid)
+            if idx < 0:
+                return False
+            self._known_registry.pop(idx)
+            self._save_known_registry()
+            return True
+
+    def clear_person_embeddings(self, person_id: str) -> bool:
+        pid = person_id.strip()
+        if not pid:
+            return False
+        with self._lock:
+            idx, person = self._find_person(pid)
+            if person is None:
+                return False
+            person["embeddings"] = []
+            self._known_registry[idx] = person
+            self._save_known_registry()
+            return True
+
+    @staticmethod
+    def _decode_base64_image(image_base64: str) -> np.ndarray:
+        raw = image_base64.strip()
+        if "," in raw and raw.lower().startswith("data:image"):
+            raw = raw.split(",", 1)[1]
+        binary = base64.b64decode(raw, validate=True)
+        arr = np.frombuffer(binary, dtype=np.uint8)
+        image = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError("image decode failed")
+        return image
+
+    def _pick_enrollment_crop(self, image: np.ndarray) -> np.ndarray:
+        detections = self.detect_faces(image, for_enrollment=True)
+        if detections:
+            x, y, w, h = detections[0]["bbox"]
+            x2 = min(image.shape[1], x + w)
+            y2 = min(image.shape[0], y + h)
+            crop = image[max(0, y):y2, max(0, x):x2]
+            if crop.size > 0:
+                return crop
+        return image
+
+    def enroll_person_from_base64(self, person_id: str, image_base64: str, display_name: str = "", role: str = "") -> Dict[str, object]:
+        pid = person_id.strip()
+        if not pid:
+            raise ValueError("person_id is required")
+        if not image_base64.strip():
+            raise ValueError("image_base64 is required")
+
+        image = self._decode_base64_image(image_base64)
+        crop = self._pick_enrollment_crop(image)
+        embedding = self.extract_embedding(crop)
+
+        with self._lock:
+            idx, person = self._find_person(pid)
+            if person is None:
+                person = {
+                    "person_id": pid,
+                    "display_name": display_name.strip() or pid,
+                    "role": role.strip(),
+                    "embeddings": [],
+                }
+                self._known_registry.append(person)
+                idx = len(self._known_registry) - 1
+            else:
+                if display_name.strip():
+                    person["display_name"] = display_name.strip()
+                if role.strip():
+                    person["role"] = role.strip()
+
+            embeddings = person.get("embeddings", [])
+            if not isinstance(embeddings, list):
+                embeddings = []
+            embeddings.append(embedding)
+            person["embeddings"] = embeddings
+            self._known_registry[idx] = person
+            self._save_known_registry()
+
+            return {
+                "personId": pid,
+                "displayName": str(person.get("display_name", "")).strip(),
+                "role": str(person.get("role", "")).strip(),
+                "embeddingCount": len(person.get("embeddings", [])),
+            }
+
+    def reset_session(self, reason: str = "manual-reset") -> None:
+        with self._lock:
+            self._unknown_counter = 0
+            self._unknown_tracks.clear()
+            self._last_summary = self._empty_summary()
+            self._last_summary["enabled"] = self.config.enabled
+            self._last_summary["detector"] = self.config.detector_backend
+            self._last_summary["resetReason"] = reason
+
+    def detect_faces(self, frame: np.ndarray, for_enrollment: bool = False) -> List[Dict[str, object]]:
+        if not self.config.enabled and not for_enrollment:
             return []
         if self.config.detector_backend != "haar" or self._cascade is None:
             return []
@@ -208,7 +408,10 @@ class FaceIntelEngine:
         best: Optional[Dict[str, object]] = None
         best_dist = 999.0
 
-        for person in self._known_registry:
+        with self._lock:
+            people_snapshot = list(self._known_registry)
+
+        for person in people_snapshot:
             for known_embedding in person["embeddings"]:
                 if known_embedding.shape != embedding.shape:
                     continue
@@ -230,45 +433,49 @@ class FaceIntelEngine:
 
     def assign_unknown_id(self, embedding: np.ndarray, track_hint: Optional[str] = None) -> str:
         del track_hint
-        stale_ids = []
-        for unknown_id, track in self._unknown_tracks.items():
-            age = self._frame_index - int(track.get("lastSeenFrame", 0))
-            if age > self.config.max_unknown_age_frames:
-                stale_ids.append(unknown_id)
-        for unknown_id in stale_ids:
-            self._unknown_tracks.pop(unknown_id, None)
+        with self._lock:
+            stale_ids = []
+            for unknown_id, track in self._unknown_tracks.items():
+                age = self._frame_index - int(track.get("lastSeenFrame", 0))
+                if age > self.config.max_unknown_age_frames:
+                    stale_ids.append(unknown_id)
+            for unknown_id in stale_ids:
+                self._unknown_tracks.pop(unknown_id, None)
 
-        best_id = None
-        best_dist = 999.0
-        for unknown_id, track in self._unknown_tracks.items():
-            ref = track.get("embedding")
-            if not isinstance(ref, np.ndarray) or ref.shape != embedding.shape:
-                continue
-            dist = self._distance(embedding, ref)
-            if dist < best_dist:
-                best_dist = dist
-                best_id = unknown_id
+            best_id = None
+            best_dist = 999.0
+            for unknown_id, track in self._unknown_tracks.items():
+                ref = track.get("embedding")
+                if not isinstance(ref, np.ndarray) or ref.shape != embedding.shape:
+                    continue
+                dist = self._distance(embedding, ref)
+                if dist < best_dist:
+                    best_dist = dist
+                    best_id = unknown_id
 
-        if best_id is not None and best_dist <= self.config.unknown_match_threshold:
-            self._unknown_tracks[best_id]["embedding"] = embedding
-            self._unknown_tracks[best_id]["lastSeenFrame"] = self._frame_index
-            return best_id
+            if best_id is not None and best_dist <= self.config.unknown_match_threshold:
+                self._unknown_tracks[best_id]["embedding"] = embedding
+                self._unknown_tracks[best_id]["lastSeenFrame"] = self._frame_index
+                return best_id
 
-        self._unknown_counter += 1
-        unknown_id = f"U-{self._unknown_counter:03d}"
-        self._unknown_tracks[unknown_id] = {
-            "embedding": embedding,
-            "firstSeenFrame": self._frame_index,
-            "lastSeenFrame": self._frame_index,
-        }
-        return unknown_id
+            self._unknown_counter += 1
+            unknown_id = f"U-{self._unknown_counter:03d}"
+            self._unknown_tracks[unknown_id] = {
+                "embedding": embedding,
+                "firstSeenFrame": self._frame_index,
+                "lastSeenFrame": self._frame_index,
+            }
+            return unknown_id
 
     def analyze_frame(self, frame: np.ndarray) -> Dict[str, object]:
-        self._frame_index += 1
+        with self._lock:
+            self._frame_index += 1
+            frame_idx = self._frame_index
         if not self.config.enabled:
-            self._last_summary = self._empty_summary()
-            self._last_summary["frameIndex"] = self._frame_index
-            return dict(self._last_summary)
+            with self._lock:
+                self._last_summary = self._empty_summary()
+                self._last_summary["frameIndex"] = frame_idx
+                return dict(self._last_summary)
 
         detections = self.detect_faces(frame)
         recognized: List[Dict[str, object]] = []
@@ -308,34 +515,36 @@ class FaceIntelEngine:
                 }
             )
 
-        self._last_summary = {
-            "enabled": True,
-            "detector": self.config.detector_backend,
-            "frameIndex": self._frame_index,
-            "totalFaces": len(observations),
-            "recognized": recognized,
-            "unknownIds": unknown_ids,
-            "unknownCount": len(unknown_ids),
-            "observations": observations,
-        }
-        return dict(self._last_summary)
+        with self._lock:
+            self._last_summary = {
+                "enabled": True,
+                "detector": self.config.detector_backend,
+                "frameIndex": frame_idx,
+                "totalFaces": len(observations),
+                "recognized": recognized,
+                "unknownIds": unknown_ids,
+                "unknownCount": len(unknown_ids),
+                "observations": observations,
+            }
+            return dict(self._last_summary)
 
     def current_summary(self) -> Dict[str, object]:
-        return dict(self._last_summary)
+        with self._lock:
+            return dict(self._last_summary)
 
     def status(self) -> Dict[str, object]:
-        return {
-            "enabled": self.config.enabled,
-            "detectorBackend": self.config.detector_backend,
-            "knownRegistryPath": str(self._registry_path()),
-            "knownRegistryCount": len(self._known_registry),
-            "unknownActiveCount": len(self._unknown_tracks),
-            "frameIndex": self._frame_index,
-            "thresholds": {
-                "knownMatch": self.config.known_match_threshold,
-                "unknownMatch": self.config.unknown_match_threshold,
-            },
-            "maxUnknownAgeFrames": self.config.max_unknown_age_frames,
-            "lastSummary": self.current_summary(),
-        }
-
+        with self._lock:
+            return {
+                "enabled": self.config.enabled,
+                "detectorBackend": self.config.detector_backend,
+                "knownRegistryPath": str(self._registry_path()),
+                "knownRegistryCount": len(self._known_registry),
+                "unknownActiveCount": len(self._unknown_tracks),
+                "frameIndex": self._frame_index,
+                "thresholds": {
+                    "knownMatch": self.config.known_match_threshold,
+                    "unknownMatch": self.config.unknown_match_threshold,
+                },
+                "maxUnknownAgeFrames": self.config.max_unknown_age_frames,
+                "lastSummary": dict(self._last_summary),
+            }

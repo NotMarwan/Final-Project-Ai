@@ -209,6 +209,17 @@ class AudioAnalysisRequest(BaseModel):
     audio_base64: str
     filename: Optional[str] = None
 
+
+class FacePersonUpdateRequest(BaseModel):
+    display_name: str
+    role: Optional[str] = None
+
+
+class FaceEnrollRequest(BaseModel):
+    image_base64: str
+    display_name: Optional[str] = None
+    role: Optional[str] = None
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Application State Management
 # ─────────────────────────────────────────────────────────────────────────────
@@ -864,6 +875,94 @@ async def audio_status():
 @app.get("/face/status", summary="Face intelligence status")
 async def face_status():
     return face_engine.status()
+
+
+@app.get("/face/registry", summary="List known people registry")
+async def face_registry(request: Request, include_embeddings: bool = False):
+    security_controller.authorize(request, required_role="viewer")
+    return {"items": face_engine.list_known_people(include_embeddings=include_embeddings)}
+
+
+@app.get("/face/registry/{person_id}", summary="Get known person profile")
+async def face_registry_get(person_id: str, request: Request, include_embeddings: bool = False):
+    security_controller.authorize(request, required_role="viewer")
+    person = face_engine.get_known_person(person_id, include_embeddings=include_embeddings)
+    if not person:
+        raise HTTPException(status_code=404, detail="Known person not found")
+    return person
+
+
+@app.put("/face/registry/{person_id}", summary="Create or update known person")
+async def face_registry_upsert(person_id: str, body: FacePersonUpdateRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    try:
+        person = face_engine.upsert_known_person(
+            person_id=person_id,
+            display_name=body.display_name,
+            role=body.role or "",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    audit_logger.record(
+        "face_registry_upsert",
+        "success",
+        role=role,
+        details={"personId": person.get("personId")},
+    )
+    return {"status": "success", "person": person}
+
+
+@app.delete("/face/registry/{person_id}", summary="Delete known person")
+async def face_registry_delete(person_id: str, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    deleted = face_engine.delete_known_person(person_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Known person not found")
+    audit_logger.record("face_registry_delete", "success", role=role, details={"personId": person_id})
+    return {"status": "success", "personId": person_id}
+
+
+@app.delete("/face/registry/{person_id}/embeddings", summary="Clear known person embeddings")
+async def face_registry_clear_embeddings(person_id: str, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    cleared = face_engine.clear_person_embeddings(person_id)
+    if not cleared:
+        raise HTTPException(status_code=404, detail="Known person not found")
+    audit_logger.record(
+        "face_registry_clear_embeddings",
+        "success",
+        role=role,
+        details={"personId": person_id},
+    )
+    return {"status": "success", "personId": person_id}
+
+
+@app.post("/face/registry/{person_id}/enroll", summary="Enroll known person from image base64")
+async def face_registry_enroll(person_id: str, body: FaceEnrollRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    try:
+        person = face_engine.enroll_person_from_base64(
+            person_id=person_id,
+            image_base64=body.image_base64,
+            display_name=body.display_name or "",
+            role=body.role or "",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Enrollment failed: {exc}")
+
+    audit_logger.record(
+        "face_registry_enroll",
+        "success",
+        role=role,
+        details={
+            "personId": person.get("personId"),
+            "embeddingCount": person.get("embeddingCount", 0),
+        },
+    )
+    return {"status": "success", "person": person}
 
 
 @app.post("/face/session/reset", summary="Reset face unknown-id session")
