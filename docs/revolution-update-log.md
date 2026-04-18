@@ -409,3 +409,27 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 11 candidate: add a minimal CI workflow job to run `npm run test:face-policy` on pushes/PRs.
+
+### Update 012 - 2026-04-18
+
+Step 11 CI workflow prepared (push permission blocked):
+
+- Added local GitHub Actions workflow draft:
+  - `.github/workflows/face-policy-tests.yml` (local draft)
+- Workflow draft behavior:
+  - triggers on `push` and `pull_request`
+  - sets up Python 3.11 + Node 20
+  - installs lightweight Python dependencies required by backend import path
+  - runs `npm run test:face-policy`
+- Push blocker encountered:
+  - remote rejected workflow-file update because the active token does not have `workflow` scope.
+
+Validation performed:
+
+- Local command passed:
+  - `npm run test:face-policy`
+  - 5 tests passed.
+
+Immediate next implementation target:
+
+- Step 12 candidate: push workflow file after enabling token `workflow` scope, then add path filters.

@@ -1,11 +1,57 @@
 import importlib.util
 import os
 import sys
+import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
+
+
+def _install_lightweight_stubs():
+    if "torch" not in sys.modules:
+        torch_stub = types.ModuleType("torch")
+
+        class _Cuda:
+            @staticmethod
+            def is_available():
+                return False
+
+            @staticmethod
+            def empty_cache():
+                return None
+
+        class _Device:
+            def __init__(self, device_type: str):
+                self.type = device_type
+
+        def _device(device_type: str):
+            return _Device(device_type)
+
+        torch_stub.cuda = _Cuda()
+        torch_stub.device = _device
+        sys.modules["torch"] = torch_stub
+
+    if "inference" not in sys.modules:
+        inference_stub = types.ModuleType("inference")
+        inference_stub.VIOLENCE_CLS = "Violence"
+
+        class ViolenceInferencePipeline:
+            def __init__(self, _weights_path, _device, threshold, _stride):
+                self.threshold = threshold
+                self._last_label = "Normal"
+                self._last_conf = 0.0
+
+            def process_frame(self, frame):
+                return frame
+
+            def reset(self):
+                self._last_label = "Normal"
+                self._last_conf = 0.0
+
+        inference_stub.ViolenceInferencePipeline = ViolenceInferencePipeline
+        sys.modules["inference"] = inference_stub
 
 
 def _load_api_module():
@@ -15,6 +61,7 @@ def _load_api_module():
 
     os.environ["AI_SENTINEL_ENABLE_CAPTURE_LOOP"] = "false"
     os.environ["ADMIN_API_KEY"] = ""
+    _install_lightweight_stubs()
 
     backend_dir_text = str(backend_dir)
     if backend_dir_text not in sys.path:
