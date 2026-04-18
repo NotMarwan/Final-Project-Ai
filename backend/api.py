@@ -220,6 +220,12 @@ class FaceEnrollRequest(BaseModel):
     display_name: Optional[str] = None
     role: Optional[str] = None
 
+
+class FacePolicyRequest(BaseModel):
+    identity_labeling_enabled: Optional[bool] = None
+    recognition_audit_enabled: Optional[bool] = None
+    recognition_audit_cooldown_sec: Optional[int] = Field(default=None, ge=1, le=3600)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Application State Management
 # ─────────────────────────────────────────────────────────────────────────────
@@ -501,6 +507,138 @@ def _estimate_motion_score(previous_frame: Optional[np.ndarray], current_frame: 
         return 0.0
 
 
+def _public_face_summary(face_summary: Dict[str, object]) -> Dict[str, object]:
+    identity_enabled = bool(face_summary.get("identityLabelingEnabled", True))
+    recognized_raw = face_summary.get("recognized", [])
+    observations_raw = face_summary.get("observations", [])
+
+    alias_map: Dict[str, str] = {}
+
+    def _alias_for(person_key: str) -> str:
+        existing = alias_map.get(person_key)
+        if existing:
+            return existing
+        alias = f"K-{len(alias_map) + 1:03d}"
+        alias_map[person_key] = alias
+        return alias
+
+    recognized_public = []
+    if isinstance(recognized_raw, list):
+        for idx, item in enumerate(recognized_raw):
+            if not isinstance(item, dict):
+                continue
+            entry = dict(item)
+            if not identity_enabled:
+                person_key = str(item.get("personId", "")).strip() or f"KNOWN-{idx + 1}"
+                alias = _alias_for(person_key)
+                entry["personId"] = alias
+                entry["label"] = alias
+                entry["masked"] = True
+            recognized_public.append(entry)
+
+    observations_public = []
+    if isinstance(observations_raw, list):
+        for idx, obs in enumerate(observations_raw):
+            if not isinstance(obs, dict):
+                continue
+            entry = dict(obs)
+            if not identity_enabled and str(obs.get("kind", "")).strip().lower() == "known":
+                person_key = str(obs.get("id", "")).strip() or f"KNOWN-{idx + 1}"
+                alias = _alias_for(person_key)
+                entry["id"] = alias
+                entry["label"] = alias
+            observations_public.append(entry)
+
+    return {
+        "enabled": bool(face_summary.get("enabled", False)),
+        "identityLabelingEnabled": identity_enabled,
+        "frameIndex": int(face_summary.get("frameIndex", 0)),
+        "totalFaces": int(face_summary.get("totalFaces", 0)),
+        "recognized": recognized_public,
+        "recognizedCount": int(face_summary.get("recognizedCount", len(recognized_public))),
+        "unknownIds": face_summary.get("unknownIds", []),
+        "unknownCount": int(face_summary.get("unknownCount", 0)),
+        "unknownDetails": face_summary.get("unknownDetails", []),
+        "observations": observations_public,
+    }
+
+
+def _emit_face_audit_events(
+    *,
+    face_summary: Dict[str, object],
+    camera_id: str,
+    dedupe_cache: Dict[str, float],
+    alert_id: Optional[str] = None,
+) -> None:
+    if not face_engine.config.recognition_audit_enabled:
+        return
+
+    now = time.time()
+    cooldown = max(1, int(face_engine.config.recognition_audit_cooldown_sec))
+    identity_enabled = bool(face_summary.get("identityLabelingEnabled", True))
+    frame_index = int(face_summary.get("frameIndex", 0))
+
+    recognized = face_summary.get("recognized", [])
+    if isinstance(recognized, list):
+        for idx, person in enumerate(recognized):
+            if not isinstance(person, dict):
+                continue
+            person_key = str(person.get("personId", "")).strip() or f"known-{idx + 1}"
+            dedupe_key = f"known:{person_key}"
+            last_seen_at = dedupe_cache.get(dedupe_key, 0.0)
+            if now - last_seen_at < cooldown:
+                continue
+            dedupe_cache[dedupe_key] = now
+
+            details = {
+                "cameraId": camera_id,
+                "frameIndex": frame_index,
+                "confidence": float(person.get("confidence", 0.0)),
+                "identityLabelingEnabled": identity_enabled,
+            }
+            if identity_enabled:
+                details["personId"] = person_key
+                details["label"] = str(person.get("label", "")).strip()
+            else:
+                details["masked"] = True
+
+            audit_logger.record(
+                "face_known_seen",
+                "success",
+                role="system",
+                alert_id=alert_id,
+                details=details,
+            )
+
+    unknown_ids = face_summary.get("unknownIds", [])
+    if isinstance(unknown_ids, list):
+        for raw_unknown_id in unknown_ids:
+            unknown_id = str(raw_unknown_id).strip()
+            if not unknown_id:
+                continue
+            dedupe_key = f"unknown:{unknown_id}"
+            last_seen_at = dedupe_cache.get(dedupe_key, 0.0)
+            if now - last_seen_at < cooldown:
+                continue
+            dedupe_cache[dedupe_key] = now
+            audit_logger.record(
+                "face_unknown_seen",
+                "success",
+                role="system",
+                alert_id=alert_id,
+                details={
+                    "cameraId": camera_id,
+                    "frameIndex": frame_index,
+                    "unknownId": unknown_id,
+                },
+            )
+
+    prune_before = now - (cooldown * 4.0)
+    stale_keys = [k for k, ts in dedupe_cache.items() if ts < prune_before]
+    for key in stale_keys:
+        dedupe_cache.pop(key, None)
+
+
 def capture_loop():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[System] AI Engine initializing on {device.type.upper()}...")
@@ -518,6 +656,7 @@ def capture_loop():
     active_post_queues = []
     last_alert_time = 0.0
     previous_raw_frame: Optional[np.ndarray] = None
+    face_audit_dedupe: Dict[str, float] = {}
     state.running = True
 
     while state.running:
@@ -546,6 +685,13 @@ def capture_loop():
         previous_raw_frame = raw.copy()
         face_summary = face_engine.analyze_frame(raw)
         state.store_face_summary(face_summary)
+        cam_id = state.get_current_camera_id()
+        _emit_face_audit_events(
+            face_summary=face_summary,
+            camera_id=cam_id,
+            dedupe_cache=face_audit_dedupe,
+        )
+        client_face_summary = _public_face_summary(face_summary)
 
         ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
@@ -557,7 +703,6 @@ def capture_loop():
         if pipeline._last_label == VIOLENCE_CLS and (now - last_alert_time > current_cooldown):
             last_alert_time = now
             alert_id = f"alert-{int(now * 1000)}"
-            cam_id = state.get_current_camera_id()
             conf = pipeline._last_conf
 
             severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
@@ -583,16 +728,7 @@ def capture_loop():
                 "motionScore": fusion["motionScore"],
                 "weaponScore": fusion["weaponScore"],
                 "fusionReason": fusion["reason"],
-                "faceSummary": {
-                    "enabled": bool(face_summary.get("enabled", False)),
-                    "frameIndex": int(face_summary.get("frameIndex", 0)),
-                    "totalFaces": int(face_summary.get("totalFaces", 0)),
-                    "recognized": face_summary.get("recognized", []),
-                    "recognizedCount": int(face_summary.get("recognizedCount", len(face_summary.get("recognized", [])))),
-                    "unknownIds": face_summary.get("unknownIds", []),
-                    "unknownCount": int(face_summary.get("unknownCount", 0)),
-                    "unknownDetails": face_summary.get("unknownDetails", []),
-                },
+                "faceSummary": client_face_summary,
             }
 
             state.register_alert(alert_payload)
@@ -607,7 +743,17 @@ def capture_loop():
                     "severity": severity,
                     "confidence": round(conf * 100, 1),
                     "fusionScore": fusion["score"],
+                    "faceTotal": int(face_summary.get("totalFaces", 0)),
+                    "faceKnown": int(face_summary.get("recognizedCount", 0)),
+                    "faceUnknown": int(face_summary.get("unknownCount", 0)),
+                    "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
                 },
+            )
+            _emit_face_audit_events(
+                face_summary=face_summary,
+                camera_id=cam_id,
+                dedupe_cache=face_audit_dedupe,
+                alert_id=alert_id,
             )
 
             pre_frames = list(ring)
@@ -640,6 +786,7 @@ def capture_loop():
             cap.release()
             ring.clear()
             active_post_queues.clear()
+            face_audit_dedupe.clear()
             pipeline.reset()
             face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             if device.type == "cuda":
@@ -878,6 +1025,34 @@ async def audio_status():
 @app.get("/face/status", summary="Face intelligence status")
 async def face_status():
     return face_engine.status()
+
+
+@app.post("/face/policy", summary="Update face identity/audit policy")
+async def face_policy_update(body: FacePolicyRequest, request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    updates = {}
+
+    if body.identity_labeling_enabled is not None:
+        updates["identityLabelingEnabled"] = face_engine.set_identity_labeling_enabled(body.identity_labeling_enabled)
+    if body.recognition_audit_enabled is not None:
+        updates["recognitionAuditEnabled"] = face_engine.set_recognition_audit_enabled(body.recognition_audit_enabled)
+    if body.recognition_audit_cooldown_sec is not None:
+        updates["recognitionAuditCooldownSec"] = face_engine.set_recognition_audit_cooldown_sec(body.recognition_audit_cooldown_sec)
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No policy field provided")
+
+    audit_logger.record(
+        "face_policy_update",
+        "success",
+        role=role,
+        details=updates,
+    )
+    return {
+        "status": "success",
+        "updates": updates,
+        "face": face_engine.status(),
+    }
 
 
 @app.get("/face/registry", summary="List known people registry")

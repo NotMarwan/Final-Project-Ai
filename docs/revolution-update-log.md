@@ -277,3 +277,38 @@ Validation performed:
 Immediate next implementation target:
 
 - Build Step 6: quality guardrails (confidence gates, anti-flicker refinements, identity-label policy toggle, and expanded recognition audit trail).
+
+### Update 007 - 2026-04-18
+
+Step 6 quality and policy guardrails delivered:
+
+- Strengthened known-face guardrails in `backend/face_intel.py`:
+  - added `known_min_confidence` gate before accepting known matches
+  - added known-face anti-flicker stabilization using strong IoU + relaxed threshold window
+  - added known-track TTL pruning (`max_known_age_frames`) to keep runtime state clean
+- Added face identity policy controls:
+  - runtime toggle for identity labeling (`identityLabelingEnabled`)
+  - when disabled, known labels are masked to neutral aliases (`K-001`, `K-002`, ...)
+- Added configurable recognition audit behavior:
+  - enable/disable recognition audit stream
+  - configurable audit cooldown seconds to reduce noisy repeated entries
+- Added new admin endpoint in `backend/api.py`:
+  - `POST /face/policy` to update:
+    - `identity_labeling_enabled`
+    - `recognition_audit_enabled`
+    - `recognition_audit_cooldown_sec`
+- Expanded audit trail in capture pipeline:
+  - logs known-person sightings (`face_known_seen`) with cooldown dedupe
+  - logs unknown-ID sightings (`face_unknown_seen`) with cooldown dedupe
+  - enriches `alert_detected` audit details with face totals and labeling-policy state
+- Extended configuration surface:
+  - `backend/config.yml` and `backend/.env.example` now include new known-match and policy/audit keys.
+
+Validation performed:
+
+- Syntax compile passed:
+  - `python -m py_compile backend/face_intel.py backend/api.py`
+
+Immediate next implementation target:
+
+- Step 7 candidate: add operator-side controls in frontend settings for face policy toggles and audit cooldown with safe defaults.

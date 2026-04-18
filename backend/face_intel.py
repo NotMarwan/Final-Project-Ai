@@ -7,7 +7,7 @@ import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import cv2
 import numpy as np
@@ -40,15 +40,22 @@ class FaceIntelConfig:
     enabled: bool = False
     detector_backend: str = "none"
     known_match_threshold: float = 0.45
+    known_min_confidence: float = 0.52
+    known_match_relax_factor: float = 1.15
+    known_strong_iou: float = 0.55
     unknown_match_threshold: float = 0.30
     unknown_match_relax_factor: float = 1.35
     unknown_min_iou: float = 0.08
     unknown_strong_iou: float = 0.55
     unknown_embedding_weight: float = 0.70
     unknown_iou_weight: float = 0.30
+    max_known_age_frames: int = 45
     max_unknown_age_frames: int = 90
     min_face_size: int = 36
     known_registry_path: str = "./known_faces_registry.json"
+    identity_labeling_enabled: bool = True
+    recognition_audit_enabled: bool = True
+    recognition_audit_cooldown_sec: int = 25
 
     @classmethod
     def from_settings(cls, settings: dict, env: dict) -> "FaceIntelConfig":
@@ -60,6 +67,12 @@ class FaceIntelConfig:
             enabled=_as_bool(env.get("FACE_INTEL_ENABLED"), _as_bool(face_cfg.get("enabled"), False)),
             detector_backend=str(env.get("FACE_DETECTOR_BACKEND", face_cfg.get("detector_backend", "none"))).strip().lower(),
             known_match_threshold=_as_float(env.get("FACE_KNOWN_MATCH_THRESHOLD"), _as_float(face_cfg.get("known_match_threshold"), 0.45)),
+            known_min_confidence=_as_float(env.get("FACE_KNOWN_MIN_CONFIDENCE"), _as_float(face_cfg.get("known_min_confidence"), 0.52)),
+            known_match_relax_factor=_as_float(
+                env.get("FACE_KNOWN_MATCH_RELAX_FACTOR"),
+                _as_float(face_cfg.get("known_match_relax_factor"), 1.15),
+            ),
+            known_strong_iou=_as_float(env.get("FACE_KNOWN_STRONG_IOU"), _as_float(face_cfg.get("known_strong_iou"), 0.55)),
             unknown_match_threshold=_as_float(env.get("FACE_UNKNOWN_MATCH_THRESHOLD"), _as_float(face_cfg.get("unknown_match_threshold"), 0.30)),
             unknown_match_relax_factor=_as_float(
                 env.get("FACE_UNKNOWN_MATCH_RELAX_FACTOR"),
@@ -72,9 +85,22 @@ class FaceIntelConfig:
                 _as_float(face_cfg.get("unknown_embedding_weight"), 0.70),
             ),
             unknown_iou_weight=_as_float(env.get("FACE_UNKNOWN_IOU_WEIGHT"), _as_float(face_cfg.get("unknown_iou_weight"), 0.30)),
+            max_known_age_frames=_as_int(env.get("FACE_MAX_KNOWN_AGE_FRAMES"), _as_int(face_cfg.get("max_known_age_frames"), 45)),
             max_unknown_age_frames=_as_int(env.get("FACE_MAX_UNKNOWN_AGE_FRAMES"), _as_int(face_cfg.get("max_unknown_age_frames"), 90)),
             min_face_size=_as_int(env.get("FACE_MIN_FACE_SIZE"), _as_int(face_cfg.get("min_face_size"), 36)),
             known_registry_path=str(env.get("FACE_KNOWN_REGISTRY_PATH", face_cfg.get("known_registry_path", "./known_faces_registry.json"))),
+            identity_labeling_enabled=_as_bool(
+                env.get("FACE_IDENTITY_LABELING_ENABLED"),
+                _as_bool(face_cfg.get("identity_labeling_enabled"), True),
+            ),
+            recognition_audit_enabled=_as_bool(
+                env.get("FACE_RECOGNITION_AUDIT_ENABLED"),
+                _as_bool(face_cfg.get("recognition_audit_enabled"), True),
+            ),
+            recognition_audit_cooldown_sec=_as_int(
+                env.get("FACE_RECOGNITION_AUDIT_COOLDOWN_SEC"),
+                _as_int(face_cfg.get("recognition_audit_cooldown_sec"), 25),
+            ),
         )
 
 
@@ -86,6 +112,7 @@ class FaceIntelEngine:
         self._frame_index = 0
         self._unknown_counter = 0
         self._unknown_tracks: Dict[str, Dict[str, object]] = {}
+        self._known_tracks: Dict[str, Dict[str, object]] = {}
         self._known_registry: List[Dict[str, object]] = []
         self._last_summary: Dict[str, object] = self._empty_summary()
         self._cascade = None
@@ -198,6 +225,7 @@ class FaceIntelEngine:
     def _empty_summary() -> Dict[str, object]:
         return {
             "enabled": False,
+            "identityLabelingEnabled": True,
             "detector": "none",
             "frameIndex": 0,
             "totalFaces": 0,
@@ -235,6 +263,88 @@ class FaceIntelEngine:
         if denom <= 0:
             return 0.0
         return inter / denom
+
+    @staticmethod
+    def _coerce_bbox(raw_bbox: object) -> Optional[Tuple[int, int, int, int]]:
+        if isinstance(raw_bbox, tuple) and len(raw_bbox) == 4:
+            try:
+                return (int(raw_bbox[0]), int(raw_bbox[1]), int(raw_bbox[2]), int(raw_bbox[3]))
+            except Exception:
+                return None
+        if isinstance(raw_bbox, list) and len(raw_bbox) == 4:
+            try:
+                return (int(raw_bbox[0]), int(raw_bbox[1]), int(raw_bbox[2]), int(raw_bbox[3]))
+            except Exception:
+                return None
+        return None
+
+    def _resolve_track_bbox(self, track_hint: Optional[Dict[str, object]]) -> Optional[Tuple[int, int, int, int]]:
+        if not isinstance(track_hint, dict):
+            return None
+        return self._coerce_bbox(track_hint.get("bbox"))
+
+    def _prune_known_tracks_locked(self) -> None:
+        stale_ids: List[str] = []
+        for person_id, track in self._known_tracks.items():
+            age = self._frame_index - int(track.get("lastSeenFrame", 0))
+            if age > self.config.max_known_age_frames:
+                stale_ids.append(person_id)
+        for person_id in stale_ids:
+            self._known_tracks.pop(person_id, None)
+
+    def _best_known_candidate(self, embedding: np.ndarray) -> Optional[Dict[str, object]]:
+        best: Optional[Dict[str, object]] = None
+        best_dist = 999.0
+
+        with self._lock:
+            people_snapshot = list(self._known_registry)
+
+        for person in people_snapshot:
+            for known_embedding in person["embeddings"]:
+                if known_embedding.shape != embedding.shape:
+                    continue
+                dist = self._distance(embedding, known_embedding)
+                if dist < best_dist:
+                    best_dist = dist
+                    best = person
+
+        if best is None:
+            return None
+
+        confidence = max(0.0, min(1.0, 1.0 - best_dist))
+        return {
+            "personId": best["person_id"],
+            "label": best["display_name"],
+            "confidence": float(confidence),
+            "distance": float(best_dist),
+        }
+
+    @staticmethod
+    def _format_known_match(match: Dict[str, object]) -> Dict[str, object]:
+        payload = {
+            "personId": match["personId"],
+            "label": match["label"],
+            "confidence": round(float(match["confidence"]), 4),
+            "distance": round(float(match["distance"]), 4),
+        }
+        if match.get("stabilized"):
+            payload["stabilized"] = True
+        return payload
+
+    def _apply_identity_policy(
+        self,
+        person_id: str,
+        label: str,
+        aliases: Dict[str, str],
+    ) -> Tuple[str, str]:
+        if self.config.identity_labeling_enabled:
+            return person_id, label
+
+        alias = aliases.get(person_id)
+        if not alias:
+            alias = f"K-{len(aliases) + 1:03d}"
+            aliases[person_id] = alias
+        return alias, alias
 
     def list_known_people(self, include_embeddings: bool = False) -> List[Dict[str, object]]:
         people: List[Dict[str, object]] = []
@@ -400,10 +510,29 @@ class FaceIntelEngine:
         with self._lock:
             self._unknown_counter = 0
             self._unknown_tracks.clear()
+            self._known_tracks.clear()
             self._last_summary = self._empty_summary()
             self._last_summary["enabled"] = self.config.enabled
+            self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
             self._last_summary["detector"] = self.config.detector_backend
             self._last_summary["resetReason"] = reason
+
+    def set_identity_labeling_enabled(self, enabled: bool) -> bool:
+        with self._lock:
+            self.config.identity_labeling_enabled = bool(enabled)
+            self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
+            return self.config.identity_labeling_enabled
+
+    def set_recognition_audit_enabled(self, enabled: bool) -> bool:
+        with self._lock:
+            self.config.recognition_audit_enabled = bool(enabled)
+            return self.config.recognition_audit_enabled
+
+    def set_recognition_audit_cooldown_sec(self, seconds: int) -> int:
+        with self._lock:
+            value = max(1, int(seconds))
+            self.config.recognition_audit_cooldown_sec = value
+            return self.config.recognition_audit_cooldown_sec
 
     def detect_faces(self, frame: np.ndarray, for_enrollment: bool = False) -> List[Dict[str, object]]:
         if not self.config.enabled and not for_enrollment:
@@ -447,31 +576,67 @@ class FaceIntelEngine:
         return embedding.astype(np.float32)
 
     def match_known_face(self, embedding: np.ndarray) -> Optional[Dict[str, object]]:
-        best: Optional[Dict[str, object]] = None
-        best_dist = 999.0
-
-        with self._lock:
-            people_snapshot = list(self._known_registry)
-
-        for person in people_snapshot:
-            for known_embedding in person["embeddings"]:
-                if known_embedding.shape != embedding.shape:
-                    continue
-                dist = self._distance(embedding, known_embedding)
-                if dist < best_dist:
-                    best_dist = dist
-                    best = person
-
-        if best is None or best_dist > self.config.known_match_threshold:
+        candidate = self._best_known_candidate(embedding)
+        if not candidate:
             return None
 
-        confidence = max(0.0, min(1.0, 1.0 - best_dist))
-        return {
-            "personId": best["person_id"],
-            "label": best["display_name"],
-            "confidence": round(confidence, 4),
-            "distance": round(best_dist, 4),
-        }
+        if float(candidate["distance"]) > self.config.known_match_threshold:
+            return None
+        if float(candidate["confidence"]) < self.config.known_min_confidence:
+            return None
+
+        return self._format_known_match(candidate)
+
+    def _match_known_with_stabilization(
+        self,
+        embedding: np.ndarray,
+        track_hint: Optional[Dict[str, object]] = None,
+    ) -> Optional[Dict[str, object]]:
+        candidate = self._best_known_candidate(embedding)
+        if not candidate:
+            return None
+
+        person_id = str(candidate["personId"]).strip()
+        if not person_id:
+            return None
+
+        distance = float(candidate["distance"])
+        confidence = float(candidate["confidence"])
+        current_bbox = self._resolve_track_bbox(track_hint)
+
+        strict_ok = (
+            distance <= self.config.known_match_threshold
+            and confidence >= self.config.known_min_confidence
+        )
+        relaxed_ok = False
+
+        with self._lock:
+            self._prune_known_tracks_locked()
+            if not strict_ok and current_bbox is not None:
+                track = self._known_tracks.get(person_id)
+                prev_bbox = self._coerce_bbox(track.get("bbox")) if isinstance(track, dict) else None
+                if prev_bbox is not None:
+                    iou = self._bbox_iou(current_bbox, prev_bbox)
+                    relaxed_limit = self.config.known_match_threshold * self.config.known_match_relax_factor
+                    relaxed_ok = (
+                        iou >= self.config.known_strong_iou
+                        and distance <= relaxed_limit
+                        and confidence >= (self.config.known_min_confidence * 0.85)
+                    )
+
+            if not (strict_ok or relaxed_ok):
+                return None
+
+            track_state = self._known_tracks.get(person_id, {})
+            fallback_bbox = self._coerce_bbox(track_state.get("bbox"))
+            self._known_tracks[person_id] = {
+                "bbox": current_bbox if current_bbox is not None else fallback_bbox,
+                "lastSeenFrame": self._frame_index,
+            }
+
+        if relaxed_ok:
+            candidate["stabilized"] = True
+        return self._format_known_match(candidate)
 
     def assign_unknown_id(self, embedding: np.ndarray, track_hint: Optional[Dict[str, object]] = None) -> str:
         current_bbox: Optional[Tuple[int, int, int, int]] = None
@@ -585,6 +750,7 @@ class FaceIntelEngine:
             with self._lock:
                 self._last_summary = self._empty_summary()
                 self._last_summary["frameIndex"] = frame_idx
+                self._last_summary["identityLabelingEnabled"] = self.config.identity_labeling_enabled
                 return dict(self._last_summary)
 
         detections = sorted(
@@ -592,6 +758,8 @@ class FaceIntelEngine:
             key=lambda d: (int(d["bbox"][1]), int(d["bbox"][0])),
         )
         recognized: List[Dict[str, object]] = []
+        recognized_keys: Set[str] = set()
+        masked_aliases: Dict[str, str] = {}
         unknown_ids: List[str] = []
         observations: List[Dict[str, object]] = []
 
@@ -601,14 +769,26 @@ class FaceIntelEngine:
             y2 = min(frame.shape[0], y + h)
             face_crop = frame[max(0, y):y2, max(0, x):x2]
             embedding = self.extract_embedding(face_crop)
-            known = self.match_known_face(embedding)
+            known = self._match_known_with_stabilization(
+                embedding,
+                track_hint={"bbox": (int(x), int(y), int(w), int(h))},
+            )
 
             if known:
-                face_id = str(known["personId"])
-                label = str(known["label"])
+                source_person_id = str(known["personId"])
+                source_label = str(known["label"])
+                face_id, label = self._apply_identity_policy(
+                    person_id=source_person_id,
+                    label=source_label,
+                    aliases=masked_aliases,
+                )
                 confidence = float(known["confidence"])
-                if not any(p["personId"] == face_id for p in recognized):
-                    recognized.append(known)
+                if source_person_id not in recognized_keys:
+                    recognized_payload = dict(known)
+                    recognized_payload["personId"] = face_id
+                    recognized_payload["label"] = label
+                    recognized.append(recognized_payload)
+                    recognized_keys.add(source_person_id)
                 kind = "known"
             else:
                 face_id = self.assign_unknown_id(
@@ -635,6 +815,7 @@ class FaceIntelEngine:
             unknown_details = self._unknown_details_for_ids(unknown_ids)
             self._last_summary = {
                 "enabled": True,
+                "identityLabelingEnabled": self.config.identity_labeling_enabled,
                 "detector": self.config.detector_backend,
                 "frameIndex": frame_idx,
                 "totalFaces": len(observations),
@@ -658,10 +839,14 @@ class FaceIntelEngine:
                 "detectorBackend": self.config.detector_backend,
                 "knownRegistryPath": str(self._registry_path()),
                 "knownRegistryCount": len(self._known_registry),
+                "knownActiveCount": len(self._known_tracks),
                 "unknownActiveCount": len(self._unknown_tracks),
                 "frameIndex": self._frame_index,
                 "thresholds": {
                     "knownMatch": self.config.known_match_threshold,
+                    "knownMinConfidence": self.config.known_min_confidence,
+                    "knownMatchRelaxFactor": self.config.known_match_relax_factor,
+                    "knownStrongIoU": self.config.known_strong_iou,
                     "unknownMatch": self.config.unknown_match_threshold,
                     "unknownMatchRelaxFactor": self.config.unknown_match_relax_factor,
                     "unknownMinIoU": self.config.unknown_min_iou,
@@ -669,6 +854,12 @@ class FaceIntelEngine:
                     "unknownEmbeddingWeight": self.config.unknown_embedding_weight,
                     "unknownIoUWeight": self.config.unknown_iou_weight,
                 },
+                "policy": {
+                    "identityLabelingEnabled": self.config.identity_labeling_enabled,
+                    "recognitionAuditEnabled": self.config.recognition_audit_enabled,
+                    "recognitionAuditCooldownSec": self.config.recognition_audit_cooldown_sec,
+                },
+                "maxKnownAgeFrames": self.config.max_known_age_frames,
                 "maxUnknownAgeFrames": self.config.max_unknown_age_frames,
                 "lastSummary": dict(self._last_summary),
             }
