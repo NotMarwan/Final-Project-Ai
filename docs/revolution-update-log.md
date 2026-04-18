@@ -368,3 +368,25 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 9 candidate: add edge-case tests (empty policy payload -> `400`, alias consistency across multiple known observations, and audit cooldown boundary behavior).
+
+### Update 010 - 2026-04-18
+
+Step 9 edge-case tests delivered:
+
+- Expanded `backend/tests/test_face_policy.py` with additional coverage:
+  - empty `/face/policy` payload returns `400`
+  - alias consistency when multiple known observations exist in one summary
+  - audit dedupe cooldown behavior in `_emit_face_audit_events(...)`
+- Kept tests deterministic using:
+  - patched clock values for cooldown boundary checks
+  - patched audit logger calls for exact event-count assertions.
+
+Validation performed:
+
+- Test run passed:
+  - `python -m unittest discover -s backend/tests -p "test_*.py" -v`
+  - 5 tests passed.
+
+Immediate next implementation target:
+
+- Step 10 candidate: expose a lightweight `npm` script or backend command alias for running only face-policy tests during rapid iteration.

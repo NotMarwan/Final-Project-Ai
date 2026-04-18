@@ -3,6 +3,7 @@ import os
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -108,6 +109,85 @@ class FacePolicyTests(unittest.TestCase):
                     "recognition_audit_cooldown_sec": 25,
                 },
             )
+
+    def test_face_policy_endpoint_rejects_empty_payload(self):
+        with TestClient(self.api.app) as client:
+            response = client.post("/face/policy", json={})
+            self.assertEqual(response.status_code, 400, response.text)
+            self.assertIn("No policy field provided", response.text)
+
+    def test_public_face_summary_alias_is_consistent_per_person(self):
+        raw_summary = {
+            "enabled": True,
+            "identityLabelingEnabled": False,
+            "recognized": [
+                {"personId": "person-001", "label": "Alice", "confidence": 0.9},
+                {"personId": "person-002", "label": "Bob", "confidence": 0.88},
+            ],
+            "recognizedCount": 2,
+            "unknownIds": [],
+            "unknownCount": 0,
+            "unknownDetails": [],
+            "observations": [
+                {"id": "person-001", "label": "Alice", "kind": "known", "confidence": 0.9, "bbox": [1, 2, 3, 4]},
+                {"id": "person-001", "label": "Alice", "kind": "known", "confidence": 0.87, "bbox": [2, 3, 4, 5]},
+                {"id": "person-002", "label": "Bob", "kind": "known", "confidence": 0.88, "bbox": [6, 7, 8, 9]},
+            ],
+        }
+
+        public_summary = self.api._public_face_summary(raw_summary)
+        aliases = {item["personId"]: item["label"] for item in public_summary["recognized"]}
+        self.assertEqual(len(aliases), 2)
+        self.assertEqual(set(aliases.keys()), set(aliases.values()))
+
+        known_obs = [obs for obs in public_summary["observations"] if obs["kind"] == "known"]
+        self.assertEqual(known_obs[0]["id"], known_obs[1]["id"])
+        self.assertNotEqual(known_obs[1]["id"], known_obs[2]["id"])
+        self.assertTrue(all(obs["label"] == obs["id"] for obs in known_obs))
+
+    def test_emit_face_audit_events_respects_cooldown_window(self):
+        summary = {
+            "identityLabelingEnabled": True,
+            "frameIndex": 99,
+            "recognized": [{"personId": "person-001", "label": "Alice", "confidence": 0.9}],
+            "unknownIds": ["U-001"],
+        }
+        dedupe_cache = {}
+
+        original_enabled = self.api.face_engine.config.recognition_audit_enabled
+        original_cooldown = self.api.face_engine.config.recognition_audit_cooldown_sec
+        self.api.face_engine.config.recognition_audit_enabled = True
+        self.api.face_engine.config.recognition_audit_cooldown_sec = 10
+
+        try:
+            with patch.object(self.api.audit_logger, "record") as record_mock:
+                with patch.object(self.api.time, "time", return_value=100.0):
+                    self.api._emit_face_audit_events(
+                        face_summary=summary,
+                        camera_id="CAM-01",
+                        dedupe_cache=dedupe_cache,
+                    )
+                self.assertEqual(record_mock.call_count, 2)
+
+                record_mock.reset_mock()
+                with patch.object(self.api.time, "time", return_value=105.0):
+                    self.api._emit_face_audit_events(
+                        face_summary=summary,
+                        camera_id="CAM-01",
+                        dedupe_cache=dedupe_cache,
+                    )
+                self.assertEqual(record_mock.call_count, 0)
+
+                with patch.object(self.api.time, "time", return_value=110.0):
+                    self.api._emit_face_audit_events(
+                        face_summary=summary,
+                        camera_id="CAM-01",
+                        dedupe_cache=dedupe_cache,
+                    )
+                self.assertEqual(record_mock.call_count, 2)
+        finally:
+            self.api.face_engine.config.recognition_audit_enabled = original_enabled
+            self.api.face_engine.config.recognition_audit_cooldown_sec = original_cooldown
 
 
 if __name__ == "__main__":
