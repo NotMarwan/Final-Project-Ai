@@ -11,13 +11,26 @@ import { GeoDashboard } from "@/components/geo-dashboard"
 const IncidentPanel = dynamic(() => import("@/components/incident-panel").then(mod => mod.IncidentPanel), { ssr: false })
 const AiReport = dynamic(() => import("@/components/ai-report").then(mod => mod.AiReport), { ssr: false })
 
-const SSE_URL = "http://localhost:8000/alerts"
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
+const SSE_URL = process.env.NEXT_PUBLIC_SSE_URL ?? `${API_BASE}/alerts`
+const FACE_POLICY_REFRESH_MS = 20_000
+
+interface FacePolicyState {
+  identityLabelingEnabled: boolean
+  recognitionAuditEnabled: boolean
+  recognitionAuditCooldownSec: number
+}
 
 export default function DashboardPage() {
   const [alerts, setAlerts] = useState<LiveAlert[]>([])
   const [selectedAlert, setSelectedAlert] = useState<LiveAlert | null>(null)
   const [privacyMode, setPrivacyMode] = useState(false)
   const [sseConnected, setSseConnected] = useState(false)
+  const [facePolicy, setFacePolicy] = useState<FacePolicyState>({
+    identityLabelingEnabled: true,
+    recognitionAuditEnabled: true,
+    recognitionAuditCooldownSec: 25,
+  })
   const esRef = useRef<EventSource | null>(null)
 
   const connectSSE = useCallback(() => {
@@ -76,6 +89,54 @@ export default function DashboardPage() {
     }
   }, [connectSSE])
 
+  useEffect(() => {
+    let isMounted = true
+
+    const loadFacePolicy = async () => {
+      try {
+        let policy: Record<string, unknown> = {}
+        const policyRes = await fetch(`${API_BASE}/face/policy`)
+        if (policyRes.ok) {
+          const payload = await policyRes.json()
+          policy = (payload?.policy ?? {}) as Record<string, unknown>
+        } else {
+          const statusRes = await fetch(`${API_BASE}/face/status`)
+          if (!statusRes.ok) return
+          const payload = await statusRes.json()
+          policy = (payload?.policy ?? {}) as Record<string, unknown>
+        }
+
+        if (!isMounted) return
+        setFacePolicy((current) => ({
+          identityLabelingEnabled:
+            typeof policy.identityLabelingEnabled === "boolean"
+              ? policy.identityLabelingEnabled
+              : current.identityLabelingEnabled,
+          recognitionAuditEnabled:
+            typeof policy.recognitionAuditEnabled === "boolean"
+              ? policy.recognitionAuditEnabled
+              : current.recognitionAuditEnabled,
+          recognitionAuditCooldownSec:
+            typeof policy.recognitionAuditCooldownSec === "number"
+              ? policy.recognitionAuditCooldownSec
+              : current.recognitionAuditCooldownSec,
+        }))
+      } catch {
+        // Keep latest known policy on transient network failures.
+      }
+    }
+
+    void loadFacePolicy()
+    const timer = setInterval(() => {
+      void loadFacePolicy()
+    }, FACE_POLICY_REFRESH_MS)
+
+    return () => {
+      isMounted = false
+      clearInterval(timer)
+    }
+  }, [])
+
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
 
@@ -94,6 +155,7 @@ export default function DashboardPage() {
         onPrivacyToggle={handlePrivacyToggle} 
         sseConnected={sseConnected} 
         totalAlerts={alerts.length} 
+        facePolicy={facePolicy}
       />
       
       <div className="flex flex-1 overflow-hidden">

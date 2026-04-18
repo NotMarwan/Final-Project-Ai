@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Camera, AlertTriangle, Wifi, WifiOff, Eye, EyeOff } from "lucide-react"
+import { Shield, Camera, AlertTriangle, Wifi, WifiOff, Eye, EyeOff, ScanFace } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
@@ -10,9 +10,18 @@ interface DashboardHeaderProps {
   onPrivacyToggle: (value: boolean) => void
   sseConnected: boolean
   totalAlerts: number
+  facePolicy: {
+    identityLabelingEnabled: boolean
+    recognitionAuditEnabled: boolean
+    recognitionAuditCooldownSec: number
+  }
 }
 
-export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts }: DashboardHeaderProps) {
+export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts, facePolicy }: DashboardHeaderProps) {
+  const facePolicyVariant: "success" | "info" | "danger" =
+    facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled ? "success" : "danger"
+  const facePolicyValue = `ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | ${facePolicy.recognitionAuditCooldownSec}s`
+
   return (
     <header className="glass flex items-center justify-between px-6 py-3">
       <div className="flex items-center gap-3">
@@ -27,6 +36,7 @@ export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, to
           <StatusIndicator icon={sseConnected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />} label={sseConnected ? "System Online" : "Reconnecting..."} variant={sseConnected ? "success" : "danger"} />
           <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="3" variant="info" />
           <StatusIndicator icon={<AlertTriangle className="h-3.5 w-3.5" />} label="Alerts This Session" value={String(totalAlerts)} variant={totalAlerts > 0 ? "danger" : "info"} />
+          <StatusIndicator icon={<ScanFace className="h-3.5 w-3.5" />} label="Face Policy" value={facePolicyValue} variant={facePolicyVariant} />
         </div>
         <div className="h-6 w-px bg-border" />
         <div className="flex items-center gap-2">

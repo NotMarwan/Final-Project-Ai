@@ -492,3 +492,31 @@ Validation performed:
 Immediate next implementation target:
 
 - Step 14 candidate: expose a small policy-state badge in top-level dashboard status using `GET /face/policy` for quicker operator visibility.
+
+### Update 015 - 2026-04-18
+
+Step 14 top-level face-policy status badge delivered:
+
+- Updated dashboard policy polling in `app/page.tsx`:
+  - added periodic policy refresh (`GET /face/policy` with fallback to `/face/status`)
+  - stores policy state in page-level `facePolicy` state
+  - passes policy state to header for global visibility
+- Updated header status in `components/dashboard-header.tsx`:
+  - added `Face Policy` status indicator in top bar
+  - shows compact value:
+    - identity mode (`ID:ON` / `ID:MASK`)
+    - audit mode (`AUD:ON` / `AUD:OFF`)
+    - cooldown seconds
+  - indicator color shifts to `danger` when masking or audit pause is active.
+
+Validation performed:
+
+- Frontend production build passed:
+  - `npm run build`
+- Face policy regression suite passed:
+  - `npm run test:face-policy`
+  - 7 tests passed.
+
+Immediate next implementation target:
+
+- Step 15 candidate: add a click action from header badge to jump/focus the Face Policy controls section inside Incident Panel.
