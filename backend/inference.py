@@ -6,7 +6,7 @@ Senior Computer Vision Engineer — Production-Ready
 
 import os
 import time
-import sys
+import threading
 from collections import deque
 from pathlib import Path
 
@@ -15,6 +15,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+try:
+    from .calibration_utils import load_calibration_profile
+except ImportError:
+    from calibration_utils import load_calibration_profile
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1. Model Architecture
@@ -106,11 +111,28 @@ MEAN = np.array([0.45, 0.45, 0.45], dtype=np.float32)
 STD  = np.array([0.225, 0.225, 0.225], dtype=np.float32)
 FRAME_SIZE   = 160   # X3D target
 WINDOW_SIZE  = 32    # STRICT 32-frame window
-VIOLENCE_CLS = 1
+CALIBRATION_PROFILE = load_calibration_profile(base_dir=Path(__file__).resolve().parent)
+VIOLENCE_CLS = int(os.getenv("VIOLENCE_CLASS_INDEX", str(CALIBRATION_PROFILE.get("classIndex", 0))))
+VIOLENCE_TEMP = max(0.05, float(os.getenv("VIOLENCE_LOGIT_TEMPERATURE", str(CALIBRATION_PROFILE.get("logitTemperature", 1.0)))))
+VIOLENCE_LOGIT_BIAS = float(os.getenv("VIOLENCE_LOGIT_BIAS", str(CALIBRATION_PROFILE.get("logitBias", 0.0))))
+CONF_EMA_ALPHA = float(os.getenv("VIOLENCE_CONFIDENCE_EMA_ALPHA", str(CALIBRATION_PROFILE.get("emaAlpha", 0.45))))
+HYSTERESIS_MARGIN = float(os.getenv("VIOLENCE_HYSTERESIS_MARGIN", str(CALIBRATION_PROFILE.get("hysteresisMargin", 0.08))))
+
+def ensure_bgr(frame: np.ndarray) -> np.ndarray:
+    if frame is None:
+        return frame
+    if frame.ndim == 2:
+        return cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    if frame.ndim == 3 and frame.shape[2] == 1:
+        return cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    if frame.ndim == 3 and frame.shape[2] == 4:
+        return cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+    return frame
 
 def preprocess_window(frames: list[np.ndarray]) -> torch.Tensor:
     processed = []
     for frame in frames:
+        frame = ensure_bgr(frame)
         # resize each frame → (182×182) → center-crop → (160×160)
         img = cv2.resize(frame, (182, 182), interpolation=cv2.INTER_LINEAR)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -133,66 +155,155 @@ class ViolenceInferencePipeline:
         self.threshold = threshold
         self.stride    = stride
         self.is_x3d    = False
+        self.enabled   = True
+        self.disabled_reason = ""
+        self._inference_running = False
+        self._inference_lock = threading.Lock()
 
         print(f"[AI] Initializing X3D-M on {device}...")
         try:
             self.model = X3DViolenceModel(num_classes=2).to(device)
             if os.path.exists(weights_path):
                 state = torch.load(weights_path, map_location=device)
-                self.model.load_state_dict(state)
+                state_dict = self._extract_state_dict(state)
+                self.model.load_state_dict(state_dict)
                 self.is_x3d = True
                 print("[AI] X3D model loaded successfully.")
             else:
                 print(f"[WARN] {weights_path} not found. Fallback to Legacy.")
                 raise FileNotFoundError()
-        except Exception:
+        except Exception as x3d_exc:
             print("[AI] Falling back to Legacy SlowFast model.")
             self.model = ViolenceDetector(num_classes=2).to(device)
             try:
-                state = torch.load("best_model.pt", map_location=device)
-                self.model.load_state_dict(state)
+                state = torch.load(weights_path, map_location=device)
+                state_dict = self._extract_state_dict(state)
+                self.model.load_state_dict(state_dict)
             except Exception as e:
                 print(f"[AI] Critical: Fallback failed: {e}")
+                self.enabled = False
+                self.model = None
+                self.disabled_reason = f"x3d={type(x3d_exc).__name__}; legacy={type(e).__name__}"
+                print(f"[AI] Stream-only mode enabled (reason: {self.disabled_reason}).")
         
-        self.model.eval()
+        if self.model is not None:
+            self.model.eval()
         self._buffer = deque(maxlen=WINDOW_SIZE)
         self._last_label = 0
         self._last_conf  = 0.0
+        self._last_raw_conf = 0.0
+        self._last_calibrated_conf = 0.0
+        self._is_violent = False
         self._counter    = 0
+        self._ema_alpha = max(0.05, min(0.95, CONF_EMA_ALPHA))
+        self._hysteresis_margin = max(0.0, min(0.30, HYSTERESIS_MARGIN))
+        self._logit_temp = VIOLENCE_TEMP
+        self._logit_bias = VIOLENCE_LOGIT_BIAS
 
     def reset(self):
         self._buffer.clear()
         self._last_label = 0
         self._last_conf = 0.0
+        self._last_raw_conf = 0.0
+        self._last_calibrated_conf = 0.0
+        self._is_violent = False
         self._counter = 0
+        with self._inference_lock:
+            self._inference_running = False
+
+    @staticmethod
+    def _extract_state_dict(state):
+        if isinstance(state, dict):
+            if "model_state_dict" in state and isinstance(state["model_state_dict"], dict):
+                return state["model_state_dict"]
+            if "state_dict" in state and isinstance(state["state_dict"], dict):
+                return state["state_dict"]
+        return state
 
     @torch.inference_mode()
-    def process_frame(self, frame: np.ndarray) -> np.ndarray:
-        self._buffer.append(frame)
-        self._counter += 1
-
-        if len(self._buffer) == WINDOW_SIZE and self._counter % self.stride == 0:
-            start_time = time.perf_counter()
-            
+    def _infer_window(self, window_frames: list[np.ndarray]) -> None:
+        start_time = time.perf_counter()
+        try:
             if self.is_x3d:
-                input_tensor = preprocess_window(list(self._buffer)).to(self.device)
+                input_tensor = preprocess_window(window_frames).to(self.device)
                 logits = self.model(input_tensor)
             else:
-                # Legacy SlowFast Logic (Simulated for compatibility)
                 processed = []
-                for f in list(self._buffer):
+                for f in window_frames:
+                    f = ensure_bgr(f)
                     img = cv2.resize(f, (224, 224))
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32)/255.0
-                    processed.append((img-MEAN)/STD)
-                fast = torch.from_numpy(np.stack(processed).transpose(0,3,1,2)).unsqueeze(0).to(self.device)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+                    processed.append((img - MEAN) / STD)
+                fast = torch.from_numpy(np.stack(processed).transpose(0, 3, 1, 2)).unsqueeze(0).to(self.device)
                 slow = fast[:, ::4, :, :, :]
                 logits = self.model(slow, fast)
 
             probs = F.softmax(logits, dim=-1)[0]
-            self._last_conf = probs[VIOLENCE_CLS].item()
-            self._last_label = int(self._last_conf >= self.threshold)
-            
+            raw_conf = probs[VIOLENCE_CLS].item()
+            calibrated_conf = self._calibrate_confidence(logits, raw_conf)
+            self._last_raw_conf = raw_conf
+            self._last_calibrated_conf = calibrated_conf
+            if self._counter <= WINDOW_SIZE:
+                smoothed_conf = calibrated_conf
+            else:
+                smoothed_conf = (self._ema_alpha * calibrated_conf) + ((1.0 - self._ema_alpha) * self._last_conf)
+            self._last_conf = float(max(0.0, min(1.0, smoothed_conf)))
+            self._last_label = int(torch.argmax(probs).item())
+            if self._is_violent:
+                self._is_violent = bool(self._last_conf >= self._release_threshold())
+            else:
+                self._is_violent = bool(self._last_conf >= self.threshold)
+
             latency = (time.perf_counter() - start_time) * 1000
-            print(f"[AI] Latency: {latency:.1f}ms | Conf: {self._last_conf:.2f}")
+            print(
+                "[AI] Latency: "
+                f"{latency:.1f}ms | Raw: {self._last_raw_conf:.2f} | "
+                f"Cal: {self._last_calibrated_conf:.2f} | Smooth: {self._last_conf:.2f}"
+            )
+        except Exception as exc:
+            print(f"[AI] Inference error: {exc}")
+        finally:
+            with self._inference_lock:
+                self._inference_running = False
+
+    def _release_threshold(self) -> float:
+        return max(0.05, min(self.threshold, self.threshold - self._hysteresis_margin))
+
+    def _calibrate_confidence(self, logits: torch.Tensor, raw_conf: float) -> float:
+        try:
+            if logits.ndim != 2 or logits.shape[1] < 2:
+                return float(raw_conf)
+
+            row = logits[0]
+            violence_logit = float(row[VIOLENCE_CLS].item())
+            other_indices = [idx for idx in range(row.shape[0]) if idx != VIOLENCE_CLS]
+            if not other_indices:
+                return float(raw_conf)
+
+            other_logits = row[other_indices]
+            other_max = float(torch.max(other_logits).item())
+            margin = ((violence_logit - other_max) + self._logit_bias) / max(0.05, self._logit_temp)
+            margin = float(np.clip(margin, -20.0, 20.0))
+            calibrated = 1.0 / (1.0 + np.exp(-margin))
+            return float(max(0.0, min(1.0, calibrated)))
+        except Exception:
+            return float(raw_conf)
+
+    def process_frame(self, frame: np.ndarray) -> np.ndarray:
+        if not self.enabled:
+            return frame.copy()
+
+        self._buffer.append(frame)
+        self._counter += 1
+
+        if len(self._buffer) == WINDOW_SIZE and self._counter % self.stride == 0:
+            should_start = False
+            with self._inference_lock:
+                if not self._inference_running:
+                    self._inference_running = True
+                    should_start = True
+            if should_start:
+                window = list(self._buffer)
+                threading.Thread(target=self._infer_window, args=(window,), daemon=True).start()
 
         return frame.copy()

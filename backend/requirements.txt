@@ -10,4 +10,3 @@ groq
 reportlab
 arabic-reshaper
 python-bidi
-google-genai

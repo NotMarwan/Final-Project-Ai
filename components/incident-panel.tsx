@@ -463,6 +463,12 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
   const knownCount = faceSummary?.recognizedCount ?? recognizedPeople.length
   const unknownCount = faceSummary?.unknownCount ?? unknownIds.length
   const totalFaces = faceSummary?.totalFaces ?? knownCount + unknownCount
+  const modelConfidence = alert.modelConfidence ?? alert.confidence
+  const rawModelConfidence = alert.rawModelConfidence ?? modelConfidence
+  const threatConfidence = alert.threatConfidence ?? alert.fusionScore ?? alert.confidence
+  const motionScore = alert.motionScore ?? 0
+  const weaponScore = alert.weaponScore ?? 0
+  const weaponLabels = (alert.weaponLabels ?? []).filter(Boolean)
 
   return (
     <div className="relative flex h-full flex-col gap-4 p-4">
@@ -494,22 +500,44 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
           <MetadataRow icon={<Clock className="h-3.5 w-3.5" />}  label="Event Timestamp" value={alert.timestamp} />
           <MetadataRow icon={<Crosshair className="h-3.5 w-3.5" />} label="Classification" value="Active Violence" />
 
-          {/* Confidence bar */}
-          <div className="mt-1 rounded-lg bg-secondary/50 p-3 border border-border/50">
+          <div className="mt-1 rounded-lg border border-border/50 bg-secondary/50 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Model Confidence</span>
-              <span className="font-mono text-xs font-bold text-danger">{alert.confidence.toFixed(1)}%</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Threat Confidence</span>
+              <span className="font-mono text-xs font-bold text-danger">{threatConfidence.toFixed(1)}%</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
               <div
                 className={cn(
                   "h-full rounded-full transition-all duration-500",
                   alert.severity === "critical" ? "bg-danger"
-                  : alert.severity === "high"   ? "bg-warning"
+                  : alert.severity === "high" ? "bg-warning"
                   : "bg-primary"
                 )}
-                style={{ width: `${alert.confidence}%` }}
+                style={{ width: `${threatConfidence}%` }}
               />
+            </div>
+
+            <div className="mb-2 mt-3 flex items-center justify-between">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Model Confidence (Smoothed)</span>
+              <span className="font-mono text-[11px] font-bold text-foreground">{modelConfidence.toFixed(1)}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${modelConfidence}%` }} />
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">Raw model: {rawModelConfidence.toFixed(1)}%</p>
+
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
+                Motion {motionScore.toFixed(1)}%
+              </Badge>
+              <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
+                Weapon {weaponScore.toFixed(1)}%
+              </Badge>
+              {weaponLabels.slice(0, 2).map((label) => (
+                <Badge key={label} variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
+                  {label}
+                </Badge>
+              ))}
             </div>
           </div>
         </div>
