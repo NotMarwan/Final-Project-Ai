@@ -164,10 +164,7 @@ THUMBNAILS_DIR.mkdir(exist_ok=True)
 REPORTS_DIR = _resolve_storage_path(config['storage'].get('reports_dir', "./reports"))
 REPORTS_DIR.mkdir(exist_ok=True)
 
-# ── Groq Vision-Language Model Setup ──
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_ENABLED = bool(GROQ_API_KEY)
-_groq_client = None
+# ── Engine Initializations ──
 telegram_notifier = TelegramNotifier.from_settings(config, os.environ)
 fusion_engine = ThreatFusionEngine.from_settings(config)
 security_controller = AccessController.from_settings(config, os.environ)
@@ -177,19 +174,24 @@ audio_analyzer = AudioRiskAnalyzer.from_settings(config)
 face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
 CAPTURE_LOOP_ENABLED = _env_flag("AI_SENTINEL_ENABLE_CAPTURE_LOOP", default=True)
 
+# ── Groq VLM Setup ──
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_ENABLED = bool(GROQ_API_KEY)
+_groq_client = None
+
 if GROQ_ENABLED:
     try:
         from groq import Groq
         _groq_client = Groq(api_key=GROQ_API_KEY)
         print("[System] Groq initialized successfully.")
     except Exception as exc:
-        print(f"[System] Failed to initialize Groq VLM: {exc}")
+        print(f"[System] Failed to initialize Groq: {exc}")
         GROQ_ENABLED = False
 
 _VLM_PROMPT = (
-    "تصرف كخبير أمني. قم بوصف حادثة العنف في هذا الإطار من كاميرا المراقبة "
-    "بفقرة واحدة قصيرة واحترافية باللغة العربية. ركز على عدد الأشخاص، "
-    "الأفعال الجسدية، والأسلحة المحتملة إن وجدت."
+    "Act as a professional security expert. Describe the security incident or potential violence in this surveillance frame "
+    "in one short, professional paragraph in English. Focus on the number of individuals, physical actions, "
+    "and potential weapons if visible."
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -427,51 +429,56 @@ def _write_evidence_clip(alert_id: str, pre_frames: list, post_queue: queue.Queu
         print(f"[Evidence] Error writing clip {alert_id}: {exc}")
 
 def _call_groq_vlm(alert_id: str, frame: np.ndarray):
+    """
+    Forensic reporting function using Groq AI (Llama-3.2-Vision).
+    """
     global _groq_client
-    if not GROQ_ENABLED or not _groq_client:
-        report_text = "[Forensic module offline. Ensure API key is configured and Groq is installed.]"
-    else:
+    report_text = None
+    last_error = ""
+
+    if GROQ_ENABLED and _groq_client:
         try:
             ok, jpg_buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-            base64_image = base64.b64encode(jpg_buf).decode('utf-8')
+            if not ok:
+                raise ValueError("Failed to encode image to JPG for Groq")
             
-            completion = _groq_client.chat.completions.create(
+            import base64
+            base64_image = base64.b64encode(jpg_buf.tobytes()).decode("utf-8")
+            
+            response = _groq_client.chat.completions.create(
                 model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {
                         "role": "user",
                         "content": [
-                            {
-                                "type": "text",
-                                "text": _VLM_PROMPT
-                            },
+                            {"type": "text", "text": _VLM_PROMPT},
                             {
                                 "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{base64_image}"
-                                }
-                            }
-                        ]
+                                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                            },
+                        ],
                     }
                 ],
-                max_tokens=256,
-                temperature=0.5,
+                max_tokens=300,
             )
-            report_text = completion.choices[0].message.content.strip()
-            print(f"[VLM] Forensic report generated for {alert_id}")
-        except Exception as exc:
-            report_text = f"[Forensic analysis failed due to network or API error: {exc}]"
-            print(f"[VLM] {report_text}")
-            
+            report_text = response.choices[0].message.content.strip()
+            print(f"[VLM] Forensic report generated for {alert_id} using Groq (Llama-3.2-Vision)")
+        except Exception as groq_exc:
+            last_error = str(groq_exc)
+            print(f"[VLM] Groq engine failed: {last_error}")
+
+    if report_text is None:
+        report_text = f"[فشل تحليل التقرير الجنائي: {last_error}]"
+
     state.broadcast_alert({
         "type": "VLM_Report", 
         "id": alert_id, 
-        "report": report_text
+        "text": report_text
     })
     state.store_report_text(alert_id, report_text)
     audit_logger.record(
         "vlm_report_generated",
-        "success" if not report_text.startswith("[Forensic analysis failed") else "error",
+        "success" if not report_text.startswith("[فشل") else "error",
         role="system",
         alert_id=alert_id,
         details={"chars": len(report_text)},
@@ -639,17 +646,49 @@ def _emit_face_audit_events(
         dedupe_cache.pop(key, None)
 
 
+import concurrent.futures
+
+def _run_ai_task(pipeline, face_engine, frame, previous_raw_frame):
+    clean_frame = pipeline.process_frame(frame)
+    face_summary = face_engine.analyze_frame(frame)
+    motion_score = _estimate_motion_score(previous_raw_frame, frame)
+    return face_summary, motion_score
+
+def _is_live_source(source: Union[str, int]) -> bool:
+    """Returns True if source is a live webcam (integer index), False if it's a file."""
+    return isinstance(source, int)
+
+
+def _open_capture(source: Union[str, int]) -> cv2.VideoCapture:
+    """Open a VideoCapture with optimal settings based on source type."""
+    cap = cv2.VideoCapture(source)
+    if _is_live_source(source) and cap.isOpened():
+        # كاميرا حية: تقليل التأخير إلى الحد الأدنى
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)        # buffer=1 لأقل latency ممكنة
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)   # Anker C200 تدعم 1080p/720p
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        cap.set(cv2.CAP_PROP_FPS, 30)
+        print(f"[System] Live camera opened: device {source} @ "
+              f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x"
+              f"{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))} "
+              f"{cap.get(cv2.CAP_PROP_FPS):.0f}fps")
+    return cap
+
+
 def capture_loop():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[System] AI Engine initializing on {device.type.upper()}...")
     
     pipeline = ViolenceInferencePipeline(WEIGHTS_PATH, device, THRESHOLD, STRIDE)
     state.register_pipeline(pipeline)
-    
-    cap = cv2.VideoCapture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
+
+    initial_source = CAMERA_SOURCES[DEFAULT_CAMERA_ID]
+    cap = _open_capture(initial_source)
+    current_source = initial_source
     
     def _read_cap_props(c):
-        return c.get(cv2.CAP_PROP_FPS) or 25.0, int(c.get(cv2.CAP_PROP_FRAME_WIDTH)), int(c.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = c.get(cv2.CAP_PROP_FPS) or 25.0
+        return fps, int(c.get(cv2.CAP_PROP_FRAME_WIDTH)), int(c.get(cv2.CAP_PROP_FRAME_HEIGHT))
         
     src_fps, width, height = _read_cap_props(cap)
     ring = deque(maxlen=RING_BUFFER_LEN)
@@ -658,15 +697,39 @@ def capture_loop():
     previous_raw_frame: Optional[np.ndarray] = None
     face_audit_dedupe: Dict[str, float] = {}
     state.running = True
+    
+    ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    ai_future = None
+    _live_reconnect_attempts = 0
+    _MAX_RECONNECT = 10
 
     while state.running:
         t0 = time.perf_counter()
         
         ret, raw = cap.read()
         if not ret:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            pipeline.reset()
+            if _is_live_source(current_source):
+                # كاميرا حية — حاول إعادة الاتصال
+                _live_reconnect_attempts += 1
+                print(f"[System] Live camera lost. Reconnect attempt {_live_reconnect_attempts}/{_MAX_RECONNECT}...")
+                cap.release()
+                time.sleep(1.0)
+                cap = _open_capture(current_source)
+                if cap.isOpened():
+                    src_fps, width, height = _read_cap_props(cap)
+                    _live_reconnect_attempts = 0
+                    print("[System] Live camera reconnected.")
+                elif _live_reconnect_attempts >= _MAX_RECONNECT:
+                    print("[System] Live camera unavailable. Waiting...")
+                    time.sleep(3.0)
+                    _live_reconnect_attempts = 0
+            else:
+                # ملف فيديو — أعد من البداية
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                pipeline.reset()
             continue
+        
+        _live_reconnect_attempts = 0  # نجح القراءة → أعد العداد
 
         still_active = []
         for entry in active_post_queues:
@@ -679,106 +742,113 @@ def capture_loop():
                 still_active.append(entry)
         active_post_queues = still_active
 
-        clean_frame = pipeline.process_frame(raw)
         ring.append(raw.copy())
-        motion_score = _estimate_motion_score(previous_raw_frame, raw)
-        previous_raw_frame = raw.copy()
-        face_summary = face_engine.analyze_frame(raw)
-        state.store_face_summary(face_summary)
-        cam_id = state.get_current_camera_id()
-        _emit_face_audit_events(
-            face_summary=face_summary,
-            camera_id=cam_id,
-            dedupe_cache=face_audit_dedupe,
-        )
-        client_face_summary = _public_face_summary(face_summary)
 
-        ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+        if ai_future is None or ai_future.done():
+            if ai_future is not None:
+                try:
+                    face_summary, motion_score = ai_future.result()
+                    state.store_face_summary(face_summary)
+                    cam_id = state.get_current_camera_id()
+                    _emit_face_audit_events(
+                        face_summary=face_summary,
+                        camera_id=cam_id,
+                        dedupe_cache=face_audit_dedupe,
+                    )
+                    client_face_summary = _public_face_summary(face_summary)
+
+                    now = time.time()
+                    current_cooldown = state.get_cooldown()
+                    
+                    if pipeline._last_label == VIOLENCE_CLS and (now - last_alert_time > current_cooldown):
+                        last_alert_time = now
+                        alert_id = f"alert-{int(now * 1000)}"
+                        conf = pipeline._last_conf
+
+                        severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
+                        fusion = fusion_engine.assess(
+                            violence_confidence=conf,
+                            motion_score=motion_score,
+                            weapon_score=0.0,
+                            base_severity=severity,
+                        )
+                        severity = fusion["severity"]
+
+                        alert_payload = {
+                            "id": alert_id, 
+                            "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+                            "isoTime": datetime.now(timezone.utc).isoformat(), 
+                            "confidence": round(conf * 100, 1),
+                            "type": "Violence", 
+                            "severity": severity,
+                            "cameraId": cam_id, 
+                            "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
+                            "fusionScore": fusion["score"],
+                            "fusionModel": fusion["model"],
+                            "motionScore": fusion["motionScore"],
+                            "weaponScore": fusion["weaponScore"],
+                            "fusionReason": fusion["reason"],
+                            "faceSummary": client_face_summary,
+                        }
+
+                        state.register_alert(alert_payload)
+                        state.broadcast_alert(alert_payload)
+                        audit_logger.record(
+                            "alert_detected",
+                            "success",
+                            role="system",
+                            alert_id=alert_id,
+                            details={
+                                "cameraId": cam_id,
+                                "severity": severity,
+                                "confidence": round(conf * 100, 1),
+                                "fusionScore": fusion["score"],
+                                "faceTotal": int(face_summary.get("totalFaces", 0)),
+                                "faceKnown": int(face_summary.get("recognizedCount", 0)),
+                                "faceUnknown": int(face_summary.get("unknownCount", 0)),
+                                "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
+                            },
+                        )
+                        _emit_face_audit_events(
+                            face_summary=face_summary,
+                            camera_id=cam_id,
+                            dedupe_cache=face_audit_dedupe,
+                            alert_id=alert_id,
+                        )
+
+                        pre_frames = list(ring)
+                        post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
+                        active_post_queues.append([post_q, POST_ALERT_LEN])
+                        threading.Thread(
+                            target=_write_evidence_clip, 
+                            args=(alert_id, pre_frames, post_q, src_fps, width, height), 
+                            daemon=True
+                        ).start()
+
+                        if GROQ_ENABLED and pre_frames:
+                            threading.Thread(
+                                target=_call_groq_vlm, 
+                                args=(alert_id, pre_frames[-1].copy()), 
+                                daemon=True
+                            ).start()
+
+                        if pre_frames:
+                            snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
+                            if snapshot_bytes:
+                                snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
+                                snapshot_path.write_bytes(snapshot_bytes)
+                                state.store_snapshot_path(alert_id, str(snapshot_path))
+                            telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
+                except Exception as exc:
+                    print(f"[System] AI worker encountered an error: {exc}")
+
+            ai_future = ai_executor.submit(_run_ai_task, pipeline, face_engine, raw.copy(), previous_raw_frame)
+            previous_raw_frame = raw.copy()
+
+        # MJPEG stream uses the raw frame to prevent blocking
+        ok, jpg_buf = cv2.imencode(".jpg", raw, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
             state.set_frame(jpg_buf.tobytes())
-
-        now = time.time()
-        current_cooldown = state.get_cooldown()
-        
-        if pipeline._last_label == VIOLENCE_CLS and (now - last_alert_time > current_cooldown):
-            last_alert_time = now
-            alert_id = f"alert-{int(now * 1000)}"
-            conf = pipeline._last_conf
-
-            severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
-            fusion = fusion_engine.assess(
-                violence_confidence=conf,
-                motion_score=motion_score,
-                weapon_score=0.0,
-                base_severity=severity,
-            )
-            severity = fusion["severity"]
-
-            alert_payload = {
-                "id": alert_id, 
-                "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
-                "isoTime": datetime.now(timezone.utc).isoformat(), 
-                "confidence": round(conf * 100, 1),
-                "type": "Violence", 
-                "severity": severity,
-                "cameraId": cam_id, 
-                "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
-                "fusionScore": fusion["score"],
-                "fusionModel": fusion["model"],
-                "motionScore": fusion["motionScore"],
-                "weaponScore": fusion["weaponScore"],
-                "fusionReason": fusion["reason"],
-                "faceSummary": client_face_summary,
-            }
-
-            state.register_alert(alert_payload)
-            state.broadcast_alert(alert_payload)
-            audit_logger.record(
-                "alert_detected",
-                "success",
-                role="system",
-                alert_id=alert_id,
-                details={
-                    "cameraId": cam_id,
-                    "severity": severity,
-                    "confidence": round(conf * 100, 1),
-                    "fusionScore": fusion["score"],
-                    "faceTotal": int(face_summary.get("totalFaces", 0)),
-                    "faceKnown": int(face_summary.get("recognizedCount", 0)),
-                    "faceUnknown": int(face_summary.get("unknownCount", 0)),
-                    "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
-                },
-            )
-            _emit_face_audit_events(
-                face_summary=face_summary,
-                camera_id=cam_id,
-                dedupe_cache=face_audit_dedupe,
-                alert_id=alert_id,
-            )
-
-            pre_frames = list(ring)
-            post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
-            active_post_queues.append([post_q, POST_ALERT_LEN])
-            threading.Thread(
-                target=_write_evidence_clip, 
-                args=(alert_id, pre_frames, post_q, src_fps, width, height), 
-                daemon=True
-            ).start()
-
-            if GROQ_ENABLED and pre_frames:
-                threading.Thread(
-                    target=_call_groq_vlm, 
-                    args=(alert_id, pre_frames[-1].copy()), 
-                    daemon=True
-                ).start()
-
-            if pre_frames:
-                snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
-                if snapshot_bytes:
-                    snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
-                    snapshot_path.write_bytes(snapshot_bytes)
-                    state.store_snapshot_path(alert_id, str(snapshot_path))
-                telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
 
         pending = state.consume_pending_switch()
         if pending:
@@ -787,24 +857,28 @@ def capture_loop():
             ring.clear()
             active_post_queues.clear()
             face_audit_dedupe.clear()
+            _live_reconnect_attempts = 0
             pipeline.reset()
             face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             if device.type == "cuda":
                 torch.cuda.empty_cache()
             
-            cap = cv2.VideoCapture(new_source)
+            cap = _open_capture(new_source)
+            current_source = new_source
             if cap.isOpened(): 
                 src_fps, width, height = _read_cap_props(cap)
-                print(f"[System] Stream focused on {new_cam_id}")
+                print(f"[System] Stream focused on {new_cam_id} ({'LIVE' if _is_live_source(new_source) else 'FILE'})")
             else:
                 print(f"[System] Warning: Failed to open {new_source}. Reverting to default.")
-                cap = cv2.VideoCapture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
+                cap = _open_capture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
+                current_source = CAMERA_SOURCES[DEFAULT_CAMERA_ID]
                 src_fps, width, height = _read_cap_props(cap)
                 state.request_camera_switch(CAMERA_SOURCES[DEFAULT_CAMERA_ID], DEFAULT_CAMERA_ID)
                 state.consume_pending_switch()
 
         time.sleep(max(0, (1.0 / TARGET_FPS) - (time.perf_counter() - t0)))
         
+    ai_executor.shutdown(wait=False)
     cap.release()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -896,6 +970,15 @@ async def test_telegram_notification(request: Request):
     telegram_notifier.enqueue_alert(test_alert, state.get_frame())
     audit_logger.record("telegram_test", "queued", role=role, alert_id=test_alert["id"], details={"cameraId": test_alert["cameraId"]})
     return {"status": "queued", "telegram": telegram_notifier.status()}
+
+
+@app.get("/get_report/{alert_id}", summary="Get VLM forensic report text for an alert")
+async def get_report(alert_id: str):
+    """Returns the Groq-generated report text for a given alert. Returns status=pending if not ready yet."""
+    report_text = state.get_report_text(alert_id)
+    if report_text is None:
+        return {"status": "pending", "report": None}
+    return {"status": "ready", "report": report_text}
 
 
 @app.get("/download_report/{alert_id}", summary="Fetch forensic PDF report")

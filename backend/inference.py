@@ -185,7 +185,7 @@ class ViolenceInferencePipeline:
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32)/255.0
                     processed.append((img-MEAN)/STD)
                 fast = torch.from_numpy(np.stack(processed).transpose(0,3,1,2)).unsqueeze(0).to(self.device)
-                slow = fast[:, :, ::4, :, :]
+                slow = fast[:, ::4, :, :, :]
                 logits = self.model(slow, fast)
 
             probs = F.softmax(logits, dim=-1)[0]

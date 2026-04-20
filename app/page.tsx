@@ -63,8 +63,8 @@ export default function DashboardPage() {
           return [alertData, ...prev].slice(0, 50)
         })
         
-        // تعيين أحدث تنبيه كتنبيه محدد تلقائياً إذا لم يتم تحديد شيء
-        setSelectedAlert((current) => current ?? alertData)
+        // تعيين أحدث تنبيه كتنبيه محدد تلقائياً لتحديث التقرير فوراً
+        setSelectedAlert(alertData)
         
       } catch (e) {
         // تجاهل أخطاء تحليل البيانات البسيطة

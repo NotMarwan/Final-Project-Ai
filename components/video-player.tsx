@@ -70,9 +70,9 @@ const OVERLAY_LINGER_MS = 8_000
 const SWITCH_SETTLE_MS = 900
 
 const CAMERAS = [
-  { id: "CAM-01", label: "CAM-01" },
-  { id: "CAM-02", label: "CAM-02" },
-  { id: "CAM-03", label: "CAM-03" },
+  { id: "CAM-01", label: "Sample A",      isLive: false },
+  { id: "CAM-02", label: "Sample B",      isLive: false },
+  { id: "CAM-03", label: "Anker C200",    isLive: true  },
 ] as const
 
 type CameraId = (typeof CAMERAS)[number]["id"]
@@ -83,7 +83,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
   const [streamError,   setStreamError]   = useState(false)
   const [streamKey,     setStreamKey]     = useState(0)
 
-  const [activeCamId,  setActiveCamId]  = useState<CameraId>("CAM-01")
+  const [activeCamId,  setActiveCamId]  = useState<CameraId>("CAM-03")
   const [isSwitching,  setIsSwitching]  = useState(false)
   const [switchError,  setSwitchError]  = useState<string | null>(null)
 
@@ -170,10 +170,24 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
               key={cam.id} onClick={() => handleCameraSwitch(cam.id)} disabled={isSwitching}
               className={cn(
                 "flex items-center gap-1.5 rounded border px-2.5 py-0.5 font-mono text-[11px] font-semibold transition-all duration-200",
-                isActive ? "border-primary/50 bg-primary/15 text-primary" : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-foreground"
+                isActive
+                  ? cam.isLive
+                    ? "border-red-500/60 bg-red-500/15 text-red-400"
+                    : "border-primary/50 bg-primary/15 text-primary"
+                  : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-foreground"
               )}
             >
-              <span className={cn("h-1.5 w-1.5 rounded-full", isActive ? "bg-primary animate-pulse" : "bg-muted-foreground/30")} />
+              <span className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                isActive
+                  ? cam.isLive ? "bg-red-400 animate-ping" : "bg-primary animate-pulse"
+                  : "bg-muted-foreground/30"
+              )} />
+              {cam.isLive && isActive && (
+                <span className="rounded bg-red-500/20 border border-red-500/40 px-1 py-px text-[9px] font-bold uppercase tracking-wider text-red-400 leading-none">
+                  LIVE
+                </span>
+              )}
               {cam.label}
             </button>
           )
@@ -187,7 +201,14 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
         {showViolence ? (
           <><span className="flex h-2.5 w-2.5 bg-danger rounded-full animate-ping"/><span className="text-sm font-bold text-danger">⚠ VIOLENCE DETECTED — CONFIDENCE {confidence.toFixed(1)}%</span></>
         ) : (
-          <><span className="flex h-2.5 w-2.5 bg-success rounded-full animate-pulse"/><span className="text-sm font-semibold text-success">MONITORING — No Threat Detected</span><span className="ml-auto font-mono text-[10px] text-muted-foreground">{activeCamId} — Live Feed</span></>
+          <><span className="flex h-2.5 w-2.5 bg-success rounded-full animate-pulse"/><span className="text-sm font-semibold text-success">MONITORING — No Threat Detected</span>
+          <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+            {activeCamId} —{" "}
+            {CAMERAS.find(c => c.id === activeCamId)?.isLive
+              ? <span className="text-red-400 font-bold">🔴 LIVE</span>
+              : <span>Playback</span>
+            }
+          </span></>
         )}
       </div>
 
