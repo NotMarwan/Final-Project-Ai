@@ -31,11 +31,11 @@ export interface CategoryScore {
 
 export const CATEGORY_LABELS: Record<DetectionCategory, string> = {
   violence: "Violence",
-  weapon: "Weapon",
+  weapon: "Weapon", // Note: Weapon detection is partially handled by weapon.py
   crowd_surge: "Crowd Surge",
-  fall: "Fall Detection",
-  intrusion: "Intrusion",
-  loitering: "Loitering",
+  fall: "Fall Detection (Placeholder)",
+  intrusion: "Intrusion (Placeholder)",
+  loitering: "Loitering (Placeholder)",
 }
 
 export const CATEGORY_COLORS: Record<DetectionCategory, string> = {

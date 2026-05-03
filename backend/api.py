@@ -1100,6 +1100,7 @@ async def get_categories():
 @app.post("/api/categories/{category_id}/toggle", summary="Toggle a detection category")
 async def toggle_category(category_id: str, enabled: bool, request: Request):
     """Enable or disable a detection category."""
+    global category_detector
     role = security_controller.authorize(request, required_role="admin")
     if not category_detector:
         raise HTTPException(status_code=503, detail="Category detector not initialized")
@@ -1107,12 +1108,12 @@ async def toggle_category(category_id: str, enabled: bool, request: Request):
     try:
         cat = DetectionCategory(category_id)
         # Update config (in production, would persist to config file)
-        setattr(category_detector.config, f"{cat.value}_enabled", enabled)
-        
-        if enabled and cat not in category_detector.enabled_categories:
-            category_detector.enabled_categories.append(cat)
-        elif not enabled and cat in category_detector.enabled_categories:
-            category_detector.enabled_categories.remove(cat)
+        import dataclasses
+        new_config = dataclasses.replace(
+            category_detector.config, 
+            **{f"{cat.value}_enabled": enabled}
+        )
+        category_detector = CategoryDetector(new_config)
         
         audit_logger.record("category_toggle", "success", role=role, details={"category": category_id, "enabled": enabled})
         return {"category": category_id, "enabled": enabled}

@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import type { DetectionCategory, CategoryScore } from "@/lib/detection-types"
 
 export interface FaceObservation {
   id: string
@@ -61,6 +62,10 @@ export interface LiveAlert {
   weaponDetectorReady?: boolean
   fusionReason?: string
   faceSummary?: FaceSummaryPayload
+  clipUrl?: string
+  categories?: CategoryScore[]
+  primaryCategory?: DetectionCategory
+  allCategories?: DetectionCategory[]
 }
 
 interface VideoPlayerProps {

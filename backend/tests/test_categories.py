@@ -39,3 +39,13 @@ def test_category_scoring():
     
     scores = detector.analyze_frame(dummy_frame, DetectionCategory.VIOLENCE)
     assert 0.0 <= scores.get(DetectionCategory.VIOLENCE, 0) <= 1.0
+
+
+def test_category_config_replace():
+    import dataclasses
+    config = CategoryConfig(weapon_enabled=False)
+    assert not config.weapon_enabled
+    new_config = dataclasses.replace(config, weapon_enabled=True)
+    assert new_config.weapon_enabled
+    assert not config.weapon_enabled
+

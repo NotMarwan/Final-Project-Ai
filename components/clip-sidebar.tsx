@@ -26,13 +26,11 @@ export function ClipSidebar({
   const [activeClipName, setActiveClipName] = useState<string>("")
 
   // Filter alerts that have clips
-  // Note: Using any here because clipUrl might not be in LiveAlert type yet
-  const clips = alerts.filter((a: any) => a.clipUrl)
+  const clips = alerts.filter((a) => a.clipUrl)
 
   const handlePlayClip = useCallback((alert: LiveAlert) => {
-    const alertAny = alert as any
-    if (alertAny.clipUrl) {
-      setActiveClipUrl(alertAny.clipUrl)
+    if (alert.clipUrl) {
+      setActiveClipUrl(alert.clipUrl)
       setActiveClipName(`Clip-${alert.id.slice(0, 8)}`)
       onSelectAlert(alert)
     }

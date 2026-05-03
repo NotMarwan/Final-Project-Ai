@@ -28,6 +28,7 @@ export function ClipPlayer({ clipUrl, clipName, autoPlay = true, className }: Cl
     togglePlay,
     toggleLoop,
     setSpeed,
+    playClip,
   } = useClipPlayback({
     initialLoop: true,
     onLoopComplete: () => {
@@ -37,13 +38,14 @@ export function ClipPlayer({ clipUrl, clipName, autoPlay = true, className }: Cl
 
   // Load clip when URL changes
   useEffect(() => {
-    if (clipUrl && videoRef.current) {
-      videoRef.current.src = clipUrl
+    if (clipUrl) {
       if (autoPlay) {
-        videoRef.current.play().catch(() => {})
+        playClip(clipUrl)
+      } else if (videoRef.current && videoRef.current.src !== clipUrl) {
+        videoRef.current.src = clipUrl
       }
     }
-  }, [clipUrl, autoPlay, videoRef])
+  }, [clipUrl, autoPlay, playClip, videoRef])
 
   const handleSpeedChange = (value: number[]) => {
     const newSpeed = value[0]
