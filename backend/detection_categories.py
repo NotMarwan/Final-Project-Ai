@@ -5,6 +5,125 @@ from typing import Any, Dict, List, Optional, Tuple, Mapping, Union
 import numpy as np
 
 
+def _pick(data: dict, camel_key: str, snake_key: str, default=None):
+    if camel_key in data:
+        return data[camel_key]
+    if snake_key in data:
+        return data[snake_key]
+    return default
+
+
+def parse_box(data: dict) -> Box:
+    if not isinstance(data, dict):
+        raise ValueError("Box context must be a dictionary")
+    
+    x1 = _pick(data, "x1", "x1")
+    y1 = _pick(data, "y1", "y1")
+    x2 = _pick(data, "x2", "x2")
+    y2 = _pick(data, "y2", "y2")
+    
+    if any(v is None for v in [x1, y1, x2, y2]):
+        raise ValueError("Box requires x1, y1, x2, y2")
+    
+    try:
+        x1, y1, x2, y2 = map(float, [x1, y1, x2, y2])
+    except (ValueError, TypeError):
+        raise ValueError("Box coordinates must be numeric")
+    
+    if x2 < x1:
+        raise ValueError("Box x2 must be >= x1")
+    if y2 < y1:
+        raise ValueError("Box y2 must be >= y1")
+        
+    return Box(
+        x1=x1, y1=y1, x2=x2, y2=y2,
+        label=str(_pick(data, "label", "label", "person")),
+        score=float(_pick(data, "score", "score", 1.0)),
+        track_id=_pick(data, "trackId", "track_id")
+    )
+
+
+def parse_zone(data: dict) -> Zone:
+    if not isinstance(data, dict):
+        raise ValueError("Zone context must be a dictionary")
+    
+    zone_id = _pick(data, "id", "id")
+    if zone_id is None:
+        raise ValueError("Zone requires an id")
+        
+    # bbox is often used in zones
+    bbox = _pick(data, "bbox", "bbox")
+    if bbox is not None:
+        if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+            raise ValueError("Zone bbox must be a list/tuple of 4 numeric values")
+        try:
+            x1, y1, x2, y2 = map(float, bbox)
+        except (ValueError, TypeError):
+            raise ValueError("Zone bbox values must be numeric")
+            
+        if x2 < x1 or y2 < y1:
+            raise ValueError("Zone bbox coordinates invalid (x2 < x1 or y2 < y1)")
+    else:
+        # Fallback to direct coordinates
+        x1 = _pick(data, "x1", "x1")
+        y1 = _pick(data, "y1", "y1")
+        x2 = _pick(data, "x2", "x2")
+        y2 = _pick(data, "y2", "y2")
+        
+        if any(v is None for v in [x1, y1, x2, y2]):
+            raise ValueError("Zone requires bbox or x1, y1, x2, y2")
+            
+        try:
+            x1, y1, x2, y2 = map(float, [x1, y1, x2, y2])
+        except (ValueError, TypeError):
+            raise ValueError("Zone coordinates must be numeric")
+            
+        if x2 < x1 or y2 < y1:
+            raise ValueError("Zone coordinates invalid (x2 < x1 or y2 < y1)")
+
+    return Zone(
+        id=str(zone_id),
+        camera_id=_pick(data, "cameraId", "camera_id"),
+        x1=x1, y1=y1, x2=x2, y2=y2,
+        label=str(_pick(data, "label", "label", "restricted"))
+    )
+
+
+def parse_detection_context(data: dict) -> DetectionContext:
+    if not isinstance(data, dict):
+        raise ValueError("Detection context must be a dictionary")
+        
+    person_boxes_raw = _pick(data, "personBoxes", "person_boxes", [])
+    if not isinstance(person_boxes_raw, list):
+        raise ValueError("personBoxes must be a list")
+    person_boxes = [parse_box(b) for b in person_boxes_raw]
+    
+    restricted_zones_raw = _pick(data, "restrictedZones", "restricted_zones", [])
+    if not isinstance(restricted_zones_raw, list):
+        raise ValueError("restrictedZones must be a list")
+    restricted_zones = [parse_zone(z) for z in restricted_zones_raw]
+    
+    # Handle intrusionThreshold specifically (0 is valid)
+    threshold = _pick(data, "intrusionThreshold", "intrusion_threshold")
+    if threshold is not None:
+        try:
+            threshold = float(threshold)
+        except (ValueError, TypeError):
+            raise ValueError("intrusionThreshold must be numeric")
+        if not (0.0 <= threshold <= 1.0):
+            raise ValueError("intrusionThreshold must be between 0.0 and 1.0")
+
+    return DetectionContext(
+        camera_id=_pick(data, "cameraId", "camera_id"),
+        timestamp=_pick(data, "timestamp", "timestamp"),
+        base_confidence=float(_pick(data, "baseConfidence", "base_confidence", 0.0)),
+        person_boxes=person_boxes,
+        restricted_zones=restricted_zones
+    )
+
+
+
+
 @dataclass(frozen=True)
 class Box:
     x1: float
@@ -113,6 +232,7 @@ class CategoryDetector:
             "threshold": getattr(self.config, f"{category.value}_threshold", 0.0),
             "status": CategoryStatus.UNSUPPORTED.value,
             "reason": "Not implemented",
+            "requiresContext": False,
             "requiredInputs": [],
         }
 
@@ -123,6 +243,10 @@ class CategoryDetector:
                 "requiredInputs": ["frame"]
             })
         elif category == DetectionCategory.WEAPON:
+            base.update({
+                "requiresContext": False,
+                "requiredInputs": ["frame"]
+            })
             if self.weapon_engine is None:
                 base.update({
                     "enabled": False,
@@ -131,19 +255,30 @@ class CategoryDetector:
                 })
             else:
                 signal = self.weapon_engine.latest_signal()
+                ready = signal.get("ready", False)
                 is_realtime = signal.get("isRealtime", False)
                 reason = "Weapon bridge connected."
-                if not is_realtime and signal.get("ready"):
+                
+                if not is_realtime and ready:
                     latency = signal.get("inferenceLatencyMs", 0)
-                    reason = f"CPU inference is slow (~{latency:.0f}ms); running with backpressure."
+                    reason += f" CPU inference is slow (~{latency:.0f}ms); running with backpressure."
+                
+                if not ready:
+                    status = CategoryStatus.UNSUPPORTED.value
+                    reason = signal.get("reason", "Weapon engine not ready.")
+                else:
+                    status = CategoryStatus.EXPERIMENTAL.value
                 
                 base.update({
-                    "enabled": self.config.weapon_enabled and signal.get("ready", False),
-                    "status": CategoryStatus.EXPERIMENTAL.value,
-                    "reason": reason,
-                    "requiredInputs": ["frame"]
+                    "enabled": self.config.weapon_enabled and ready,
+                    "status": status,
+                    "reason": reason
                 })
         elif category == DetectionCategory.INTRUSION:
+            base.update({
+                "requiresContext": True,
+                "requiredInputs": ["personBoxes", "restrictedZones", "cameraId"]
+            })
             # Intrusion is only supported if we have zones AND person boxes in context
             has_zones = context and len(context.restricted_zones) > 0
             has_persons = context and len(context.person_boxes) > 0
@@ -156,14 +291,12 @@ class CategoryDetector:
                 base.update({
                     "enabled": False,
                     "status": CategoryStatus.UNSUPPORTED.value,
-                    "reason": f"Requires {', '.join(reasons)}.",
-                    "requiredInputs": ["person_boxes", "restricted_zones", "camera_id"]
+                    "reason": f"Requires {', '.join(reasons)}."
                 })
             else:
                 base.update({
                     "status": CategoryStatus.EXPERIMENTAL.value,
-                    "reason": "Zone-based analysis active.",
-                    "requiredInputs": ["person_boxes", "restricted_zones", "camera_id"]
+                    "reason": "Zone-based analysis active."
                 })
         else:
             base.update({

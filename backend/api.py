@@ -47,9 +47,21 @@ except ImportError:
     from reporting import build_incident_pdf
 
 try:
-    from .detection_categories import CategoryDetector, DetectionCategory, CategoryConfig
+    from .detection_categories import (
+        CategoryDetector, 
+        DetectionCategory, 
+        CategoryConfig, 
+        DetectionContext,
+        parse_detection_context
+    )
 except ImportError:
-    from detection_categories import CategoryDetector, DetectionCategory, CategoryConfig
+    from detection_categories import (
+        CategoryDetector, 
+        DetectionCategory, 
+        CategoryConfig, 
+        DetectionContext,
+        parse_detection_context
+    )
 
 # Initialize category detector
 category_detector = None
@@ -272,6 +284,11 @@ class FacePolicyRequest(BaseModel):
     identity_labeling_enabled: Optional[bool] = None
     recognition_audit_enabled: Optional[bool] = None
     recognition_audit_cooldown_sec: Optional[int] = Field(default=None, ge=1, le=3600)
+
+
+class AnalyzeRequest(BaseModel):
+    category: str
+    context: dict
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Application State Management
@@ -1089,6 +1106,37 @@ async def get_categories():
             category_detector.get_capability(cat)
             for cat in DetectionCategory
         ]
+    }
+
+
+@app.post("/api/analyze", summary="Analyze a frame or context for a specific category")
+async def analyze_category(body: AnalyzeRequest, request: Request):
+    """Analyze context data for a specific detection category."""
+    if not category_detector:
+        raise HTTPException(status_code=503, detail="Category detector not initialized")
+    
+    try:
+        cat = DetectionCategory(body.category)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid category: {body.category}")
+    
+    try:
+        context = parse_detection_context(body.context)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        # Unexpected parsing error
+        raise HTTPException(status_code=400, detail=f"Malformed context: {exc}")
+        
+    scores = category_detector.analyze_context(context, cat)
+    score = scores.get(cat, 0.0)
+    
+    return {
+        "category": cat.value,
+        "score": float(score),
+        "threshold": getattr(category_detector.config, f"{cat.value}_threshold", 0.0),
+        "triggered": score >= getattr(category_detector.config, f"{cat.value}_threshold", 0.0),
+        "severity": category_detector.get_category_severity(cat)
     }
 
 
