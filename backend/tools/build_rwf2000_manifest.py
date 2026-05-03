@@ -19,7 +19,7 @@ def build_manifest(dataset_dir: str, output_path: str):
             print(f"Split path {split_path} not found, skipping.")
             continue
             
-        for original_label in ["Fight", "NonFight", "fight", "nonfight"]:
+        for original_label in ["Fight", "NonFight", "fight", "nonfight", "Violence", "Normal", "violence", "normal"]:
             label_path = split_path / original_label
             if not label_path.exists():
                 continue

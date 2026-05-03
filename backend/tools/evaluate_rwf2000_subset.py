@@ -35,15 +35,19 @@ def evaluate_subset(manifest_path: str, weights_path: str, samples_per_class: in
     entries = []
     with open(manifest_path, "r") as f:
         for line in f:
-            entries.append(json.loads(line))
+            if not line.strip(): continue
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
             
     # Sample subsets
-    violence_samples = [e for e in entries if e["label"] == "violence"]
-    normal_samples = [e for e in entries if e["label"] == "normal"]
+    violence_samples = [e for e in entries if str(e.get("label", "")).lower() == "violence"]
+    normal_samples = [e for e in entries if str(e.get("label", "")).lower() == "normal"]
     
     # Use val split if possible, otherwise just sample
-    val_violence = [e for e in violence_samples if e["split"] == "val"]
-    val_normal = [e for e in normal_samples if e["split"] == "val"]
+    val_violence = [e for e in violence_samples if e.get("split") == "val"]
+    val_normal = [e for e in normal_samples if e.get("split") == "val"]
     
     if not val_violence: val_violence = violence_samples
     if not val_normal: val_normal = normal_samples
@@ -104,6 +108,15 @@ def evaluate_subset(manifest_path: str, weights_path: str, samples_per_class: in
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     accuracy = correct / len(results) if len(results) > 0 else 0
     
+    # Limitations and Meta
+    limitations = []
+    if not torch.cuda.is_available():
+        limitations.append("CPU-only inference (latency is not representative of GPU performance)")
+    if len(results) < 20:
+        limitations.append("Small sample size (metrics may have high variance)")
+    if accuracy == 1.0 or accuracy == 0.0:
+        limitations.append("Perfect/Zero accuracy may indicate label bias or overfitting on tiny sample")
+
     print("\n" + "="*30)
     print("BASELINE EVALUATION RESULTS")
     print("="*30)
@@ -113,13 +126,33 @@ def evaluate_subset(manifest_path: str, weights_path: str, samples_per_class: in
     print(f"Recall:    {recall:.4f}")
     print(f"Avg Latency: {np.mean(latencies):.2f}ms")
     print(f"P95 Latency: {np.percentile(latencies, 95):.2f}ms")
+    
+    if limitations:
+        print("\nLIMITATIONS:")
+        for lim in limitations:
+            print(f"- {lim}")
     print("="*30)
+    
+    return results, {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "avg_latency": np.mean(latencies),
+        "limitations": limitations
+    }
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate RWF-2000 Subset")
     parser.add_argument("--manifest", required=True, help="Path to manifest.jsonl")
     parser.add_argument("--weights", default="backend/best_model.pt", help="Path to weights")
     parser.add_argument("--samples", type=int, default=10, help="Samples per class")
+    parser.add_argument("--output", help="Optional path to save results as JSON")
     
     args = parser.parse_args()
-    evaluate_subset(args.manifest, args.weights, args.samples)
+    results, stats = evaluate_subset(args.manifest, args.weights, args.samples)
+    
+    if args.output:
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        with open(args.output, "w") as f:
+            json.dump({"stats": stats, "results": results}, f, indent=2)
+        print(f"Results saved to {args.output}")
