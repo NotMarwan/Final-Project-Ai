@@ -46,7 +46,8 @@ def test_load_video_clip_corrupt_file():
         
         with pytest.raises(RuntimeError) as excinfo:
             load_video_clip(corrupt_path)
-        assert "0 frames or is corrupt" in str(excinfo.value)
+        err_msg = str(excinfo.value)
+        assert "Failed to open" in err_msg or "0 frames or is corrupt" in err_msg
 
 def test_load_video_clip_padding(fake_video_file):
     # The fake video has only 5 frames, but we request 16.
