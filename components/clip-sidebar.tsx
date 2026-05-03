@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Play, Clock, Camera, Trash2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
 import { IncidentReplay } from "./incident-replay"
 

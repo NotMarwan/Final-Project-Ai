@@ -920,7 +920,7 @@ def capture_loop():
         now = time.time()
         current_cooldown = state.get_cooldown()
         
-        weapon_threshold = fusion_engine.config.weapon_threshold
+        weapon_threshold = weapon_engine.config.independent_alert_threshold
         is_weapon_threat = weapon_score >= weapon_threshold
         
         if (pipeline._is_violent or is_weapon_threat) and (now - last_alert_time > current_cooldown):

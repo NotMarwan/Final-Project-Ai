@@ -66,6 +66,8 @@ export interface LiveAlert {
   categories?: CategoryScore[]
   primaryCategory?: DetectionCategory
   allCategories?: DetectionCategory[]
+  threatType?: "violence" | "weapon"
+  alertLatencyMs?: number
 }
 
 interface VideoPlayerProps {

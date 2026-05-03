@@ -12,6 +12,7 @@ fusion:
   weapon_weight: 0.15
   weapon_threshold: 0.55
   weapon_boost: 0.12
+  independent_alert_threshold: 0.65
 
 notifications:
   telegram:
@@ -68,6 +69,7 @@ categories:
   
   weapon_enabled: true
   weapon_threshold: 0.55
+  independent_alert_threshold: 0.65
   weapon_weight: 0.9
   
   crowd_surge_enabled: true

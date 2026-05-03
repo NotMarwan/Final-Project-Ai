@@ -57,6 +57,7 @@ class WeaponConfig:
     preload_on_startup: bool = False
     min_interval_ms: int = 2500
     realtime_threshold_ms: int = 500
+    independent_alert_threshold: float = 0.65
 
     @classmethod
     def from_settings(cls, settings: Mapping[str, Any] | None, env: Mapping[str, str] | None = None) -> "WeaponConfig":
@@ -78,6 +79,7 @@ class WeaponConfig:
             preload_on_startup=_as_bool(env.get("WEAPON_PRELOAD_ON_STARTUP"), _as_bool(weapon_settings.get("preload_on_startup"), False)),
             min_interval_ms=_as_int(env.get("WEAPON_MIN_INTERVAL_MS", weapon_settings.get("min_interval_ms", 2500)), 2500, 0, 10000),
             realtime_threshold_ms=_as_int(env.get("WEAPON_REALTIME_THRESHOLD_MS", weapon_settings.get("realtime_threshold_ms", 500)), 500, 10, 5000),
+            independent_alert_threshold=_as_float(env.get("WEAPON_INDEPENDENT_ALERT_THRESHOLD", weapon_settings.get("independent_alert_threshold", 0.65)), 0.65, 0.01, 0.99),
         )
 
 
