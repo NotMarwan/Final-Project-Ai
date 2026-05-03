@@ -83,4 +83,5 @@ def test_unsupported_category_analysis():
     dummy_frame = np.zeros((160, 160, 3), dtype=np.uint8)
     
     scores = detector.analyze_frame(dummy_frame, DetectionCategory.FALL)
-    assert DetectionCategory.FALL not in scores
+    # New contract: Unsupported categories return 0.0 in the dictionary
+    assert scores[DetectionCategory.FALL] == 0.0

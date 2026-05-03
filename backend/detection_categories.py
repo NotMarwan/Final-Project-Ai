@@ -1,17 +1,43 @@
-"""
-Detection Categories System
-Expands beyond violence to: weapon, crowd_surge, fall, intrusion, loitering
-"""
-
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Mapping, Union
 import numpy as np
 
 
+@dataclass(frozen=True)
+class Box:
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+    label: str = "person"
+    score: float = 1.0
+    track_id: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class Zone:
+    id: str
+    camera_id: Optional[str]
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+    label: str = "restricted"
+
+
+@dataclass(frozen=True)
+class DetectionContext:
+    frame: Optional[np.ndarray] = None
+    camera_id: Optional[str] = None
+    timestamp: Optional[float] = None
+    base_confidence: float = 0.0
+    person_boxes: List[Box] = field(default_factory=list)
+    restricted_zones: List[Zone] = field(default_factory=list)
+
+
 class DetectionCategory(str, Enum):
-    """Supported detection categories."""
     VIOLENCE = "violence"
     WEAPON = "weapon"
     CROWD_SURGE = "crowd_surge"
@@ -20,84 +46,66 @@ class DetectionCategory(str, Enum):
     LOITERING = "loitering"
 
 
-@dataclass(frozen=True)
-class CategoryConfig:
-    """Configuration for each detection category."""
-    violence_enabled: bool = True
-    violence_threshold: float = 0.75
-    violence_weight: float = 1.0
-    
-    weapon_enabled: bool = False
-    weapon_threshold: float = 0.55
-    weapon_weight: float = 0.9
-    
-    crowd_surge_enabled: bool = False
-    crowd_surge_threshold: float = 0.70
-    crowd_surge_weight: float = 0.8
-    
-    fall_enabled: bool = False
-    fall_threshold: float = 0.65
-    fall_weight: float = 0.85
-    
-    intrusion_enabled: bool = False
-    intrusion_threshold: float = 0.60
-    intrusion_weight: float = 0.75
-    
-    loitering_enabled: bool = False
-    loitering_threshold: float = 0.50
-    loitering_weight: float = 0.6
-    
-    @classmethod
-    def from_settings(cls, settings: Optional[Dict[str, Any]] = None) -> "CategoryConfig":
-        settings = settings or {}
-        return cls(
-            violence_enabled=settings.get("violence_enabled", True),
-            violence_threshold=settings.get("violence_threshold", 0.75),
-            violence_weight=settings.get("violence_weight", 1.0),
-            weapon_enabled=settings.get("weapon_enabled", False),
-            weapon_threshold=settings.get("weapon_threshold", 0.55),
-            weapon_weight=settings.get("weapon_weight", 0.9),
-            crowd_surge_enabled=settings.get("crowd_surge_enabled", False),
-            crowd_surge_threshold=settings.get("crowd_surge_threshold", 0.70),
-            crowd_surge_weight=settings.get("crowd_surge_weight", 0.8),
-            fall_enabled=settings.get("fall_enabled", False),
-            fall_threshold=settings.get("fall_threshold", 0.65),
-            fall_weight=settings.get("fall_weight", 0.85),
-            intrusion_enabled=settings.get("intrusion_enabled", False),
-            intrusion_threshold=settings.get("intrusion_threshold", 0.60),
-            intrusion_weight=settings.get("intrusion_weight", 0.75),
-            loitering_enabled=settings.get("loitering_enabled", False),
-            loitering_threshold=settings.get("loitering_threshold", 0.50),
-            loitering_weight=settings.get("loitering_weight", 0.6),
-        )
-
-
 class CategoryStatus(str, Enum):
     ACTIVE = "active"
     EXPERIMENTAL = "experimental"
     UNSUPPORTED = "unsupported"
 
 
+@dataclass
+class CategoryConfig:
+    violence_enabled: bool = True
+    violence_threshold: float = 0.5
+    weapon_enabled: bool = False
+    weapon_threshold: float = 0.55
+    crowd_surge_enabled: bool = False
+    crowd_surge_threshold: float = 0.70
+    fall_enabled: bool = False
+    fall_threshold: float = 0.65
+    intrusion_enabled: bool = False
+    intrusion_threshold: float = 0.60
+    intrusion_weight: float = 0.75
+    loitering_enabled: bool = False
+    loitering_threshold: float = 0.60
+
+    @classmethod
+    def from_settings(cls, settings: Optional[Dict[str, Any]] = None) -> "CategoryConfig":
+        settings = settings or {}
+        return cls(
+            violence_enabled=settings.get("violence_enabled", True),
+            violence_threshold=settings.get("violence_threshold", 0.5),
+            weapon_enabled=settings.get("weapon_enabled", False),
+            weapon_threshold=settings.get("weapon_threshold", 0.55),
+            crowd_surge_enabled=settings.get("crowd_surge_enabled", False),
+            crowd_surge_threshold=settings.get("crowd_surge_threshold", 0.70),
+            fall_enabled=settings.get("fall_enabled", False),
+            fall_threshold=settings.get("fall_threshold", 0.65),
+            intrusion_enabled=settings.get("intrusion_enabled", False),
+            intrusion_threshold=settings.get("intrusion_threshold", 0.60),
+            intrusion_weight=settings.get("intrusion_weight", 0.75),
+            loitering_enabled=settings.get("loitering_enabled", False),
+            loitering_threshold=settings.get("loitering_threshold", 0.60),
+        )
+
+
 class CategoryDetector:
-    """Multi-category detection engine."""
-    
-    def __init__(self, config: CategoryConfig, weapon_engine: Any = None):
+    def __init__(self, config: CategoryConfig, weapon_engine: Optional[Any] = None):
         self.config = config
         self.weapon_engine = weapon_engine
         self._enabled_categories: List[DetectionCategory] = [
             cat for cat in DetectionCategory
             if getattr(config, f"{cat.value}_enabled", False)
         ]
-    
+
     @property
     def enabled_categories(self) -> List[DetectionCategory]:
         return self._enabled_categories
-    
+
     def is_category_enabled(self, category: DetectionCategory) -> bool:
         return category in self._enabled_categories
-        
-    def get_capability(self, category: DetectionCategory) -> Dict[str, Any]:
-        """Get honest capability metadata for a category."""
+
+    def get_capability(self, category: DetectionCategory, context: Optional[DetectionContext] = None) -> Dict[str, Any]:
+        """Return the capability status for a category."""
         base = {
             "id": category.value,
             "label": category.name.replace("_", " ").title(),
@@ -105,147 +113,153 @@ class CategoryDetector:
             "threshold": getattr(self.config, f"{category.value}_threshold", 0.0),
             "status": CategoryStatus.UNSUPPORTED.value,
             "reason": "Not implemented",
-            "requiredInputs": []
+            "requiredInputs": [],
         }
-        
+
         if category == DetectionCategory.VIOLENCE:
-            base["status"] = CategoryStatus.ACTIVE.value
-            base["reason"] = "X3D violence inference is configured and active."
-            base["requiredInputs"] = ["video_window"]
-            
+            base.update({
+                "status": CategoryStatus.ACTIVE.value,
+                "reason": "Connected to active X3D temporal engine.",
+                "requiredInputs": ["frame"]
+            })
         elif category == DetectionCategory.WEAPON:
-            if self.weapon_engine is not None:
-                try:
-                    signal = self.weapon_engine.latest_signal()
-                    if signal.get("ready", False):
-                        base["status"] = CategoryStatus.EXPERIMENTAL.value
-                        is_rt = signal.get("isRealtime", False)
-                        lat = signal.get("inferenceLatencyMs", 0.0)
-                        if is_rt:
-                            base["reason"] = "Weapon model connected and ready (real-time enabled)."
-                        else:
-                            base["reason"] = f"Weapon model connected but warm CPU inference is slow (~{int(lat)}ms); running with backpressure/cooldown."
-                        base["requiredInputs"] = ["frame_image", "weapon_engine"]
-                    elif signal.get("loading", False):
-                        base["status"] = CategoryStatus.UNSUPPORTED.value
-                        base["reason"] = "Weapon model is currently loading..."
-                        base["requiredInputs"] = ["weapon_engine"]
-                        base["enabled"] = False
-                    elif signal.get("failed", False):
-                        base["status"] = CategoryStatus.UNSUPPORTED.value
-                        base["reason"] = f"Weapon engine failed: {signal.get('reason', 'Unknown error')}"
-                        base["requiredInputs"] = ["weapon_engine"]
-                        base["enabled"] = False
-                    else:
-                        base["status"] = CategoryStatus.UNSUPPORTED.value
-                        base["reason"] = f"Weapon engine unavailable: {signal.get('reason', 'Unknown error')}"
-                        base["requiredInputs"] = ["yolo_weights", "weapon_engine"]
-                        base["enabled"] = False
-                except Exception as e:
-                    base["status"] = CategoryStatus.UNSUPPORTED.value
-                    base["reason"] = f"Weapon engine error: {str(e)}"
-                    base["requiredInputs"] = ["weapon_engine"]
-                    base["enabled"] = False
+            if self.weapon_engine is None:
+                base.update({
+                    "enabled": False,
+                    "status": CategoryStatus.UNSUPPORTED.value,
+                    "reason": "Weapon detection engine not initialized."
+                })
             else:
-                base["status"] = CategoryStatus.UNSUPPORTED.value
-                base["reason"] = "Weapon engine not loaded or unavailable."
-                base["requiredInputs"] = ["weapon_engine"]
-                base["enabled"] = False # Force disabled if unsupported
+                signal = self.weapon_engine.latest_signal()
+                is_realtime = signal.get("isRealtime", False)
+                reason = "Weapon bridge connected."
+                if not is_realtime and signal.get("ready"):
+                    latency = signal.get("inferenceLatencyMs", 0)
+                    reason = f"CPU inference is slow (~{latency:.0f}ms); running with backpressure."
                 
-        elif category == DetectionCategory.CROWD_SURGE:
-            base["status"] = CategoryStatus.EXPERIMENTAL.value
-            base["reason"] = "Basic optical flow density heuristic. Lacks stateful tracking."
-            base["requiredInputs"] = ["optical_flow"]
-            
-        elif category == DetectionCategory.FALL:
-            base["status"] = CategoryStatus.UNSUPPORTED.value
-            base["reason"] = "Temporal pose estimation not yet integrated."
-            base["requiredInputs"] = ["pose_estimation", "person_boxes"]
-            base["enabled"] = False
-            
+                base.update({
+                    "enabled": self.config.weapon_enabled and signal.get("ready", False),
+                    "status": CategoryStatus.EXPERIMENTAL.value,
+                    "reason": reason,
+                    "requiredInputs": ["frame"]
+                })
         elif category == DetectionCategory.INTRUSION:
-            base["status"] = CategoryStatus.UNSUPPORTED.value
-            base["reason"] = "Restricted zones configuration missing."
-            base["requiredInputs"] = ["zone_polygons", "person_boxes"]
-            base["enabled"] = False
+            # Intrusion is only supported if we have zones AND person boxes in context
+            has_zones = context and len(context.restricted_zones) > 0
+            has_persons = context and len(context.person_boxes) > 0
             
-        elif category == DetectionCategory.LOITERING:
-            base["status"] = CategoryStatus.UNSUPPORTED.value
-            base["reason"] = "Dwell-time logic and person re-ID not implemented."
-            base["requiredInputs"] = ["tracking_ids", "dwell_timers"]
-            base["enabled"] = False
+            if not has_zones or not has_persons:
+                reasons = []
+                if not has_zones: reasons.append("restricted zones")
+                if not has_persons: reasons.append("person boxes")
+                
+                base.update({
+                    "enabled": False,
+                    "status": CategoryStatus.UNSUPPORTED.value,
+                    "reason": f"Requires {', '.join(reasons)}.",
+                    "requiredInputs": ["person_boxes", "restricted_zones", "camera_id"]
+                })
+            else:
+                base.update({
+                    "status": CategoryStatus.EXPERIMENTAL.value,
+                    "reason": "Zone-based analysis active.",
+                    "requiredInputs": ["person_boxes", "restricted_zones", "camera_id"]
+                })
+        else:
+            base.update({
+                "reason": "Implementation pending Phase 4/5 enhancements.",
+                "requiredInputs": ["frame"]
+            })
 
         return base
-    
-    def analyze_frame(
-        self, 
-        frame: np.ndarray, 
-        category: DetectionCategory,
-        base_confidence: float = 0.0,
-    ) -> Dict[DetectionCategory, float]:
-        """
-        Analyze a frame for a specific category.
-        Returns scores for the requested category.
-        """
-        scores: Dict[DetectionCategory, float] = {}
+
+    def get_all_capabilities(self, context: Optional[DetectionContext] = None) -> List[Dict[str, Any]]:
+        return [self.get_capability(cat, context) for cat in DetectionCategory]
+
+    def analyze_frame(self, frame: np.ndarray, category: DetectionCategory, base_confidence: float = 0.0) -> Dict[DetectionCategory, float]:
+        """Backward compatibility for simple frame-based calls."""
+        ctx = DetectionContext(frame=frame, base_confidence=base_confidence)
+        return self.analyze_context(ctx, category)
+
+    def analyze_context(self, context: DetectionContext, category: DetectionCategory) -> Dict[DetectionCategory, float]:
+        """Primary entry point for context-aware analysis."""
+        scores = {category: 0.0}
         
-        # Don't analyze if disabled OR unsupported
-        if not self.is_category_enabled(category):
-            return scores
-            
-        cap = self.get_capability(category)
+        # Guard: check capability first
+        cap = self.get_capability(category, context)
         if cap["status"] == CategoryStatus.UNSUPPORTED.value:
             return scores
-        
+            
+        # Also check if enabled
+        if not self.is_category_enabled(category):
+            return scores
+
         if category == DetectionCategory.VIOLENCE:
-            scores[category] = base_confidence  # Use X3D confidence
-        
+            scores[category] = context.base_confidence
         elif category == DetectionCategory.WEAPON:
-            if self.weapon_engine is not None:
+            if self.weapon_engine and context.frame is not None:
                 try:
-                    signal = self.weapon_engine.process_frame(frame)
-                    scores[category] = float(signal.get("score", 0.0))
+                    res = self.weapon_engine.process_frame(context.frame)
+                    scores[category] = res.get("score", 0.0)
                 except Exception:
                     scores[category] = 0.0
-            else:
-                scores[category] = 0.0
-        
-        elif category == DetectionCategory.CROWD_SURGE:
-            scores[category] = self._detect_crowd_surge(frame)
-        
-        elif category == DetectionCategory.FALL:
-            scores[category] = self._detect_fall(frame)
-        
         elif category == DetectionCategory.INTRUSION:
-            scores[category] = self._detect_intrusion(frame)
-        
+            scores[category] = self._detect_intrusion(context)
+        elif category == DetectionCategory.CROWD_SURGE:
+            scores[category] = self._detect_crowd_surge(context.frame)
+        elif category == DetectionCategory.FALL:
+            scores[category] = self._detect_fall(context.frame)
         elif category == DetectionCategory.LOITERING:
-            scores[category] = self._detect_loitering(frame)
-        
+            scores[category] = self._detect_loitering(context.frame)
+
         return scores
-    
-    def _detect_crowd_surge(self, frame: np.ndarray) -> float:
-        """Detect crowd surge based on optical flow density."""
-        gray = np.mean(frame, axis=2) if frame.ndim == 3 else frame
-        movement_score = float(np.std(gray) / 255.0)
-        threshold = self.config.crowd_surge_threshold
-        return min(1.0, movement_score / threshold) if movement_score > threshold else 0.0
-    
-    def _detect_fall(self, frame: np.ndarray) -> float:
-        """Detect human fall based on aspect ratio changes."""
-        # Simplified: would use pose estimation in production
+
+    def _detect_intrusion(self, context: DetectionContext) -> float:
+        """Detect intrusion using zone overlap logic."""
+        if not context.person_boxes or not context.restricted_zones:
+            return 0.0
+            
+        max_overlap = 0.0
+        for person in context.person_boxes:
+            for zone in context.restricted_zones:
+                # Optional camera_id matching
+                if zone.camera_id and context.camera_id and zone.camera_id != context.camera_id:
+                    continue
+                    
+                overlap = self._box_overlap_ratio(person, zone)
+                if overlap > max_overlap:
+                    max_overlap = overlap
+                    
+        return float(max_overlap)
+
+    def _box_overlap_ratio(self, person: Box, zone: Zone) -> float:
+        """Compute how much of the person box is inside the zone."""
+        # Intersection
+        ix1 = max(person.x1, zone.x1)
+        iy1 = max(person.y1, zone.y1)
+        ix2 = min(person.x2, zone.x2)
+        iy2 = min(person.y2, zone.y2)
+        
+        if ix2 <= ix1 or iy2 <= iy1:
+            return 0.0
+            
+        intersection_area = (ix2 - ix1) * (iy2 - iy1)
+        person_area = (person.x2 - person.x1) * (person.y2 - person.y1)
+        
+        if person_area <= 0:
+            return 0.0
+            
+        return intersection_area / person_area
+
+    def _detect_crowd_surge(self, frame: Optional[np.ndarray]) -> float:
         return 0.0
-    
-    def _detect_intrusion(self, frame: np.ndarray) -> float:
-        """Detect intrusion in restricted areas."""
-        # Simplified: would use zone-based detection
+
+    def _detect_fall(self, frame: Optional[np.ndarray]) -> float:
         return 0.0
-    
-    def _detect_loitering(self, frame: np.ndarray) -> float:
-        """Detect loitering behavior."""
-        # Simplified: would track dwell time
+
+    def _detect_loitering(self, frame: Optional[np.ndarray]) -> float:
         return 0.0
-    
+
     def get_category_severity(self, category: DetectionCategory) -> str:
         """Get the default severity level for a category."""
         severity_map = {
@@ -257,3 +271,4 @@ class CategoryDetector:
             DetectionCategory.LOITERING: "low",
         }
         return severity_map.get(category, "medium")
+
