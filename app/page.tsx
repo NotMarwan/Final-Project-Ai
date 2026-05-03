@@ -7,6 +7,8 @@ import { AlertFeed } from "@/components/alert-feed"
 import { VideoPlayer } from "@/components/video-player"
 import type { LiveAlert } from "@/components/video-player"
 import { GeoDashboard } from "@/components/geo-dashboard"
+import { ClipSidebar } from "@/components/clip-sidebar"
+import type { DetectionCategory } from "@/lib/detection-types"
 
 const IncidentPanel = dynamic(() => import("@/components/incident-panel").then(mod => mod.IncidentPanel), { ssr: false })
 const AiReport = dynamic(() => import("@/components/ai-report").then(mod => mod.AiReport), { ssr: false })
@@ -220,6 +222,15 @@ export default function DashboardPage() {
         <main className="flex-1 overflow-hidden border-r border-border bg-black">
           <VideoPlayer activeAlert={latestAlertForVideo} privacyMode={privacyMode} />
         </main>
+
+        {/* شريط جانبي للكليبات: Twitch-style loop playback */}
+        <aside className="w-[320px] flex-shrink-0 border-l border-border bg-card/30 flex flex-col h-full overflow-hidden">
+          <ClipSidebar
+            alerts={alerts}
+            selectedAlertId={selectedAlert?.id}
+            onSelectAlert={handleSelectAlert}
+          />
+        </aside>
 
         {/* شريط جانبي أيمن: تفاصيل الحادث والتحكم (بدون التقرير) */}
         <aside className="w-[380px] flex-shrink-0 overflow-y-auto custom-scrollbar border-l border-border bg-card/30">

@@ -1025,6 +1025,45 @@ async def alerts():
     return StreamingResponse(_sse_generator(state.subscribe()), media_type="text/event-stream")
 
 
+@app.get("/clips/{alert_id}", summary="Stream recorded incident clip")
+async def get_clip(alert_id: str):
+    """Stream a recorded incident clip."""
+    from pathlib import Path
+    
+    # Check evidence directory
+    clip_path = EVIDENCE_DIR / f"{alert_id}.mp4"
+    if not clip_path.exists():
+        raise HTTPException(status_code=404, detail="Clip not found")
+    
+    return FileResponse(
+        path=str(clip_path),
+        media_type="video/mp4",
+        filename=f"clip_{alert_id}.mp4",
+    )
+
+
+@app.get("/api/clips/list", summary="List available incident clips")
+async def list_clips():
+    """List all available incident clips."""
+    clips = []
+    
+    if EVIDENCE_DIR.exists():
+        for clip_path in EVIDENCE_DIR.glob("*.mp4"):
+            alert_id = clip_path.stem
+            # Get alert details if available
+            alert = state.get_alert(alert_id)
+            clips.append({
+                "alertId": alert_id,
+                "clipUrl": f"/clips/{alert_id}",
+                "timestamp": alert.get("timestamp") if alert else None,
+                "cameraId": alert.get("cameraId") if alert else None,
+                "type": alert.get("type") if alert else "unknown",
+                "size": clip_path.stat().st_size,
+            })
+    
+    return {"clips": clips, "count": len(clips)}
+
+
 @app.get("/notifications/status", summary="Notification subsystem status")
 async def notifications_status():
     return {
