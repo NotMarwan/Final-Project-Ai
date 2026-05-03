@@ -104,6 +104,10 @@ def run_smoke_test(timeout_sec=30, runs=5, warmup=1):
     final_signal = engine.status()
     results["ready_after"] = final_signal.get("ready", False)
     results["labels"] = final_signal.get("labels", [])
+    results["is_realtime"] = final_signal.get("isRealtime", False)
+    results["skipped_frames"] = final_signal.get("skippedFrames", 0)
+    results["min_interval_ms"] = final_signal.get("minIntervalMs", 2500)
+    results["inference_running"] = final_signal.get("inferenceRunning", False)
     
     if latencies:
         latencies.sort()
@@ -113,6 +117,12 @@ def run_smoke_test(timeout_sec=30, runs=5, warmup=1):
         idx = max(0, int(len(latencies) * 0.95) - 1)
         results["warm_p95"] = round(latencies[idx], 2)
         results["max_warm"] = round(max(latencies), 2)
+        
+    # Recommendation
+    results["recommendation"] = {
+        "realtime_ready": results["warm_p95"] < 500 and results["device"] != "cpu",
+        "recommended_min_interval_ms": int(results["warm_p95"] * 1.2) if latencies else 2500
+    }
 
     if "model-load-failed" in results["status_reason"]:
         results["weights_download_likely_needed"] = True

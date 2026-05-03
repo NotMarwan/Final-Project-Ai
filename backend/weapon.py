@@ -55,6 +55,8 @@ class WeaponConfig:
     input_size: int = 640
     labels: tuple[str, ...] = ("firearm", "handgun", "rifle", "knife")
     preload_on_startup: bool = False
+    min_interval_ms: int = 2500
+    realtime_threshold_ms: int = 500
 
     @classmethod
     def from_settings(cls, settings: Mapping[str, Any] | None, env: Mapping[str, str] | None = None) -> "WeaponConfig":
@@ -74,6 +76,8 @@ class WeaponConfig:
             input_size=_as_int(env.get("WEAPON_INPUT_SIZE", weapon_settings.get("input_size", 640)), 640, 224, 1920),
             labels=labels,
             preload_on_startup=_as_bool(env.get("WEAPON_PRELOAD_ON_STARTUP"), _as_bool(weapon_settings.get("preload_on_startup"), False)),
+            min_interval_ms=_as_int(env.get("WEAPON_MIN_INTERVAL_MS", weapon_settings.get("min_interval_ms", 2500)), 2500, 0, 10000),
+            realtime_threshold_ms=_as_int(env.get("WEAPON_REALTIME_THRESHOLD_MS", weapon_settings.get("realtime_threshold_ms", 500)), 500, 10, 5000),
         )
 
 
@@ -96,6 +100,8 @@ class WeaponSignalEngine:
         self._last_latency_ms = 0.0
         self._last_inference_latency_ms = 0.0
         self._last_load_latency_ms = 0.0
+        self._last_inference_at = 0.0
+        self._skipped_frames = 0
 
         if not self.enabled:
             self._status_reason = "disabled-by-config"
@@ -120,17 +126,30 @@ class WeaponSignalEngine:
 
     def latest_signal(self) -> dict[str, Any]:
         with self._lock:
+            # We consider it real-time if warm inference latency is below threshold
+            # and it's actually running on a device (model loaded)
+            is_realtime = (
+                self._model is not None 
+                and self._last_inference_latency_ms > 0 
+                and self._last_inference_latency_ms < self.config.realtime_threshold_ms
+            )
+            
             return {
                 "enabled": self.enabled,
                 "backend": self.config.backend,
                 "ready": self._model is not None,
                 "loading": self._loading,
                 "failed": self._failed,
+                "isRealtime": is_realtime,
                 "score": round(float(self._last_score), 4),
                 "labels": list(self._last_labels),
                 "latencyMs": round(float(self._last_latency_ms), 1),
                 "inferenceLatencyMs": round(float(self._last_inference_latency_ms), 1),
                 "loadLatencyMs": round(float(self._last_load_latency_ms), 1),
+                "skippedFrames": self._skipped_frames,
+                "lastInferenceAt": self._last_inference_at,
+                "minIntervalMs": self.config.min_interval_ms,
+                "inferenceRunning": self._inference_running,
                 "reason": self._status_reason,
             }
 
@@ -155,16 +174,24 @@ class WeaponSignalEngine:
         if self._frame_counter % self.config.interval != 0:
             return self.latest_signal()
 
-        should_start = False
+        now = time.time()
         with self._lock:
-            if not self._inference_running:
-                self._inference_running = True
-                should_start = True
+            # 1. Single-flight check
+            if self._inference_running:
+                self._skipped_frames += 1
+                return self.latest_signal()
+            
+            # 2. Cooldown check (min_interval_ms)
+            elapsed_ms = (now - self._last_inference_at) * 1000
+            if self._last_inference_at > 0 and elapsed_ms < self.config.min_interval_ms:
+                self._skipped_frames += 1
+                return self.latest_signal()
 
-        if should_start:
-            frame_copy = frame.copy()
-            threading.Thread(target=self._infer_async, args=(frame_copy,), daemon=True).start()
+            self._inference_running = True
+            self._last_inference_at = now
 
+        frame_copy = frame.copy()
+        threading.Thread(target=self._infer_async, args=(frame_copy,), daemon=True).start()
         return self.latest_signal()
 
     def _infer_async(self, frame: np.ndarray) -> None:

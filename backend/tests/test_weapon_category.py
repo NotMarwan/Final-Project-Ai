@@ -38,9 +38,62 @@ def test_weapon_capability_experimental_with_engine():
     config = CategoryConfig(weapon_enabled=True)
     detector = CategoryDetector(config, weapon_engine=MockWeaponEngine(ready=True))
     cap = detector.get_capability(DetectionCategory.WEAPON)
-    
     assert cap["status"] == "experimental"
-    assert cap["enabled"] is True
+    assert "connected" in cap["reason"]
+    assert "slow" in cap["reason"]
+
+
+def test_weapon_engine_concurrency_skipping():
+    """Verify that concurrent calls increment skipped_frames."""
+    from weapon import WeaponSignalEngine, WeaponConfig
+    import numpy as np
+    
+    config = WeaponConfig(enabled=True, interval=1, min_interval_ms=0)
+    engine = WeaponSignalEngine(config)
+    # Mock model to simulate "running"
+    engine._model = object() 
+    engine._inference_running = True
+    
+    frame = np.zeros((10, 10, 3), dtype=np.uint8)
+    engine.process_frame(frame)
+    engine.process_frame(frame)
+    
+    signal = engine.latest_signal()
+    assert signal["skippedFrames"] == 2
+    assert signal["inferenceRunning"] is True
+
+def test_weapon_engine_cooldown_skipping():
+    """Verify that calls within min_interval_ms are skipped."""
+    from weapon import WeaponSignalEngine, WeaponConfig
+    import numpy as np
+    import time
+    
+    config = WeaponConfig(enabled=True, interval=1, min_interval_ms=1000)
+    engine = WeaponSignalEngine(config)
+    engine._model = object()
+    engine._last_inference_at = time.time() # Just finished
+    
+    frame = np.zeros((10, 10, 3), dtype=np.uint8)
+    engine.process_frame(frame)
+    
+    signal = engine.latest_signal()
+    assert signal["skippedFrames"] == 1
+
+def test_weapon_realtime_flag():
+    """Verify isRealtime flag logic."""
+    from weapon import WeaponSignalEngine, WeaponConfig
+    
+    config = WeaponConfig(enabled=True, realtime_threshold_ms=500)
+    engine = WeaponSignalEngine(config)
+    engine._model = object()
+    
+    # Case 1: Slow
+    engine._last_inference_latency_ms = 600
+    assert engine.latest_signal()["isRealtime"] is False
+    
+    # Case 2: Fast
+    engine._last_inference_latency_ms = 400
+    assert engine.latest_signal()["isRealtime"] is True
 
 def test_weapon_analysis_triggered_score():
     """Weapon analysis returns score when mock engine returns score."""

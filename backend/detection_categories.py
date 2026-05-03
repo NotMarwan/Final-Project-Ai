@@ -119,7 +119,12 @@ class CategoryDetector:
                     signal = self.weapon_engine.latest_signal()
                     if signal.get("ready", False):
                         base["status"] = CategoryStatus.EXPERIMENTAL.value
-                        base["reason"] = "Weapon model connected and ready (pending precision validation)."
+                        is_rt = signal.get("isRealtime", False)
+                        lat = signal.get("inferenceLatencyMs", 0.0)
+                        if is_rt:
+                            base["reason"] = "Weapon model connected and ready (real-time enabled)."
+                        else:
+                            base["reason"] = f"Weapon model connected but warm CPU inference is slow (~{int(lat)}ms); running with backpressure/cooldown."
                         base["requiredInputs"] = ["frame_image", "weapon_engine"]
                     elif signal.get("loading", False):
                         base["status"] = CategoryStatus.UNSUPPORTED.value
