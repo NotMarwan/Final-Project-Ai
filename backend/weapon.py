@@ -175,23 +175,32 @@ class WeaponSignalEngine:
             return self.latest_signal()
 
         now = time.time()
+        should_skip = False
+        should_start = False
+
         with self._lock:
             # 1. Single-flight check
             if self._inference_running:
                 self._skipped_frames += 1
-                return self.latest_signal()
-            
-            # 2. Cooldown check (min_interval_ms)
-            elapsed_ms = (now - self._last_inference_at) * 1000
-            if self._last_inference_at > 0 and elapsed_ms < self.config.min_interval_ms:
-                self._skipped_frames += 1
-                return self.latest_signal()
+                should_skip = True
+            else:
+                # 2. Cooldown check (min_interval_ms)
+                elapsed_ms = (now - self._last_inference_at) * 1000
+                if self._last_inference_at > 0 and elapsed_ms < self.config.min_interval_ms:
+                    self._skipped_frames += 1
+                    should_skip = True
+                else:
+                    self._inference_running = True
+                    self._last_inference_at = now
+                    should_start = True
 
-            self._inference_running = True
-            self._last_inference_at = now
+        if should_skip:
+            return self.latest_signal()
 
-        frame_copy = frame.copy()
-        threading.Thread(target=self._infer_async, args=(frame_copy,), daemon=True).start()
+        if should_start:
+            frame_copy = frame.copy()
+            threading.Thread(target=self._infer_async, args=(frame_copy,), daemon=True).start()
+
         return self.latest_signal()
 
     def _infer_async(self, frame: np.ndarray) -> None:
