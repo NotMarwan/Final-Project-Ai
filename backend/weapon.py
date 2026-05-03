@@ -53,16 +53,15 @@ class WeaponConfig:
     min_confidence: float = 0.20
     ema_alpha: float = 0.45
     input_size: int = 640
-    labels: tuple[str, ...] = ("knife", "baseball bat", "scissors", "sword", "gun", "pistol", "rifle", "shotgun", "firearm", "weapon")
+    labels: tuple[str, ...] = ("firearm", "handgun", "rifle", "knife")
+    preload_on_startup: bool = False
 
     @classmethod
     def from_settings(cls, settings: Mapping[str, Any] | None, env: Mapping[str, str] | None = None) -> "WeaponConfig":
-        env = env or os.environ
-        weapon_settings: Mapping[str, Any] = {}
-        if settings and isinstance(settings.get("weapon_detection"), Mapping):
-            weapon_settings = settings["weapon_detection"]  # type: ignore[index]
-
-        default_labels = cls().labels
+        weapon_settings = settings.get("weapon", {}) if settings else {}
+        env = env or {}
+        
+        default_labels = ("firearm", "handgun", "rifle", "knife")
         labels_from_settings = _parse_labels(weapon_settings.get("labels"), default_labels)
         labels = _parse_labels(env.get("WEAPON_LABELS"), labels_from_settings)
 
@@ -74,6 +73,7 @@ class WeaponConfig:
             ema_alpha=_as_float(env.get("WEAPON_SCORE_EMA_ALPHA", weapon_settings.get("ema_alpha", 0.45)), 0.45, 0.05, 0.95),
             input_size=_as_int(env.get("WEAPON_INPUT_SIZE", weapon_settings.get("input_size", 640)), 640, 224, 1920),
             labels=labels,
+            preload_on_startup=_as_bool(env.get("WEAPON_PRELOAD_ON_STARTUP"), _as_bool(weapon_settings.get("preload_on_startup"), False)),
         )
 
 
@@ -84,6 +84,8 @@ class WeaponSignalEngine:
         self.enabled = bool(config.enabled)
         self._status_reason = ""
         self._load_attempted = False
+        self._loading = False
+        self._failed = False
         self._frame_counter = 0
         self._inference_running = False
         self._lock = threading.Lock()
@@ -92,9 +94,13 @@ class WeaponSignalEngine:
         self._last_score = 0.0
         self._last_labels: list[str] = []
         self._last_latency_ms = 0.0
+        self._last_inference_latency_ms = 0.0
+        self._last_load_latency_ms = 0.0
 
         if not self.enabled:
             self._status_reason = "disabled-by-config"
+        elif self.config.preload_on_startup:
+            threading.Thread(target=self.preload, daemon=True).start()
 
     @classmethod
     def from_settings(
@@ -118,9 +124,13 @@ class WeaponSignalEngine:
                 "enabled": self.enabled,
                 "backend": self.config.backend,
                 "ready": self._model is not None,
+                "loading": self._loading,
+                "failed": self._failed,
                 "score": round(float(self._last_score), 4),
                 "labels": list(self._last_labels),
                 "latencyMs": round(float(self._last_latency_ms), 1),
+                "inferenceLatencyMs": round(float(self._last_inference_latency_ms), 1),
+                "loadLatencyMs": round(float(self._last_load_latency_ms), 1),
                 "reason": self._status_reason,
             }
 
@@ -158,11 +168,12 @@ class WeaponSignalEngine:
         return self.latest_signal()
 
     def _infer_async(self, frame: np.ndarray) -> None:
-        start = time.perf_counter()
+        start_total = time.perf_counter()
         try:
             if not self._ensure_model_loaded():
                 return
-
+            
+            start_infer = time.perf_counter()
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w = rgb.shape[:2]
             max_side = max(h, w)
@@ -198,12 +209,19 @@ class WeaponSignalEngine:
                 self._update_score(best=best_score, labels=top_labels)
             else:
                 self._update_score(best=0.0, labels=[])
+            
+            with self._lock:
+                self._last_inference_latency_ms = (time.perf_counter() - start_infer) * 1000
         except Exception as exc:
             self._status_reason = f"inference-error:{type(exc).__name__}"
         finally:
             with self._lock:
-                self._last_latency_ms = (time.perf_counter() - start) * 1000
+                self._last_latency_ms = (time.perf_counter() - start_total) * 1000
                 self._inference_running = False
+
+    def preload(self) -> bool:
+        """Preload the model into memory."""
+        return self._ensure_model_loaded()
 
     def _update_score(self, *, best: float, labels: list[str]) -> None:
         best = max(0.0, min(1.0, float(best)))
@@ -232,11 +250,21 @@ class WeaponSignalEngine:
             return True
         if self._load_attempted:
             return False
+        
+        with self._lock:
+            if self._loading:
+                return False
+            self._loading = True
+            
         self._load_attempted = True
+        start_load = time.perf_counter()
 
         if self.config.backend != "torchvision_coco":
-            self.enabled = False
-            self._status_reason = f"unsupported-backend:{self.config.backend}"
+            with self._lock:
+                self.enabled = False
+                self._failed = True
+                self._loading = False
+                self._status_reason = f"unsupported-backend:{self.config.backend}"
             return False
 
         try:
@@ -250,12 +278,19 @@ class WeaponSignalEngine:
             model = fasterrcnn_resnet50_fpn_v2(weights=weights, box_score_thresh=self.config.min_confidence)
             model.to(self.device)
             model.eval()
-            self._model = model
-            self._status_reason = "ok"
-            print(f"[Weapon] torchvision detector ready on {self.device.type.upper()}.")
+            
+            with self._lock:
+                self._model = model
+                self._last_load_latency_ms = (time.perf_counter() - start_load) * 1000
+                self._loading = False
+                self._status_reason = "ok"
+            print(f"[Weapon] torchvision detector ready on {self.device.type.upper()} ({self._last_load_latency_ms:.1f}ms).")
             return True
         except Exception as exc:
-            self.enabled = False
-            self._status_reason = f"model-load-failed:{type(exc).__name__}"
+            with self._lock:
+                self.enabled = False
+                self._failed = True
+                self._loading = False
+                self._status_reason = f"model-load-failed:{type(exc).__name__}"
             print(f"[Weapon] Detector disabled: {exc}")
             return False

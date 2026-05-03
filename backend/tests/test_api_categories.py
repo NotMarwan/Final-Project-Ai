@@ -8,15 +8,15 @@ client = TestClient(app)
 
 class MockWeaponEngineReady:
     def status(self):
-        return {"ready": True}
+        return {"ready": True, "loading": False, "failed": False}
     def latest_signal(self):
-        return {"ready": True, "score": 0.0}
+        return {"ready": True, "loading": False, "failed": False, "score": 0.0}
 
 class MockWeaponEngineUnavailable:
     def status(self):
-        return {"ready": False}
+        return {"ready": False, "loading": False, "failed": True}
     def latest_signal(self):
-        return {"ready": False, "reason": "Not loaded"}
+        return {"ready": False, "loading": False, "failed": True, "reason": "Not loaded"}
 
 def test_api_refuses_to_enable_weapon_when_engine_unavailable(monkeypatch):
     """API refuses to enable weapon when the engine is unavailable."""

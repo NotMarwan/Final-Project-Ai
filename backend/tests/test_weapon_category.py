@@ -3,18 +3,25 @@ import numpy as np
 from detection_categories import CategoryDetector, DetectionCategory, CategoryConfig
 
 class MockWeaponEngine:
-    def __init__(self, ready=True, score=0.0, should_raise=False):
+    def __init__(self, ready=True, loading=False, failed=False, score=0.0, should_raise=False):
         self.ready = ready
+        self.loading = loading
+        self.failed = failed
         self.score = score
         self.should_raise = should_raise
 
     def latest_signal(self):
-        return {"ready": self.ready, "score": self.score}
+        return {
+            "ready": self.ready, 
+            "loading": self.loading, 
+            "failed": self.failed, 
+            "score": self.score
+        }
 
     def process_frame(self, frame):
         if self.should_raise:
             raise RuntimeError("Mock engine crashed")
-        return {"ready": self.ready, "score": self.score}
+        return self.latest_signal()
 
 
 def test_weapon_capability_unavailable_no_engine():

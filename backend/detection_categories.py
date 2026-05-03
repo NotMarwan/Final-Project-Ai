@@ -121,6 +121,16 @@ class CategoryDetector:
                         base["status"] = CategoryStatus.EXPERIMENTAL.value
                         base["reason"] = "Weapon model connected and ready (pending precision validation)."
                         base["requiredInputs"] = ["frame_image", "weapon_engine"]
+                    elif signal.get("loading", False):
+                        base["status"] = CategoryStatus.UNSUPPORTED.value
+                        base["reason"] = "Weapon model is currently loading..."
+                        base["requiredInputs"] = ["weapon_engine"]
+                        base["enabled"] = False
+                    elif signal.get("failed", False):
+                        base["status"] = CategoryStatus.UNSUPPORTED.value
+                        base["reason"] = f"Weapon engine failed: {signal.get('reason', 'Unknown error')}"
+                        base["requiredInputs"] = ["weapon_engine"]
+                        base["enabled"] = False
                     else:
                         base["status"] = CategoryStatus.UNSUPPORTED.value
                         base["reason"] = f"Weapon engine unavailable: {signal.get('reason', 'Unknown error')}"
@@ -128,7 +138,7 @@ class CategoryDetector:
                         base["enabled"] = False
                 except Exception as e:
                     base["status"] = CategoryStatus.UNSUPPORTED.value
-                    base["reason"] = f"Weapon engine failed: {str(e)}"
+                    base["reason"] = f"Weapon engine error: {str(e)}"
                     base["requiredInputs"] = ["weapon_engine"]
                     base["enabled"] = False
             else:

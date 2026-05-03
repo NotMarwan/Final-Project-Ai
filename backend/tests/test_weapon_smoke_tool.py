@@ -51,6 +51,12 @@ def test_graceful_failure_no_torchvision(monkeypatch):
     smoke_weapon_engine.run_smoke_test(timeout_sec=1)
     
     output = out.getvalue()
-    result = json.loads(output)
+    # Find JSON block (starts with { and ends with })
+    start_idx = output.find('{')
+    end_idx = output.rfind('}') + 1
+    if start_idx == -1 or end_idx == 0:
+        pytest.fail(f"No JSON found in output: {output}")
+        
+    result = json.loads(output[start_idx:end_idx])
     assert result["success"] is False
     assert result["status_reason"] == "torchvision-missing"
