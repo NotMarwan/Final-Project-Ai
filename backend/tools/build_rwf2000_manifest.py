@@ -30,8 +30,15 @@ def build_manifest(dataset_dir: str, output_path: str):
             # Support both .mp4 and .avi
             for ext in ["*.mp4", "*.avi"]:
                 for video_file in label_path.glob(ext):
+                    # Avoid double-counting on case-insensitive filesystems (Windows)
+                    # by checking if we've already processed this file.
+                    # We use the absolute path as the unique key.
+                    abs_path = str(video_file.absolute())
+                    if any(e["video_path"].lower() == abs_path.lower() for e in manifest):
+                        continue
+
                     entry = {
-                        "video_path": str(video_file.absolute()),
+                        "video_path": abs_path,
                         "label": unified_label,
                         "source_dataset": "rwf2000_kaggle",
                         "split": split,
