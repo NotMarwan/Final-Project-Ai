@@ -1,111 +1,90 @@
 import argparse
-import sys
+import os
 import torch
-from pathlib import Path
-
-# Add backend to path if run from root
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+from torch.utils.data import DataLoader
 from datasets.manifest_dataset import ManifestDataset
-from training.train_config import TrainConfig
-from inference import X3DViolenceModel
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Smoke Training for RWF-2000")
-    parser.add_argument("--manifest", required=True, help="Path to manifest JSONL")
-    parser.add_argument("--weights", default="backend/best_model.pt", help="Path to initial weights")
-    parser.add_argument("--max-train-samples", type=int, default=None, help="Max train samples")
-    parser.add_argument("--max-val-samples", type=int, default=None, help="Max val samples")
-    parser.add_argument("--epochs", type=int, default=1, help="Number of epochs")
-    parser.add_argument("--device", choices=["cpu", "cuda", "auto"], default="auto", help="Device to use")
-    parser.add_argument("--dry-run", action="store_true", help="Only validate data loading, do not train")
-    parser.add_argument("--real-loader", action="store_true", help="Use real video decoding instead of fake tensor mock in dry run")
-    return parser.parse_args()
+from datasets.video_contract import get_profile, DEFAULT_PROFILE
 
 def main():
-    args = parse_args()
+    parser = argparse.ArgumentParser(description="RWF-2000 Training Infrastructure Smoke Test")
+    parser.add_argument("--manifest", required=True, help="Path to RWF-2000 JSONL manifest")
+    parser.add_argument("--weights", help="Optional path to starting weights")
+    parser.add_argument("--max-train-samples", type=int, default=10, help="Limit training samples for smoke test")
+    parser.add_argument("--max-val-samples", type=int, default=5, help="Limit validation samples for smoke test")
+    parser.add_argument("--epochs", type=int, default=1, help="Number of smoke epochs")
+    parser.add_argument("--device", default="cpu", help="Device to run on (cpu, cuda)")
+    parser.add_argument("--dry-run", action="store_true", help="Don't run training, just verify data loading")
+    parser.add_argument("--real-loader", action="store_true", help="Use real video loader instead of mock")
+    parser.add_argument("--profile", default=DEFAULT_PROFILE.name, help="Model profile (legacy_slowfast, x3d)")
     
-    # Initialize Config
-    config = TrainConfig(
-        manifest_path=args.manifest,
-        weights_path=args.weights,
-        max_train_samples=args.max_train_samples,
-        max_val_samples=args.max_val_samples,
-        epochs=args.epochs,
-        device=args.device,
-        output_dir=".runlogs/training/smoke" # will be modified by validate() to add timestamp
-    )
+    args = parser.parse_args()
     
-    config.validate()
-    
-    print("\n" + "="*40)
-    print("RWF-2000 SMOKE TRAINING INITIALIZATION")
-    print("="*40)
-    print(f"Manifest:   {config.manifest_path}")
-    print(f"Weights:    {config.weights_path}")
-    print(f"Device:     {config.device}")
-    print(f"Output Dir: {config.output_dir}")
-    print(f"Dry Run:    {args.dry_run}")
-    print(f"Real Loader:{args.real_loader}")
-    print("-" * 40)
-    
-    # Inject fake loader for dry-runs to validate data structure safely unless --real-loader is set
-    def fake_loader(path: str) -> torch.Tensor:
-        if not Path(path).exists():
-            raise FileNotFoundError(f"Video file not found: {path}")
-        return torch.zeros(3, 16, 256, 256)
-        
-    loader_to_use = None if args.real_loader else (fake_loader if args.dry_run else None)
+    profile = get_profile(args.profile)
+    print(f"[AI] Using model profile: {profile.name}")
+    print(f"     Resolution: {profile.resolution}x{profile.resolution}")
+    print(f"     Frames: {profile.num_frames}")
 
-    # Load Datasets
-    print("Loading datasets...")
+    # Use mock loader by default for speed unless --real-loader is set
+    loader_fn = None
+    if not args.real_loader:
+        print("[WARN] Using MOCK loader (random tensors). Use --real-loader for actual video files.")
+        def mock_loader(path, profile):
+            # Shape: (C, T, H, W)
+            return torch.randn(3, profile.num_frames, profile.resolution, profile.resolution)
+        loader_fn = mock_loader
+
+    # 1. Setup Datasets
     try:
-        train_dataset = ManifestDataset(
-            manifest_path=config.manifest_path, 
+        train_ds = ManifestDataset(
+            manifest_path=args.manifest, 
             split="train", 
-            video_loader=loader_to_use,
-            max_samples=config.max_train_samples
+            profile=profile,
+            loader_fn=loader_fn
         )
-        val_dataset = ManifestDataset(
-            manifest_path=config.manifest_path, 
+        val_ds = ManifestDataset(
+            manifest_path=args.manifest, 
             split="val", 
-            video_loader=loader_to_use,
-            max_samples=config.max_val_samples
+            profile=profile,
+            loader_fn=loader_fn
         )
     except Exception as e:
-        print(f"[ERROR] Failed to load datasets: {e}")
-        sys.exit(1)
-        
-    print(f"Train samples: {len(train_dataset)}")
-    print(f"Val samples:   {len(val_dataset)}")
-    
-    # Analyze labels
-    train_labels = [str(e.get("label", "")).lower() for e in train_dataset.entries]
-    val_labels = [str(e.get("label", "")).lower() for e in val_dataset.entries]
-    
-    print("\nLabel Distribution:")
-    print(f"Train: Normal={train_labels.count('normal')}, Violence={train_labels.count('violence')}")
-    print(f"Val:   Normal={val_labels.count('normal')}, Violence={val_labels.count('violence')}")
-    
-    if args.dry_run:
-        print("\n[DRY RUN] Validating data loader only...")
-        # Validate that we can grab an item
-        if len(train_dataset) > 0:
-            try:
-                item = train_dataset[0]
-                print(f"Successfully loaded one train item: shape {item['video'].shape}, label {item['label']}")
-            except Exception as e:
-                print(f"[ERROR] Data loading failed: {e}")
-                sys.exit(1)
-        print("\n[DRY RUN] Completed successfully. No training performed.")
+        print(f"[ERROR] Failed to initialize datasets: {e}")
         return
 
-    print("\nInitializing model...")
-    # This acts as a safe stub for the future full training
-    # We do not perform actual training loop yet.
-    print("[WARN] Actual model training loop is not yet integrated with the production weights.")
-    print("[WARN] Aborting full training to protect best_model.pt until Phase 7C fine-tuning loop is fully tested.")
-    print("Please use --dry-run for infrastructure validation.")
+    # Slice for smoke test
+    train_ds.samples = train_ds.samples[:args.max_train_samples]
+    val_ds.samples = val_ds.samples[:args.max_val_samples]
+
+    print(f"[AI] Train samples: {len(train_ds)}")
+    print(f"[AI] Val samples:   {len(val_ds)}")
+
+    # 2. Setup DataLoaders
+    train_loader = DataLoader(train_ds, batch_size=2, shuffle=True)
+    val_loader = DataLoader(val_ds, batch_size=2, shuffle=False)
+
+    # 3. Data Verification
+    print("[AI] Verifying data batch shape...")
+    try:
+        batch_videos, batch_labels = next(iter(train_loader))
+        print(f"     Video batch shape: {batch_videos.shape}  (Expected: [B, 3, {profile.num_frames}, {profile.resolution}, {profile.resolution}])")
+        print(f"     Label batch shape: {batch_labels.shape}")
+        
+        # Verify normalization (smoke check)
+        if args.real_loader:
+            print(f"     Value range: [{batch_videos.min():.2f}, {batch_videos.max():.2f}]")
+    except Exception as e:
+        print(f"[ERROR] Failed during data loading: {e}")
+        return
+
+    if args.dry_run:
+        print("[AI] Dry run complete. Infrastructure looks safe.")
+        return
+
+    # 4. Model Loading
+    print(f"[AI] Preparing model architecture: {profile.model_class}")
+    # STUB: In Phase 7G we will implement actual training logic
+    print("[WARN] Non-dry-run training not yet implemented. Refusing to modify weights.")
+    print("[AI] Mock training phase finished successfully (refused actual update).")
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ import pytest
 import torch
 import tempfile
 from pathlib import Path
-from tools.inspect_model_checkpoint import inspect_checkpoint, test_compatibility
+from tools.inspect_model_checkpoint import inspect_checkpoint, verify_compatibility
 
 def test_inspect_checkpoint_safe_load(capsys):
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -44,14 +44,14 @@ def test_test_compatibility_mock(capsys, monkeypatch):
             return {}
 
     # Mock the imports in the tool
-    import tools.inspect_model_checkpoint
-    monkeypatch.setattr("tools.inspect_model_checkpoint.X3DViolenceModel", MockModel)
+    import inference
+    monkeypatch.setattr("inference.X3DViolenceModel", MockModel)
     
     with tempfile.TemporaryDirectory() as tmpdir:
         weights_path = Path(tmpdir) / "test.pt"
         torch.save({"state_dict": {}}, weights_path)
         
-        test_compatibility(str(weights_path), "X3DViolenceModel")
+        verify_compatibility(str(weights_path), "X3DViolenceModel")
         
         captured = capsys.readouterr()
         assert "COMPATIBILITY TEST: X3DViolenceModel" in captured.out

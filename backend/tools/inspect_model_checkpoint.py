@@ -66,7 +66,7 @@ def inspect_checkpoint(weights_path: str):
     else:
         print(f"[WARN] No state_dict found or extracted.")
 
-def test_compatibility(weights_path: str, model_class_name: str):
+def verify_compatibility(weights_path: str, model_class_name: str):
     print(f"\n" + "-"*50)
     print(f"COMPATIBILITY TEST: {model_class_name}")
     print(f"-"*50)
@@ -141,7 +141,7 @@ def main():
     inspect_checkpoint(args.weights)
     
     if args.test_class:
-        test_compatibility(args.weights, args.test_class)
+        verify_compatibility(args.weights, args.test_class)
 
 if __name__ == "__main__":
     main()

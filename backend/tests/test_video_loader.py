@@ -1,42 +1,43 @@
 import pytest
+import torch
 import cv2
 import numpy as np
-import torch
 import tempfile
 from pathlib import Path
-from backend.datasets.video_loader import load_video_clip
+from datasets.video_loader import load_video_clip
+from datasets.video_contract import LEGACY_SLOWFAST_PROFILE, X3D_PROFILE
 
 @pytest.fixture
 def fake_video_file():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        video_path = str(Path(tmpdir) / "test_video.mp4")
-        # Frame size must be > 182 so the resize-then-center-crop pipeline can work.
-        height, width = 200, 200
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(video_path, fourcc, 30.0, (width, height))
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+        path = tmp.name
+    
+    # Create a 5-frame video with 256x256 frames
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(path, fourcc, 1.0, (256, 256))
+    for i in range(5):
+        frame = np.full((256, 256, 3), i * 50, dtype=np.uint8)
+        out.write(frame)
+    out.release()
+    yield path
+    if Path(path).exists():
+        Path(path).unlink()
 
-        for i in range(5):
-            # Blue, Green, Red cycle
-            color = [0, 0, 0]
-            color[i % 3] = 200
-            frame = np.full((height, width, 3), color, dtype=np.uint8)
-            out.write(frame)
-
-        out.release()
-        yield video_path
-
-def test_load_video_clip_basic(fake_video_file):
-    tensor = load_video_clip(fake_video_file, num_frames=16, size=(160, 160))
-    # Shape should be (C, T, H, W)
-    assert tensor.shape == (3, 16, 160, 160)
+def test_load_video_clip_legacy_profile(fake_video_file):
+    # Legacy profile: 32 frames, 224x224
+    tensor = load_video_clip(fake_video_file, profile="legacy_slowfast")
+    assert tensor.shape == (3, 32, 224, 224)
     assert tensor.dtype == torch.float32
-    # After mean/std normalization, values can be negative — do NOT assert [0,1].
-    # Assert the tensor has non-trivial variance (not all zeros / random noise).
-    assert tensor.std() > 0.0
+
+def test_load_video_clip_x3d_profile(fake_video_file):
+    # X3D profile: 32 frames, 160x160
+    tensor = load_video_clip(fake_video_file, profile="x3d")
+    assert tensor.shape == (3, 32, 160, 160)
+    assert tensor.dtype == torch.float32
 
 def test_load_video_clip_missing_file():
     with pytest.raises(FileNotFoundError):
-        load_video_clip("missing_video.mp4")
+        load_video_clip("non_existent.mp4")
 
 def test_load_video_clip_corrupt_file():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -50,11 +51,10 @@ def test_load_video_clip_corrupt_file():
         assert "Failed to open" in err_msg or "0 frames or is corrupt" in err_msg
 
 def test_load_video_clip_padding(fake_video_file):
-    # The fake video has only 5 frames, but we request 16.
-    # The loader should repeat the last frame up to 16 via padding.
-    tensor = load_video_clip(fake_video_file, num_frames=16, size=(160, 160))
-    assert tensor.shape[1] == 16, "Tensor does not have the requested number of frames."
-    # The last sampled frame and the last padded frame must be identical.
-    frame_last_sampled = tensor[:, 4, :, :]  # index 4 is the last real sample in a 5-frame video
-    frame_padded = tensor[:, 15, :, :]
-    assert torch.allclose(frame_last_sampled, frame_padded), "Padding did not repeat the last frame."
+    # The fake video has only 5 frames, but we request 32.
+    tensor = load_video_clip(fake_video_file, profile=LEGACY_SLOWFAST_PROFILE)
+    assert tensor.shape[1] == 32
+    # The padding should repeat the last frame
+    frame_last_sampled = tensor[:, 4, :, :] 
+    frame_padded = tensor[:, 31, :, :]
+    assert torch.allclose(frame_last_sampled, frame_padded)

@@ -1,84 +1,69 @@
 import json
 import torch
-from pathlib import Path
-from typing import Callable, Optional, Dict, Any, List
 from torch.utils.data import Dataset
-
+from pathlib import Path
+from typing import Optional, Callable, Dict, Any, Union
 from .video_loader import load_video_clip
+from .video_contract import DEFAULT_PROFILE, ModelProfile, get_profile
 
 class ManifestDataset(Dataset):
     """
-    A manifest-aware dataset loader that reads JSONL manifests.
-    Maps string labels to numeric classes and filters by split.
+    Dataset that loads video clips based on a JSONL manifest.
+    
+    Manifest format:
+    {"video_path": "path/to/video.mp4", "label": "violence"|"normal", "split": "train"|"val"}
     """
-    LABEL_MAP = {
-        "normal": 0,
-        "violence": 1
-    }
-
     def __init__(
         self,
         manifest_path: str,
         split: Optional[str] = None,
-        video_loader: Optional[Callable[[str], torch.Tensor]] = None,
-        max_samples: Optional[int] = None
+        profile: Union[str, ModelProfile] = DEFAULT_PROFILE,
+        transform: Optional[Callable] = None,
+        loader_fn: Optional[Callable] = None,  # For testing injection
     ):
-        super().__init__()
         self.manifest_path = Path(manifest_path)
         self.split = split
-        self.video_loader = video_loader or load_video_clip
+        self.profile = get_profile(profile) if isinstance(profile, str) else profile
+        self.transform = transform
+        self.loader_fn = loader_fn or load_video_clip
         
         if not self.manifest_path.exists():
             raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+            
+        self.samples = self._load_manifest()
+        
+        # Label mapping: 0=normal, 1=violence
+        self.label_map = {"normal": 0, "violence": 1}
 
-        self.entries: List[Dict[str, Any]] = []
-        self._load_manifest(max_samples)
-
-    def _load_manifest(self, max_samples: Optional[int]):
-        with open(self.manifest_path, 'r', encoding='utf-8') as f:
+    def _load_manifest(self):
+        samples = []
+        with open(self.manifest_path, "r") as f:
             for line in f:
                 if not line.strip():
                     continue
-                try:
-                    entry = json.loads(line)
-                except json.JSONDecodeError:
+                item = json.loads(line)
+                if self.split and item.get("split") != self.split:
                     continue
-                
-                # Filter by split if requested
-                entry_split = entry.get("split", "unknown")
-                if self.split is not None and entry_split != self.split:
-                    continue
-                    
-                # Validate label
-                label_name = entry.get("label", "").lower()
-                if label_name not in self.LABEL_MAP:
-                    continue
-                    
-                self.entries.append(entry)
-                
-                if max_samples is not None and len(self.entries) >= max_samples:
-                    break
+                samples.append(item)
+        return samples
 
-    def __len__(self) -> int:
-        return len(self.entries)
+    def __len__(self):
+        return len(self.samples)
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        entry = self.entries[idx]
-        video_path = entry.get("video_path", "")
-        label_name = entry.get("label", "normal").lower()
+    def __getitem__(self, idx):
+        item = self.samples[idx]
+        # Support both 'video_path' and 'video' keys
+        video_path = item.get("video_path") or item.get("video")
+        label_str = item.get("label")
         
-        try:
-            tensor = self.video_loader(video_path)
-        except Exception as e:
-            # Handle missing files by returning a zero tensor or raising
-            # Here we raise so the dataloader/collate handles it or it fails loudly in tests
-            raise RuntimeError(f"Failed to load video {video_path}: {e}")
-
-        return {
-            "video": tensor,
-            "label": self.LABEL_MAP[label_name],
-            "label_name": label_name,
-            "video_path": video_path,
-            "source_dataset": entry.get("source_dataset", "unknown"),
-            "split": entry.get("split", "unknown"),
-        }
+        if not video_path:
+            raise KeyError(f"Sample at index {idx} missing video path in manifest.")
+            
+        # Real loader will use the configured profile
+        video_tensor = self.loader_fn(video_path, profile=self.profile)
+        
+        if self.transform:
+            video_tensor = self.transform(video_tensor)
+            
+        label = self.label_map.get(label_str, 0)
+        return video_tensor, label

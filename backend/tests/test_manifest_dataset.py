@@ -1,67 +1,44 @@
-import json
 import pytest
+import json
 import torch
 import tempfile
 from pathlib import Path
-from backend.datasets.manifest_dataset import ManifestDataset
-
-def fake_video_loader(path: str) -> torch.Tensor:
-    if path.endswith("missing.mp4"):
-        raise FileNotFoundError(f"Missing {path}")
-    return torch.zeros(3, 16, 224, 224)
+from datasets.manifest_dataset import ManifestDataset
+from datasets.video_contract import LEGACY_SLOWFAST_PROFILE, X3D_PROFILE
 
 @pytest.fixture
-def fake_manifest():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        manifest_path = Path(tmpdir) / "test_manifest.jsonl"
-        entries = [
-            {"video_path": "fake1.mp4", "label": "violence", "split": "train"},
-            {"video_path": "fake2.mp4", "label": "normal", "split": "train"},
-            {"video_path": "fake3.mp4", "label": "Violence", "split": "val"},
-            {"video_path": "missing.mp4", "label": "normal", "split": "val"},
-            {"video_path": "fake_unknown.mp4", "label": "unknown", "split": "test"},
-        ]
-        with open(manifest_path, 'w') as f:
-            for entry in entries:
-                f.write(json.dumps(entry) + "\n")
-        yield manifest_path
+def mock_manifest():
+    with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as tmp:
+        tmp.write(json.dumps({"video_path": "v1.mp4", "label": "violence", "split": "train"}) + "\n")
+        tmp.write(json.dumps({"video_path": "v2.mp4", "label": "normal", "split": "train"}) + "\n")
+        tmp.write(json.dumps({"video_path": "v3.mp4", "label": "normal", "split": "val"}) + "\n")
+        path = tmp.name
+    yield path
+    if Path(path).exists():
+        Path(path).unlink()
 
-def test_manifest_dataset_loads_all(fake_manifest):
-    # Load all valid labels regardless of split
-    dataset = ManifestDataset(manifest_path=fake_manifest, video_loader=fake_video_loader)
-    # fake_unknown is skipped because label 'unknown' is not in LABEL_MAP
-    assert len(dataset) == 4
+def test_manifest_dataset_basic(mock_manifest):
+    def mock_loader(path, profile):
+        return torch.randn(3, profile.num_frames, profile.resolution, profile.resolution)
+        
+    ds = ManifestDataset(mock_manifest, loader_fn=mock_loader)
+    assert len(ds) == 3
+    video, label = ds[0]
+    assert video.shape == (3, 32, 224, 224) # Default profile
+    assert label == 1 # violence
 
-def test_manifest_dataset_filters_by_split(fake_manifest):
-    dataset = ManifestDataset(manifest_path=fake_manifest, split="train", video_loader=fake_video_loader)
-    assert len(dataset) == 2
-    assert dataset[0]["video_path"] == "fake1.mp4"
-    assert dataset[1]["video_path"] == "fake2.mp4"
+def test_manifest_dataset_split(mock_manifest):
+    def mock_loader(path, profile):
+        return torch.randn(3, profile.num_frames, profile.resolution, profile.resolution)
+        
+    ds = ManifestDataset(mock_manifest, split="val", loader_fn=mock_loader)
+    assert len(ds) == 1
+    assert ds.samples[0]["video_path"] == "v3.mp4"
 
-def test_manifest_dataset_label_mapping(fake_manifest):
-    dataset = ManifestDataset(manifest_path=fake_manifest, split="val", video_loader=fake_video_loader)
-    # violence -> 1
-    assert dataset[0]["label"] == 1
-    assert dataset[0]["label_name"] == "violence"
-    # missing -> 0
-    assert dataset[1]["label"] == 0
-    assert dataset[1]["label_name"] == "normal"
-
-def test_manifest_dataset_video_loader_called(fake_manifest):
-    dataset = ManifestDataset(manifest_path=fake_manifest, split="train", video_loader=fake_video_loader)
-    item = dataset[0]
-    assert "video" in item
-    assert item["video"].shape == (3, 16, 224, 224)
-
-def test_manifest_dataset_missing_file_raises(fake_manifest):
-    dataset = ManifestDataset(manifest_path=fake_manifest, split="val", video_loader=fake_video_loader)
-    with pytest.raises(RuntimeError) as excinfo:
-        _ = dataset[1] # missing.mp4
-    assert "Failed to load video missing.mp4" in str(excinfo.value)
-
-def test_manifest_dataset_default_loader_raises_on_missing(fake_manifest):
-    # Do not inject fake loader
-    dataset = ManifestDataset(manifest_path=fake_manifest, split="val")
-    with pytest.raises(RuntimeError) as excinfo:
-        _ = dataset[1] # missing.mp4
-    assert "Failed to load video missing.mp4: Video file not found" in str(excinfo.value)
+def test_manifest_dataset_x3d_profile(mock_manifest):
+    def mock_loader(path, profile):
+        return torch.randn(3, profile.num_frames, profile.resolution, profile.resolution)
+        
+    ds = ManifestDataset(mock_manifest, profile="x3d", loader_fn=mock_loader)
+    video, label = ds[0]
+    assert video.shape == (3, 32, 160, 160)

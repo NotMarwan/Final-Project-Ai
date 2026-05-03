@@ -1,25 +1,60 @@
 """
-video_contract.py — Single source of truth for video input contract.
+video_contract.py — Single source of truth for video input profiles.
 
-These values MUST match inference.py:
-    FRAME_SIZE  = 160   (X3D target)
-    WINDOW_SIZE = 32    (STRICT 32-frame window, never change)
-    MEAN        = [0.45, 0.45, 0.45]
-    STD         = [0.225, 0.225, 0.225]
-
-Tensor shape convention:
-    Per-clip (no batch): (C, T, H, W)  -> (3, 32, 160, 160)
-    Batched:             (B, C, T, H, W) -> (B, 3, 32, 160, 160)
+This file defines the expected input contracts for different model architectures
+used in the AI Sentinel project.
 """
 
-# ── Authoritative constants (mirrors inference.py) ──────────────────────────
-# STRICT: never change without updating inference.py
-DEFAULT_NUM_FRAMES: int = 32            # WINDOW_SIZE from inference.py
-DEFAULT_SIZE: tuple[int, int] = (160, 160)  # FRAME_SIZE from inference.py
-RESIZE_BEFORE_CROP: int = 182           # resize-then-center-crop (inference.py convention)
-NORMALIZE_MEAN: tuple[float, float, float] = (0.45, 0.45, 0.45)
-NORMALIZE_STD: tuple[float, float, float] = (0.225, 0.225, 0.225)
+from dataclasses import dataclass
+from typing import Tuple
 
-# Shape descriptors (for documentation/assertion use)
-EXPECTED_CLIP_SHAPE: str = "(3, T, H, W) = (3, 32, 160, 160)"
-EXPECTED_BATCH_SHAPE: str = "(B, C, T, H, W) = (B, 3, 32, 160, 160)"
+@dataclass(frozen=True)
+class ModelProfile:
+    name: str
+    num_frames: int
+    resolution: int
+    resize_size: int
+    mean: Tuple[float, float, float]
+    std: Tuple[float, float, float]
+    model_class: str
+
+# ── LEGACY SLOWFAST PROFILE (Current Production) ──────────────────────────
+# Mirroring inference.py legacy path:
+# - resolution 224
+# - no center-crop (just direct resize to 224)
+# - 32 frames
+LEGACY_SLOWFAST_PROFILE = ModelProfile(
+    name="legacy_slowfast",
+    num_frames=32,
+    resolution=224,
+    resize_size=224,
+    mean=(0.45, 0.45, 0.45),
+    std=(0.225, 0.225, 0.225),
+    model_class="ViolenceDetector"
+)
+
+# ── X3D PROFILE (Future / Experimental) ──────────────────────────────────
+# Mirroring inference.py X3D path:
+# - resolution 160
+# - resize 182 then center-crop 160
+# - 32 frames
+X3D_PROFILE = ModelProfile(
+    name="x3d",
+    num_frames=32,
+    resolution=160,
+    resize_size=182,
+    mean=(0.45, 0.45, 0.45),
+    std=(0.225, 0.225, 0.225),
+    model_class="X3DViolenceModel"
+)
+
+# ── DEFAULT PROFILE ──────────────────────────────────────────────────────
+# Production defaults to legacy SlowFast as proven by best_model.pt audit.
+DEFAULT_PROFILE = LEGACY_SLOWFAST_PROFILE
+
+def get_profile(name: str) -> ModelProfile:
+    if name == "legacy_slowfast":
+        return LEGACY_SLOWFAST_PROFILE
+    if name == "x3d":
+        return X3D_PROFILE
+    raise ValueError(f"Unknown model profile: {name}")
