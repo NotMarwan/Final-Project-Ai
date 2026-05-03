@@ -6,6 +6,18 @@ export type DetectionCategory =
   | "intrusion"
   | "loitering"
 
+export type CategoryStatus = "active" | "experimental" | "unsupported";
+
+export interface CategoryCapability {
+  id: DetectionCategory;
+  label: string;
+  enabled: boolean;
+  status: CategoryStatus;
+  threshold: number;
+  reason: string;
+  requiredInputs: string[];
+}
+
 export interface CategoryConfig {
   violenceEnabled: boolean
   violenceThreshold: number
@@ -31,11 +43,11 @@ export interface CategoryScore {
 
 export const CATEGORY_LABELS: Record<DetectionCategory, string> = {
   violence: "Violence",
-  weapon: "Weapon", // Note: Weapon detection is partially handled by weapon.py
+  weapon: "Weapon",
   crowd_surge: "Crowd Surge",
-  fall: "Fall Detection (Placeholder)",
-  intrusion: "Intrusion (Placeholder)",
-  loitering: "Loitering (Placeholder)",
+  fall: "Fall Detection",
+  intrusion: "Intrusion",
+  loitering: "Loitering",
 }
 
 export const CATEGORY_COLORS: Record<DetectionCategory, string> = {

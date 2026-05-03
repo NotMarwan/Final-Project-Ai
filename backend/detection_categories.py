@@ -72,6 +72,12 @@ class CategoryConfig:
         )
 
 
+class CategoryStatus(str, Enum):
+    ACTIVE = "active"
+    EXPERIMENTAL = "experimental"
+    UNSUPPORTED = "unsupported"
+
+
 class CategoryDetector:
     """Multi-category detection engine."""
     
@@ -88,6 +94,59 @@ class CategoryDetector:
     
     def is_category_enabled(self, category: DetectionCategory) -> bool:
         return category in self._enabled_categories
+        
+    def get_capability(self, category: DetectionCategory, weapon_ready: bool = False) -> Dict[str, Any]:
+        """Get honest capability metadata for a category."""
+        base = {
+            "id": category.value,
+            "label": category.name.replace("_", " ").title(),
+            "enabled": self.is_category_enabled(category),
+            "threshold": getattr(self.config, f"{category.value}_threshold", 0.0),
+            "status": CategoryStatus.UNSUPPORTED.value,
+            "reason": "Not implemented",
+            "requiredInputs": []
+        }
+        
+        if category == DetectionCategory.VIOLENCE:
+            base["status"] = CategoryStatus.ACTIVE.value
+            base["reason"] = "X3D violence inference is configured and active."
+            base["requiredInputs"] = ["video_window"]
+            
+        elif category == DetectionCategory.WEAPON:
+            if weapon_ready:
+                base["status"] = CategoryStatus.EXPERIMENTAL.value
+                base["reason"] = "YOLO weapon model connected but pending precision validation."
+                base["requiredInputs"] = ["frame_image"]
+            else:
+                base["status"] = CategoryStatus.UNSUPPORTED.value
+                base["reason"] = "Weapon engine not loaded or unavailable."
+                base["requiredInputs"] = ["yolo_weights"]
+                base["enabled"] = False # Force disabled if unsupported
+                
+        elif category == DetectionCategory.CROWD_SURGE:
+            base["status"] = CategoryStatus.EXPERIMENTAL.value
+            base["reason"] = "Basic optical flow density heuristic. Lacks stateful tracking."
+            base["requiredInputs"] = ["optical_flow"]
+            
+        elif category == DetectionCategory.FALL:
+            base["status"] = CategoryStatus.UNSUPPORTED.value
+            base["reason"] = "Temporal pose estimation not yet integrated."
+            base["requiredInputs"] = ["pose_estimation", "person_boxes"]
+            base["enabled"] = False
+            
+        elif category == DetectionCategory.INTRUSION:
+            base["status"] = CategoryStatus.UNSUPPORTED.value
+            base["reason"] = "Restricted zones configuration missing."
+            base["requiredInputs"] = ["zone_polygons", "person_boxes"]
+            base["enabled"] = False
+            
+        elif category == DetectionCategory.LOITERING:
+            base["status"] = CategoryStatus.UNSUPPORTED.value
+            base["reason"] = "Dwell-time logic and person re-ID not implemented."
+            base["requiredInputs"] = ["tracking_ids", "dwell_timers"]
+            base["enabled"] = False
+
+        return base
     
     def analyze_frame(
         self, 
@@ -101,7 +160,12 @@ class CategoryDetector:
         """
         scores: Dict[DetectionCategory, float] = {}
         
+        # Don't analyze if disabled OR unsupported
         if not self.is_category_enabled(category):
+            return scores
+            
+        cap = self.get_capability(category)
+        if cap["status"] == CategoryStatus.UNSUPPORTED.value:
             return scores
         
         if category == DetectionCategory.VIOLENCE:

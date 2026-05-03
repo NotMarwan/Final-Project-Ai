@@ -49,3 +49,33 @@ def test_category_config_replace():
     assert new_config.weapon_enabled
     assert not config.weapon_enabled
 
+def test_category_capabilities():
+    """Verify that categories report correct capabilities."""
+    config = CategoryConfig()
+    detector = CategoryDetector(config)
+    
+    # Violence should be active
+    cap = detector.get_capability(DetectionCategory.VIOLENCE)
+    assert cap["status"] == "active"
+    
+    # Fall should be unsupported
+    cap = detector.get_capability(DetectionCategory.FALL)
+    assert cap["status"] == "unsupported"
+    
+    # Weapon should be experimental if ready, unsupported if not
+    cap_unready = detector.get_capability(DetectionCategory.WEAPON, weapon_ready=False)
+    assert cap_unready["status"] == "unsupported"
+    
+    cap_ready = detector.get_capability(DetectionCategory.WEAPON, weapon_ready=True)
+    assert cap_ready["status"] == "experimental"
+
+def test_unsupported_category_analysis():
+    """Unsupported categories should return empty scores."""
+    config = CategoryConfig(fall_enabled=True) # Try to enable it anyway
+    detector = CategoryDetector(config)
+    
+    import numpy as np
+    dummy_frame = np.zeros((160, 160, 3), dtype=np.uint8)
+    
+    scores = detector.analyze_frame(dummy_frame, DetectionCategory.FALL)
+    assert DetectionCategory.FALL not in scores

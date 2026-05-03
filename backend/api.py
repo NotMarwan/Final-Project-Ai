@@ -1084,14 +1084,11 @@ async def get_categories():
     if not category_detector:
         raise HTTPException(status_code=503, detail="Category detector not initialized")
     
+    weapon_ready = weapon_engine.status().get("ready", False)
+    
     return {
         "categories": [
-            {
-                "id": cat.value,
-                "enabled": category_detector.is_category_enabled(cat),
-                "threshold": getattr(category_detector.config, f"{cat.value}_threshold", 0.0),
-                "weight": getattr(category_detector.config, f"{cat.value}_weight", 0.0),
-            }
+            category_detector.get_capability(cat, weapon_ready=weapon_ready)
             for cat in DetectionCategory
         ]
     }
@@ -1107,6 +1104,13 @@ async def toggle_category(category_id: str, enabled: bool, request: Request):
     
     try:
         cat = DetectionCategory(category_id)
+        
+        weapon_ready = weapon_engine.status().get("ready", False)
+        cap = category_detector.get_capability(cat, weapon_ready=weapon_ready)
+        
+        if enabled and cap["status"] == "unsupported":
+            raise HTTPException(status_code=400, detail=f"Cannot enable {category_id}: {cap['reason']}")
+            
         # Update config (in production, would persist to config file)
         import dataclasses
         new_config = dataclasses.replace(
@@ -1116,7 +1120,7 @@ async def toggle_category(category_id: str, enabled: bool, request: Request):
         category_detector = CategoryDetector(new_config)
         
         audit_logger.record("category_toggle", "success", role=role, details={"category": category_id, "enabled": enabled})
-        return {"category": category_id, "enabled": enabled}
+        return {"category": category_id, "enabled": enabled, "status": cap["status"]}
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid category: {category_id}")
 
