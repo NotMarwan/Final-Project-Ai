@@ -26,41 +26,35 @@ except ImportError:
 # ──────────────────────────────────────────────────────────────────────────────
 
 class X3DViolenceModel(nn.Module):
-    def __init__(self, num_classes: int = 6):
-
+    def __init__(self, num_classes: int = 2):
         super().__init__()
-        # Prefer X3D-M when torchvision exposes it, otherwise fall back to a
-        # supported video backbone that keeps the same single-tensor interface.
-        self.model = self._build_backbone(num_classes)
-
-    @staticmethod
-    def _build_backbone(num_classes: int) -> nn.Module:
+        try:
+            from models.multi_angle_x3d import MultiAngleX3D
+            self.model = MultiAngleX3D(
+                num_classes=num_classes,
+                use_angle_augmentation=True,
+                dropout_rate=0.3,
+            )
+        except ImportError:
+            # Fallback if multi_angle module not available
+            self._build_fallback(num_classes)
+    
+    def _build_fallback(self, num_classes: int):
         try:
             from torchvision.models.video import x3d_m
-
-            model = x3d_m(weights=None)
-            if hasattr(model, "blocks") and len(model.blocks) > 5 and hasattr(model.blocks[5], "proj"):
-                in_features = model.blocks[5].proj.in_features
-                model.blocks[5].proj = nn.Linear(in_features, num_classes)
-                return model
+            self.model = x3d_m(weights=None)
+            if hasattr(self.model, "blocks") and len(self.model.blocks) > 5:
+                if hasattr(self.model.blocks[5], "proj"):
+                    in_features = self.model.blocks[5].proj.in_features
+                    self.model.blocks[5].proj = nn.Linear(in_features, num_classes)
         except Exception:
-            pass
-
-        try:
             from torchvision.models.video import r2plus1d_18
-
-            model = r2plus1d_18(weights=None)
-            if hasattr(model, "fc"):
-                in_features = model.fc.in_features
-                model.fc = nn.Linear(in_features, num_classes)
-                return model
-        except Exception as exc:
-            raise RuntimeError(f"Unable to initialize a supported video backbone: {exc}") from exc
-
-        raise RuntimeError("No supported video backbone available for violence model.")
-
+            self.model = r2plus1d_18(weights=None)
+            if hasattr(self.model, "fc"):
+                in_features = self.model.fc.in_features
+                self.model.fc = nn.Linear(in_features, num_classes)
+    
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Expected input shape: (batch, 3, 32, 160, 160)
         return self.model(x)
 
 # Legacy architecture fallback (SlowFast)
@@ -179,6 +173,25 @@ def preprocess_window(frames: list[np.ndarray]) -> torch.Tensor:
         processed.append(img)
     
     # stack to tensor (1, 3, 32, 160, 160)
+    tensor = np.stack(processed, axis=0).transpose(3, 0, 1, 2)
+    return torch.from_numpy(tensor).unsqueeze(0)
+
+def preprocess_window_multi_angle(frames: list[np.ndarray], target_angle: str = "eye_level") -> torch.Tensor:
+    """
+    Preprocess with angle-specific augmentations.
+    target_angle: "eye_level" (170cm), "high" (>170cm), "low" (<170cm)
+    """
+    processed = []
+    for frame in frames:
+        frame = ensure_bgr(frame)
+        # Resize to 182x182 then center crop to 160x160
+        img = cached_resize(frame, 182)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        start = (182 - 160) // 2
+        img = img[start:start+160, start:start+160].astype(np.float32) / 255.0
+        img = (img - MEAN) / STD
+        processed.append(img)
+    
     tensor = np.stack(processed, axis=0).transpose(3, 0, 1, 2)
     return torch.from_numpy(tensor).unsqueeze(0)
 
