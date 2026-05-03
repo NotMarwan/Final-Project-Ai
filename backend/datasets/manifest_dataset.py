@@ -6,18 +6,15 @@ from torch.utils.data import Dataset
 
 def _default_video_loader(path: str) -> torch.Tensor:
     """
-    Default video loader. For tests or when real decoding is too expensive,
-    this will be replaced by a fake loader.
-    Current model expects shape: (3, frames, H, W)
+    Default video loader.
+    Currently, real video loading is not implemented.
+    This raises NotImplementedError to prevent accidental training with mock tensors.
+    For tests or dry-runs, explicitly inject a fake loader.
     """
-    # In a real scenario, this would use PyTorchVideo or torchvision.io.
-    # For infrastructure testing, we return a mock tensor if the file doesn't exist.
     if not Path(path).exists():
         raise FileNotFoundError(f"Video file not found: {path}")
     
-    # Returning a mock tensor of expected shape for now until real video loading is confirmed
-    # Expected by X3D-M: (C, T, H, W) -> (3, 16, 256, 256) for example
-    return torch.randn(3, 16, 256, 256)
+    raise NotImplementedError("Real video loading is not yet implemented. Do not use mock tensors for real training.")
 
 class ManifestDataset(Dataset):
     """

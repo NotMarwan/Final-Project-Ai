@@ -47,17 +47,27 @@ def main():
     print(f"Dry Run:    {args.dry_run}")
     print("-" * 40)
     
+    # Inject fake loader for dry-runs to validate data structure safely
+    def fake_loader(path: str) -> torch.Tensor:
+        if not Path(path).exists():
+            raise FileNotFoundError(f"Video file not found: {path}")
+        return torch.zeros(3, 16, 256, 256)
+        
+    loader_to_use = fake_loader if args.dry_run else None
+
     # Load Datasets
     print("Loading datasets...")
     try:
         train_dataset = ManifestDataset(
             manifest_path=config.manifest_path, 
             split="train", 
+            video_loader=loader_to_use,
             max_samples=config.max_train_samples
         )
         val_dataset = ManifestDataset(
             manifest_path=config.manifest_path, 
             split="val", 
+            video_loader=loader_to_use,
             max_samples=config.max_val_samples
         )
     except Exception as e:
