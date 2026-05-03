@@ -64,3 +64,20 @@ def test_train_smoke_aborts_without_dry_run(fake_manifest):
     assert result.returncode == 0
     assert "[WARN] Actual model training loop is not yet integrated" in result.stdout
     assert "Please use --dry-run for infrastructure validation" in result.stdout
+
+def test_train_smoke_real_loader(fake_manifest):
+    env = os.environ.copy()
+    env["PYTHONPATH"] = "backend"
+    
+    cmd = [
+        "python", "backend/tools/train_rwf2000_smoke.py",
+        "--manifest", str(fake_manifest),
+        "--dry-run",
+        "--real-loader"
+    ]
+    
+    result = subprocess.run(cmd, env=env, capture_output=True, text=True)
+    
+    # It should fail to decode the empty fake.mp4
+    assert result.returncode != 0
+    assert "0 frames or is corrupt" in result.stdout or "Failed to load video" in result.stdout

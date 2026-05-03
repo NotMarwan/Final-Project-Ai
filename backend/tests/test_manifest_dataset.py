@@ -58,3 +58,10 @@ def test_manifest_dataset_missing_file_raises(fake_manifest):
     with pytest.raises(RuntimeError) as excinfo:
         _ = dataset[1] # missing.mp4
     assert "Failed to load video missing.mp4" in str(excinfo.value)
+
+def test_manifest_dataset_default_loader_raises_on_missing(fake_manifest):
+    # Do not inject fake loader
+    dataset = ManifestDataset(manifest_path=fake_manifest, split="val")
+    with pytest.raises(RuntimeError) as excinfo:
+        _ = dataset[1] # missing.mp4
+    assert "Failed to load video missing.mp4: Video file not found" in str(excinfo.value)

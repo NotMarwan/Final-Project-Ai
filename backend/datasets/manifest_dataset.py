@@ -4,17 +4,7 @@ from pathlib import Path
 from typing import Callable, Optional, Dict, Any, List
 from torch.utils.data import Dataset
 
-def _default_video_loader(path: str) -> torch.Tensor:
-    """
-    Default video loader.
-    Currently, real video loading is not implemented.
-    This raises NotImplementedError to prevent accidental training with mock tensors.
-    For tests or dry-runs, explicitly inject a fake loader.
-    """
-    if not Path(path).exists():
-        raise FileNotFoundError(f"Video file not found: {path}")
-    
-    raise NotImplementedError("Real video loading is not yet implemented. Do not use mock tensors for real training.")
+from .video_loader import load_video_clip
 
 class ManifestDataset(Dataset):
     """
@@ -36,7 +26,7 @@ class ManifestDataset(Dataset):
         super().__init__()
         self.manifest_path = Path(manifest_path)
         self.split = split
-        self.video_loader = video_loader or _default_video_loader
+        self.video_loader = video_loader or load_video_clip
         
         if not self.manifest_path.exists():
             raise FileNotFoundError(f"Manifest not found: {manifest_path}")

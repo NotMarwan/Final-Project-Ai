@@ -19,6 +19,7 @@ def parse_args():
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs")
     parser.add_argument("--device", choices=["cpu", "cuda", "auto"], default="auto", help="Device to use")
     parser.add_argument("--dry-run", action="store_true", help="Only validate data loading, do not train")
+    parser.add_argument("--real-loader", action="store_true", help="Use real video decoding instead of fake tensor mock in dry run")
     return parser.parse_args()
 
 def main():
@@ -45,15 +46,16 @@ def main():
     print(f"Device:     {config.device}")
     print(f"Output Dir: {config.output_dir}")
     print(f"Dry Run:    {args.dry_run}")
+    print(f"Real Loader:{args.real_loader}")
     print("-" * 40)
     
-    # Inject fake loader for dry-runs to validate data structure safely
+    # Inject fake loader for dry-runs to validate data structure safely unless --real-loader is set
     def fake_loader(path: str) -> torch.Tensor:
         if not Path(path).exists():
             raise FileNotFoundError(f"Video file not found: {path}")
         return torch.zeros(3, 16, 256, 256)
         
-    loader_to_use = fake_loader if args.dry_run else None
+    loader_to_use = None if args.real_loader else (fake_loader if args.dry_run else None)
 
     # Load Datasets
     print("Loading datasets...")
