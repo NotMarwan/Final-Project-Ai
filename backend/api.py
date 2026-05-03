@@ -46,6 +46,19 @@ except ImportError:
     from notifications import TelegramNotifier
     from reporting import build_incident_pdf
 
+try:
+    from .detection_categories import CategoryDetector, DetectionCategory, CategoryConfig
+except ImportError:
+    from detection_categories import CategoryDetector, DetectionCategory, CategoryConfig
+
+# Initialize category detector
+category_detector = None
+def _init_category_detector():
+    global category_detector
+    cat_config = CategoryConfig.from_settings(config)
+    category_detector = CategoryDetector(cat_config)
+    print(f"[System] Category detector initialized with: {[c.value for c in category_detector.enabled_categories]}")
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Configuration & Environment Setup
 # ─────────────────────────────────────────────────────────────────────────────
@@ -968,6 +981,7 @@ def capture_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _init_category_detector()
     telegram_notifier.start()
     t = None
     state.running = True
@@ -1062,6 +1076,48 @@ async def list_clips():
             })
     
     return {"clips": clips, "count": len(clips)}
+
+
+@app.get("/api/categories", summary="Get all available detection categories")
+async def get_categories():
+    """Get all available detection categories and their status."""
+    if not category_detector:
+        raise HTTPException(status_code=503, detail="Category detector not initialized")
+    
+    return {
+        "categories": [
+            {
+                "id": cat.value,
+                "enabled": category_detector.is_category_enabled(cat),
+                "threshold": getattr(category_detector.config, f"{cat.value}_threshold", 0.0),
+                "weight": getattr(category_detector.config, f"{cat.value}_weight", 0.0),
+            }
+            for cat in DetectionCategory
+        ]
+    }
+
+
+@app.post("/api/categories/{category_id}/toggle", summary="Toggle a detection category")
+async def toggle_category(category_id: str, enabled: bool, request: Request):
+    """Enable or disable a detection category."""
+    role = security_controller.authorize(request, required_role="admin")
+    if not category_detector:
+        raise HTTPException(status_code=503, detail="Category detector not initialized")
+    
+    try:
+        cat = DetectionCategory(category_id)
+        # Update config (in production, would persist to config file)
+        setattr(category_detector.config, f"{cat.value}_enabled", enabled)
+        
+        if enabled and cat not in category_detector.enabled_categories:
+            category_detector.enabled_categories.append(cat)
+        elif not enabled and cat in category_detector.enabled_categories:
+            category_detector.enabled_categories.remove(cat)
+        
+        audit_logger.record("category_toggle", "success", role=role, details={"category": category_id, "enabled": enabled})
+        return {"category": category_id, "enabled": enabled}
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid category: {category_id}")
 
 
 @app.get("/notifications/status", summary="Notification subsystem status")

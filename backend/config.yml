@@ -60,6 +60,44 @@ face_intel:
   recognition_audit_enabled: true
   recognition_audit_cooldown_sec: 25
 
+# Detection Categories Configuration
+categories:
+  violence_enabled: true
+  violence_threshold: 0.75
+  violence_weight: 1.0
+  
+  weapon_enabled: true
+  weapon_threshold: 0.55
+  weapon_weight: 0.9
+  
+  crowd_surge_enabled: true
+  crowd_surge_threshold: 0.70
+  crowd_surge_weight: 0.8
+  
+  fall_enabled: false
+  fall_threshold: 0.65
+  fall_weight: 0.85
+  
+  intrusion_enabled: false
+  intrusion_threshold: 0.60
+  intrusion_weight: 0.75
+  
+  loitering_enabled: false
+  loitering_threshold: 0.50
+  loitering_weight: 0.6
+
+# Clip settings
+clips:
+  auto_loop: true
+  max_clips_stored: 100
+  clip_retention_days: 30
+
+# Performance optimization
+performance:
+  inference_timeout_ms: 500
+  frame_cache_size: 300
+  async_inference: true
+
 server:
   host: "0.0.0.0"
   port: 8000
