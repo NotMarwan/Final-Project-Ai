@@ -5,14 +5,27 @@ import { Bell, ShieldAlert, Camera, MapPin, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
+import { DetectionCategory, CATEGORY_LABELS, CATEGORY_COLORS } from "@/lib/detection-types"
 
 interface AlertFeedProps {
   alerts: LiveAlert[]
   selectedAlertId: string | null
   onSelectAlert: (alert: LiveAlert) => void
+  selectedCategories: DetectionCategory[]
+  onCategoryChange: (categories: DetectionCategory[]) => void
+  categoryCounts?: Partial<Record<DetectionCategory, number>>
 }
 
-export const AlertFeed = memo(function AlertFeed({ alerts, selectedAlertId, onSelectAlert }: AlertFeedProps) {
+import { CategoryFilter } from "./category-filter"
+
+export const AlertFeed = memo(function AlertFeed({ 
+  alerts, 
+  selectedAlertId, 
+  onSelectAlert,
+  selectedCategories,
+  onCategoryChange,
+  categoryCounts
+}: AlertFeedProps) {
   return (
     <div className="flex flex-col h-full">
       {/* الهيدر ثابت */}
@@ -32,6 +45,12 @@ export const AlertFeed = memo(function AlertFeed({ alerts, selectedAlertId, onSe
           {alerts.length}
         </Badge>
       </div>
+
+      <CategoryFilter
+        selectedCategories={selectedCategories}
+        onCategoryChange={onCategoryChange}
+        categoryCounts={categoryCounts}
+      />
 
       {/* منطقة القائمة مع السحاب (overflow-y-auto) */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
@@ -61,10 +80,19 @@ export const AlertFeed = memo(function AlertFeed({ alerts, selectedAlertId, onSe
                   <span className="font-mono text-[10px] text-muted-foreground ml-auto">{alert.timestamp}</span>
                 </div>
                 
-                <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5">
+                <h3 className="text-xs font-semibold mb-1 flex items-center gap-1.5">
                   <ShieldAlert className="h-3.5 w-3.5 text-danger" />
                   {alert.type} Incident Detected
                 </h3>
+
+                <div className="flex flex-wrap gap-1 mb-2">
+                  <Badge 
+                    variant="outline" 
+                    className={`text-[9px] px-1 py-0 ${CATEGORY_COLORS[alert.type.toLowerCase() as DetectionCategory] || ""}`}
+                  >
+                    {CATEGORY_LABELS[alert.type.toLowerCase() as DetectionCategory] || alert.type}
+                  </Badge>
+                </div>
                 
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-muted-foreground bg-background/50 rounded p-1.5 border border-border/50">
                   <div className="flex items-center gap-1"><Camera className="h-3 w-3"/>{alert.cameraId}</div>

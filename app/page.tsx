@@ -39,6 +39,7 @@ export default function DashboardPage() {
     recognitionAuditCooldownSec: 25,
     policyUpdatedAt: null,
   })
+  const [selectedCategories, setSelectedCategories] = useState<DetectionCategory[]>([])
   const esRef = useRef<EventSource | null>(null)
 
   const connectSSE = useCallback(() => {
@@ -174,6 +175,20 @@ export default function DashboardPage() {
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
 
+  const filteredAlerts = useMemo(() => {
+    if (selectedCategories.length === 0) return alerts
+    return alerts.filter(a => selectedCategories.includes(a.type.toLowerCase() as DetectionCategory))
+  }, [alerts, selectedCategories])
+
+  const categoryCounts = useMemo(() => {
+    const counts: Partial<Record<DetectionCategory, number>> = {}
+    alerts.forEach(a => {
+      const cat = a.type.toLowerCase() as DetectionCategory
+      counts[cat] = (counts[cat] || 0) + 1
+    })
+    return counts
+  }, [alerts])
+
   const handleSelectAlert = useCallback((alert: LiveAlert) => {
     setSelectedAlert(alert)
   }, [])
@@ -206,9 +221,12 @@ export default function DashboardPage() {
           {/* النصف العلوي: خلاصة التنبيهات مع سحاب */}
           <div className="h-1/2 border-b border-border flex flex-col overflow-hidden">
             <AlertFeed 
-              alerts={alerts} 
+              alerts={filteredAlerts} 
               selectedAlertId={selectedAlert?.id ?? null} 
-              onSelectAlert={handleSelectAlert} 
+              onSelectAlert={handleSelectAlert}
+              selectedCategories={selectedCategories}
+              onCategoryChange={setSelectedCategories}
+              categoryCounts={categoryCounts}
             />
           </div>
           
