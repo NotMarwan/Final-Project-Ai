@@ -81,8 +81,9 @@ class CategoryStatus(str, Enum):
 class CategoryDetector:
     """Multi-category detection engine."""
     
-    def __init__(self, config: CategoryConfig):
+    def __init__(self, config: CategoryConfig, weapon_engine: Any = None):
         self.config = config
+        self.weapon_engine = weapon_engine
         self._enabled_categories: List[DetectionCategory] = [
             cat for cat in DetectionCategory
             if getattr(config, f"{cat.value}_enabled", False)
@@ -95,7 +96,7 @@ class CategoryDetector:
     def is_category_enabled(self, category: DetectionCategory) -> bool:
         return category in self._enabled_categories
         
-    def get_capability(self, category: DetectionCategory, weapon_ready: bool = False) -> Dict[str, Any]:
+    def get_capability(self, category: DetectionCategory) -> Dict[str, Any]:
         """Get honest capability metadata for a category."""
         base = {
             "id": category.value,
@@ -113,14 +114,27 @@ class CategoryDetector:
             base["requiredInputs"] = ["video_window"]
             
         elif category == DetectionCategory.WEAPON:
-            if weapon_ready:
-                base["status"] = CategoryStatus.EXPERIMENTAL.value
-                base["reason"] = "YOLO weapon model connected but pending precision validation."
-                base["requiredInputs"] = ["frame_image"]
+            if self.weapon_engine is not None:
+                try:
+                    signal = self.weapon_engine.latest_signal()
+                    if signal.get("ready", False):
+                        base["status"] = CategoryStatus.EXPERIMENTAL.value
+                        base["reason"] = "Weapon model connected and ready (pending precision validation)."
+                        base["requiredInputs"] = ["frame_image", "weapon_engine"]
+                    else:
+                        base["status"] = CategoryStatus.UNSUPPORTED.value
+                        base["reason"] = f"Weapon engine unavailable: {signal.get('reason', 'Unknown error')}"
+                        base["requiredInputs"] = ["yolo_weights", "weapon_engine"]
+                        base["enabled"] = False
+                except Exception as e:
+                    base["status"] = CategoryStatus.UNSUPPORTED.value
+                    base["reason"] = f"Weapon engine failed: {str(e)}"
+                    base["requiredInputs"] = ["weapon_engine"]
+                    base["enabled"] = False
             else:
                 base["status"] = CategoryStatus.UNSUPPORTED.value
                 base["reason"] = "Weapon engine not loaded or unavailable."
-                base["requiredInputs"] = ["yolo_weights"]
+                base["requiredInputs"] = ["weapon_engine"]
                 base["enabled"] = False # Force disabled if unsupported
                 
         elif category == DetectionCategory.CROWD_SURGE:
@@ -172,8 +186,14 @@ class CategoryDetector:
             scores[category] = base_confidence  # Use X3D confidence
         
         elif category == DetectionCategory.WEAPON:
-            # Delegated to weapon.py - placeholder here
-            scores[category] = 0.0
+            if self.weapon_engine is not None:
+                try:
+                    signal = self.weapon_engine.process_frame(frame)
+                    scores[category] = float(signal.get("score", 0.0))
+                except Exception:
+                    scores[category] = 0.0
+            else:
+                scores[category] = 0.0
         
         elif category == DetectionCategory.CROWD_SURGE:
             scores[category] = self._detect_crowd_surge(frame)

@@ -62,11 +62,16 @@ def test_category_capabilities():
     cap = detector.get_capability(DetectionCategory.FALL)
     assert cap["status"] == "unsupported"
     
-    # Weapon should be experimental if ready, unsupported if not
-    cap_unready = detector.get_capability(DetectionCategory.WEAPON, weapon_ready=False)
+    # Weapon should be unsupported if no engine
+    cap_unready = detector.get_capability(DetectionCategory.WEAPON)
     assert cap_unready["status"] == "unsupported"
     
-    cap_ready = detector.get_capability(DetectionCategory.WEAPON, weapon_ready=True)
+    # Weapon should be experimental if engine is ready
+    class MockEngine:
+        def latest_signal(self):
+            return {"ready": True}
+    detector_with_weapon = CategoryDetector(config, weapon_engine=MockEngine())
+    cap_ready = detector_with_weapon.get_capability(DetectionCategory.WEAPON)
     assert cap_ready["status"] == "experimental"
 
 def test_unsupported_category_analysis():

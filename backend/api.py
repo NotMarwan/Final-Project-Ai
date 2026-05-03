@@ -56,7 +56,7 @@ category_detector = None
 def _init_category_detector():
     global category_detector
     cat_config = CategoryConfig.from_settings(config)
-    category_detector = CategoryDetector(cat_config)
+    category_detector = CategoryDetector(cat_config, weapon_engine=weapon_engine)
     print(f"[System] Category detector initialized with: {[c.value for c in category_detector.enabled_categories]}")
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1084,11 +1084,9 @@ async def get_categories():
     if not category_detector:
         raise HTTPException(status_code=503, detail="Category detector not initialized")
     
-    weapon_ready = weapon_engine.status().get("ready", False)
-    
     return {
         "categories": [
-            category_detector.get_capability(cat, weapon_ready=weapon_ready)
+            category_detector.get_capability(cat)
             for cat in DetectionCategory
         ]
     }
@@ -1105,8 +1103,7 @@ async def toggle_category(category_id: str, enabled: bool, request: Request):
     try:
         cat = DetectionCategory(category_id)
         
-        weapon_ready = weapon_engine.status().get("ready", False)
-        cap = category_detector.get_capability(cat, weapon_ready=weapon_ready)
+        cap = category_detector.get_capability(cat)
         
         if enabled and cap["status"] == "unsupported":
             raise HTTPException(status_code=400, detail=f"Cannot enable {category_id}: {cap['reason']}")
