@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Play, Clock, Camera, Trash2 } from "lucide-react"
 import type { LiveAlert } from "@/components/video-player"
-import { ClipPlayer } from "./clip-player"
+import { IncidentReplay } from "./incident-replay"
 
 interface ClipSidebarProps {
   alerts: LiveAlert[]
@@ -22,16 +22,14 @@ export function ClipSidebar({
   onSelectAlert,
   onDeleteClip 
 }: ClipSidebarProps) {
-  const [activeClipUrl, setActiveClipUrl] = useState<string | undefined>()
-  const [activeClipName, setActiveClipName] = useState<string>("")
+  const [activeAlert, setActiveAlert] = useState<LiveAlert | null>(null)
 
   // Filter alerts that have clips
   const clips = alerts.filter((a) => a.clipUrl)
 
   const handlePlayClip = useCallback((alert: LiveAlert) => {
     if (alert.clipUrl) {
-      setActiveClipUrl(alert.clipUrl)
-      setActiveClipName(`Clip-${alert.id.slice(0, 8)}`)
+      setActiveAlert(alert)
       onSelectAlert(alert)
     }
   }, [onSelectAlert])
@@ -53,14 +51,17 @@ export function ClipSidebar({
         </h3>
       </div>
 
-      {/* Active clip player */}
-      {activeClipUrl && (
-        <div className="p-3 border-b border-border">
-          <ClipPlayer
-            clipUrl={activeClipUrl}
-            clipName={activeClipName}
+      {/* Active clip player (Premium Replay) */}
+      {activeAlert?.clipUrl && (
+        <div className="p-3 border-b border-border bg-black/40">
+          <IncidentReplay
+            clipUrl={activeAlert.clipUrl}
+            threatType={activeAlert.threatType === "weapon" ? "weapon" : "violence"}
+            confidence={Math.round(activeAlert.confidence)}
+            location={activeAlert.location}
+            timestamp={activeAlert.timestamp}
+            className="w-full aspect-[9/16] shadow-xl"
             autoPlay
-            className="aspect-video"
           />
         </div>
       )}
@@ -102,8 +103,17 @@ export function ClipSidebar({
                       {alert.type} Detected
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-[10px] px-1 py-0">
-                        {Math.round(alert.confidence * 100)}%
+                      <Badge 
+                        variant="secondary" 
+                        className={cn(
+                          "text-[9px] px-1.5 py-0 font-mono",
+                          alert.severity === "critical" ? "bg-danger/20 text-danger" : "bg-primary/20 text-primary"
+                        )}
+                      >
+                        {Math.round(alert.confidence)}%
+                      </Badge>
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 uppercase tracking-tighter opacity-70">
+                        {alert.threatType ?? "violence"}
                       </Badge>
                       {onDeleteClip && (
                         <Button

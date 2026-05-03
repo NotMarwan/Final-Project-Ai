@@ -3,7 +3,7 @@ model:
   confidence_threshold: 0.75
   frame_window_size: 32           # STRICT: never change this
   device: "cuda"                  # auto-fallback to cpu
-  stride: 16
+  stride: 8
 
 fusion:
   enabled: true

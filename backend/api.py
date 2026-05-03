@@ -600,6 +600,57 @@ def _call_groq_vlm(alert_id: str, frame: np.ndarray):
         details={"chars": len(report_text)},
     )
 
+def _generate_alert_payload(
+    alert_id: str,
+    pipeline: ViolenceInferencePipeline,
+    weapon_score: float,
+    weapon_signal: dict,
+    motion_score: float,
+    face_summary: dict,
+    cam_id: str,
+    now: float,
+    t0: float
+) -> dict:
+    conf = pipeline._last_conf
+    model_conf = round(conf * 100, 1)
+    raw_model_conf = round(float(getattr(pipeline, "_last_raw_conf", conf)) * 100, 1)
+
+    severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
+    fusion = fusion_engine.assess(
+        violence_confidence=conf,
+        motion_score=motion_score,
+        weapon_score=weapon_score,
+        base_severity=severity,
+    )
+    severity = fusion["severity"]
+    threat_conf = round(max(model_conf, float(fusion["score"])), 1)
+    
+    is_violent = pipeline._is_violent
+    
+    return {
+        "id": alert_id, 
+        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+        "isoTime": datetime.now(timezone.utc).isoformat(), 
+        "confidence": threat_conf,
+        "modelConfidence": model_conf,
+        "rawModelConfidence": raw_model_conf,
+        "threatConfidence": threat_conf,
+        "threatType": "violence" if is_violent else "weapon",
+        "type": ("Violence" if is_violent else "Weapon Detection"), 
+        "severity": severity,
+        "cameraId": cam_id, 
+        "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
+        "fusionScore": fusion["score"],
+        "fusionModel": fusion["model"],
+        "motionScore": fusion["motionScore"],
+        "weaponScore": fusion["weaponScore"],
+        "weaponLabels": weapon_signal.get("labels", []),
+        "weaponDetectorReady": bool(weapon_signal.get("ready", False)),
+        "fusionReason": fusion["reason"],
+        "faceSummary": _public_face_summary(face_summary),
+        "alertLatencyMs": round((time.perf_counter() - t0) * 1000, 1),
+    }
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Core Video Capture & Inference Engine
 # ─────────────────────────────────────────────────────────────────────────────
@@ -869,47 +920,24 @@ def capture_loop():
         now = time.time()
         current_cooldown = state.get_cooldown()
         
-        if pipeline._is_violent and (now - last_alert_time > current_cooldown):
+        weapon_threshold = fusion_engine.config.weapon_threshold
+        is_weapon_threat = weapon_score >= weapon_threshold
+        
+        if (pipeline._is_violent or is_weapon_threat) and (now - last_alert_time > current_cooldown):
             last_alert_time = now
             alert_id = f"alert-{int(now * 1000)}"
-            conf = pipeline._last_conf
-            model_conf = round(conf * 100, 1)
-            raw_model_conf = round(float(getattr(pipeline, "_last_raw_conf", conf)) * 100, 1)
-
-            severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
-            fusion = fusion_engine.assess(
-                violence_confidence=conf,
-                motion_score=motion_score,
+            
+            alert_payload = _generate_alert_payload(
+                alert_id=alert_id,
+                pipeline=pipeline,
                 weapon_score=weapon_score,
-                base_severity=severity,
+                weapon_signal=weapon_signal,
+                motion_score=motion_score,
+                face_summary=face_summary,
+                cam_id=cam_id,
+                now=now,
+                t0=t0
             )
-            severity = fusion["severity"]
-            threat_conf = round(max(model_conf, float(fusion["score"])), 1)
-
-            alert_payload = {
-                "id": alert_id, 
-                "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
-                "isoTime": datetime.now(timezone.utc).isoformat(), 
-                "confidence": threat_conf,
-                "modelConfidence": model_conf,
-                "rawModelConfidence": raw_model_conf,
-                "threatConfidence": threat_conf,
-                "threatType": getattr(pipeline, "_last_threat_type", "violence"),
-                "type": getattr(pipeline, "_last_threat_type", "violence").capitalize(), 
-
-
-                "severity": severity,
-                "cameraId": cam_id, 
-                "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
-                "fusionScore": fusion["score"],
-                "fusionModel": fusion["model"],
-                "motionScore": fusion["motionScore"],
-                "weaponScore": fusion["weaponScore"],
-                "weaponLabels": weapon_signal.get("labels", []),
-                "weaponDetectorReady": bool(weapon_signal.get("ready", False)),
-                "fusionReason": fusion["reason"],
-                "faceSummary": client_face_summary,
-            }
 
             state.register_alert(alert_payload)
             state.broadcast_alert(alert_payload)
@@ -931,6 +959,7 @@ def capture_loop():
                     "faceKnown": int(face_summary.get("recognizedCount", 0)),
                     "faceUnknown": int(face_summary.get("unknownCount", 0)),
                     "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
+                    "alertLatencyMs": alert_payload["alertLatencyMs"],
                 },
             )
             _emit_face_audit_events(
