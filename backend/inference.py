@@ -26,7 +26,8 @@ except ImportError:
 # ──────────────────────────────────────────────────────────────────────────────
 
 class X3DViolenceModel(nn.Module):
-    def __init__(self, num_classes: int = 2):
+    def __init__(self, num_classes: int = 6):
+
         super().__init__()
         # Prefer X3D-M when torchvision exposes it, otherwise fall back to a
         # supported video backbone that keeps the same single-tensor interface.
@@ -88,7 +89,8 @@ class SlowFastBackbone(nn.Module):
         ]).flatten(1)
 
 class ViolenceDetector(nn.Module):
-    def __init__(self, num_classes: int = 2):
+    def __init__(self, num_classes: int = 6):
+
         super().__init__()
         self.sf = SlowFastBackbone(pretrained=False)
         dim = self.sf.out_dim
@@ -111,6 +113,17 @@ MEAN = np.array([0.45, 0.45, 0.45], dtype=np.float32)
 STD  = np.array([0.225, 0.225, 0.225], dtype=np.float32)
 FRAME_SIZE   = 160   # X3D target
 WINDOW_SIZE  = 32    # STRICT 32-frame window
+
+# Threat Category Mapping
+THREAT_CATEGORIES = {
+    0: "violence",
+    1: "weapon",
+    2: "crowd_surge",
+    3: "fall",
+    4: "intrusion",
+    5: "loitering"
+}
+
 CALIBRATION_PROFILE = load_calibration_profile(base_dir=Path(__file__).resolve().parent)
 VIOLENCE_CLS = int(os.getenv("VIOLENCE_CLASS_INDEX", str(CALIBRATION_PROFILE.get("classIndex", 0))))
 VIOLENCE_TEMP = max(0.05, float(os.getenv("VIOLENCE_LOGIT_TEMPERATURE", str(CALIBRATION_PROFILE.get("logitTemperature", 1.0)))))
@@ -118,7 +131,30 @@ VIOLENCE_LOGIT_BIAS = float(os.getenv("VIOLENCE_LOGIT_BIAS", str(CALIBRATION_PRO
 CONF_EMA_ALPHA = float(os.getenv("VIOLENCE_CONFIDENCE_EMA_ALPHA", str(CALIBRATION_PROFILE.get("emaAlpha", 0.45))))
 HYSTERESIS_MARGIN = float(os.getenv("VIOLENCE_HYSTERESIS_MARGIN", str(CALIBRATION_PROFILE.get("hysteresisMargin", 0.08))))
 
+# Cache for resized frames to avoid redundant resizing
+_frame_cache = {}
+_frame_cache_lock = threading.Lock()
+
+def cached_resize(frame: np.ndarray, size: int) -> np.ndarray:
+    """Resize frame with caching based on frame hash."""
+    frame_hash = hash(frame.tobytes())
+    cache_key = (frame_hash, size)
+    
+    with _frame_cache_lock:
+        if cache_key in _frame_cache:
+            return _frame_cache[cache_key]
+    
+    resized = cv2.resize(frame, (size, size), interpolation=cv2.INTER_LINEAR)
+    
+    with _frame_cache_lock:
+        if len(_frame_cache) > 300:  # Limit cache size
+            _frame_cache.clear()
+        _frame_cache[cache_key] = resized
+    
+    return resized
+
 def ensure_bgr(frame: np.ndarray) -> np.ndarray:
+
     if frame is None:
         return frame
     if frame.ndim == 2:
@@ -134,8 +170,9 @@ def preprocess_window(frames: list[np.ndarray]) -> torch.Tensor:
     for frame in frames:
         frame = ensure_bgr(frame)
         # resize each frame → (182×182) → center-crop → (160×160)
-        img = cv2.resize(frame, (182, 182), interpolation=cv2.INTER_LINEAR)
+        img = cached_resize(frame, 182)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         start = (182 - 160) // 2
         img = img[start:start+160, start:start+160].astype(np.float32) / 255.0
         img = (img - MEAN) / STD
@@ -221,17 +258,20 @@ class ViolenceInferencePipeline:
         return state
 
     @torch.inference_mode()
-    def _infer_window(self, window_frames: list[np.ndarray]) -> None:
-        start_time = time.perf_counter()
+    def _infer_window_async(self, window_frames: list[np.ndarray]) -> None:
+        """Async inference that doesn't block frame capture."""
         try:
+            start_time = time.perf_counter()
+            
             if self.is_x3d:
                 input_tensor = preprocess_window(window_frames).to(self.device)
                 logits = self.model(input_tensor)
             else:
+                # Legacy path
                 processed = []
                 for f in window_frames:
                     f = ensure_bgr(f)
-                    img = cv2.resize(f, (224, 224))
+                    img = cached_resize(f, 224)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
                     processed.append((img - MEAN) / STD)
                 fast = torch.from_numpy(np.stack(processed).transpose(0, 3, 1, 2)).unsqueeze(0).to(self.device)
@@ -241,25 +281,30 @@ class ViolenceInferencePipeline:
             probs = F.softmax(logits, dim=-1)[0]
             raw_conf = probs[VIOLENCE_CLS].item()
             calibrated_conf = self._calibrate_confidence(logits, raw_conf)
+            
             self._last_raw_conf = raw_conf
             self._last_calibrated_conf = calibrated_conf
-            if self._counter <= WINDOW_SIZE:
-                smoothed_conf = calibrated_conf
-            else:
+            
+            # EMA smoothing after warmup
+            if self._counter > WINDOW_SIZE:
                 smoothed_conf = (self._ema_alpha * calibrated_conf) + ((1.0 - self._ema_alpha) * self._last_conf)
+            else:
+                smoothed_conf = calibrated_conf
+                
             self._last_conf = float(max(0.0, min(1.0, smoothed_conf)))
             self._last_label = int(torch.argmax(probs).item())
+            self._last_threat_type = THREAT_CATEGORIES.get(self._last_label, "unknown")
+            
+            # Hysteresis for state change
             if self._is_violent:
                 self._is_violent = bool(self._last_conf >= self._release_threshold())
             else:
                 self._is_violent = bool(self._last_conf >= self.threshold)
 
+            
             latency = (time.perf_counter() - start_time) * 1000
-            print(
-                "[AI] Latency: "
-                f"{latency:.1f}ms | Raw: {self._last_raw_conf:.2f} | "
-                f"Cal: {self._last_calibrated_conf:.2f} | Smooth: {self._last_conf:.2f}"
-            )
+            print(f"[AI] Latency: {latency:.1f}ms | Conf: {self._last_conf:.2f}")
+            
         except Exception as exc:
             print(f"[AI] Inference error: {exc}")
         finally:
@@ -267,6 +312,7 @@ class ViolenceInferencePipeline:
                 self._inference_running = False
 
     def _release_threshold(self) -> float:
+
         return max(0.05, min(self.threshold, self.threshold - self._hysteresis_margin))
 
     def _calibrate_confidence(self, logits: torch.Tensor, raw_conf: float) -> float:
@@ -293,17 +339,27 @@ class ViolenceInferencePipeline:
         if not self.enabled:
             return frame.copy()
 
-        self._buffer.append(frame)
         self._counter += 1
+        self._buffer.append(frame)
 
+        # Only run inference on stride intervals and when not already running
         if len(self._buffer) == WINDOW_SIZE and self._counter % self.stride == 0:
             should_start = False
             with self._inference_lock:
                 if not self._inference_running:
                     self._inference_running = True
                     should_start = True
+            
             if should_start:
+                # Use the latest complete window
                 window = list(self._buffer)
-                threading.Thread(target=self._infer_window, args=(window,), daemon=True).start()
+                # Run inference in background thread
+                threading.Thread(
+                    target=self._infer_window_async, 
+                    args=(window,), 
+                    daemon=True
+                ).start()
 
+        # Return frame immediately - don't wait for inference
         return frame.copy()
+

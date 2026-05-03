@@ -864,7 +864,10 @@ def capture_loop():
                 "modelConfidence": model_conf,
                 "rawModelConfidence": raw_model_conf,
                 "threatConfidence": threat_conf,
-                "type": "Violence", 
+                "threatType": getattr(pipeline, "_last_threat_type", "violence"),
+                "type": getattr(pipeline, "_last_threat_type", "violence").capitalize(), 
+
+
                 "severity": severity,
                 "cameraId": cam_id, 
                 "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
