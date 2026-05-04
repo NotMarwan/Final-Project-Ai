@@ -13,7 +13,7 @@ def test_bulk_benchmark_scanning():
     """Test that the bulk runner correctly scans a directory and calls run_benchmark."""
     with patch('os.listdir', return_value=['high_test.mp4', 'eye_level_test.mp4', 'not_a_video.txt']), \
          patch('os.path.join', side_effect=lambda a, b: f"{a}/{b}"), \
-         patch('tools.run_multi_angle_benchmarks.run_benchmark') as mock_run:
+         patch('tools.benchmark_threat_latency.run_benchmark') as mock_run:
         
         mock_run.return_value = {
             'latencies_ms': {
@@ -38,7 +38,7 @@ def test_bulk_benchmark_error_handling():
     """Test that the bulk runner continues if one video fails."""
     with patch('os.listdir', return_value=['v1.mp4', 'v2.mp4']), \
          patch('os.path.join', side_effect=lambda a, b: f"{a}/{b}"), \
-         patch('tools.run_multi_angle_benchmarks.run_benchmark') as mock_run:
+         patch('tools.benchmark_threat_latency.run_benchmark') as mock_run:
         
         # First call fails, second succeeds
         mock_run.side_effect = [Exception("Test error"), {

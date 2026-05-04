@@ -21,6 +21,7 @@ def test_smoke_training_safety_caps(fake_manifest):
     from tools.train_rwf2000_smoke import main
     # Test max_train_samples cap
     with patch("sys.argv", ["train_rwf2000_smoke.py", "--manifest", fake_manifest, "--max-train-samples", "20"]):
+        from tools.train_rwf2000_smoke import main
         with patch("sys.stdout") as mock_stdout:
             main()
             output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
@@ -28,6 +29,7 @@ def test_smoke_training_safety_caps(fake_manifest):
 
     # Test epochs cap
     with patch("sys.argv", ["train_rwf2000_smoke.py", "--manifest", fake_manifest, "--epochs", "2"]):
+        from tools.train_rwf2000_smoke import main
         with patch("sys.stdout") as mock_stdout:
             main()
             output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
@@ -69,6 +71,7 @@ def test_actual_smoke_training_flow(fake_manifest, monkeypatch):
         assert summary.exists()
 
 def test_dry_run_writes_no_checkpoint(fake_manifest):
+    from tools.train_rwf2000_smoke import main
     with tempfile.TemporaryDirectory() as tmp_output:
         args = [
             "train_rwf2000_smoke.py",

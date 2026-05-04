@@ -15,9 +15,9 @@ def test_benchmark_stats_calculation():
     """Test that statistics are calculated correctly with dummy data."""
     with patch('os.path.exists', return_value=True), \
          patch('cv2.VideoCapture') as mock_cap, \
-         patch('tools.benchmark_threat_latency.ViolenceInferencePipeline') as mock_v, \
-         patch('tools.benchmark_threat_latency.WeaponSignalEngine') as mock_w, \
-         patch('tools.benchmark_threat_latency.ThreatFusionEngine') as mock_f:
+         patch('inference.ViolenceInferencePipeline') as mock_v, \
+         patch('weapon.WeaponSignalEngine') as mock_w, \
+         patch('fusion.ThreatFusionEngine') as mock_f:
             
         mock_instance = mock_cap.return_value
         mock_instance.isOpened.return_value = True
@@ -50,9 +50,9 @@ def test_benchmark_threat_detection():
     """Test that detection latency is recorded when a threat is found."""
     with patch('os.path.exists', return_value=True), \
          patch('cv2.VideoCapture') as mock_cap, \
-         patch('tools.benchmark_threat_latency.ViolenceInferencePipeline') as mock_v, \
-         patch('tools.benchmark_threat_latency.WeaponSignalEngine') as mock_w, \
-         patch('tools.benchmark_threat_latency.ThreatFusionEngine') as mock_f:
+         patch('inference.ViolenceInferencePipeline') as mock_v, \
+         patch('weapon.WeaponSignalEngine') as mock_w, \
+         patch('fusion.ThreatFusionEngine') as mock_f:
             
         mock_cap_instance = mock_cap.return_value
         mock_cap_instance.isOpened.return_value = True

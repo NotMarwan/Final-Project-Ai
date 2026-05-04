@@ -22,6 +22,7 @@ def test_train_config_output_dir_safe_path():
     assert "output_dir must be under .runlogs/training" in str(excinfo.value)
 
 def test_train_config_no_overwrite_best_model():
+    from training.train_config import TrainConfig
     config = TrainConfig(
         manifest_path="dummy.jsonl",
         weights_path="backend/best_model.pt",
@@ -32,6 +33,7 @@ def test_train_config_no_overwrite_best_model():
     assert "cannot overwrite backend/best_model.pt directly" in str(excinfo.value)
 
 def test_train_config_appends_timestamp():
+    from training.train_config import TrainConfig
     config = TrainConfig(manifest_path="dummy.jsonl", output_dir=".runlogs/training/smoke")
     config.validate()
     assert "run_" in config.output_dir
