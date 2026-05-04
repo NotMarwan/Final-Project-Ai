@@ -2,7 +2,6 @@ import pytest
 import tempfile
 import json
 from pathlib import Path
-from tools.train_rwf2000_smoke import main, save_smoke_checkpoint
 import sys
 from unittest.mock import patch, MagicMock
 
@@ -19,6 +18,7 @@ def fake_manifest():
         return tmp.name
 
 def test_smoke_training_safety_caps(fake_manifest):
+    from tools.train_rwf2000_smoke import main
     # Test max_train_samples cap
     with patch("sys.argv", ["train_rwf2000_smoke.py", "--manifest", fake_manifest, "--max-train-samples", "20"]):
         with patch("sys.stdout") as mock_stdout:
@@ -35,6 +35,7 @@ def test_smoke_training_safety_caps(fake_manifest):
 
 @pytest.mark.integration
 def test_actual_smoke_training_flow(fake_manifest, monkeypatch):
+    from tools.train_rwf2000_smoke import main, save_smoke_checkpoint
     import torch
     class MockModel(torch.nn.Module):
         def __init__(self, num_classes=6):
@@ -94,7 +95,7 @@ def test_production_weights_protection():
     
     with patch("tools.train_rwf2000_smoke.is_production_path") as mock_check:
         mock_check.return_value = True
-        
+        from tools.train_rwf2000_smoke import save_smoke_checkpoint
         with pytest.raises(RuntimeError, match="CRITICAL ERROR: Attempted to overwrite production weights!"):
             save_smoke_checkpoint(model, optimizer, 1, {}, {}, "dummy")
 

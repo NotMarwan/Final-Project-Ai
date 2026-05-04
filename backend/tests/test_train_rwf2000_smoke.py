@@ -4,8 +4,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from tools.train_rwf2000_smoke import main
-
 @pytest.fixture
 def mock_manifest():
     with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w") as tmp:

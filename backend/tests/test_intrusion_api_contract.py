@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
 import sys
 import os
 
@@ -8,9 +9,50 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
+    import api
     from api import app
     from fastapi.testclient import TestClient
+    
+    # Inject mocks to skip heavy initialization in lifespan
+    monkeypatch.setattr(api, "telegram_notifier", MagicMock())
+    monkeypatch.setattr(api, "fusion_engine", MagicMock())
+    monkeypatch.setattr(api, "weapon_engine", MagicMock())
+    monkeypatch.setattr(api, "security_controller", MagicMock())
+    monkeypatch.setattr(api, "audit_logger", MagicMock())
+    monkeypatch.setattr(api, "evidence_ledger", MagicMock())
+    monkeypatch.setattr(api, "audio_analyzer", MagicMock())
+    monkeypatch.setattr(api, "face_engine", MagicMock())
+    
+    from detection_categories import DetectionCategory
+    mock_cat_detector = MagicMock()
+    def mock_get_capability(cat):
+        return {
+            "id": cat.value,
+            "label": cat.name.replace("_", " ").title(),
+            "enabled": True,
+            "status": "active",
+            "reason": "mocked",
+            "requiresContext": cat == DetectionCategory.INTRUSION,
+            "requiredInputs": ["personBoxes", "restrictedZones", "cameraId"] if cat == DetectionCategory.INTRUSION else []
+        }
+    mock_cat_detector.get_capability.side_effect = mock_get_capability
+    mock_cat_detector.analyze_context.return_value = {DetectionCategory.INTRUSION: 0.8}
+    
+    # Mock config to avoid MagicMock comparison errors
+    mock_config = MagicMock()
+    # Configure it so that any threshold attribute returns 0.5
+    mock_config.intrusion_threshold = 0.5
+    mock_config.violence_threshold = 0.5
+    mock_config.weapon_threshold = 0.5
+    mock_cat_detector.config = mock_config
+    
+    monkeypatch.setattr(api, "category_detector", mock_cat_detector)
+    
+    monkeypatch.setattr(api, "CALIBRATION_PROFILE", {"threshold": 0.5})
+    monkeypatch.setattr(api, "VIOLENCE_CLS", 1)
+    monkeypatch.setattr(api, "THRESHOLD", 0.5)
+    
     with TestClient(app) as c:
         yield c
 

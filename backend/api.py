@@ -77,6 +77,8 @@ except ImportError:
 category_detector = None
 def _init_category_detector():
     global category_detector
+    if category_detector is not None:
+        return
     cat_config = CategoryConfig.from_settings(config)
     category_detector = CategoryDetector(cat_config, weapon_engine=weapon_engine)
     print(f"[System] Category detector initialized with: {[c.value for c in category_detector.enabled_categories]}")
@@ -95,6 +97,8 @@ VIOLENCE_CLS = None
 
 def _init_config_and_profiles():
     global CALIBRATION_PROFILE, VIOLENCE_CLS
+    if CALIBRATION_PROFILE is not None:
+        return
     imports = _get_imports()
     CALIBRATION_PROFILE = imports['load_calibration_profile'](base_dir=BASE_DIR)
     VIOLENCE_CLS = imports['VIOLENCE_CLS']
@@ -216,6 +220,8 @@ STRIDE = 0
 
 def _finalize_config():
     global THRESHOLD, STRIDE
+    if THRESHOLD != 0.0:
+        return
     THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
     STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
 
@@ -262,7 +268,13 @@ def _init_engines():
     global telegram_notifier, fusion_engine, weapon_engine, security_controller
     global audit_logger, evidence_ledger, audio_analyzer, face_engine
     
+    if telegram_notifier is not None:
+        print("[Engines] Already initialized.")
+        return
+        
+    print("[Engines] Importing dependencies...")
     imports = _get_imports()
+    print("[Engines] Dependencies imported.")
     
     telegram_notifier = imports['TelegramNotifier'].from_settings(config, os.environ)
     fusion_engine = imports['ThreatFusionEngine'].from_settings(config)
@@ -1066,10 +1078,15 @@ def capture_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("[Lifespan] Starting bootstrap...")
     _init_config_and_profiles()
+    print("[Lifespan] Config and profiles initialized.")
     _finalize_config()
+    print("[Lifespan] Config finalized.")
     _init_engines()
+    print("[Lifespan] Engines initialized.")
     _init_category_detector()
+    print("[Lifespan] Category detector initialized.")
     
     if telegram_notifier:
         telegram_notifier.start()

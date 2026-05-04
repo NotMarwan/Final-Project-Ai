@@ -1,19 +1,21 @@
 import pytest
-from training.train_config import TrainConfig
 from pathlib import Path
 
 def test_train_config_validates_device():
+    from training.train_config import TrainConfig
     config = TrainConfig(manifest_path="dummy.jsonl", device="invalid")
     with pytest.raises(ValueError) as excinfo:
         config.validate()
     assert "Invalid device" in str(excinfo.value)
 
 def test_train_config_auto_device():
+    from training.train_config import TrainConfig
     config = TrainConfig(manifest_path="dummy.jsonl", device="auto")
     config.validate()
     assert config.device in ["cpu", "cuda"]
 
 def test_train_config_output_dir_safe_path():
+    from training.train_config import TrainConfig
     config = TrainConfig(manifest_path="dummy.jsonl", output_dir="bad_dir/")
     with pytest.raises(ValueError) as excinfo:
         config.validate()
