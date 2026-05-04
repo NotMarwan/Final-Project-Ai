@@ -24,27 +24,46 @@ def build_manifest(dataset_dir: str, output_path: str, val_ratio: float = None, 
         split_path = dataset_path / split
         if not split_path.exists():
             continue
+        
+        # Iterate over all label directories in the current split folder
+        for label_dir in split_path.iterdir():
+            if not label_dir.is_dir():
+                continue  # Skip files, only process directories
+            original_label = label_dir.name
+            label_lower = original_label.lower()
             
-        for original_label in ["Fight", "NonFight", "fight", "nonfight", "Violence", "Normal", "violence", "normal"]:
-            label_path = split_path / original_label
-            if not label_path.exists():
+            # Define exact matches for violence and normal labels (lowercase)
+            violence_exact = {"fight", "violence", "violent"}
+            normal_exact = {
+                "nonfight", "non-fight", "non_fight",
+                "normal",
+                "nonviolence", "non-violence", "non_violence"
+            }
+            
+            # Determine unified label
+            if label_lower in violence_exact:
+                unified_label = "violence"
+            elif label_lower in normal_exact:
+                unified_label = "normal"
+            else:
+                print(f"Warning: Unrecognized label '{original_label}' in {split_path}, skipping.")
                 continue
-                
-            # Map labels
-            unified_label = "violence" if original_label.lower() in ["fight", "violence"] else "normal"
+            
+            label_path = label_dir  # The label directory is the current label_dir
             
             # Support both .mp4 and .avi
             for ext in ["*.mp4", "*.avi"]:
                 for video_file in label_path.glob(ext):
                     abs_path = str(video_file.absolute())
+                    # Check for duplicates (case-insensitive)
                     if any(e["video_path"].lower() == abs_path.lower() for e in manifest):
                         continue
-
+                    
                     entry = {
                         "video_path": abs_path,
                         "label": unified_label,
                         "source_dataset": "rwf2000_kaggle",
-                        "split": split, # Default from folder
+                        "split": split,  # Default from folder structure
                         "original_split": split,
                         "camera_angle": "cctv_like",
                         "license_note": "RWF-2000 usage restrictions apply; do not redistribute videos.",

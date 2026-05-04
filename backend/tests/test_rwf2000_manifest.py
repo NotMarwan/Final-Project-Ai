@@ -88,5 +88,97 @@ class TestRWF2000Manifest(unittest.TestCase):
             
         self.assertNotEqual(content1, content3)
 
+    def test_non_violence_label_mapping(self):
+        """Test that non-violence labels map to normal, and violence to violence."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_root = Path(tmpdir)
+            # Create structure with non-violence label
+            for split in ["train", "val"]:
+                (dataset_root / split / "violence").mkdir(parents=True, exist_ok=True)
+                (dataset_root / split / "non-violence").mkdir(parents=True, exist_ok=True)
+            # Add video files
+            (dataset_root / "train" / "violence" / "a.avi").write_text("dummy")
+            (dataset_root / "train" / "non-violence" / "b.avi").write_text("dummy")
+            (dataset_root / "val" / "violence" / "c.avi").write_text("dummy")
+            (dataset_root / "val" / "non-violence" / "d.avi").write_text("dummy")
+            
+            output_file = Path(tmpdir) / "manifest.jsonl"
+            build_manifest(str(dataset_root), str(output_file))
+            
+            with open(output_file, "r") as f:
+                entries = [json.loads(line) for line in f]
+            
+            # Total entries: 4
+            self.assertEqual(len(entries), 4)
+            
+            # Check label mappings
+            label_map = {e["original_label"]: e["label"] for e in entries}
+            self.assertEqual(label_map["violence"], "violence")
+            self.assertEqual(label_map["non-violence"], "normal")
+            
+            # Check splits
+            train_entries = [e for e in entries if e["split"] == "train"]
+            val_entries = [e for e in entries if e["split"] == "val"]
+            self.assertEqual(len(train_entries), 2)
+            self.assertEqual(len(val_entries), 2)
+            
+            # Check both labels exist in each split
+            for split_entries in [train_entries, val_entries]:
+                labels = {e["label"] for e in split_entries}
+                self.assertIn("violence", labels)
+                self.assertIn("normal", labels)
+            
+            # Check original_split is present
+            for e in entries:
+                self.assertIn("original_split", e)
+                self.assertEqual(e["original_split"], e["split"])
+            
+            # Check no file moves (files still exist)
+            self.assertTrue((dataset_root / "train" / "violence" / "a.avi").exists())
+            self.assertTrue((dataset_root / "train" / "non-violence" / "b.avi").exists())
+
+    def test_variant_normal_labels(self):
+        """Test non_violence, nonviolence, non-fight map to normal."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_root = Path(tmpdir)
+            # Create variant labels
+            variants = [
+                ("train", "non_violence", "x.avi"),
+                ("train", "nonviolence", "y.avi"),
+                ("train", "non-fight", "z.avi"),
+                ("val", "non_violence", "u.avi"),
+                ("val", "nonviolence", "v.avi"),
+                ("val", "non-fight", "w.avi"),
+            ]
+            for split, label, fname in variants:
+                (dataset_root / split / label).mkdir(parents=True, exist_ok=True)
+                (dataset_root / split / label / fname).write_text("dummy")
+            # Also add violence labels to check mapping
+            (dataset_root / "train" / "violence").mkdir(parents=True, exist_ok=True)
+            (dataset_root / "val" / "violence").mkdir(parents=True, exist_ok=True)
+            (dataset_root / "train" / "violence" / "a.avi").write_text("dummy")
+            (dataset_root / "val" / "violence" / "b.avi").write_text("dummy")
+            
+            output_file = Path(tmpdir) / "manifest.jsonl"
+            build_manifest(str(dataset_root), str(output_file))
+            
+            with open(output_file, "r") as f:
+                entries = [json.loads(line) for line in f]
+            
+            # Total entries: 6 variants + 2 violence = 8
+            self.assertEqual(len(entries), 8)
+            
+            # Check all variant labels map to normal
+            variant_labels = {"non_violence", "nonviolence", "non-fight"}
+            for e in entries:
+                if e["original_label"] in variant_labels:
+                    self.assertEqual(e["label"], "normal")
+                elif e["original_label"] == "violence":
+                    self.assertEqual(e["label"], "violence")
+            
+            # Check all labels are either normal or violence
+            all_labels = {e["label"] for e in entries}
+            self.assertEqual(all_labels, {"normal", "violence"})
+
 if __name__ == "__main__":
     unittest.main()
