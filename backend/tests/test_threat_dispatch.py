@@ -22,7 +22,7 @@ def test_weapon_only_triggers_alert(mock_fusion):
         "reason": "Weapon detected"
     }
     
-    from api import _generate_alert_payload
+    from backend.api import _generate_alert_payload
     
     payload = _generate_alert_payload(
         alert_id="test-123",
@@ -59,7 +59,7 @@ def test_violence_triggers_alert(mock_fusion):
         "reason": "Violence detected"
     }
     
-    from api import _generate_alert_payload
+    from backend.api import _generate_alert_payload
     
     payload = _generate_alert_payload(
         alert_id="test-456",
