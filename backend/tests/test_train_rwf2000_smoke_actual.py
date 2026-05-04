@@ -42,7 +42,7 @@ def test_actual_smoke_training_flow(fake_manifest, monkeypatch):
         def forward(self, slow, fast):
             return self.linear(torch.zeros(slow.size(0), 10).to(slow.device))
 
-    monkeypatch.setattr("tools.train_rwf2000_smoke.ViolenceDetector", MockModel)
+    monkeypatch.setattr("inference.ViolenceDetector", MockModel)
     
     with tempfile.TemporaryDirectory() as tmp_output:
         args = [

@@ -1,19 +1,17 @@
 import argparse
 import os
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
 from pathlib import Path
 from datetime import datetime
 import json
 import time
 
-from datasets.manifest_dataset import ManifestDataset
-from datasets.video_contract import get_profile, DEFAULT_PROFILE
-from inference import ViolenceDetector
+# Heavy imports moved inside functions to avoid slow pytest collection
+# import torch
+# from datasets.manifest_dataset import ManifestDataset
+# from inference import ViolenceDetector
 
 def train_one_epoch(model, loader, optimizer, criterion, device):
+    import torch
     model.train()
     running_loss = 0.0
     correct = 0
@@ -32,8 +30,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device):
         outputs = model(slow, fast)
         
         # ViolenceDetector output is [B, 6] but RWF is binary
-        # We take the first 2 classes or just map the output
-        # Based on best_model.pt audit, indices 0 and 1 represent normal/violence
+        # We take the first 2 classes (normal/violence)
         logits = outputs[:, :2]
         
         loss = criterion(logits, labels)
@@ -51,6 +48,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device):
     return running_loss / len(loader), 100.0 * correct / total
 
 def validate(model, loader, criterion, device):
+    import torch
     model.eval()
     running_loss = 0.0
     correct = 0
@@ -91,6 +89,7 @@ def save_smoke_checkpoint(model, optimizer, epoch, config, metrics, output_dir):
     if is_production_path(checkpoint_path):
         raise RuntimeError("CRITICAL ERROR: Attempted to overwrite production weights!")
         
+    import torch
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -106,7 +105,15 @@ def save_smoke_checkpoint(model, optimizer, epoch, config, metrics, output_dir):
         
     return checkpoint_path
 
-def main():
+def main(args_list=None):
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    from torch.utils.data import DataLoader
+    from datasets.video_contract import get_profile, DEFAULT_PROFILE
+    from datasets.manifest_dataset import ManifestDataset
+    from inference import ViolenceDetector
+    
     parser = argparse.ArgumentParser(description="RWF-2000 Training Infrastructure Smoke Test")
     parser.add_argument("--manifest", required=True, help="Path to RWF-2000 JSONL manifest")
     parser.add_argument("--weights", help="Optional path to starting weights")
@@ -119,7 +126,10 @@ def main():
     parser.add_argument("--profile", default=DEFAULT_PROFILE.name, help="Model profile (legacy_slowfast, x3d)")
     parser.add_argument("--output-dir", default=".runlogs/training/smoke", help="Directory to save checkpoints")
     
-    args = parser.parse_args()
+    if args_list is not None:
+        args = parser.parse_args(args_list)
+    else:
+        args = parser.parse_args()
     
     # 0. Safety Checks
     if not args.dry_run:
