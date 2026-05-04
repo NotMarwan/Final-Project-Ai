@@ -4,25 +4,19 @@ import time
 import argparse
 import json
 import cv2
-import torch
-import numpy as np
-from pathlib import Path
-from collections import deque
-from statistics import median, mean
 import threading
-
 # Add backend to path to allow imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
+
+def run_benchmark(video_path, angle="eye_level", weights_path="best_model.pt", iterations=None):
+    import torch
+    import numpy as np
+    from statistics import median, mean
     from inference import ViolenceInferencePipeline
     from weapon import WeaponSignalEngine, WeaponConfig
     from fusion import ThreatFusionEngine, FusionConfig
-except ImportError as e:
-    print(f"Error: Import failed: {e}")
-    sys.exit(1)
 
-def run_benchmark(video_path, angle="eye_level", weights_path="best_model.pt", iterations=None):
     if not os.path.exists(video_path):
         print(f"Error: Video file not found: {video_path}")
         return

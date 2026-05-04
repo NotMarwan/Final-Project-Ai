@@ -1,20 +1,19 @@
 import os
 import json
 import time
-import torch
 import cv2
 import numpy as np
 import argparse
 from pathlib import Path
 from typing import List, Dict
 
-# Add backend to path
-import sys
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-from inference import X3DViolenceModel, preprocess_window
+# Heavy imports moved inside functions to avoid slow pytest collection
+# import torch
+# from inference import X3DViolenceModel, preprocess_window
 
 def evaluate_subset(manifest_path: str, weights_path: str, samples_per_class: int = 10):
+    import torch
+    from inference import X3DViolenceModel, preprocess_window
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     

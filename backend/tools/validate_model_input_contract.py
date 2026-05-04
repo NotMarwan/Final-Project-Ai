@@ -1,12 +1,16 @@
 import argparse
-import torch
 import sys
 import os
 from pathlib import Path
-from datasets.manifest_dataset import ManifestDataset
 from datasets.video_contract import get_profile, DEFAULT_PROFILE
 
+# Heavy imports moved inside main to avoid slow pytest collection
+# import torch
+# from datasets.manifest_dataset import ManifestDataset
+
 def main():
+    import torch
+    from datasets.manifest_dataset import ManifestDataset
     parser = argparse.ArgumentParser(description="Validate model input contract with production weights")
     parser.add_argument("--manifest", required=True, help="Path to JSONL manifest")
     parser.add_argument("--weights", required=True, help="Path to production .pt weights")

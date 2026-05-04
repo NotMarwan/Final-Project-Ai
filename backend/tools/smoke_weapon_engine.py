@@ -10,13 +10,9 @@ from statistics import median, mean
 # Add backend to path to allow imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from weapon import WeaponSignalEngine, WeaponConfig
-except ImportError as e:
-    print(json.dumps({"error": f"Import failed: {str(e)}", "success": False}))
-    sys.exit(1)
 
 def run_smoke_test(timeout_sec=30, runs=5, warmup=1):
+    from weapon import WeaponSignalEngine, WeaponConfig
     results = {
         "engine_imported": True,
         "success": True,

@@ -7,9 +7,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools.benchmark_threat_latency import run_benchmark
-
 def run_bulk_benchmark(input_dir, weights_path, iterations=100, output_dir=None):
+    from tools.benchmark_threat_latency import run_benchmark
     video_extensions = ('.mp4', '.avi', '.mov', '.mkv')
     videos = [f for f in os.listdir(input_dir) if f.lower().endswith(video_extensions)]
     

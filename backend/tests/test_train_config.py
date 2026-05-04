@@ -1,5 +1,5 @@
 import pytest
-from backend.training.train_config import TrainConfig
+from training.train_config import TrainConfig
 from pathlib import Path
 
 def test_train_config_validates_device():

@@ -1,10 +1,10 @@
 import pytest
-import torch
 import tempfile
 from pathlib import Path
 from tools.inspect_model_checkpoint import inspect_checkpoint, verify_compatibility
 
 def test_inspect_checkpoint_safe_load(capsys):
+    import torch
     with tempfile.TemporaryDirectory() as tmpdir:
         weights_path = Path(tmpdir) / "test.pt"
         # Create a fake state dict
@@ -43,9 +43,11 @@ def test_test_compatibility_mock(capsys, monkeypatch):
         def state_dict(self):
             return {}
 
+    import torch
     # Mock the imports in the tool
-    import inference
+    import inference # This will still be slow, but it's only in ONE test now
     monkeypatch.setattr("inference.X3DViolenceModel", MockModel)
+    monkeypatch.setattr("inference.ViolenceDetector", MockModel)
     
     with tempfile.TemporaryDirectory() as tmpdir:
         weights_path = Path(tmpdir) / "test.pt"

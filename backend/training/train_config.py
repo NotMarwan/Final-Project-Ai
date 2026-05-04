@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
 import time
-import torch
 
 @dataclass
 class TrainConfig:
@@ -25,6 +24,7 @@ class TrainConfig:
         if self.device not in ["cpu", "cuda", "auto"]:
             raise ValueError(f"Invalid device: {self.device}. Must be cpu, cuda, or auto.")
         if self.device == "auto":
+            import torch
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # Safe output directory validation

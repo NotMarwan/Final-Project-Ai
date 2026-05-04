@@ -1,5 +1,4 @@
 import pytest
-import torch
 from datasets.video_contract import LEGACY_SLOWFAST_PROFILE, X3D_PROFILE, get_profile
 
 def test_contract_profiles_exist():

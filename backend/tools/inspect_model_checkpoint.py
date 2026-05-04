@@ -1,9 +1,12 @@
-import torch
 import sys
 import argparse
 from pathlib import Path
 
+# Heavy imports moved inside functions to avoid slow pytest collection
+# import torch
+
 def inspect_checkpoint(weights_path: str):
+    import torch
     p = Path(weights_path)
     if not p.exists():
         print(f"[ERROR] File not found: {weights_path}")
@@ -67,6 +70,7 @@ def inspect_checkpoint(weights_path: str):
         print(f"[WARN] No state_dict found or extracted.")
 
 def verify_compatibility(weights_path: str, model_class_name: str):
+    import torch
     print(f"\n" + "-"*50)
     print(f"COMPATIBILITY TEST: {model_class_name}")
     print(f"-"*50)

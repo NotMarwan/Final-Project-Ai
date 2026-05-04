@@ -15,7 +15,7 @@ from typing import AsyncGenerator, Dict, Optional, Tuple, Union
 
 import cv2
 import numpy as np
-import torch
+# import torch deferred to functions
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
@@ -23,28 +23,38 @@ from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent
 
-try:
-    from .inference import ViolenceInferencePipeline, VIOLENCE_CLS
-    from .fusion import ThreatFusionEngine
-    from .weapon import WeaponSignalEngine
-    from .calibration_utils import load_calibration_profile
-    from .security import AccessController, AuditLogger
-    from .evidence import EvidenceLedger
-    from .audio import AudioRiskAnalyzer
-    from .face_intel import FaceIntelEngine
-    from .notifications import TelegramNotifier
-    from .reporting import build_incident_pdf
-except ImportError:
-    from inference import ViolenceInferencePipeline, VIOLENCE_CLS
-    from fusion import ThreatFusionEngine
-    from weapon import WeaponSignalEngine
-    from calibration_utils import load_calibration_profile
-    from security import AccessController, AuditLogger
-    from evidence import EvidenceLedger
-    from audio import AudioRiskAnalyzer
-    from face_intel import FaceIntelEngine
-    from notifications import TelegramNotifier
-    from reporting import build_incident_pdf
+def _is_torch_cuda_available() -> bool:
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
+        return False
+
+# Heavy imports moved inside functions
+def _get_imports():
+    try:
+        from .inference import ViolenceInferencePipeline, VIOLENCE_CLS
+        from .fusion import ThreatFusionEngine
+        from .weapon import WeaponSignalEngine
+        from .calibration_utils import load_calibration_profile
+        from .security import AccessController, AuditLogger
+        from .evidence import EvidenceLedger
+        from .audio import AudioRiskAnalyzer
+        from .face_intel import FaceIntelEngine
+        from .notifications import TelegramNotifier
+        from .reporting import build_incident_pdf
+    except ImportError:
+        from inference import ViolenceInferencePipeline, VIOLENCE_CLS
+        from fusion import ThreatFusionEngine
+        from weapon import WeaponSignalEngine
+        from calibration_utils import load_calibration_profile
+        from security import AccessController, AuditLogger
+        from evidence import EvidenceLedger
+        from audio import AudioRiskAnalyzer
+        from face_intel import FaceIntelEngine
+        from notifications import TelegramNotifier
+        from reporting import build_incident_pdf
+    return locals()
 
 try:
     from .detection_categories import (
@@ -80,7 +90,14 @@ load_dotenv()
 with open(BASE_DIR / "config.yml", "r") as f:
     config = yaml.safe_load(f)
 
-CALIBRATION_PROFILE = load_calibration_profile(base_dir=BASE_DIR)
+CALIBRATION_PROFILE = None
+VIOLENCE_CLS = None
+
+def _init_config_and_profiles():
+    global CALIBRATION_PROFILE, VIOLENCE_CLS
+    imports = _get_imports()
+    CALIBRATION_PROFILE = imports['load_calibration_profile'](base_dir=BASE_DIR)
+    VIOLENCE_CLS = imports['VIOLENCE_CLS']
 
 def _parse_source(raw: str) -> Union[str, int]:
     try:
@@ -192,9 +209,15 @@ DEFAULT_CAMERA_ID = os.getenv("DEFAULT_CAMERA_ID", next(iter(CAMERA_SOURCES), "C
 if DEFAULT_CAMERA_ID not in CAMERA_SOURCES and CAMERA_SOURCES:
     DEFAULT_CAMERA_ID = next(iter(CAMERA_SOURCES))
 
+# Initialize these lazily too
 WEIGHTS_PATH = _resolve_backend_path(os.getenv("WEIGHTS_PATH", "best_model.pt"))
-THRESHOLD    = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
-STRIDE       = int(os.getenv("STRIDE", str(config['model']['stride'])))
+THRESHOLD = 0.0
+STRIDE = 0
+
+def _finalize_config():
+    global THRESHOLD, STRIDE
+    THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
+    STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
 
 JPEG_QUALITY   = 80
 TARGET_FPS     = 25
@@ -226,14 +249,29 @@ REPORTS_DIR.mkdir(exist_ok=True)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_ENABLED = bool(GROQ_API_KEY)
 _groq_client = None
-telegram_notifier = TelegramNotifier.from_settings(config, os.environ)
-fusion_engine = ThreatFusionEngine.from_settings(config)
-weapon_engine = WeaponSignalEngine.from_settings(config, os.environ)
-security_controller = AccessController.from_settings(config, os.environ)
-audit_logger = AuditLogger.from_settings(config, BASE_DIR)
-evidence_ledger = EvidenceLedger.from_settings(config, BASE_DIR)
-audio_analyzer = AudioRiskAnalyzer.from_settings(config)
-face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
+telegram_notifier = None
+fusion_engine = None
+weapon_engine = None
+security_controller = None
+audit_logger = None
+evidence_ledger = None
+audio_analyzer = None
+face_engine = None
+
+def _init_engines():
+    global telegram_notifier, fusion_engine, weapon_engine, security_controller
+    global audit_logger, evidence_ledger, audio_analyzer, face_engine
+    
+    imports = _get_imports()
+    
+    telegram_notifier = imports['TelegramNotifier'].from_settings(config, os.environ)
+    fusion_engine = imports['ThreatFusionEngine'].from_settings(config)
+    weapon_engine = imports['WeaponSignalEngine'].from_settings(config, os.environ)
+    security_controller = imports['AccessController'].from_settings(config, os.environ)
+    audit_logger = imports['AuditLogger'].from_settings(config, BASE_DIR)
+    evidence_ledger = imports['EvidenceLedger'].from_settings(config, BASE_DIR)
+    audio_analyzer = imports['AudioRiskAnalyzer'].from_settings(config)
+    face_engine = imports['FaceIntelEngine'].from_settings(config, os.environ, BASE_DIR)
 CAPTURE_LOOP_ENABLED = _env_flag("AI_SENTINEL_ENABLE_CAPTURE_LOOP", default=True)
 
 if GROQ_ENABLED:
@@ -845,6 +883,7 @@ def _emit_face_audit_events(
 
 
 def capture_loop():
+    import torch
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[System] AI Engine initializing on {device.type.upper()}...")
     
@@ -1027,8 +1066,13 @@ def capture_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _init_config_and_profiles()
+    _finalize_config()
+    _init_engines()
     _init_category_detector()
-    telegram_notifier.start()
+    
+    if telegram_notifier:
+        telegram_notifier.start()
     t = None
     state.running = True
     if CAPTURE_LOOP_ENABLED:
@@ -1040,7 +1084,8 @@ async def lifespan(app: FastAPI):
     state.running = False
     if t:
         t.join(timeout=5)
-    telegram_notifier.stop()
+    if telegram_notifier:
+        telegram_notifier.stop()
 
 app = FastAPI(lifespan=lifespan, title="AI Sentinel Advanced Backend")
 app.add_middleware(
@@ -1522,7 +1567,7 @@ async def system_status():
         "model": {
             "threshold": state.get_threshold(),
             "cooldown": state.get_cooldown(),
-            "device": "cuda" if torch.cuda.is_available() else "cpu",
+            "device": "cuda" if _is_torch_cuda_available() else "cpu",
             "violenceClassIndex": VIOLENCE_CLS,
         },
         "notifications": telegram_notifier.status(),

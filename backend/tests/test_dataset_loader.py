@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-from training.dataset_loader import MultiDatasetLoader
 
 def test_dataset_config_loading():
     """Test that dataset configuration loads correctly."""
@@ -15,6 +14,7 @@ def test_dataset_config_loading():
         with open(config_path, "w") as f:
             f.write("datasets:\n  test:\n    enabled: true\n    weight: 1.0\n")
 
+    from training.dataset_loader import MultiDatasetLoader
     loader = MultiDatasetLoader.from_config(config_path)
     assert len(loader.datasets) > 0, "No datasets loaded"
 

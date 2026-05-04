@@ -1,7 +1,6 @@
 import pytest
 import time
 from unittest.mock import MagicMock, patch
-from backend.inference import ViolenceInferencePipeline
 
 @patch("backend.api.fusion_engine")
 def test_weapon_only_triggers_alert(mock_fusion):
@@ -23,7 +22,7 @@ def test_weapon_only_triggers_alert(mock_fusion):
         "reason": "Weapon detected"
     }
     
-    from backend.api import _generate_alert_payload
+    from api import _generate_alert_payload
     
     payload = _generate_alert_payload(
         alert_id="test-123",
@@ -60,7 +59,7 @@ def test_violence_triggers_alert(mock_fusion):
         "reason": "Violence detected"
     }
     
-    from backend.api import _generate_alert_payload
+    from api import _generate_alert_payload
     
     payload = _generate_alert_payload(
         alert_id="test-456",

@@ -1,10 +1,11 @@
 import time
 import numpy as np
 import pytest
-from inference import ViolenceInferencePipeline, WINDOW_SIZE
+WINDOW_SIZE = 32 # Constant from inference contract
 
 @pytest.fixture
 def pipeline():
+    from inference import ViolenceInferencePipeline
     # Mock pipeline with dummy weights
     import torch
     device = torch.device("cpu")
@@ -31,6 +32,7 @@ def pipeline():
     pipeline._logit_bias = 0.0
     return pipeline
 
+@pytest.mark.integration
 def test_inference_latency_under_500ms(pipeline):
     """Inference should complete within 500ms for real-time performance."""
     dummy_frames = [np.random.randint(0, 255, (160, 160, 3), dtype=np.uint8) for _ in range(WINDOW_SIZE)]
@@ -45,6 +47,7 @@ def test_inference_latency_under_500ms(pipeline):
     
     assert elapsed < 500, f"Inference took {elapsed:.1f}ms, should be under 500ms"
 
+@pytest.mark.integration
 def test_stride_processing_does_not_block(pipeline):
     """Processing should not block the main capture loop."""
     import threading

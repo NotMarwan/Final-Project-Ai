@@ -1,5 +1,4 @@
 import pytest
-import torch
 import tempfile
 import json
 from pathlib import Path
@@ -34,7 +33,9 @@ def test_smoke_training_safety_caps(fake_manifest):
             output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
             assert "[ERROR] Safety cap: epochs must be <= 1" in output
 
+@pytest.mark.integration
 def test_actual_smoke_training_flow(fake_manifest, monkeypatch):
+    import torch
     class MockModel(torch.nn.Module):
         def __init__(self, num_classes=6):
             super().__init__()
@@ -82,6 +83,7 @@ def test_dry_run_writes_no_checkpoint(fake_manifest):
         assert len(run_dirs) == 0
 
 def test_production_weights_protection():
+    import torch
     class MockModel(torch.nn.Module):
         def __init__(self, **kwargs): super().__init__(); self.p = torch.nn.Parameter(torch.randn(1))
         def state_dict(self): return {}

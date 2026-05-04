@@ -1,10 +1,11 @@
 import numpy as np
 import pytest
-import torch
-from models.multi_angle_x3d import MultiAngleX3D
+
+pytestmark = pytest.mark.integration
 
 def create_test_clip(frame_count=32, size=160):
     """Create a dummy video clip."""
+    import torch
     return torch.randn(1, 3, frame_count, size, size)
 
 def rotate_frame_batch(clip: torch.Tensor, angle_deg: float) -> torch.Tensor:
@@ -14,6 +15,8 @@ def rotate_frame_batch(clip: torch.Tensor, angle_deg: float) -> torch.Tensor:
 
 def test_model_handles_eye_level_angle():
     """Model should maintain accuracy at 170cm eye-level angle."""
+    import torch
+    from models.multi_angle_x3d import MultiAngleX3D
     model = MultiAngleX3D(num_classes=2)
     clip = create_test_clip()
     
@@ -27,6 +30,8 @@ def test_model_handles_eye_level_angle():
 
 def test_model_angle_augmentation_training():
     """Model should use angle augmentation during forward pass."""
+    import torch
+    from models.multi_angle_x3d import MultiAngleX3D
     model = MultiAngleX3D(num_classes=2, use_angle_augmentation=True)
     clip = create_test_clip()
     
