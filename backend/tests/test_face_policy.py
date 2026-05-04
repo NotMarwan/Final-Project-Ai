@@ -91,7 +91,22 @@ def _load_api_module():
 class FacePolicyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Backup sys.modules to prevent pollution from stubs
+        cls._original_modules = sys.modules.copy()
         cls.api = _load_api_module()
+        # Initialize engines so that face_engine is available for direct testing
+        if hasattr(cls.api, "_init_engines"):
+            cls.api._init_engines()
+
+    @classmethod
+    def tearDownClass(cls):
+        # Restore sys.modules
+        to_delete = [m for m in sys.modules if m not in cls._original_modules]
+        for m in to_delete:
+            del sys.modules[m]
+        sys.modules.update(cls._original_modules)
+        if hasattr(cls, "_TEST_TEMP_DIR"):
+            cls._TEST_TEMP_DIR.cleanup()
 
     def test_public_face_summary_masks_known_identity_when_policy_off(self):
         raw_summary = {
