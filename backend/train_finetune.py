@@ -10,6 +10,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable, TypeVar
 
 import cv2
 import numpy as np
@@ -36,6 +37,7 @@ WINDOW_SIZE = 32
 FRAME_SIZE = 224
 MEAN = np.array([0.45, 0.45, 0.45], dtype=np.float32)
 STD = np.array([0.225, 0.225, 0.225], dtype=np.float32)
+SampleT = TypeVar("SampleT")
 
 
 @dataclass(frozen=True)
@@ -45,11 +47,63 @@ class VideoSample:
     source: str
 
 
+def cap_samples_balanced(
+    samples: list[SampleT],
+    *,
+    max_samples: int,
+    seed: int,
+    label_getter: Callable[[SampleT], int],
+) -> list[SampleT]:
+    if max_samples <= 0 or len(samples) <= max_samples:
+        return list(samples)
+
+    grouped: dict[int, list[SampleT]] = {}
+    for sample in samples:
+        grouped.setdefault(label_getter(sample), []).append(sample)
+
+    labels = sorted(grouped)
+    rng = random.Random(seed)
+    for label in labels:
+        rng.shuffle(grouped[label])
+
+    base_quota = max_samples // len(labels)
+    selected_counts = {
+        label: min(len(grouped[label]), base_quota)
+        for label in labels
+    }
+    remaining = max_samples - sum(selected_counts.values())
+
+    while remaining > 0:
+        progressed = False
+        for label in labels:
+            if remaining == 0:
+                break
+            available = len(grouped[label]) - selected_counts[label]
+            if available <= 0:
+                continue
+            selected_counts[label] += 1
+            remaining -= 1
+            progressed = True
+        if not progressed:
+            break
+
+    capped: list[SampleT] = []
+    for label in labels:
+        capped.extend(grouped[label][: selected_counts[label]])
+    rng.shuffle(capped)
+    return capped
+
+
 class ManifestSlowFastDataset(Dataset):
-    def __init__(self, manifest_path: Path, split: str, max_samples: int):
+    def __init__(self, manifest_path: Path, split: str, max_samples: int, seed: int):
         self.dataset = ManifestDataset(str(manifest_path), split=split)
         if max_samples > 0:
-            self.dataset.samples = self.dataset.samples[:max_samples]
+            self.dataset.samples = cap_samples_balanced(
+                self.dataset.samples,
+                max_samples=max_samples,
+                seed=seed,
+                label_getter=lambda sample: {"normal": 0, "violence": 1}.get(sample.get("label"), 0),
+            )
 
     def __len__(self) -> int:
         return len(self.dataset)
@@ -351,8 +405,18 @@ def collate_batch(batch: list[tuple[torch.Tensor, torch.Tensor, torch.Tensor]]) 
 def build_datasets(args: argparse.Namespace, cache_dir: Path) -> tuple[Dataset, Dataset, dict[str, object]]:
     if args.manifest:
         manifest_path = Path(args.manifest).resolve()
-        train_dataset = ManifestSlowFastDataset(manifest_path, split="train", max_samples=args.max_train_samples)
-        val_dataset = ManifestSlowFastDataset(manifest_path, split="val", max_samples=args.max_val_samples)
+        train_dataset = ManifestSlowFastDataset(
+            manifest_path,
+            split="train",
+            max_samples=args.max_train_samples,
+            seed=args.seed,
+        )
+        val_dataset = ManifestSlowFastDataset(
+            manifest_path,
+            split="val",
+            max_samples=args.max_val_samples,
+            seed=args.seed,
+        )
         summary = {
             "manifest_path": str(manifest_path),
             "sources": None,
@@ -369,9 +433,19 @@ def build_datasets(args: argparse.Namespace, cache_dir: Path) -> tuple[Dataset, 
 
     train_samples, val_samples = stratified_split(samples, val_ratio=args.val_ratio, seed=args.seed)
     if args.max_train_samples > 0:
-        train_samples = train_samples[: args.max_train_samples]
+        train_samples = cap_samples_balanced(
+            train_samples,
+            max_samples=args.max_train_samples,
+            seed=args.seed,
+            label_getter=lambda sample: sample.label,
+        )
     if args.max_val_samples > 0:
-        val_samples = val_samples[: args.max_val_samples]
+        val_samples = cap_samples_balanced(
+            val_samples,
+            max_samples=args.max_val_samples,
+            seed=args.seed,
+            label_getter=lambda sample: sample.label,
+        )
 
     summary = {
         "manifest_path": None,
