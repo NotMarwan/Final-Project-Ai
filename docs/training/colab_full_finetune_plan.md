@@ -26,9 +26,9 @@
    - Stratified split with validation ratio
    - Comprehensive metrics (accuracy, precision, recall, specificity, F1, balanced accuracy)
    - Best checkpoint selection based on F1 + balanced accuracy
-   - Safety: validates output_dir to prevent overwriting production weights
+   - Safety: requires an explicit `--output-dir` under Drive checkpoints or local `.runlogs/training/`
    - Configurable: epochs, batch size, learning rate, weight decay
-   - Default: 6 epochs, batch size 2, lr=2e-4
+   - Default CLI values: 1 epoch, batch size 2, lr=2e-4 (later stages must be set explicitly)
 
 2. **`backend/tools/train_rwf2000_smoke.py`** - Smoke test only
    - Safety capped at 8 train samples, 1 epoch
@@ -36,7 +36,7 @@
    - Not suitable for full training
 
 ### Recommendation
-Use `backend/train_finetune.py` for full fine-tuning. It has all necessary safety checks and comprehensive metrics.
+Use `backend/train_finetune.py` for staged fine-tuning only when an explicit safe output directory is supplied. It provides the core training loop plus the safety checks needed for Colab runs.
 
 ---
 
@@ -101,7 +101,7 @@ If CUDA Out of Memory occurs:
 
 | Stage | Train Samples | Val Samples | Epochs | Goal | Approval Needed |
 |-------|---------------|-------------|--------|------|---------------|
-| 1 (Sanity) | 32 | 32 | 1 | Verify data loading and training loop | No (after smoke success) |
+| 1 (Sanity) | 32 | 32 | 1 | Verify data loading and training loop | Yes |
 | 2 (Controlled) | 128 | 128 | 1 | Test full pipeline with small subset | Yes |
 | 3 (Full) | 1581 | 395 | 3 | Full fine-tuning | Yes |
 
@@ -230,41 +230,18 @@ Where `<run_id>` = `run_YYYYMMDD_HHMMSS`
 6. **`eval_summary.json`** - Detailed per-class metrics
 
 ### `backend/best_model.pt` Overwrite Prevention
-- `train_finetune.py` outputs to `backend/best_model_finetuned.pt` by default
-- Checkpoint safety validation in `TrainConfig` prevents output to `backend/best_model.pt`
-- All checkpoints go under `/content/drive/MyDrive/AI-Sentinel/checkpoints/full_finetune/`
+- `train_finetune.py` requires an explicit `--output-dir`
+- Output directories inside `backend/` are rejected
+- Allowed output roots are `/content/drive/MyDrive/AI-Sentinel/checkpoints/full_finetune/<run_id>/` and local `.runlogs/training/`
+- `backend/best_model.pt` remains read-only source weights for Colab runs
 
 ### Rollback Plan
 1. **If training fails**: Delete the run directory, no harm done.
 2. **If metrics are worse**: Keep `backend/best_model.pt` unchanged.
-3. **If metrics improve**: 
-   - Copy `best_candidate.pt` to local `backend/best_model_finetuned.pt`
-   - Test locally before promoting
-   - Promotion requires user approval
-
-### Promotion Process (Local Re-import)
-```bash
-# After Colab training, download best checkpoint
-# Then locally:
-cd "C:\Users\PCD\Downloads\Final Project AI Sentinel"
-
-# Backup current production model
-cp backend/best_model.pt backend/best_model.pt.backup
-
-# Test the fine-tuned model
-python -c "
-from backend.inference import ViolenceDetector
-import torch
-model = ViolenceDetector(num_classes=2)
-checkpoint = torch.load('backend/best_model_finetuned.pt', map_location='cpu')
-model.load_state_dict(checkpoint['model_state_dict'])
-print('Fine-tuned model loaded successfully')
-print('Metrics:', checkpoint.get('metrics', {}))
-"
-
-# If satisfied, promote (requires user approval)
-# cp backend/best_model_finetuned.pt backend/best_model.pt
-```
+3. **If metrics improve**:
+   - Keep the candidate checkpoint in its Drive run directory
+   - Review metrics and checkpoint contents manually
+   - Any later promotion into local repo weights requires a separate approved process
 
 ---
 
@@ -273,7 +250,7 @@ print('Metrics:', checkpoint.get('metrics', {}))
 ### New Notebook Created
 - **Path**: `notebooks/colab_full_finetune.ipynb`
 - **Purpose**: Full fine-tuning (separate from probe notebook)
-- **Training disabled by default**: `RUN_FULL_TRAINING = False`
+- **Training disabled by default**: `RUN_STAGE_1_SANITY = False` and `RUN_FULL_TRAINING = False`
 
 ### Cells Structure
 1. Mount Google Drive
@@ -289,12 +266,15 @@ print('Metrics:', checkpoint.get('metrics', {}))
 
 ### Safety Guard
 ```python
+RUN_STAGE_1_SANITY = False  # Set to True only after user approval
 RUN_FULL_TRAINING = False  # Set to True only after user approval
 
-if not RUN_FULL_TRAINING:
+if RUN_STAGE_1_SANITY and RUN_FULL_TRAINING:
+    raise RuntimeError("Choose either Stage 1 sanity or a later approved run, not both.")
+if not RUN_STAGE_1_SANITY and not RUN_FULL_TRAINING:
     raise RuntimeError(
-        "Full training is disabled. "
-        "Set RUN_FULL_TRAINING=True only after user approval."
+        "Training is disabled. "
+        "Set exactly one of RUN_STAGE_1_SANITY=True or RUN_FULL_TRAINING=True only after user approval."
     )
 ```
 
@@ -305,6 +285,7 @@ if not RUN_FULL_TRAINING:
 ### Stage 1: Sanity Check (32/32, 1 epoch)
 ```python
 import os, subprocess, time
+from datetime import datetime
 from pathlib import Path
 
 os.chdir("/content/ai-sentinel")
@@ -312,16 +293,22 @@ os.chdir("/content/ai-sentinel")
 env = os.environ.copy()
 env["PYTHONPATH"] = "backend"
 
+checkpoint_root = Path("/content/drive/MyDrive/AI-Sentinel/checkpoints/full_finetune")
+checkpoint_root.mkdir(parents=True, exist_ok=True)
+run_id = f"stage1_sanity_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+run_output_dir = checkpoint_root / run_id
+
 cmd = [
     "python", "backend/train_finetune.py",
-    "--sources", "/content/drive/MyDrive/violence_data",
+    "--manifest", "/content/drive/MyDrive/AI-Sentinel/manifests/violence_data_manifest.jsonl",
     "--weights", "backend/best_model.pt",
-    "--output", "/content/drive/MyDrive/AI-Sentinel/checkpoints/full_finetune/stage1_sanity/best_candidate.pt",
+    "--output-dir", str(run_output_dir),
+    "--cache-dir", "/content/ai-sentinel/.runlogs/training/cache",
     "--epochs", "1",
     "--batch-size", "2",
     "--lr", "1e-4",
-    "--val-ratio", "0.5",
-    "--max-samples", "64",  # 32 train + 32 val
+    "--max-train-samples", "32",
+    "--max-val-samples", "32",
     "--num-workers", "2",
     "--seed", "42",
 ]
