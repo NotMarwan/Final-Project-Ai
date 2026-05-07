@@ -5,6 +5,7 @@ node_modules/
 
 # Testing
 /coverage
+.pytest_cache/
 
 # Next.js
 /.next/
@@ -23,6 +24,8 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
+!.env.local.example
 
 # Vercel
 .vercel
@@ -31,16 +34,57 @@ node_modules/
 *.tsbuildinfo
 next-env.d.ts
 
-# Backend / AI
+# Backend / AI weights and checkpoints
 *.pt
 *.pth
-*.exe
+*.ckpt
+weights/
+checkpoints/
+
+# Datasets and generated media
+datasets/
+external_eval/
+evidence/
+thumbnails/
+backend/evidence_clips/
+backend/thumbnails/
 *.mp4
-*.pdf
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Archives and local preservation bundles
+local_backups/
+archive/misc_unsorted/
+*.zip
+*.tar
+*.tar.gz
+
+# Project-local heavy/runtime-only artifacts
+.runlogs/
+.data/
+temp_rwf/
+backend/reports/
+backend/cloudflared-windows-amd64.exe
+components/files.zip
+components/files (1).zip
+ai-sentinel-colab-code.zip
+val-20260418T185437Z-3-001.zip
+live_alert_runtime_patch.zip
+
+# Python caches
 __pycache__/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
+
+# Databases and experiment logs
+*.db
+*.sqlite
+wandb/
+runs/
+logs/
 
 # System
 Thumbs.db

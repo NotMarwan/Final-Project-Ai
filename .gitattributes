@@ -1,0 +1,7 @@
+# Git LFS is NOT enabled automatically in this freeze.
+# These are recommendation-only patterns if Git LFS is explicitly approved later:
+# *.pt
+# *.pth
+# *.ckpt
+# *.mp4
+# *.zip

@@ -23,6 +23,11 @@ from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent
 
+try:
+    from .live_alert_decision import LiveAlertDecisionLayer
+except ImportError:
+    from live_alert_decision import LiveAlertDecisionLayer
+
 def _is_torch_cuda_available() -> bool:
     try:
         import torch
@@ -43,6 +48,7 @@ def _get_imports():
         from .face_intel import FaceIntelEngine
         from .notifications import TelegramNotifier
         from .reporting import build_incident_pdf
+        from .live_alert_decision import LiveAlertDecisionLayer
     except ImportError:
         from inference import ViolenceInferencePipeline, VIOLENCE_CLS
         from fusion import ThreatFusionEngine
@@ -54,6 +60,7 @@ def _get_imports():
         from face_intel import FaceIntelEngine
         from notifications import TelegramNotifier
         from reporting import build_incident_pdf
+        from live_alert_decision import LiveAlertDecisionLayer
     return locals()
 
 try:
@@ -376,6 +383,9 @@ class AppState:
         
         self._cooldown_lock = threading.Lock()
         self._cooldown = 60.0  
+
+        self._decision_lock = threading.Lock()
+        self._decision_layer = LiveAlertDecisionLayer()
         
         self.running = False
 
@@ -503,6 +513,26 @@ class AppState:
     def get_face_summary(self) -> Dict[str, object]:
         with self._face_lock:
             return dict(self._face_summary)
+
+    def update_decision_layer(
+        self,
+        calibrated_probability: float,
+        sample_time: Optional[float] = None,
+    ) -> Dict[str, object]:
+        with self._decision_lock:
+            return dict(self._decision_layer.update(calibrated_probability, sample_time=sample_time))
+
+    def reset_decision_layer(self) -> Dict[str, object]:
+        with self._decision_lock:
+            self._decision_layer.reset()
+            return self._decision_layer_status_locked()
+
+    def get_decision_layer_status(self) -> Dict[str, object]:
+        with self._decision_lock:
+            return self._decision_layer_status_locked()
+
+    def _decision_layer_status_locked(self) -> Dict[str, object]:
+        return dict(self._decision_layer.status())
 
 state = AppState()
 
@@ -659,11 +689,27 @@ def _generate_alert_payload(
     face_summary: dict,
     cam_id: str,
     now: float,
-    t0: float
+    t0: float,
+    decision_result: Optional[dict] = None,
 ) -> dict:
     conf = pipeline._last_conf
     model_conf = round(conf * 100, 1)
     raw_model_conf = round(float(getattr(pipeline, "_last_raw_conf", conf)) * 100, 1)
+    calibrated_conf = round(float(getattr(pipeline, "_last_calibrated_conf", conf)) * 100, 1)
+    raw_probability = round(float(getattr(pipeline, "_last_raw_conf", conf)), 4)
+    calibrated_probability = round(float(getattr(pipeline, "_last_calibrated_conf", conf)), 4)
+    model_prediction = bool(pipeline._is_violent)
+    decision_data = dict(decision_result or state.get_decision_layer_status())
+    confirmed_alert = bool(decision_data.get("confirmed_alert", False))
+    alert_state = str(decision_data.get("alert_state", "NORMAL"))
+    confirm_rule = str(decision_data.get("confirm_rule", ""))
+    rolling_history = decision_data.get("rolling_history", [])
+    rolling_window_count = int(decision_data.get("rolling_window_count", 0))
+    cooldown_remaining_seconds = float(decision_data.get("cooldown_remaining_seconds", 0.0))
+    decision_sample_accepted = bool(decision_data.get("decision_sample_accepted", True))
+    ignored_reason = decision_data.get("ignored_reason")
+    last_decision_sample_time = decision_data.get("last_decision_sample_time")
+    min_decision_interval_seconds = float(decision_data.get("min_decision_interval_seconds", 0.5))
 
     severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
     fusion = fusion_engine.assess(
@@ -674,21 +720,25 @@ def _generate_alert_payload(
     )
     severity = fusion["severity"]
     threat_conf = round(max(model_conf, float(fusion["score"])), 1)
+    is_weapon_threat = weapon_score >= weapon_engine.config.independent_alert_threshold
+    visible_violence_alert = confirmed_alert
+    alert_type = "violence" if visible_violence_alert else "weapon"
+    alert_label = "Violence" if visible_violence_alert else "Weapon Detection"
     
-    is_violent = pipeline._is_violent
-    
-    return {
-        "id": alert_id, 
+    # Base payload
+    payload = {
+        "id": alert_id,
         "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
-        "isoTime": datetime.now(timezone.utc).isoformat(), 
+        "isoTime": datetime.now(timezone.utc).isoformat(),
         "confidence": threat_conf,
         "modelConfidence": model_conf,
         "rawModelConfidence": raw_model_conf,
+        "calibratedConfidence": calibrated_conf,
         "threatConfidence": threat_conf,
-        "threatType": "violence" if is_violent else "weapon",
-        "type": ("Violence" if is_violent else "Weapon Detection"), 
+        "threatType": alert_type,
+        "type": alert_label,
         "severity": severity,
-        "cameraId": cam_id, 
+        "cameraId": cam_id,
         "location": str(CAMERA_SOURCES.get(cam_id, cam_id)),
         "fusionScore": fusion["score"],
         "fusionModel": fusion["model"],
@@ -699,7 +749,38 @@ def _generate_alert_payload(
         "fusionReason": fusion["reason"],
         "faceSummary": _public_face_summary(face_summary),
         "alertLatencyMs": round((time.perf_counter() - t0) * 1000, 1),
+        "raw_probability": raw_probability,
+        "calibrated_probability": calibrated_probability,
+        "model_prediction": model_prediction,
+        "alert_state": alert_state,
+        "confirmed_alert": confirmed_alert,
+        "confirm_rule": confirm_rule,
+        "rolling_history": rolling_history,
+        "rolling_window_count": rolling_window_count,
+        "cooldown_remaining_seconds": cooldown_remaining_seconds,
+        "decision_sample_accepted": decision_sample_accepted,
+        "ignored_reason": ignored_reason,
+        "last_decision_sample_time": last_decision_sample_time,
+        "min_decision_interval_seconds": min_decision_interval_seconds,
+        "visible_alert_source": "confirmed_violence" if visible_violence_alert else "weapon",
+        "weapon_alert": bool(is_weapon_threat),
     }
+    
+    payload["alertState"] = alert_state
+    payload["confirmedAlert"] = confirmed_alert
+    payload["confirmRule"] = confirm_rule
+    payload["rollingHistory"] = rolling_history
+    payload["rollingWindowCount"] = rolling_window_count
+    payload["cooldownRemainingSeconds"] = cooldown_remaining_seconds
+    payload["decisionSampleAccepted"] = decision_sample_accepted
+    payload["ignoredReason"] = ignored_reason
+    payload["lastDecisionSampleTime"] = last_decision_sample_time
+    payload["minDecisionIntervalSeconds"] = min_decision_interval_seconds
+    payload["rawProbability"] = raw_probability
+    payload["calibratedProbability"] = calibrated_probability
+    payload["modelPrediction"] = model_prediction
+    
+    return payload
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Core Video Capture & Inference Engine
@@ -760,6 +841,28 @@ def _weapon_signal_from_report(report_text: str) -> Tuple[float, list[str]]:
             if score > best:
                 best = score
     return best, matched
+
+
+def _decision_layer_status_payload() -> Dict[str, object]:
+    status = state.get_decision_layer_status()
+    payload = dict(status)
+    payload["watchThreshold"] = status["watch_threshold"]
+    payload["confirmThreshold"] = status["confirm_threshold"]
+    payload["confirmN"] = status["confirm_n"]
+    payload["confirmM"] = status["confirm_m"]
+    payload["cooldownSeconds"] = status["cooldown_seconds"]
+    payload["alertState"] = status["alert_state"]
+    payload["confirmedAlert"] = status["confirmed_alert"]
+    payload["confirmRule"] = status["confirm_rule"]
+    payload["rollingHistory"] = status["rolling_history"]
+    payload["rollingWindowCount"] = status["rolling_window_count"]
+    payload["cooldownRemainingSeconds"] = status["cooldown_remaining_seconds"]
+    payload["decisionSampleAccepted"] = status["decision_sample_accepted"]
+    payload["ignoredReason"] = status["ignored_reason"]
+    payload["lastDecisionSampleTime"] = status["last_decision_sample_time"]
+    payload["minDecisionIntervalSeconds"] = status["min_decision_interval_seconds"]
+    payload["baseModelThreshold"] = status["base_model_threshold"]
+    return payload
 
 
 def _public_face_summary(face_summary: Dict[str, object]) -> Dict[str, object]:
@@ -901,6 +1004,7 @@ def capture_loop():
     
     pipeline = ViolenceInferencePipeline(WEIGHTS_PATH, device, THRESHOLD, STRIDE)
     state.register_pipeline(pipeline)
+    print("[System] Live Alert Decision Layer ready.")
     
     cap = cv2.VideoCapture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
 
@@ -934,6 +1038,7 @@ def capture_loop():
         if not ret:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             pipeline.reset()
+            state.reset_decision_layer()
             continue
         raw = _ensure_bgr(raw)
 
@@ -964,6 +1069,11 @@ def capture_loop():
         )
         client_face_summary = _public_face_summary(face_summary)
 
+        # Update live alert decision layer with calibrated probability
+        decision_sample_time = time.time()
+        calibrated_prob = float(getattr(pipeline, "_last_calibrated_conf", 0.0))
+        decision_result = state.update_decision_layer(calibrated_prob, sample_time=decision_sample_time)
+
         ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
             state.set_frame(jpg_buf.tobytes())
@@ -971,10 +1081,12 @@ def capture_loop():
         now = time.time()
         current_cooldown = state.get_cooldown()
         
+        is_confirmed_violence = bool(decision_result.get("confirmed_alert", False))
+        
         weapon_threshold = weapon_engine.config.independent_alert_threshold
         is_weapon_threat = weapon_score >= weapon_threshold
         
-        if (pipeline._is_violent or is_weapon_threat) and (now - last_alert_time > current_cooldown):
+        if (is_confirmed_violence or is_weapon_threat) and (now - last_alert_time > current_cooldown):
             last_alert_time = now
             alert_id = f"alert-{int(now * 1000)}"
             
@@ -987,7 +1099,8 @@ def capture_loop():
                 face_summary=face_summary,
                 cam_id=cam_id,
                 now=now,
-                t0=t0
+                t0=t0,
+                decision_result=decision_result,
             )
 
             state.register_alert(alert_payload)
@@ -999,18 +1112,18 @@ def capture_loop():
                 alert_id=alert_id,
                 details={
                     "cameraId": cam_id,
-                    "severity": severity,
-                    "confidence": threat_conf,
-                    "modelConfidence": model_conf,
-                    "rawModelConfidence": raw_model_conf,
-                    "fusionScore": fusion["score"],
-                    "motionScore": fusion["motionScore"],
-                    "weaponScore": fusion["weaponScore"],
+                    "severity": alert_payload.get("severity"),
+                    "confidence": alert_payload.get("confidence"),
+                    "modelConfidence": alert_payload.get("modelConfidence"),
+                    "rawModelConfidence": alert_payload.get("rawModelConfidence"),
+                    "fusionScore": alert_payload.get("fusionScore"),
+                    "motionScore": alert_payload.get("motionScore"),
+                    "weaponScore": alert_payload.get("weaponScore"),
                     "faceTotal": int(face_summary.get("totalFaces", 0)),
                     "faceKnown": int(face_summary.get("recognizedCount", 0)),
                     "faceUnknown": int(face_summary.get("unknownCount", 0)),
                     "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
-                    "alertLatencyMs": alert_payload["alertLatencyMs"],
+                    "alertLatencyMs": alert_payload.get("alertLatencyMs"),
                 },
             )
             _emit_face_audit_events(
@@ -1054,6 +1167,7 @@ def capture_loop():
             pipeline.reset()
             weapon_engine.reset()
             face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
+            state.reset_decision_layer()
             if device.type == "cuda":
                 torch.cuda.empty_cache()
             
@@ -1587,6 +1701,7 @@ async def system_status():
             "device": "cuda" if _is_torch_cuda_available() else "cpu",
             "violenceClassIndex": VIOLENCE_CLS,
         },
+        "decisionLayer": _decision_layer_status_payload(),
         "notifications": telegram_notifier.status(),
         "fusion": {
             "enabled": fusion_engine.config.enabled,
@@ -1606,6 +1721,38 @@ async def system_status():
             "thumbnails": str(THUMBNAILS_DIR),
             "reports": str(REPORTS_DIR),
         },
+    }
+
+
+@app.post("/decision_layer/reset", summary="Reset live alert decision layer state")
+async def reset_decision_layer(request: Request):
+    role = security_controller.authorize(request, required_role="admin")
+    decision_status = state.reset_decision_layer()
+    audit_logger.record(
+        "decision_layer_reset",
+        "success",
+        role=role,
+    )
+    payload = dict(decision_status)
+    payload["watchThreshold"] = decision_status["watch_threshold"]
+    payload["confirmThreshold"] = decision_status["confirm_threshold"]
+    payload["confirmN"] = decision_status["confirm_n"]
+    payload["confirmM"] = decision_status["confirm_m"]
+    payload["cooldownSeconds"] = decision_status["cooldown_seconds"]
+    payload["alertState"] = decision_status["alert_state"]
+    payload["confirmedAlert"] = decision_status["confirmed_alert"]
+    payload["confirmRule"] = decision_status["confirm_rule"]
+    payload["rollingHistory"] = decision_status["rolling_history"]
+    payload["rollingWindowCount"] = decision_status["rolling_window_count"]
+    payload["cooldownRemainingSeconds"] = decision_status["cooldown_remaining_seconds"]
+    payload["decisionSampleAccepted"] = decision_status["decision_sample_accepted"]
+    payload["ignoredReason"] = decision_status["ignored_reason"]
+    payload["lastDecisionSampleTime"] = decision_status["last_decision_sample_time"]
+    payload["minDecisionIntervalSeconds"] = decision_status["min_decision_interval_seconds"]
+    payload["baseModelThreshold"] = decision_status["base_model_threshold"]
+    return {
+        "status": "success",
+        "decisionLayer": payload,
     }
 
 
