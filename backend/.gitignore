@@ -1,0 +1,47 @@
+# Environment variables with secrets (NEVER commit)
+.env
+
+# Config file - may contain sensitive data if accidentally added
+# Even though config.yml may already be tracked, this prevents future commits
+config.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+audit_logs.jsonl
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Evidence and reports (may contain sensitive data)
+evidence_clips/
+thumbnails/
+reports/
+*.jsonl
+
+# Model files (large, should not be in git)
+*.pt
+*.pth
+*.weights
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

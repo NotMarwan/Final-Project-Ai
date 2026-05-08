@@ -306,6 +306,7 @@ class LiveAlertDecisionLayer:
             "last_decision_sample_time": self._last_decision_sample_time,
             "min_decision_interval_seconds": self.min_decision_interval_seconds,
             "cooldown_seconds": self.cooldown_seconds,
+            "base_model_threshold": self.base_model_threshold,
         }
 
     def status(self, current_time: Optional[float] = None) -> Dict[str, Any]:

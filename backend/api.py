@@ -764,6 +764,7 @@ def _generate_alert_payload(
         "min_decision_interval_seconds": min_decision_interval_seconds,
         "visible_alert_source": "confirmed_violence" if visible_violence_alert else "weapon",
         "weapon_alert": bool(is_weapon_threat),
+        "danger_alert": bool(severity in ("high", "critical") and not visible_violence_alert),
     }
     
     payload["alertState"] = alert_state
@@ -861,7 +862,7 @@ def _decision_layer_status_payload() -> Dict[str, object]:
     payload["ignoredReason"] = status["ignored_reason"]
     payload["lastDecisionSampleTime"] = status["last_decision_sample_time"]
     payload["minDecisionIntervalSeconds"] = status["min_decision_interval_seconds"]
-    payload["baseModelThreshold"] = status["base_model_threshold"]
+    payload["baseModelThreshold"] = status.get("base_model_threshold", 0.45)
     return payload
 
 
@@ -1155,7 +1156,13 @@ def capture_loop():
                     snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
                     snapshot_path.write_bytes(snapshot_bytes)
                     state.store_snapshot_path(alert_id, str(snapshot_path))
-                telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
+            
+            # Telegram enqueue must never crash the capture loop
+            try:
+                if telegram_notifier:
+                    telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
+            except Exception as exc:
+                print(f"[Telegram] Enqueue failed (non-critical): {exc}")
 
         pending = state.consume_pending_switch()
         if pending:
@@ -1385,22 +1392,43 @@ async def notifications_status():
 @app.post("/notifications/telegram/test", summary="Send a Telegram test alert")
 async def test_telegram_notification(request: Request):
     role = security_controller.authorize(request, required_role="admin")
-    if not telegram_notifier.config.ready:
-        raise HTTPException(status_code=503, detail="Telegram notifications are not configured")
-
-    test_alert = {
-        "id": f"test-{int(time.time() * 1000)}",
-        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
-        "isoTime": datetime.now(timezone.utc).isoformat(),
-        "confidence": 100.0,
-        "type": "Telegram Test",
-        "severity": "high",
-        "cameraId": state.get_current_camera_id(),
-        "location": "Test channel",
-    }
-    telegram_notifier.enqueue_alert(test_alert, state.get_frame())
-    audit_logger.record("telegram_test", "queued", role=role, alert_id=test_alert["id"], details={"cameraId": test_alert["cameraId"]})
-    return {"status": "queued", "telegram": telegram_notifier.status()}
+    
+    # Check if Telegram is configured
+    configured = telegram_notifier.config.ready
+    
+    if not configured:
+        audit_logger.record("telegram_test", "failed", role=role, details={"reason": "not_configured"})
+        return {
+            "success": False,
+            "provider": "telegram",
+            "configured": False,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "error": "not_configured"
+        }
+    
+    # Send test message using the dedicated method
+    result = telegram_notifier.send_test_message()
+    
+    timestamp = datetime.now(timezone.utc).isoformat()
+    
+    if result.get("success"):
+        audit_logger.record("telegram_test", "sent", role=role, details={"message": "AI-Sentinel Telegram test message"})
+        return {
+            "success": True,
+            "provider": "telegram",
+            "configured": True,
+            "timestamp": timestamp
+        }
+    else:
+        error_msg = result.get("error", "unknown_error")
+        audit_logger.record("telegram_test", "failed", role=role, details={"error": error_msg})
+        return {
+            "success": False,
+            "provider": "telegram",
+            "configured": True,
+            "timestamp": timestamp,
+            "error": error_msg
+        }
 
 
 @app.get("/download_report/{alert_id}", summary="Fetch forensic PDF report")

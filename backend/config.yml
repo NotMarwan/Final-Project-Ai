@@ -16,9 +16,7 @@ fusion:
 
 notifications:
   telegram:
-    enabled: true
-    bot_token: "8635683539:AAEm2pmJW3ABS9DiqxZYjlSdsPswdL5ZY08"
-    chat_id: "965061538"
+    enabled: false
     min_severity: "high"
 
 database:

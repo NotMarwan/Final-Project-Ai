@@ -81,6 +81,105 @@ Actions:
 3. verify the UI is not using `model_prediction`
 4. verify `decision_sample_accepted` is being respected for stale/too-soon duplicate frames
 
+## Telegram Alert Issues
+
+### Telegram Bot Token Empty
+**Symptoms:**
+- `GET /system/status` shows `"telegram": {"configured": false}`
+- No alerts sent
+
+**Solution:**
+1. Verify `TELEGRAM_BOT_TOKEN` is set in `backend/.env`
+2. Check token from @BotFather is correct
+3. Restart backend
+
+### Telegram Chat ID Empty
+**Symptoms:**
+- Configured but messages not received
+- `"telegram": {"configured": true}` but no delivery
+
+**Solution:**
+1. Set `TELEGRAM_CHAT_ID` in `backend/.env`
+2. Get chat ID using @userinfobot or getUpdates method
+3. For groups, ensure bot is added and made admin
+
+### Telegram Request Timed Out
+**Symptoms:**
+- `"lastSendStatus": "error"`
+- `"lastError": "Telegram timeout after 8.0s"`
+
+**Solution:**
+1. Increase `TELEGRAM_TIMEOUT_SECONDS` in `.env` (try 15.0)
+2. Check network connectivity to `api.telegram.org`
+3. Verify no firewall blocking outbound HTTPS
+
+### Bot Blocked by User
+**Symptoms:**
+- `"lastError": "Forbidden: bot was blocked by the user"`
+
+**Solution:**
+1. Unblock the bot in Telegram settings
+2. Start a conversation with the bot before expecting alerts
+
+### Chat Not Found
+**Symptoms:**
+- `"lastError": "Chat not found"`
+
+**Solution:**
+1. Verify `TELEGRAM_CHAT_ID` is correct
+2. For groups: re-add bot to group
+3. Ensure bot has permission to send messages
+
+### Bot Not Member of Chat
+**Symptoms:**
+- `"lastError": "Bot is not a member of the chat"`
+
+**Solution:**
+1. Re-add bot to the group
+2. Make bot an admin (required for some group settings)
+3. Verify chat ID is for the correct group
+
+### Alerts Not Sending (No Errors)
+**Symptoms:**
+- Telegram configured and connected
+- No alerts received for violence events
+
+**Solution:**
+1. Verify `TELEGRAM_ENABLED=true`
+2. Check `confirmed_alert=true` in decision layer
+3. Verify `TELEGRAM_MIN_ALERT_INTERVAL_SECONDS` not too high
+4. Check `TELEGRAM_MIN_SEVERITY` matches alert severity
+5. Violence alerts ONLY sent when `confirmed_alert=true`
+
+### Too Many Requests
+**Symptoms:**
+- `"lastError": "Too many requests: retry after X"`
+
+**Solution:**
+1. Increase `TELEGRAM_MIN_ALERT_INTERVAL_SECONDS` (recommend 60+)
+2. Check for alert flooding in logs
+3. Verify cooldown logic is working
+
+### Token Exposed in Logs/Status
+**Symptoms:**
+- Bot token visible in logs or API responses
+
+**Solution:**
+1. Check `notifications.py` masks token in status responses
+2. Never print token in code or logs
+3. Rotate token if exposed (use @BotFather `/mybots` → Revoke token)
+
+### Verify Telegram Configuration
+```bash
+curl http://localhost:8002/system/status | jq '.notifications'
+```
+
+### Test Telegram Connectivity
+```bash
+curl -X POST http://localhost:8002/notifications/telegram/test \
+  -H "Authorization: Bearer <admin_token>"
+```
+
 ## What To Re-run
 
 - verification notebook:
@@ -89,3 +188,5 @@ Actions:
   - `GET /system/status`
 - decision-layer reset:
   - `POST /decision_layer/reset`
+- Telegram test:
+  - `POST /notifications/telegram/test`
