@@ -4,11 +4,14 @@ import os
 import threading
 import time
 from dataclasses import dataclass
-from typing import Any, Mapping
+from datetime import datetime, timezone
+from typing import Any, Mapping, List
 
 import cv2
 import numpy as np
 import torch
+
+from .detection_schema import DetectionObject, RiskLevel, DetectorSource
 
 
 def _as_bool(raw: Any, default: bool) -> bool:
@@ -43,6 +46,55 @@ def _parse_labels(raw: Any, fallback: tuple[str, ...]) -> tuple[str, ...]:
         labels = [str(item).strip().lower() for item in raw if str(item).strip()]
         return tuple(labels) if labels else fallback
     return fallback
+
+
+def confidence_to_risk_level(confidence: float) -> RiskLevel:
+    """
+    Map a confidence score to a RiskLevel.
+    This is informational only and does NOT affect alert logic.
+    """
+    if confidence >= 0.80:
+        return RiskLevel.CRITICAL
+    elif confidence >= 0.60:
+        return RiskLevel.HIGH
+    elif confidence >= 0.40:
+        return RiskLevel.MEDIUM
+    else:
+        return RiskLevel.LOW
+
+
+def _validate_and_clamp_bbox(
+    bbox: list, frame_width: int, frame_height: int
+) -> tuple[list | None, bool]:
+    """
+    Validate and clamp a bounding box to frame dimensions.
+    Returns (validated_bbox, is_valid).
+    """
+    if not bbox or len(bbox) < 4:
+        return None, False
+
+    try:
+        x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+    except (ValueError, TypeError):
+        return None, False
+
+    # Clamp to frame dimensions
+    x1 = max(0.0, min(x1, frame_width))
+    y1 = max(0.0, min(y1, frame_height))
+    x2 = max(0.0, min(x2, frame_width))
+    y2 = max(0.0, min(y2, frame_height))
+
+    # Ensure x2 >= x1 and y2 >= y1
+    if x2 < x1:
+        x1, x2 = x2, x1
+    if y2 < y1:
+        y1, y2 = y2, y1
+
+    # Skip degenerate boxes
+    if x2 - x1 < 1.0 or y2 - y1 < 1.0:
+        return None, False
+
+    return [x1, y1, x2, y2], True
 
 
 @dataclass(frozen=True)
@@ -104,6 +156,13 @@ class WeaponSignalEngine:
         self._last_load_latency_ms = 0.0
         self._last_inference_at = 0.0
         self._skipped_frames = 0
+        self._detection_counter = 0
+
+        # Cache for raw model outputs (boxes, scores, labels)
+        self._last_boxes: list = []  # Raw bounding boxes from last inference
+        self._last_raw_scores: list = []  # Raw scores from last inference
+        self._last_raw_labels: list = []  # Raw labels from last inference
+        self._last_frame_shape: tuple = ()  # (height, width) of frame used for last inference
 
         if not self.enabled:
             self._status_reason = "disabled-by-config"
@@ -125,6 +184,10 @@ class WeaponSignalEngine:
             self._inference_running = False
             self._last_score = 0.0
             self._last_labels = []
+            self._last_boxes = []
+            self._last_raw_scores = []
+            self._last_raw_labels = []
+            self._last_frame_shape = ()
 
     def latest_signal(self) -> dict[str, Any]:
         with self._lock:
@@ -226,6 +289,7 @@ class WeaponSignalEngine:
 
             scores = output.get("scores")
             labels = output.get("labels")
+            boxes = output.get("boxes")
             if scores is None or labels is None:
                 self._update_score(best=0.0, labels=[])
                 return
@@ -233,6 +297,17 @@ class WeaponSignalEngine:
             scores_list = scores.detach().cpu().tolist()
             labels_list = labels.detach().cpu().tolist()
             weapon_hits: list[tuple[float, str]] = []
+
+            # Cache raw outputs for detect_with_objects()
+            raw_boxes = []
+            if boxes is not None:
+                raw_boxes = boxes.detach().cpu().tolist()
+
+            with self._lock:
+                self._last_boxes = raw_boxes
+                self._last_raw_scores = scores_list
+                self._last_raw_labels = labels_list
+                self._last_frame_shape = frame.shape[:2]  # (height, width)
 
             for score, label_idx in zip(scores_list, labels_list):
                 if float(score) < self.config.min_confidence:
@@ -332,3 +407,99 @@ class WeaponSignalEngine:
                 self._status_reason = f"model-load-failed:{type(exc).__name__}"
             print(f"[Weapon] Detector disabled: {exc}")
             return False
+
+    def detect_with_objects(self, frame: np.ndarray) -> List[DetectionObject]:
+        """
+        Additive method: returns a list of DetectionObject instances with REAL bounding boxes.
+        Does NOT modify existing process_frame() or latest_signal() behavior.
+        Reuses cached inference outputs when available (no duplicate inference).
+        """
+        detections: List[DetectionObject] = []
+
+        try:
+            # If detector is not enabled or not ready, return empty list
+            if not self.enabled or not self._model:
+                return detections
+
+            # Get cached raw outputs (from last inference)
+            with self._lock:
+                cached_boxes = list(self._last_boxes)
+                cached_scores = list(self._last_raw_scores)
+                cached_labels = list(self._last_raw_labels)
+                cached_frame_shape = self._last_frame_shape
+
+            if not cached_scores:
+                return detections
+
+            # Get frame dimensions for normalized bbox computation
+            if frame is not None and len(frame.shape) >= 2:
+                height, width = frame.shape[:2]
+            elif cached_frame_shape:
+                height, width = cached_frame_shape
+            else:
+                return detections
+
+            if width <= 0 or height <= 0:
+                return detections
+
+            # Process each detection from cached outputs
+            for idx, (score, label_idx) in enumerate(zip(cached_scores, cached_labels)):
+                score = float(score)
+
+                # Skip low-confidence detections
+                if score < self.config.min_confidence:
+                    continue
+
+                # Get label name
+                label = self._label_for_index(int(label_idx))
+
+                # Only include weapon labels
+                if not self._is_weapon_label(label):
+                    continue
+
+                # Get bounding box for this detection
+                bbox = None
+                if idx < len(cached_boxes):
+                    raw_bbox = cached_boxes[idx]
+                    bbox, is_valid = _validate_and_clamp_bbox(raw_bbox, width, height)
+                    if not is_valid:
+                        print(f"[Weapon] Skipping malformed box for {label}: {raw_bbox}")
+                        continue
+
+                # Compute normalized bbox
+                normalized_bbox = None
+                if bbox:
+                    x1, y1, x2, y2 = bbox
+                    normalized_bbox = [
+                        round(x1 / width, 6),
+                        round(y1 / height, 6),
+                        round(x2 / width, 6),
+                        round(y2 / height, 6),
+                    ]
+
+                # Generate detection ID
+                self._detection_counter += 1
+                detection_id = f"det_{int(time.time() * 1000)}_{self._detection_counter}"
+
+                # Map confidence to risk level
+                risk_level = confidence_to_risk_level(score)
+
+                detection = DetectionObject(
+                    id=detection_id,
+                    label=label,
+                    class_name=label,
+                    confidence=score,
+                    risk_level=risk_level,
+                    source=DetectorSource.WEAPON_ENGINE,
+                    timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                    bbox=bbox,
+                    normalized_bbox=normalized_bbox,
+                )
+                detections.append(detection)
+
+        except Exception as exc:
+            # Never crash the capture loop
+            print(f"[Weapon] detect_with_objects error: {exc}")
+            return []
+
+        return detections

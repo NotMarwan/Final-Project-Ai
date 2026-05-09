@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { DetectionCategory, CategoryScore } from "@/lib/detection-types"
+import type { DetectionCategory, CategoryScore, DetectionObject } from "@/lib/detection-types"
 
 export interface FaceObservation {
   id: string
@@ -68,6 +68,10 @@ export interface LiveAlert {
   allCategories?: DetectionCategory[]
   threatType?: "violence" | "weapon"
   alertLatencyMs?: number
+  // Weapon detection overlays
+  detections?: DetectionObject[]
+  weapon_detections?: DetectionObject[]
+  danger_detections?: DetectionObject[]
 }
 
 interface VideoPlayerProps {
@@ -89,6 +93,14 @@ const CAMERAS = [
 
 type CameraId = (typeof CAMERAS)[number]["id"]
 
+// Color mapping for risk levels
+const COLOR_MAP: Record<string, string> = {
+  LOW: "yellow",
+  MEDIUM: "yellow",
+  HIGH: "orange",
+  CRITICAL: "red",
+}
+
 export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
   const [activeControl, setActiveControl] = useState<string | null>(null)
@@ -102,6 +114,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
   const [showViolence, setShowViolence] = useState(false)
   const [visibleAlert, setVisibleAlert] = useState<LiveAlert | null>(null)
   const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const videoRef = useRef<HTMLImageElement | null>(null)
 
   useEffect(() => {
     if (activeAlert === null) return
@@ -117,6 +130,54 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
       if (lingerTimerRef.current !== null) clearTimeout(lingerTimerRef.current)
     }
   }, [activeAlert?.id, activeCamId])
+
+  // Get all detections from the alert
+  const allDetections = useMemo(() => {
+    if (!visibleAlert) return []
+    const detections = visibleAlert.detections ?? 
+                      visibleAlert.weapon_detections ?? 
+                      visibleAlert.danger_detections ?? []
+    return detections
+  }, [visibleAlert])
+
+  // Compute overlay positions
+  const detectionOverlays = useMemo(() => {
+    if (!videoRef.current || allDetections.length === 0) return []
+    
+    const videoElement = videoRef.current
+    const videoRect = videoElement.getBoundingClientRect()
+    
+    const videoWidth = videoElement.naturalWidth || videoRect.width
+    const videoHeight = videoElement.naturalHeight || videoRect.height
+    
+    if (videoWidth === 0 || videoHeight === 0) return []
+    
+    const scaleX = videoRect.width / videoWidth
+    const scaleY = videoRect.height / videoHeight
+
+    return allDetections
+      .filter((d): d is DetectionObject => 
+        d != null && 
+        typeof d === 'object' && 
+        Array.isArray(d.bbox) && 
+        d.bbox.length >= 4
+      )
+      .sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))
+      .slice(0, 10)
+      .map((detection) => {
+        const bbox = detection.bbox!
+        const [x1, y1, x2, y2] = bbox
+        return {
+          detection,
+          position: {
+            left: x1 * scaleX,
+            top: y1 * scaleY,
+            width: (x2 - x1) * scaleX,
+            height: (y2 - y1) * scaleY,
+          }
+        }
+      })
+  }, [allDetections, visibleAlert])
 
   const threatConfidence = visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
   const modelConfidence = visibleAlert?.modelConfidence ?? visibleAlert?.confidence ?? 0
@@ -210,7 +271,15 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
         {isSwitching && <div className="absolute inset-0 z-25 flex flex-col items-center justify-center gap-3 bg-black/70 backdrop-blur-sm"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="font-mono text-sm font-semibold text-primary">Connecting to {activeCamId}…</p></div>}
         {streamError && !isSwitching && <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90"><WifiOff className="h-10 w-10 text-muted-foreground/50" /><Button size="sm" onClick={() => { setStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button></div>}
         
-        {!streamError && !isLiveDemoMode && <img key={streamKey} src={streamSrc} className="h-full w-full object-cover" onError={() => setStreamError(true)} />}
+        {!streamError && !isLiveDemoMode && (
+          <img 
+            ref={videoRef}
+            key={streamKey} 
+            src={streamSrc} 
+            className="h-full w-full object-cover" 
+            onError={() => setStreamError(true)} 
+          />
+        )}
 
         {isLiveDemoMode && (
           <iframe
@@ -264,6 +333,29 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
             )}
           </div>
         )}
+
+        {/* ── Detection Overlays ── */}
+        {detectionOverlays.map(({ detection, position }) => (
+          <div
+            key={detection.id}
+            className="pointer-events-none absolute z-20"
+            style={{
+              left: `${position.left}px`,
+              top: `${position.top}px`,
+              width: `${position.width}px`,
+              height: `${position.height}px`,
+              border: `2px solid ${COLOR_MAP[detection.risk_level ?? "LOW"] ?? "yellow"}`,
+              transform: "translateZ(0)",
+            }}
+          >
+            <div
+              className="absolute -top-5 left-0 whitespace-nowrap rounded px-1 py-0.5 font-mono text-[9px] font-bold text-white"
+              style={{ backgroundColor: COLOR_MAP[detection.risk_level ?? "LOW"] ?? "yellow" }}
+            >
+              {detection.label} {Math.round((detection.confidence ?? 0) * 100)}%
+            </div>
+          </div>
+        ))}
 
         <div className="pointer-events-none absolute bottom-10 left-3 z-20 flex items-center gap-2"><span className="font-mono text-[10px] text-white/60">{timestamp}</span><span className="text-[10px] text-white/30">|</span><span className="font-mono text-[10px] text-primary">{cameraId}</span></div>
       </div>

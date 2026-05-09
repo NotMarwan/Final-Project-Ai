@@ -271,6 +271,12 @@ evidence_ledger = None
 audio_analyzer = None
 face_engine = None
 
+# Import detection schema for structured detections
+try:
+    from .detection_schema import DetectionObject, RiskLevel, DetectorSource
+except ImportError:
+    from detection_schema import DetectionObject, RiskLevel, DetectorSource
+
 def _init_engines():
     global telegram_notifier, fusion_engine, weapon_engine, security_controller
     global audit_logger, evidence_ledger, audio_analyzer, face_engine
@@ -691,6 +697,7 @@ def _generate_alert_payload(
     now: float,
     t0: float,
     decision_result: Optional[dict] = None,
+    detections: Optional[List[DetectionObject]] = None,
 ) -> dict:
     conf = pipeline._last_conf
     model_conf = round(conf * 100, 1)
@@ -779,6 +786,24 @@ def _generate_alert_payload(
     payload["rawProbability"] = raw_probability
     payload["calibratedProbability"] = calibrated_probability
     payload["modelPrediction"] = model_prediction
+    
+    # Additive fields for structured detections (Phase 1)
+    # Convert detections to dicts if provided
+    detection_dicts = []
+    if detections:
+        detection_dicts = [d.to_dict() for d in detections]
+    
+    # Filter weapon and danger detections
+    weapon_detections = [d for d in detection_dicts if d.get("source") == "weapon_engine"]
+    danger_detections = [d for d in detection_dicts if d.get("source") in ("manual/demo", "future_model")]
+    
+    # Add new fields to payload (additive only, preserving all existing fields)
+    payload["detections"] = detection_dicts
+    payload["danger_alert"] = False  # Default False for now
+    payload["risk_level"] = "MEDIUM"  # Default risk level
+    payload["detectionCount"] = len(detection_dicts)
+    payload["weapon_detections"] = weapon_detections
+    payload["danger_detections"] = danger_detections
     
     return payload
 
@@ -1059,6 +1084,15 @@ def capture_loop():
         weapon_signal = weapon_engine.process_frame(raw)
         weapon_score = float(weapon_signal.get("score", 0.0))
         previous_raw_frame = raw.copy()
+        
+        # Additive: Call detect_with_objects safely (Phase 1)
+        detections = []
+        try:
+            if weapon_engine and hasattr(weapon_engine, 'detect_with_objects'):
+                detections = weapon_engine.detect_with_objects(raw)
+        except Exception as exc:
+            print(f"[API] detect_with_objects failed: {exc}")
+            detections = []
         face_summary = face_engine.analyze_frame(raw)
         state.store_face_summary(face_summary)
         cam_id = state.get_current_camera_id()
@@ -1101,6 +1135,7 @@ def capture_loop():
                 now=now,
                 t0=t0,
                 decision_result=decision_result,
+                detections=detections,  # Additive: pass detections to payload
             )
 
             state.register_alert(alert_payload)
