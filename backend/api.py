@@ -20,6 +20,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel, Field
+from openai import OpenAI
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -72,8 +73,11 @@ def _camera_source_from_profile(payload: dict) -> Optional[Union[str, int]]:
     rtsp = payload.get("rtsp")
     if isinstance(rtsp, dict):
         high = rtsp.get("high")
-        low = rtsp.get("low")
-        for candidate in (high, low):
+        low  = rtsp.get("low")
+        # Prefer low-quality (stream2/720p) for live inference — 4× fewer
+        # pixels means dramatically lower decode + AI latency.  Fall back
+        # to high only if low is absent.
+        for candidate in (low, high):
             if isinstance(candidate, str) and candidate.strip():
                 return candidate.strip()
 
@@ -234,8 +238,9 @@ class FacePolicyRequest(BaseModel):
 
 class AppState:
     def __init__(self):
-        self._frame_lock = threading.Lock()
-        self._frame_jpg: Optional[bytes] = None
+        # Per-camera frame storage
+        self._frames_lock = threading.Lock()
+        self._frame_jpgs: Dict[str, bytes] = {}
         
         self._aq_lock = threading.Lock()
         self._alert_queues: list[queue.Queue] = []
@@ -254,9 +259,17 @@ class AppState:
         
         self._face_lock = threading.Lock()
         self._face_summary: Dict[str, object] = {}
+
+        # Camera statistics
+        self._cam_stats_lock = threading.Lock()
+        self._camera_heartbeats: Dict[str, float] = {}
+        self._camera_alert_counts: Dict[str, int] = {}
         
-        self._pipeline_lock = threading.Lock()
-        self._pipeline: Optional[ViolenceInferencePipeline] = None
+        # Threshold management and pipeline registry
+        self._threshold_lock = threading.Lock()
+        self._current_threshold = THRESHOLD
+        self._pipelines_lock = threading.Lock()
+        self._pipelines: set[ViolenceInferencePipeline] = set()
         
         self._camera_lock = threading.Lock()
         self._pending_switch: Optional[Tuple[Union[str, int], str]] = None
@@ -267,13 +280,16 @@ class AppState:
         
         self.running = False
 
-    def set_frame(self, jpg: bytes):
-        with self._frame_lock:
-            self._frame_jpg = jpg
+    def set_frame(self, camera_id: str, jpg: bytes):
+        with self._frames_lock:
+            self._frame_jpgs[camera_id] = jpg
+        # Update heartbeat
+        with self._cam_stats_lock:
+            self._camera_heartbeats[camera_id] = time.time()
 
-    def get_frame(self) -> Optional[bytes]:
-        with self._frame_lock:
-            return self._frame_jpg
+    def get_frame(self, camera_id: str) -> Optional[bytes]:
+        with self._frames_lock:
+            return self._frame_jpgs.get(camera_id)
 
     def subscribe(self) -> queue.Queue:
         q = queue.Queue(maxsize=128)
@@ -296,19 +312,24 @@ class AppState:
                     pass
 
     def register_pipeline(self, pipeline: ViolenceInferencePipeline):
-        with self._pipeline_lock:
-            self._pipeline = pipeline
+        # Set pipeline threshold to current global threshold
+        with self._threshold_lock:
+            current = self._current_threshold
+        pipeline.threshold = current
+        with self._pipelines_lock:
+            self._pipelines.add(pipeline)
 
     def set_threshold(self, value: float) -> float:
-        with self._pipeline_lock:
-            if not self._pipeline:
-                raise RuntimeError("Pipeline is not initialized yet.")
-            self._pipeline.threshold = value
-            return value
+        with self._threshold_lock:
+            self._current_threshold = value
+        with self._pipelines_lock:
+            for p in self._pipelines:
+                p.threshold = value
+        return value
 
     def get_threshold(self) -> float:
-        with self._pipeline_lock:
-            return self._pipeline.threshold if self._pipeline else THRESHOLD
+        with self._threshold_lock:
+            return self._current_threshold
 
     def set_cooldown(self, value: float) -> float:
         with self._cooldown_lock:
@@ -343,12 +364,26 @@ class AppState:
         with self._evidence_lock:
             return self._evidence_status.get(alert_id)
 
+    def get_camera_status(self, camera_id: str) -> dict:
+        """Return per-camera status info."""
+        with self._cam_stats_lock:
+            return {
+                "cameraId": camera_id,
+                "lastFrameTimestamp": self._camera_heartbeats.get(camera_id),
+                "alertCount": self._camera_alert_counts.get(camera_id, 0)
+            }
+
     def register_alert(self, payload: dict):
         alert_id = payload.get("id")
         if not alert_id:
             return
         with self._alert_lock:
             self._alerts[alert_id] = dict(payload)
+        # Increment per-camera alert count
+        camera_id = payload.get("cameraId")
+        if camera_id:
+            with self._cam_stats_lock:
+                self._camera_alert_counts[camera_id] = self._camera_alert_counts.get(camera_id, 0) + 1
 
     def get_alert(self, alert_id: str) -> Optional[dict]:
         with self._alert_lock:
@@ -428,7 +463,7 @@ def _write_evidence_clip(alert_id: str, pre_frames: list, post_queue: queue.Queu
         )
         print(f"[Evidence] Error writing clip {alert_id}: {exc}")
 
-def _call_groq_vlm(alert_id: str, frame: np.ndarray):
+def _call_vlm_forensics(alert_id: str, frame: np.ndarray):
     """
     Forensic reporting function using Groq AI (Llama-3.2-Vision).
     """
@@ -442,7 +477,6 @@ def _call_groq_vlm(alert_id: str, frame: np.ndarray):
             if not ok:
                 raise ValueError("Failed to encode image to JPG for Groq")
             
-            import base64
             base64_image = base64.b64encode(jpg_buf.tobytes()).decode("utf-8")
             
             response = _groq_client.chat.completions.create(
@@ -462,13 +496,13 @@ def _call_groq_vlm(alert_id: str, frame: np.ndarray):
                 max_tokens=300,
             )
             report_text = response.choices[0].message.content.strip()
-            print(f"[VLM] Forensic report generated for {alert_id} using Groq (Llama-3.2-Vision)")
+            print(f"[VLM] Forensic report generated for {alert_id} using Groq")
         except Exception as groq_exc:
             last_error = str(groq_exc)
             print(f"[VLM] Groq engine failed: {last_error}")
 
     if report_text is None:
-        report_text = f"[فشل تحليل التقرير الجنائي: {last_error}]"
+        report_text = f"[Forensic analysis failed: {last_error}]"
 
     state.broadcast_alert({
         "type": "VLM_Report", 
@@ -660,42 +694,88 @@ def _is_live_source(source: Union[str, int]) -> bool:
 
 
 def _open_capture(source: Union[str, int]) -> cv2.VideoCapture:
-    """Open a VideoCapture with optimal settings based on source type."""
-    cap = cv2.VideoCapture(source)
-    if _is_live_source(source) and cap.isOpened():
-        # كاميرا حية: تقليل التأخير إلى الحد الأدنى
-        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)        # buffer=1 لأقل latency ممكنة
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)   # Anker C200 تدعم 1080p/720p
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        cap.set(cv2.CAP_PROP_FPS, 30)
-        print(f"[System] Live camera opened: device {source} @ "
-              f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x"
-              f"{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))} "
-              f"{cap.get(cv2.CAP_PROP_FPS):.0f}fps")
+    """Open a VideoCapture with optimal settings based on source type.
+
+    - Integer source  → USB/webcam device (low-latency buffer settings)
+    - rtsp:// string  → IP camera over RTSP (uses FFMPEG backend, zero-latency flags)
+    - Other string    → local video file (no special settings needed)
+    """
+    is_rtsp = isinstance(source, str) and source.lower().startswith("rtsp://")
+
+    if is_rtsp:
+        # Set FFMPEG capture options for minimum latency BEFORE opening.
+        # nobuffer       – skip internal FFMPEG demuxer buffer
+        # rtsp_transport – use TCP (more reliable, avoids UDP reordering/drops)
+        # max_delay=0    – no extra decode delay
+        # analyzeduration/probesize – skip long stream probing on open
+        os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = (
+            "rtsp_transport;tcp|"
+            "fflags;nobuffer|"
+            "flags;low_delay|"
+            "max_delay;0|"
+            "analyzeduration;100000|"
+            "probesize;50000"
+        )
+        cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+        if cap.isOpened():
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS) or 15.0
+            print(f"[System] RTSP camera opened (low-latency): {source} @ {w}x{h} {fps:.0f}fps")
+        else:
+            print(f"[System] WARNING: Could not open RTSP stream: {source}")
+    elif _is_live_source(source):
+        cap = cv2.VideoCapture(source)
+        if cap.isOpened():
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            cap.set(cv2.CAP_PROP_FPS, 30)
+            print(f"[System] USB camera opened: device {source} @ "
+                  f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x"
+                  f"{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))} "
+                  f"{cap.get(cv2.CAP_PROP_FPS):.0f}fps")
+    else:
+        cap = cv2.VideoCapture(source)
+
     return cap
 
 
-def capture_loop():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[System] AI Engine initializing on {device.type.upper()}...")
-    
-    pipeline = ViolenceInferencePipeline(WEIGHTS_PATH, device, THRESHOLD, STRIDE)
-    state.register_pipeline(pipeline)
+def _drain_to_latest(cap: cv2.VideoCapture, max_drain: int = 8) -> Tuple[bool, Optional[np.ndarray]]:
+    """Drain stale RTSP frames and return only the newest one.
 
-    initial_source = CAMERA_SOURCES[DEFAULT_CAMERA_ID]
-    cap = _open_capture(initial_source)
-    current_source = initial_source
+    For live cameras the decoder buffer fills up between AI inference calls.
+    Calling cap.grab() (no decode) in a tight loop drops all queued frames,
+    then cap.retrieve() decodes just the freshest one.  This keeps latency
+    near zero without a background thread (and avoids libavcodec thread-safety
+    issues on Windows).
+    """
+    ret = False
+    for _ in range(max_drain):
+        ret = cap.grab()
+        if not ret:
+            break
+    if not ret:
+        return False, None
+    ret, frame = cap.retrieve()
+    return ret, frame
+
+
+def camera_worker(
+    camera_id: str,
+    source: Union[str, int],
+    device: torch.device,
+    model_weights: str,
+    threshold: float,
+    stride: int
+):
+
+    print(f"[{camera_id}] AI Engine initializing on {device.type.upper()}...")
     
-    def _read_cap_props(c):
-        fps = c.get(cv2.CAP_PROP_FPS) or 25.0
-        return fps, int(c.get(cv2.CAP_PROP_FRAME_WIDTH)), int(c.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        
-    src_fps, width, height = _read_cap_props(cap)
-    ring = deque(maxlen=RING_BUFFER_LEN)
-    active_post_queues = []
-    last_alert_time = 0.0
-    previous_raw_frame: Optional[np.ndarray] = None
-    face_audit_dedupe: Dict[str, float] = {}
+    pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
+    state.register_pipeline(pipeline)
+    local_face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
     state.running = True
     
     ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -705,15 +785,25 @@ def capture_loop():
 
     while state.running:
         t0 = time.perf_counter()
-        
-        ret, raw = cap.read()
+
+        # --- Frame acquisition -------------------------------------------------
+        # For live/RTSP sources drain stale buffered frames first so the AI
+        # always processes the newest frame (eliminates buffer-buildup latency).
+        # For video files use sequential cap.read() to preserve playback order.
+        if _is_rtsp_source(current_source) or _is_live_source(current_source):
+            ret, raw = _drain_to_latest(cap)
+        else:
+            ret, raw = cap.read()
+        # -----------------------------------------------------------------------
+
         if not ret:
-            if _is_live_source(current_source):
-                # كاميرا حية — حاول إعادة الاتصال
+            is_rtsp = isinstance(current_source, str) and current_source.lower().startswith("rtsp://")
+            if _is_live_source(current_source) or _is_rtsp_source(current_source):
+                # Live source (USB webcam or RTSP IP camera) — attempt reconnect
                 _live_reconnect_attempts += 1
                 print(f"[System] Live camera lost. Reconnect attempt {_live_reconnect_attempts}/{_MAX_RECONNECT}...")
                 cap.release()
-                time.sleep(1.0)
+                time.sleep(2.0)
                 cap = _open_capture(current_source)
                 if cap.isOpened():
                     src_fps, width, height = _read_cap_props(cap)
@@ -721,15 +811,15 @@ def capture_loop():
                     print("[System] Live camera reconnected.")
                 elif _live_reconnect_attempts >= _MAX_RECONNECT:
                     print("[System] Live camera unavailable. Waiting...")
-                    time.sleep(3.0)
+                    time.sleep(5.0)
                     _live_reconnect_attempts = 0
             else:
-                # ملف فيديو — أعد من البداية
+                # Video file — loop back to beginning
                 cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 pipeline.reset()
             continue
         
-        _live_reconnect_attempts = 0  # نجح القراءة → أعد العداد
+        _live_reconnect_attempts = 0
 
         still_active = []
         for entry in active_post_queues:
@@ -749,7 +839,7 @@ def capture_loop():
                 try:
                     face_summary, motion_score = ai_future.result()
                     state.store_face_summary(face_summary)
-                    cam_id = state.get_current_camera_id()
+                    cam_id = camera_id
                     _emit_face_audit_events(
                         face_summary=face_summary,
                         camera_id=cam_id,
@@ -827,7 +917,7 @@ def capture_loop():
 
                         if GROQ_ENABLED and pre_frames:
                             threading.Thread(
-                                target=_call_groq_vlm, 
+                                target=_call_vlm_forensics, 
                                 args=(alert_id, pre_frames[-1].copy()), 
                                 daemon=True
                             ).start()
@@ -842,42 +932,18 @@ def capture_loop():
                 except Exception as exc:
                     print(f"[System] AI worker encountered an error: {exc}")
 
-            ai_future = ai_executor.submit(_run_ai_task, pipeline, face_engine, raw.copy(), previous_raw_frame)
+            ai_future = ai_executor.submit(_run_ai_task, pipeline, local_face_engine, raw.copy(), previous_raw_frame)
             previous_raw_frame = raw.copy()
 
         # MJPEG stream uses the raw frame to prevent blocking
         ok, jpg_buf = cv2.imencode(".jpg", raw, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok: 
-            state.set_frame(jpg_buf.tobytes())
+            state.set_frame(camera_id, jpg_buf.tobytes())
 
-        pending = state.consume_pending_switch()
-        if pending:
-            new_source, new_cam_id = pending
-            cap.release()
-            ring.clear()
-            active_post_queues.clear()
-            face_audit_dedupe.clear()
-            _live_reconnect_attempts = 0
-            pipeline.reset()
-            face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
-            if device.type == "cuda":
-                torch.cuda.empty_cache()
-            
-            cap = _open_capture(new_source)
-            current_source = new_source
-            if cap.isOpened(): 
-                src_fps, width, height = _read_cap_props(cap)
-                print(f"[System] Stream focused on {new_cam_id} ({'LIVE' if _is_live_source(new_source) else 'FILE'})")
-            else:
-                print(f"[System] Warning: Failed to open {new_source}. Reverting to default.")
-                cap = _open_capture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
-                current_source = CAMERA_SOURCES[DEFAULT_CAMERA_ID]
-                src_fps, width, height = _read_cap_props(cap)
-                state.request_camera_switch(CAMERA_SOURCES[DEFAULT_CAMERA_ID], DEFAULT_CAMERA_ID)
-                state.consume_pending_switch()
+
 
         time.sleep(max(0, (1.0 / TARGET_FPS) - (time.perf_counter() - t0)))
-        
+
     ai_executor.shutdown(wait=False)
     cap.release()
 
@@ -888,16 +954,34 @@ def capture_loop():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     telegram_notifier.start()
-    t = None
+    threads = []
     state.running = True
     if CAPTURE_LOOP_ENABLED:
-        t = threading.Thread(target=capture_loop, daemon=True)
-        t.start()
+        # Determine active cameras
+        active_ids = []
+        env_active = os.getenv("ACTIVE_CAMERAS")
+        if env_active:
+            active_ids = [cid.strip() for cid in env_active.split(",") if cid.strip()]
+        else:
+            active_ids = list(CAMERA_SOURCES.keys())
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        for cam_id in active_ids:
+            if cam_id not in CAMERA_SOURCES:
+                print(f"[System] Warning: camera '{cam_id}' not in CAMERA_SOURCES, skipping.")
+                continue
+            source = CAMERA_SOURCES[cam_id]
+            t = threading.Thread(
+                target=camera_worker,
+                args=(cam_id, source, device, WEIGHTS_PATH, THRESHOLD, STRIDE),
+                daemon=True
+            )
+            t.start()
+            threads.append(t)
     else:
         print("[System] Capture loop disabled via AI_SENTINEL_ENABLE_CAPTURE_LOOP.")
     yield
     state.running = False
-    if t:
+    for t in threads:
         t.join(timeout=5)
     telegram_notifier.stop()
 
@@ -909,11 +993,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-async def _mjpeg_generator() -> AsyncGenerator[bytes, None]:
+async def _mjpeg_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
     boundary = b"--frame\r\n"
     while True:
-        jpg = state.get_frame()
-        if jpg: 
+        jpg = state.get_frame(camera_id)
+        if jpg:
             yield boundary + b"Content-Type: image/jpeg\r\n\r\n" + jpg + b"\r\n"
         await asyncio.sleep(1 / TARGET_FPS)
 
@@ -936,8 +1020,20 @@ async def _sse_generator(q: queue.Queue) -> AsyncGenerator[bytes, None]:
         state.unsubscribe(q)
 
 @app.get("/video_feed", summary="MJPEG Video Stream")
-async def video_feed():
-    return StreamingResponse(_mjpeg_generator(), media_type="multipart/x-mixed-replace; boundary=frame")
+async def video_feed(camera_id: str = DEFAULT_CAMERA_ID):
+    return StreamingResponse(_mjpeg_generator(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
+
+@app.get("/cameras/status", summary="Camera status list")
+async def cameras_status():
+    """Return status for all configured cameras."""
+    statuses = []
+    for cam_id, source in CAMERA_SOURCES.items():
+        cam_status = state.get_camera_status(cam_id)
+        cam_status["source"] = str(source)
+        last_ts = cam_status.get("lastFrameTimestamp")
+        cam_status["running"] = (time.time() - last_ts) < 5.0 if last_ts is not None else False
+        statuses.append(cam_status)
+    return {"cameras": statuses}
 
 @app.get("/alerts", summary="SSE Event Stream")
 async def alerts():
@@ -964,10 +1060,11 @@ async def test_telegram_notification(request: Request):
         "confidence": 100.0,
         "type": "Telegram Test",
         "severity": "high",
-        "cameraId": state.get_current_camera_id(),
+        "cameraId": DEFAULT_CAMERA_ID,
         "location": "Test channel",
     }
-    telegram_notifier.enqueue_alert(test_alert, state.get_frame())
+    snapshot = state.get_frame(DEFAULT_CAMERA_ID)
+    telegram_notifier.enqueue_alert(test_alert, snapshot)
     audit_logger.record("telegram_test", "queued", role=role, alert_id=test_alert["id"], details={"cameraId": test_alert["cameraId"]})
     return {"status": "queued", "telegram": telegram_notifier.status()}
 
@@ -1021,14 +1118,9 @@ async def download_report(alert_id: str, request: Request):
         filename=f"{alert_id}.pdf",
     )
 
-@app.post("/switch_camera", summary="Change active camera stream")
+@app.post("/switch_camera", summary="Change active camera stream (deprecated)")
 async def switch_camera(body: CameraRequest, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    if body.camera_id not in CAMERA_SOURCES:
-        raise HTTPException(status_code=400, detail="Unknown camera_id")
-    state.request_camera_switch(CAMERA_SOURCES[body.camera_id], body.camera_id)
-    audit_logger.record("switch_camera", "success", role=role, details={"cameraId": body.camera_id})
-    return {"status": "success", "camera_id": body.camera_id}
+    raise HTTPException(status_code=410, detail="This endpoint is deprecated in multi-camera mode. Configure ACTIVE_CAMERAS environment variable to select cameras.")
 
 @app.post("/set_threshold", summary="Update model confidence threshold")
 async def set_threshold(body: ThresholdRequest, request: Request):

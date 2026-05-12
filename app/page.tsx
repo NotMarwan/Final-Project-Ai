@@ -148,33 +148,25 @@ export default function DashboardPage() {
     }
   }, [refreshFacePolicy])
 
-  useEffect(() => {
-    if (!facePolicyFetchedAt) {
-      setFacePolicySyncAgeSec(null)
-      return
-    }
+  // View mode: single camera (CAM-01 or CAM-02) or combined side-by-side
+  type ViewMode = "CAM-01" | "CAM-02" | "COMBINED"
+  const [viewMode, setViewMode] = useState<ViewMode>("CAM-01")
 
-    const updateAge = () => {
-      const parsed = Date.parse(facePolicyFetchedAt)
-      if (Number.isNaN(parsed)) {
-        setFacePolicySyncAgeSec(null)
-        return
-      }
-      const ageSec = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
-      setFacePolicySyncAgeSec(ageSec)
-    }
+  // Alerts filtered for each camera
+  const cam1Alerts = useMemo(() =>
+    alerts.filter(a => a.cameraId === "CAM-01"),
+    [alerts]
+  )
+  const cam2Alerts = useMemo(() =>
+    alerts.filter(a => a.cameraId === "CAM-02"),
+    [alerts]
+  )
 
-    updateAge()
-    const timer = setInterval(updateAge, 1000)
-    return () => clearInterval(timer)
-  }, [facePolicyFetchedAt])
-
-  // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
-  const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
-
-  const handleSelectAlert = useCallback((alert: LiveAlert) => {
-    setSelectedAlert(alert)
-  }, [])
+  // Determine alerts and active alert for video display based on view mode
+  const latestAlertForVideo =
+    viewMode === "COMBINED"
+      ? null // Combined view doesn't show single alert overlay
+      : (viewMode === "CAM-01" ? cam1Alerts[0] : cam2Alerts[0]) ?? null
 
   const handlePrivacyToggle = useCallback((val: boolean) => {
     setPrivacyMode(val)
@@ -217,8 +209,40 @@ export default function DashboardPage() {
         </aside>
 
         {/* المنطقة المركزية: مشغل الفيديو */}
-        <main className="flex-1 overflow-hidden border-r border-border bg-black">
-          <VideoPlayer activeAlert={latestAlertForVideo} privacyMode={privacyMode} />
+        {/* Area for single-camera view with switcher */}
+        <main className="flex-1 overflow-hidden border-r border-border bg-black flex flex-col">
+          {/* Camera switcher bar */}
+          <div className="flex items-center gap-2 border-b border-border bg-card/80 px-4 py-2">
+            <span className="text-xs font-mono text-muted-foreground">View:</span>
+            <button
+              onClick={() => setDisplayCameraId("CAM-01")}
+              className={`px-3 py-1 rounded text-xs font-semibold border transition-colors ${
+                displayCameraId === "CAM-01"
+                  ? "border-red-500/60 bg-red-500/15 text-red-400"
+                  : "border-border bg-secondary text-foreground hover:bg-accent"
+              }`}
+            >
+              CAM-01
+            </button>
+            <button
+              onClick={() => setDisplayCameraId("CAM-02")}
+              className={`px-3 py-1 rounded text-xs font-semibold border transition-colors ${
+                displayCameraId === "CAM-02"
+                  ? "border-red-500/60 bg-red-500/15 text-red-400"
+                  : "border-border bg-secondary text-foreground hover:bg-accent"
+              }`}
+            >
+              CAM-02
+            </button>
+            <span className="ml-auto text-[10px] font-mono text-muted-foreground">
+              Both cameras are actively processing
+            </span>
+          </div>
+
+          {/* Video player */}
+          <div className="flex-1">
+            <VideoPlayer cameraId={displayCameraId} activeAlert={latestAlertForVideo} privacyMode={privacyMode} />
+          </div>
         </main>
 
         {/* شريط جانبي أيمن: تفاصيل الحادث والتحكم (بدون التقرير) */}

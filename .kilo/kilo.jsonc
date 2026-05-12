@@ -1,0 +1,128 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "model": "stepfun/step-3.5-flash:free",
+  "provider": {
+    "stepfun": {
+      "options": {}
+    }
+  },
+  "agent": {
+    "inference-agent": {
+      "mode": "subagent",
+      "description": "Violence detection model specialist — handles X3D-M/Legacy models, frame preprocessing, thresholding, and inference pipeline",
+      "prompt": "You are the Inference Agent for AI Sentinel. Your expertise covers backend/inference.py, ViolenceInferencePipeline, X3D-M/SlowFast models, frame preprocessing (resize, crop, normalize), threshold management, stride-based inference, and the 32-frame buffer window. Answer questions about model behavior, latency, checkpoint loading, and device placement (CUDA/CPU).",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "face-intel-agent": {
+      "mode": "subagent",
+      "description": "Face recognition & privacy specialist — known/unknown detection, registry management, identity masking, audit events",
+      "prompt": "You are the Face Intel Agent for AI Sentinel. Your expertise covers backend/face_intel.py, face detection & recognition, known/unknown tracking, person registry CRUD, identityLabelingEnabled privacy masking, recognition audit cooldown, policy overrides (face_policy_overrides.json), and frontend face display (masking with K-### aliases). Consult the /face/* endpoints and face_summary formatting.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "fusion-agent": {
+      "mode": "subagent",
+      "description": "Threat fusion & multi-modal scoring specialist — combines violence confidence, motion, weapon signals into severity",
+      "prompt": "You are the Fusion Agent for AI Sentinel. Your expertise covers backend/fusion.py and ThreatFusionEngine.assess(), which fuses violence_confidence, motion_score, and weapon_score into a fused severity label and score using configurable weights (violence_weight, motion_weight, weapon_weight). You understand severity thresholds (critical/high/medium/low), weapon_boost logic, and how fusion reduces false positives.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "vlm-agent": {
+      "mode": "subagent",
+      "description": "Groq VLM forensic report specialist — generates English narrative reports from single-frame snapshots",
+      "prompt": "You are the VLM Forensics Agent for AI Sentinel. Your expertise covers the _call_vlm_forensics() thread in backend/api.py, Groq's llama-4-scout-17b-16e-instruct model, base64 JPEG encoding, the forensic prompt (security professional, English, single paragraph), asynchronous report generation, SSE broadcast (type: VLM_Report), and frontend AiReport component consumption via /get_report/{alert_id}.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "video-capture-agent": {
+      "mode": "subagent",
+      "description": "Camera management & frame ingestion specialist — RTSP/USB/file sources, ring buffer, MJPEG/SSE streaming",
+      "prompt": "You are the Video Capture Agent for AI Sentinel. Your expertise covers the capture_loop() in backend/api.py, _open_capture() (RTSP/USB/file sources), _drain_to_latest() for low-latency live sources, OPENCV_FFMPEG_CAPTURE_OPTIONS, RING_BUFFER_LEN (150 pre-alert frames), POST_ALERT_LEN (150 post-alert frames), MJPEG /video_feed endpoint, SSE /alerts streaming, camera switching, reconnect logic for RTSP/USB, and evidence clip compilation.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "audio-agent": {
+      "mode": "subagent",
+      "description": "Distress & acoustic event detection specialist — scream detection, loudness analysis (currently disabled)",
+      "prompt": "You are the Audio Agent for AI Sentinel. Your expertise covers backend/audio.py (AudioRiskAnalyzer), scream detection (scream_threshold), loudness analysis (loudness_threshold), audio WAV base64 decoding, POST /audio/analyze endpoint, and status endpoint. Note: audio.enabled=false by default in config.yml. You understand RMS loudness, spectral features, and how to integrate audio cues into future fusion.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "evidence-agent": {
+      "mode": "subagent",
+      "description": "Evidence DVR, PDF reporting & chain-of-custody specialist — clips, thumbnails, ledger, Arabic-ready PDFs",
+      "prompt": "You are the Evidence Agent for AI Sentinel. Your expertise covers backend/evidence.py (EvidenceLedger), backend/reporting.py (build_incident_pdf), _write_evidence_clip() evidence compilation (mp4v codec), snapshot JPEG thumbnails, storage directories (evidence_clips/, thumbnails/, reports/), append-only JSONL ledger with chain-hash integrity, and endpoints /download_evidence, /download_report, /evidence_chain. You understand Arabic RTL PDF rendering (arabic-reshaper + python-bidi) and chain-of-custody requirements.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "api-endpoints-agent": {
+      "mode": "subagent",
+      "description": "FastAPI backend architecture specialist — REST routes, SSE/MJPEG streams, validation, authz, lifecycle",
+      "prompt": "You are the API Endpoints Agent for AI Sentinel. Your expertise covers the entire backend/api.py file: FastAPI app with lifespan management, CORS middleware, Pydantic request models, SSE /alerts generator, MJPEG /video_feed streaming, route permissions (admin/viewer roles), AccessController authorization, audit logging integration, and all endpoint mappings. You understand the complete REST API surface and can add/modify routes.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "frontend-agent": {
+      "mode": "subagent",
+      "description": "Next.js dashboard & video streaming specialist — components, state, SSE alerts, MJPEG integration",
+      "prompt": "You are the Frontend Agent for AI Sentinel. Your expertise covers the Next.js app (app/page.tsx), Tailwind CSS layout (3-column dashboard), components (AlertFeed, VideoPlayer, AiReport, GeoDashboard, IncidentPanel, DashboardHeader), EventSource SSE connection, MJPEG video rendering, React state management (useState, useCallback, useMemo), face policy polling, and Arabic RTL UI. You understand NEXT_PUBLIC_API_BASE_URL, the alert feed deduplication, and privacy mode.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "notifications-agent": {
+      "mode": "subagent",
+      "description": "Telegram & external alerting specialist — bot integration, queue/retry, test endpoints",
+      "prompt": "You are theNotifications Agent for AI Sentinel. Your expertise covers backend/notifications.py (TelegramNotifier), Telegram Bot API integration (sendPhoto with captions), async queuing/dequeue, min_severity filtering, retry logic, GET /notifications/status and POST /notifications/telegram/test endpoints, and integration with the main alert loop. You understand that Telegram is the only notifier currently implemented.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    },
+    "security-audit-agent": {
+      "mode": "subagent",
+      "description": "Access control & immutable logging specialist — API key auth, role-based routes, audit trail",
+      "prompt": "You are the Security & Audit Agent for AI Sentinel. Your expertise covers backend/security.py (AccessController, AuditLogger), X-API-Key authentication, role-based access control (viewer/operator/admin), audit log JSONL file format (timestamp, event, status, role, alert_id, details), audit event deduplication/cooldown, audit/recent endpoint, security/status endpoint, and evidence ledger chain-of-custody integrity. You understand the complete permission model and forensic logging requirements.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask",
+    "read": "allow",
+    "task": "allow",
+    "webfetch": "ask",
+    "websearch": "ask",
+    "skill": "allow"
+  },
+  "instructions": [
+    "This is the AI Sentinel project — a production-grade real-time violence detection and surveillance platform.",
+    "Always prefer the specialized subagents (inference-agent, face-intel-agent, fusion-agent, vlm-agent, video-capture-agent, audio-agent, evidence-agent, api-endpoints-agent, frontend-agent, notifications-agent, security-audit-agent) for domain-specific questions.",
+    "Read .kilo/agent/*.md for full agent handbooks."
+  ],
+  "experimental": {
+    "codebase_search": true
+  },
+  "snapshot": false
+}

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://kilo.ai/schema/kilo.json",
+  "version": "1.0.0",
+  "project": "AI Sentinel",
+  "description": "Real-time violence detection system with FastAPI backend, Next.js dashboard, face recognition, VLM forensic reports, and evidence management",
+  "agentsPath": ".kilo/agent",
+  "commandsPath": ".kilo/command",
+  "skillsPath": ".kilo/skill",
+  "mcpServers": {},
+  "permissions": {
+    "allowNetwork": true,
+    "allowFileRead": true,
+    "allowFileWrite": true,
+    "allowCodeExecution": true,
+    "allowShell": true
+  },
+  "ui": {
+    "theme": "dark",
+    "showAgentPanel": true
+  },
+  "agents": [
+    {
+      "name": "inference-agent",
+      "description": "Violence detection model specialist — handles X3D-M/Legacy models, frame preprocessing, thresholding, and inference pipeline",
+      "enabled": true
+    },
+    {
+      "name": "face-intel-agent",
+      "description": "Face recognition & privacy specialist — known/unknown detection, registry management, identity masking, audit events",
+      "enabled": true
+    },
+    {
+      "name": "fusion-agent",
+      "description": "Threat fusion & multi-modal scoring specialist — combines violence confidence, motion, weapon signals into severity",
+      "enabled": true
+    },
+    {
+      "name": "vlm-agent",
+      "description": "Groq VLM forensic report specialist — generates English narrative reports from single-frame snapshots",
+      "enabled": true
+    },
+    {
+      "name": "video-capture-agent",
+      "description": "Camera management & frame ingestion specialist — RTSP/USB/file sources, ring buffer, MJPEG/SSE streaming",
+      "enabled": true
+    },
+    {
+      "name": "audio-agent",
+      "description": "Distress & acoustic event detection specialist — scream detection, loudness analysis (currently disabled)",
+      "enabled": true
+    },
+    {
+      "name": "evidence-agent",
+      "description": "Evidence DVR, PDF reporting & chain-of-custody specialist — clips, thumbnails, ledger, Arabic-ready PDFs",
+      "enabled": true
+    },
+    {
+      "name": "api-endpoints-agent",
+      "description": "FastAPI backend architecture specialist — REST routes, SSE/MJPEG streams, validation, authz, lifecycle",
+      "enabled": true
+    },
+    {
+      "name": "frontend-agent",
+      "description": "Next.js dashboard & video streaming specialist — components, state, SSE alerts, MJPEG integration",
+      "enabled": true
+    },
+    {
+      "name": "notifications-agent",
+      "description": "Telegram & external alerting specialist — bot integration, queue/retry, test endpoints",
+      "enabled": true
+    },
+    {
+      "name": "security-audit-agent",
+      "description": "Access control & immutable logging specialist — API key auth, role-based routes, audit trail",
+      "enabled": true
+    }
+  ],
+  "defaultAgent": "api-endpoints-agent",
+  "providers": {
+    "completion": "stepfun",
+    "embedding": "stepfun"
+  }
+}

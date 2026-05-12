@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
+import { useState, useEffect, useRef, useMemo, memo } from "react"
 import {
   Repeat, Timer, Radio, Play, Pause, Maximize2,
   WifiOff, Loader2, Camera,
@@ -59,33 +59,30 @@ export interface LiveAlert {
 }
 
 interface VideoPlayerProps {
+  cameraId: CameraId
   activeAlert: LiveAlert | null
   privacyMode: boolean
 }
 
 const API_BASE        = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
-const VIDEO_FEED_URL  = `${API_BASE}/video_feed`
 const LIVE_DEMO_URL   = process.env.NEXT_PUBLIC_LIVE_DEMO_URL ?? ""
 const OVERLAY_LINGER_MS = 8_000
-const SWITCH_SETTLE_MS = 900
 
 const CAMERAS = [
-  { id: "CAM-01", label: "Sample A",      isLive: false },
-  { id: "CAM-02", label: "Sample B",      isLive: false },
-  { id: "CAM-03", label: "Anker C200",    isLive: true  },
+  { id: "CAM-01", label: "VIGI C340",  isLive: true  },
+  { id: "CAM-02", label: "Sample A",   isLive: false },
+  { id: "CAM-03", label: "Sample B",   isLive: false },
 ] as const
 
 type CameraId = (typeof CAMERAS)[number]["id"]
 
-export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode }: VideoPlayerProps) {
+export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
   const [activeControl, setActiveControl] = useState<string | null>(null)
   const [streamError,   setStreamError]   = useState(false)
   const [streamKey,     setStreamKey]     = useState(0)
 
-  const [activeCamId,  setActiveCamId]  = useState<CameraId>("CAM-03")
-  const [isSwitching,  setIsSwitching]  = useState(false)
-  const [switchError,  setSwitchError]  = useState<string | null>(null)
+
 
   const [showViolence, setShowViolence] = useState(false)
   const [visibleAlert, setVisibleAlert] = useState<LiveAlert | null>(null)
@@ -93,7 +90,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
 
   useEffect(() => {
     if (activeAlert === null) return
-    if (activeAlert.cameraId !== activeCamId) return 
+    if (activeAlert.cameraId !== propCameraId) return 
 
     setShowViolence(true)
     setVisibleAlert(activeAlert)
@@ -104,10 +101,10 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
     return () => {
       if (lingerTimerRef.current !== null) clearTimeout(lingerTimerRef.current)
     }
-  }, [activeAlert?.id, activeCamId])
+  }, [activeAlert?.id, propCameraId])
 
   const confidence = visibleAlert?.confidence ?? 0
-  const cameraId   = visibleAlert?.cameraId   ?? activeCamId
+  const cameraId = visibleAlert?.cameraId ?? propCameraId;
   const timestamp  = visibleAlert?.timestamp  ?? "--:--:-- UTC"
   const faceSummary = visibleAlert?.faceSummary ?? null
 
@@ -128,73 +125,14 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
   const faceUnknownCount = faceSummary?.unknownCount ?? faceUnknownIds.length
   const hasFaceIntelData = Boolean(faceSummary?.enabled && (faceSummary.totalFaces > 0 || faceKnownCount > 0 || faceUnknownCount > 0))
 
-  const handleCameraSwitch = useCallback(async (camId: CameraId) => {
-    if (camId === activeCamId || isSwitching) return
-    setIsSwitching(true)
-    setSwitchError(null)
 
-    try {
-      const res = await fetch(`${API_BASE}/switch_camera`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ camera_id: camId }),
-      })
 
-      if (!res.ok) throw new Error(`Server returned ${res.status}`)
-
-      await new Promise<void>((r) => setTimeout(r, SWITCH_SETTLE_MS))
-      setActiveCamId(camId)
-      setStreamError(false)
-      setStreamKey((k) => k + 1)
-    } catch (err) {
-      setSwitchError("Camera switch failed")
-      setTimeout(() => setSwitchError(null), 4_000)
-    } finally {
-      setIsSwitching(false)
-    }
-  }, [activeCamId, isSwitching])
-
-  const streamSrc = isPlaying ? `${VIDEO_FEED_URL}?k=${streamKey}` : undefined
+  const streamSrc = isPlaying ? `${API_BASE}/video_feed?camera_id=${propCameraId}&k=${streamKey}` : undefined
   const isLiveDemoMode = LIVE_DEMO_URL.trim().length > 0
 
   return (
     <div className="flex h-full flex-col">
-      {/* ── Camera Selector Bar ── */}
-      <div className="flex items-center gap-1.5 border-b border-border bg-card/80 px-3 py-1.5">
-        <Camera className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-        <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Camera</span>
-        {CAMERAS.map((cam) => {
-          const isActive = activeCamId === cam.id
-          return (
-            <button
-              key={cam.id} onClick={() => handleCameraSwitch(cam.id)} disabled={isSwitching}
-              className={cn(
-                "flex items-center gap-1.5 rounded border px-2.5 py-0.5 font-mono text-[11px] font-semibold transition-all duration-200",
-                isActive
-                  ? cam.isLive
-                    ? "border-red-500/60 bg-red-500/15 text-red-400"
-                    : "border-primary/50 bg-primary/15 text-primary"
-                  : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <span className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                isActive
-                  ? cam.isLive ? "bg-red-400 animate-ping" : "bg-primary animate-pulse"
-                  : "bg-muted-foreground/30"
-              )} />
-              {cam.isLive && isActive && (
-                <span className="rounded bg-red-500/20 border border-red-500/40 px-1 py-px text-[9px] font-bold uppercase tracking-wider text-red-400 leading-none">
-                  LIVE
-                </span>
-              )}
-              {cam.label}
-            </button>
-          )
-        })}
-        {isSwitching && <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-primary"><Loader2 className="h-3 w-3 animate-spin" />Connecting…</span>}
-        {switchError && !isSwitching && <span className="ml-auto font-mono text-[10px] text-danger">✗ {switchError}</span>}
-      </div>
+
 
       {/* ── Status Banner ── */}
       <div className={cn("flex items-center gap-2 border-b px-4 py-2 transition-all duration-700", showViolence ? "border-danger/40 bg-danger/10" : "border-border bg-card/60")}>
@@ -203,8 +141,8 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
         ) : (
           <><span className="flex h-2.5 w-2.5 bg-success rounded-full animate-pulse"/><span className="text-sm font-semibold text-success">MONITORING — No Threat Detected</span>
           <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
-            {activeCamId} —{" "}
-            {CAMERAS.find(c => c.id === activeCamId)?.isLive
+             {propCameraId} —{" "}
+             {CAMERAS.find(c => c.id === propCameraId)?.isLive
               ? <span className="text-red-400 font-bold">🔴 LIVE</span>
               : <span>Playback</span>
             }
@@ -215,8 +153,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
       {/* ── Video Area ── */}
       <div className="relative flex-1 overflow-hidden bg-black">
         {privacyMode && <div className="absolute inset-0 z-30 flex items-center justify-center backdrop-blur-2xl"><span className="border border-danger/40 bg-black/60 px-4 py-1.5 font-mono text-sm text-danger">PRIVACY MODE — FEED REDACTED</span></div>}
-        {isSwitching && <div className="absolute inset-0 z-25 flex flex-col items-center justify-center gap-3 bg-black/70 backdrop-blur-sm"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="font-mono text-sm font-semibold text-primary">Connecting to {activeCamId}…</p></div>}
-        {streamError && !isSwitching && <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90"><WifiOff className="h-10 w-10 text-muted-foreground/50" /><Button size="sm" onClick={() => { setStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button></div>}
+        {streamError && <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90"><WifiOff className="h-10 w-10 text-muted-foreground/50" /><Button size="sm" onClick={() => { setStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button></div>}
         
         {!streamError && !isLiveDemoMode && <img key={streamKey} src={streamSrc} className="h-full w-full object-cover" onError={() => setStreamError(true)} />}
 
