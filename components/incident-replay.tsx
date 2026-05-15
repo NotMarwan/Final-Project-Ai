@@ -1,18 +1,20 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  ShieldAlert, 
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  ShieldAlert,
   Zap,
   Volume2,
   VolumeX,
   Maximize2,
   ChevronUp,
   ChevronDown,
-  Info
+  Info,
+  Loader2,
+  WifiOff,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +31,7 @@ interface IncidentReplayProps {
   onClose?: () => void
   className?: string
   autoPlay?: boolean
+  maxDuration?: number
 }
 
 export function IncidentReplay({
@@ -40,16 +43,25 @@ export function IncidentReplay({
   timestamp,
   onClose,
   className,
-  autoPlay = true
+  autoPlay = true,
+  maxDuration,
 }: IncidentReplayProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [isPlaying, setIsPlaying] = useState(autoPlay)
   const [isMuted, setIsMuted] = useState(true)
   const [progress, setProgress] = useState(0)
   const [showOverlay, setShowOverlay] = useState(true)
   const [isLooping, setIsLooping] = useState(true)
+  const [clipStatus, setClipStatus] = useState<"idle" | "loading" | "ready" | "error">("idle")
+  const [retryCount, setRetryCount] = useState(0)
+  const MAX_AUTO_RETRIES = 10
 
-  // Update progress bar
+  const effectiveClipUrl = clipUrl
+    ? retryCount > 0 ? `${clipUrl}?t=${retryCount}` : clipUrl
+    : undefined
+
+  // Update progress bar and enforce maxDuration
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -57,25 +69,57 @@ export function IncidentReplay({
     const handleTimeUpdate = () => {
       const p = (video.currentTime / video.duration) * 100
       setProgress(p || 0)
+      if (maxDuration !== undefined && video.currentTime >= maxDuration) {
+        video.pause()
+        setIsPlaying(false)
+      }
     }
 
     video.addEventListener("timeupdate", handleTimeUpdate)
     return () => video.removeEventListener("timeupdate", handleTimeUpdate)
-  }, [])
+  }, [maxDuration])
 
-  // Handle autoplay and source changes
+  // Reset status when clip URL changes
   useEffect(() => {
-    if (clipUrl && videoRef.current) {
-      videoRef.current.src = clipUrl
-      if (autoPlay) {
-        videoRef.current.play().catch(e => console.warn("[IncidentReplay] Autoplay failed:", e))
-        setIsPlaying(true)
-      }
+    if (!clipUrl) { setClipStatus("idle"); return }
+    setClipStatus("loading")
+    setRetryCount(0)
+    setIsPlaying(false)
+    setProgress(0)
+    return () => { if (retryTimerRef.current) clearTimeout(retryTimerRef.current) }
+  }, [clipUrl])
+
+  // Auto-retry every 2s while clip is generating (up to MAX_AUTO_RETRIES)
+  useEffect(() => {
+    if (clipStatus !== "error" || retryCount >= MAX_AUTO_RETRIES) return
+    retryTimerRef.current = setTimeout(() => {
+      setRetryCount(c => c + 1)
+      setClipStatus("loading")
+    }, 2000)
+    return () => { if (retryTimerRef.current) clearTimeout(retryTimerRef.current) }
+  }, [clipStatus, retryCount])
+
+  const handleVideoLoaded = () => {
+    setClipStatus("ready")
+    if (autoPlay && videoRef.current) {
+      videoRef.current.play().catch(e => console.warn("[IncidentReplay] Autoplay failed:", e))
+      setIsPlaying(true)
     }
-  }, [clipUrl, autoPlay])
+  }
+
+  const handleVideoError = () => {
+    setClipStatus("error")
+    setIsPlaying(false)
+  }
+
+  const handleRetry = () => {
+    if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+    setRetryCount(c => c + 1)
+    setClipStatus("loading")
+  }
 
   const togglePlay = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current || clipStatus !== "ready") return
     if (isPlaying) {
       videoRef.current.pause()
     } else {
@@ -91,7 +135,7 @@ export function IncidentReplay({
   }
 
   const restart = () => {
-    if (!videoRef.current) return
+    if (!videoRef.current || clipStatus !== "ready") return
     videoRef.current.currentTime = 0
     videoRef.current.play()
     setIsPlaying(true)
@@ -105,14 +149,41 @@ export function IncidentReplay({
     )}>
       {/* Video element */}
       <video
+        key={effectiveClipUrl}
         ref={videoRef}
-        className="h-full w-full object-cover"
+        src={effectiveClipUrl}
+        className="h-full w-full object-contain bg-black"
         loop={isLooping}
         muted={isMuted}
         playsInline
         poster={thumbnailUrl}
+        onLoadedMetadata={handleVideoLoaded}
+        onError={handleVideoError}
         onClick={togglePlay}
       />
+
+      {/* Clip generating / retry overlay */}
+      {(clipStatus === "loading" || (clipStatus === "error" && retryCount >= MAX_AUTO_RETRIES)) && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/90">
+          {clipStatus === "loading" ? (
+            <>
+              <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
+              <p className="font-mono text-sm font-semibold text-amber-400">Generating evidence clip…</p>
+              <p className="font-mono text-[11px] text-muted-foreground/60">This can take a few seconds after the alert.</p>
+              {retryCount > 0 && (
+                <p className="font-mono text-[10px] text-muted-foreground/40">Retry {retryCount}/{MAX_AUTO_RETRIES}</p>
+              )}
+            </>
+          ) : (
+            <>
+              <WifiOff className="h-8 w-8 text-muted-foreground/50" />
+              <p className="font-mono text-sm text-muted-foreground">Clip not yet available</p>
+              <p className="font-mono text-[11px] text-muted-foreground/60">The evidence file may still be generating.</p>
+              <Button size="sm" onClick={handleRetry}>Retry</Button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Top Overlay: Threat Info */}
       <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent z-10">
@@ -204,7 +275,7 @@ export function IncidentReplay({
       </div>
 
       {/* Centered Play/Pause Button Animation Overlay */}
-      {!isPlaying && (
+      {!isPlaying && clipStatus === "ready" && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-20 h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20">
             <Play className="text-white h-10 w-10 ml-1 fill-current" />

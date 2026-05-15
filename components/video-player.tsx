@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
+import { useState, useEffect, useRef, useMemo, memo } from "react"
 import {
   Repeat, Timer, Radio, Play, Pause, Maximize2,
   WifiOff, Loader2, Camera,
@@ -71,33 +71,36 @@ export interface LiveAlert {
 }
 
 interface VideoPlayerProps {
+  cameraId: CameraId
   activeAlert: LiveAlert | null
   privacyMode: boolean
 }
 
-const API_BASE        = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
-const VIDEO_FEED_URL  = `${API_BASE}/video_feed`
-const LIVE_DEMO_URL   = process.env.NEXT_PUBLIC_LIVE_DEMO_URL ?? ""
+const API_BASE          = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
+const LIVE_DEMO_URL     = process.env.NEXT_PUBLIC_LIVE_DEMO_URL ?? ""
 const OVERLAY_LINGER_MS = 8_000
-const SWITCH_SETTLE_MS = 900
+const DEMO_LOADING_MS   = 4_000
 
 const CAMERAS = [
-  { id: "CAM-01", label: "CAM-01" },
-  { id: "CAM-02", label: "CAM-02" },
-  { id: "CAM-03", label: "CAM-03" },
+  { id: "CAM-01",     label: "CAM-01",       isLive: true,  isDemo: false },
+  { id: "CAM-02",     label: "CAM-02",       isLive: true,  isDemo: false },
+  { id: "EXAMPLE-01", label: "Fight Clip 1", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-02", label: "Fight Clip 2", isLive: false, isDemo: true  },
 ] as const
 
 type CameraId = (typeof CAMERAS)[number]["id"]
 
-export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode }: VideoPlayerProps) {
+export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
   const [activeControl, setActiveControl] = useState<string | null>(null)
   const [streamError,   setStreamError]   = useState(false)
   const [streamKey,     setStreamKey]     = useState(0)
+  const [demoLoading,   setDemoLoading]   = useState(false)
+  const [demoStreamError, setDemoStreamError] = useState(false)
+  const demoLoadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isDemo = CAMERAS.find(c => c.id === propCameraId)?.isDemo ?? false
 
-  const [activeCamId,  setActiveCamId]  = useState<CameraId>("CAM-01")
-  const [isSwitching,  setIsSwitching]  = useState(false)
-  const [switchError,  setSwitchError]  = useState<string | null>(null)
+
 
   const [showViolence, setShowViolence] = useState(false)
   const [visibleAlert, setVisibleAlert] = useState<LiveAlert | null>(null)
@@ -105,7 +108,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
 
   useEffect(() => {
     if (activeAlert === null) return
-    if (activeAlert.cameraId !== activeCamId) return 
+    if (activeAlert.cameraId !== propCameraId) return 
 
     setShowViolence(true)
     setVisibleAlert(activeAlert)
@@ -116,11 +119,12 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
     return () => {
       if (lingerTimerRef.current !== null) clearTimeout(lingerTimerRef.current)
     }
-  }, [activeAlert?.id, activeCamId])
+  }, [activeAlert?.id, propCameraId])
 
   const threatConfidence = visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
   const modelConfidence = visibleAlert?.modelConfidence ?? visibleAlert?.confidence ?? 0
-  const cameraId   = visibleAlert?.cameraId   ?? activeCamId
+  const confidence = visibleAlert?.confidence ?? 0
+  const cameraId = visibleAlert?.cameraId ?? propCameraId;
   const timestamp  = visibleAlert?.timestamp  ?? "--:--:-- UTC"
   const faceSummary = visibleAlert?.faceSummary ?? null
 
@@ -141,76 +145,103 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
   const faceUnknownCount = faceSummary?.unknownCount ?? faceUnknownIds.length
   const hasFaceIntelData = Boolean(faceSummary?.enabled && (faceSummary.totalFaces > 0 || faceKnownCount > 0 || faceUnknownCount > 0))
 
-  const handleCameraSwitch = useCallback(async (camId: CameraId) => {
-    if (camId === activeCamId || isSwitching) return
-    setIsSwitching(true)
-    setSwitchError(null)
 
-    try {
-      const res = await fetch(`${API_BASE}/switch_camera`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ camera_id: camId }),
-      })
 
-      if (!res.ok) throw new Error(`Server returned ${res.status}`)
+  // When switching to a demo clip, show loading overlay for DEMO_LOADING_MS to let backend worker start
+  useEffect(() => {
+    if (!isDemo) { setDemoLoading(false); return }
+    setDemoLoading(true)
+    setStreamError(false)
+    setDemoStreamError(false)
+    setStreamKey(k => k + 1)
+    if (demoLoadTimerRef.current) clearTimeout(demoLoadTimerRef.current)
+    demoLoadTimerRef.current = setTimeout(() => setDemoLoading(false), DEMO_LOADING_MS)
+    return () => { if (demoLoadTimerRef.current) clearTimeout(demoLoadTimerRef.current) }
+  }, [propCameraId, isDemo])
 
-      await new Promise<void>((r) => setTimeout(r, SWITCH_SETTLE_MS))
-      setActiveCamId(camId)
-      setStreamError(false)
-      setStreamKey((k) => k + 1)
-    } catch (err) {
-      setSwitchError("Camera switch failed")
-      setTimeout(() => setSwitchError(null), 4_000)
-    } finally {
-      setIsSwitching(false)
-    }
-  }, [activeCamId, isSwitching])
-
-  const streamSrc = isPlaying ? `${VIDEO_FEED_URL}?k=${streamKey}` : undefined
+  const streamSrc = isPlaying ? `${API_BASE}/video_feed?camera_id=${propCameraId}&k=${streamKey}` : undefined
+  // For demo clips: use MJPEG stream (same as live cameras) — AVI files cannot be played natively in Chrome.
+  // Backend analysis is unaffected; only the visual playback source changes.
+  const demoMjpegSrc = isDemo && !demoLoading ? `${API_BASE}/video_feed?camera_id=${propCameraId}&k=${streamKey}` : undefined
   const isLiveDemoMode = LIVE_DEMO_URL.trim().length > 0
 
   return (
     <div className="flex h-full flex-col">
-      {/* ── Camera Selector Bar ── */}
-      <div className="flex items-center gap-1.5 border-b border-border bg-card/80 px-3 py-1.5">
-        <Camera className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-        <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Camera</span>
-        {CAMERAS.map((cam) => {
-          const isActive = activeCamId === cam.id
-          return (
-            <button
-              key={cam.id} onClick={() => handleCameraSwitch(cam.id)} disabled={isSwitching}
-              className={cn(
-                "flex items-center gap-1.5 rounded border px-2.5 py-0.5 font-mono text-[11px] font-semibold transition-all duration-200",
-                isActive ? "border-primary/50 bg-primary/15 text-primary" : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <span className={cn("h-1.5 w-1.5 rounded-full", isActive ? "bg-primary animate-pulse" : "bg-muted-foreground/30")} />
-              {cam.label}
-            </button>
-          )
-        })}
-        {isSwitching && <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-primary"><Loader2 className="h-3 w-3 animate-spin" />Connecting…</span>}
-        {switchError && !isSwitching && <span className="ml-auto font-mono text-[10px] text-danger">✗ {switchError}</span>}
-      </div>
+
 
       {/* ── Status Banner ── */}
       <div className={cn("flex items-center gap-2 border-b px-4 py-2 transition-all duration-700", showViolence ? "border-danger/40 bg-danger/10" : "border-border bg-card/60")}>
         {showViolence ? (
           <><span className="flex h-2.5 w-2.5 bg-danger rounded-full animate-ping"/><span className="text-sm font-bold text-danger">⚠ VIOLENCE DETECTED — THREAT {threatConfidence.toFixed(1)}% | MODEL {modelConfidence.toFixed(1)}%</span></>
         ) : (
-          <><span className="flex h-2.5 w-2.5 bg-success rounded-full animate-pulse"/><span className="text-sm font-semibold text-success">MONITORING — No Threat Detected</span><span className="ml-auto font-mono text-[10px] text-muted-foreground">{activeCamId} — Live Feed</span></>
+          <><span className="flex h-2.5 w-2.5 bg-success rounded-full animate-pulse"/><span className="text-sm font-semibold text-success">MONITORING — No Threat Detected</span>
+          <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+             {propCameraId} —{" "}
+             {CAMERAS.find(c => c.id === propCameraId)?.isLive
+              ? <span className="text-red-400 font-bold">🔴 LIVE</span>
+              : CAMERAS.find(c => c.id === propCameraId)?.isDemo
+              ? <span className="text-amber-400 font-bold">🎬 DEMO</span>
+              : <span>Playback</span>
+            }
+          </span></>
         )}
       </div>
 
       {/* ── Video Area ── */}
       <div className="relative flex-1 overflow-hidden bg-black">
         {privacyMode && <div className="absolute inset-0 z-30 flex items-center justify-center backdrop-blur-2xl"><span className="border border-danger/40 bg-black/60 px-4 py-1.5 font-mono text-sm text-danger">PRIVACY MODE — FEED REDACTED</span></div>}
-        {isSwitching && <div className="absolute inset-0 z-25 flex flex-col items-center justify-center gap-3 bg-black/70 backdrop-blur-sm"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="font-mono text-sm font-semibold text-primary">Connecting to {activeCamId}…</p></div>}
-        {streamError && !isSwitching && <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90"><WifiOff className="h-10 w-10 text-muted-foreground/50" /><Button size="sm" onClick={() => { setStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button></div>}
-        
-        {!streamError && !isLiveDemoMode && <img key={streamKey} src={streamSrc} className="h-full w-full object-cover" onError={() => setStreamError(true)} />}
+
+        {/* Demo loading overlay — shown while backend worker is starting */}
+        {isDemo && demoLoading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-black/90">
+            <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
+            <p className="font-mono text-sm font-semibold text-amber-400">Starting demo analysis…</p>
+            <p className="font-mono text-[11px] text-muted-foreground/60">Loading AI model and clip</p>
+          </div>
+        )}
+
+        {/* Live camera offline state */}
+        {streamError && !isDemo && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90">
+            <WifiOff className="h-10 w-10 text-muted-foreground/50" />
+            {CAMERAS.find(c => c.id === propCameraId)?.isLive ? (
+              <>
+                <p className="font-mono text-sm font-semibold text-muted-foreground">No live camera connected</p>
+                <p className="font-mono text-[11px] text-muted-foreground/60">Connect {propCameraId} to begin live monitoring</p>
+              </>
+            ) : (
+              <p className="font-mono text-sm text-muted-foreground">Stream unavailable</p>
+            )}
+            <Button size="sm" onClick={() => { setStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button>
+          </div>
+        )}
+
+        {/* Demo stream error state */}
+        {isDemo && demoStreamError && !demoLoading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90">
+            <WifiOff className="h-10 w-10 text-amber-400/70" />
+            <p className="font-mono text-sm font-semibold text-amber-400">Demo stream unavailable</p>
+            <p className="font-mono text-[11px] text-muted-foreground/60">Backend worker may still be starting</p>
+            <Button size="sm" onClick={() => { setDemoStreamError(false); setStreamKey((k) => k + 1) }}>Retry</Button>
+          </div>
+        )}
+
+        {/* Demo clip: MJPEG stream via <img> — AVI files are not natively playable in Chrome.
+            The MJPEG feed is served by the same backend worker started via /demo_start/{id}.
+            Backend AI analysis and alert routing are completely unchanged. */}
+        {isDemo && !isLiveDemoMode && demoMjpegSrc && !demoStreamError && (
+          <img
+            key={demoMjpegSrc}
+            src={demoMjpegSrc}
+            className="h-full w-full object-contain"
+            onError={() => setDemoStreamError(true)}
+          />
+        )}
+
+        {/* Live camera: MJPEG stream via img tag */}
+        {!isDemo && !streamError && !isLiveDemoMode && (
+          <img key={streamKey} src={streamSrc} className="h-full w-full object-cover" onError={() => setStreamError(true)} />
+        )}
 
         {isLiveDemoMode && (
           <iframe
@@ -224,7 +255,7 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
 
         {showViolence && <div className="pointer-events-none absolute inset-0 z-10 border-[3px] border-danger animate-[pulse_1.2s_ease-in-out_infinite]" style={{ boxShadow: "inset 0 0 40px rgba(239,68,68,0.25)" }} />}
         <div className={cn("pointer-events-none absolute inset-0 z-10 transition-opacity duration-700", showViolence ? "opacity-60" : "opacity-20")} style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px)" }} />
-        
+
         {showViolence && (
           <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center pt-6">
             <div className="flex items-center gap-3 rounded-lg border border-danger/50 bg-black/70 px-6 py-3 backdrop-blur-sm">
@@ -236,34 +267,6 @@ export const VideoPlayer = memo(function VideoPlayer({ activeAlert, privacyMode 
         {showViolence && visibleAlert && <div className="pointer-events-none absolute left-3 top-3 z-20"><Badge className="h-5 border-danger/40 bg-danger/20 text-danger">{visibleAlert.severity}</Badge></div>}
         {isLiveDemoMode && <div className="pointer-events-none absolute left-3 top-3 z-20"><Badge className="h-5 border-primary/40 bg-primary/20 text-primary">LIVE DEMO</Badge></div>}
         <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5"><span className={cn("h-2 w-2 rounded-full", showViolence ? "animate-ping bg-danger" : "animate-pulse bg-danger")} /><span className="font-mono text-[10px] font-bold text-danger">REC</span></div>
-        {showViolence && hasFaceIntelData && (
-          <div className="pointer-events-none absolute bottom-14 left-3 z-20 max-w-[80%] rounded-md border border-primary/30 bg-black/70 px-2.5 py-2 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-1.5">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">Face Intel</span>
-              <span className="text-[10px] text-white/40">|</span>
-              <span className="font-mono text-[10px] text-white/70">Known: {faceKnownCount}</span>
-              <span className="font-mono text-[10px] text-white/70">Unknown: {faceUnknownCount}</span>
-            </div>
-            {faceKnownLabels.length > 0 && (
-              <div className="mb-1 flex flex-wrap gap-1">
-                {faceKnownLabels.slice(0, 4).map((label) => (
-                  <span key={label} className="rounded border border-success/30 bg-success/15 px-1.5 py-0.5 font-mono text-[10px] text-success">
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
-            {faceUnknownIds.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {faceUnknownIds.slice(0, 6).map((id) => (
-                  <span key={id} className="rounded border border-warning/30 bg-warning/15 px-1.5 py-0.5 font-mono text-[10px] text-warning">
-                    {id}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="pointer-events-none absolute bottom-10 left-3 z-20 flex items-center gap-2"><span className="font-mono text-[10px] text-white/60">{timestamp}</span><span className="text-[10px] text-white/30">|</span><span className="font-mono text-[10px] text-primary">{cameraId}</span></div>
       </div>

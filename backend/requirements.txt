@@ -10,3 +10,5 @@ groq
 reportlab
 arabic-reshaper
 python-bidi
+google-genai
+openai>=1.0.0

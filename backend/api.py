@@ -5,6 +5,7 @@ import time
 import threading
 import queue
 import base64
+import re
 import yaml
 from dotenv import load_dotenv
 from collections import deque
@@ -20,6 +21,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel, Field
+from openai import OpenAI
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -94,7 +96,7 @@ def _init_category_detector():
 # 1. Configuration & Environment Setup
 # ─────────────────────────────────────────────────────────────────────────────
 
-load_dotenv()
+load_dotenv(override=True)
 
 with open(BASE_DIR / "config.yml", "r") as f:
     config = yaml.safe_load(f)
@@ -158,8 +160,11 @@ def _camera_source_from_profile(payload: dict) -> Optional[Union[str, int]]:
     rtsp = payload.get("rtsp")
     if isinstance(rtsp, dict):
         high = rtsp.get("high")
-        low = rtsp.get("low")
-        for candidate in (high, low):
+        low  = rtsp.get("low")
+        # Prefer low-quality (stream2/720p) for live inference — 4× fewer
+        # pixels means dramatically lower decode + AI latency.  Fall back
+        # to high only if low is absent.
+        for candidate in (low, high):
             if isinstance(candidate, str) and candidate.strip():
                 return candidate.strip()
 
@@ -207,11 +212,11 @@ def _default_camera_sources() -> Dict[str, Union[str, int]]:
 
 def _load_camera_sources() -> Dict[str, Union[str, int]]:
     profile_path = _resolve_profiles_path()
-    profile_sources = _load_profile_camera_sources(profile_path)
-    if profile_sources:
-        print(f"[System] Loaded {len(profile_sources)} camera(s) from {profile_path}")
+    if profile_path.exists():
+        profile_sources = _load_profile_camera_sources(profile_path)
+        print(f"[System] Profile found at {profile_path}. Active cameras: {len(profile_sources)}")
         return profile_sources
-    print("[System] Using CAMERA_SOURCES from environment/default values.")
+    print("[System] No camera_profiles.yml found. Using environment/default sources.")
     return _default_camera_sources()
 
 
@@ -219,6 +224,16 @@ CAMERA_SOURCES: Dict[str, Union[str, int]] = _load_camera_sources()
 DEFAULT_CAMERA_ID = os.getenv("DEFAULT_CAMERA_ID", next(iter(CAMERA_SOURCES), "CAM-01"))
 if DEFAULT_CAMERA_ID not in CAMERA_SOURCES and CAMERA_SOURCES:
     DEFAULT_CAMERA_ID = next(iter(CAMERA_SOURCES))
+
+# Demo/example clips — NOT auto-started at boot; only analyzed when user selects them
+def _load_example_sources() -> Dict[str, str]:
+    _project_root = BASE_DIR.parent
+    return {
+        "EXAMPLE-01": str(_project_root / "Wq0BuA8GM84_0.avi"),
+        "EXAMPLE-02": str(_project_root / "YDOJvzChqSg_0 (1).avi"),
+    }
+
+EXAMPLE_SOURCES: Dict[str, str] = _load_example_sources()
 
 # Initialize these lazily too
 WEIGHTS_PATH = _resolve_backend_path(os.getenv("WEIGHTS_PATH", "best_model.pt"))
@@ -257,6 +272,13 @@ THUMBNAILS_DIR.mkdir(exist_ok=True)
 
 REPORTS_DIR = _resolve_storage_path(config['storage'].get('reports_dir', "./reports"))
 REPORTS_DIR.mkdir(exist_ok=True)
+
+try:
+    from .openrouter_reporting import DeepSeekReportService
+except ImportError:
+    from openrouter_reporting import DeepSeekReportService
+
+deepseek_service = DeepSeekReportService(cache_dir=REPORTS_DIR)
 
 # ── Groq Vision-Language Model Setup ──
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
@@ -353,8 +375,9 @@ class AnalyzeRequest(BaseModel):
 
 class AppState:
     def __init__(self):
-        self._frame_lock = threading.Lock()
-        self._frame_jpg: Optional[bytes] = None
+        # Per-camera frame storage
+        self._frames_lock = threading.Lock()
+        self._frame_jpgs: Dict[str, bytes] = {}
         
         self._aq_lock = threading.Lock()
         self._alert_queues: list[queue.Queue] = []
@@ -373,9 +396,17 @@ class AppState:
         
         self._face_lock = threading.Lock()
         self._face_summary: Dict[str, object] = {}
+
+        # Camera statistics
+        self._cam_stats_lock = threading.Lock()
+        self._camera_heartbeats: Dict[str, float] = {}
+        self._camera_alert_counts: Dict[str, int] = {}
         
-        self._pipeline_lock = threading.Lock()
-        self._pipeline: Optional[ViolenceInferencePipeline] = None
+        # Threshold management and pipeline registry
+        self._threshold_lock = threading.Lock()
+        self._current_threshold = THRESHOLD
+        self._pipelines_lock = threading.Lock()
+        self._pipelines: set[ViolenceInferencePipeline] = set()
         
         self._camera_lock = threading.Lock()
         self._pending_switch: Optional[Tuple[Union[str, int], str]] = None
@@ -386,16 +417,23 @@ class AppState:
 
         self._decision_lock = threading.Lock()
         self._decision_layer = LiveAlertDecisionLayer()
-        
+
+        # Per-worker stop events for on-demand (example/demo) camera workers
+        self._worker_stop_lock = threading.Lock()
+        self._worker_stop_events: Dict[str, threading.Event] = {}
+
         self.running = False
 
-    def set_frame(self, jpg: bytes):
-        with self._frame_lock:
-            self._frame_jpg = jpg
+    def set_frame(self, camera_id: str, jpg: bytes):
+        with self._frames_lock:
+            self._frame_jpgs[camera_id] = jpg
+        # Update heartbeat
+        with self._cam_stats_lock:
+            self._camera_heartbeats[camera_id] = time.time()
 
-    def get_frame(self) -> Optional[bytes]:
-        with self._frame_lock:
-            return self._frame_jpg
+    def get_frame(self, camera_id: str) -> Optional[bytes]:
+        with self._frames_lock:
+            return self._frame_jpgs.get(camera_id)
 
     def subscribe(self) -> queue.Queue:
         q = queue.Queue(maxsize=128)
@@ -418,19 +456,24 @@ class AppState:
                     pass
 
     def register_pipeline(self, pipeline: ViolenceInferencePipeline):
-        with self._pipeline_lock:
-            self._pipeline = pipeline
+        # Set pipeline threshold to current global threshold
+        with self._threshold_lock:
+            current = self._current_threshold
+        pipeline.threshold = current
+        with self._pipelines_lock:
+            self._pipelines.add(pipeline)
 
     def set_threshold(self, value: float) -> float:
-        with self._pipeline_lock:
-            if not self._pipeline:
-                raise RuntimeError("Pipeline is not initialized yet.")
-            self._pipeline.threshold = value
-            return value
+        with self._threshold_lock:
+            self._current_threshold = value
+        with self._pipelines_lock:
+            for p in self._pipelines:
+                p.threshold = value
+        return value
 
     def get_threshold(self) -> float:
-        with self._pipeline_lock:
-            return self._pipeline.threshold if self._pipeline else THRESHOLD
+        with self._threshold_lock:
+            return self._current_threshold
 
     def set_cooldown(self, value: float) -> float:
         with self._cooldown_lock:
@@ -465,17 +508,35 @@ class AppState:
         with self._evidence_lock:
             return self._evidence_status.get(alert_id)
 
+    def get_camera_status(self, camera_id: str) -> dict:
+        """Return per-camera status info."""
+        with self._cam_stats_lock:
+            return {
+                "cameraId": camera_id,
+                "lastFrameTimestamp": self._camera_heartbeats.get(camera_id),
+                "alertCount": self._camera_alert_counts.get(camera_id, 0)
+            }
+
     def register_alert(self, payload: dict):
         alert_id = payload.get("id")
         if not alert_id:
             return
         with self._alert_lock:
             self._alerts[alert_id] = dict(payload)
+        # Increment per-camera alert count
+        camera_id = payload.get("cameraId")
+        if camera_id:
+            with self._cam_stats_lock:
+                self._camera_alert_counts[camera_id] = self._camera_alert_counts.get(camera_id, 0) + 1
 
     def get_alert(self, alert_id: str) -> Optional[dict]:
         with self._alert_lock:
             alert = self._alerts.get(alert_id)
             return dict(alert) if alert else None
+
+    def get_all_alerts(self) -> list:
+        with self._alert_lock:
+            return [dict(a) for a in self._alerts.values()]
 
     def update_alert(self, alert_id: str, updates: Dict[str, object]) -> Optional[dict]:
         if not alert_id:
@@ -534,6 +595,29 @@ class AppState:
     def _decision_layer_status_locked(self) -> Dict[str, object]:
         return dict(self._decision_layer.status())
 
+    def create_worker_stop_event(self, camera_id: str) -> threading.Event:
+        ev = threading.Event()
+        with self._worker_stop_lock:
+            # Stop any existing event for this camera_id before replacing
+            old = self._worker_stop_events.get(camera_id)
+            if old:
+                old.set()
+            self._worker_stop_events[camera_id] = ev
+        return ev
+
+    def stop_worker(self, camera_id: str) -> bool:
+        with self._worker_stop_lock:
+            ev = self._worker_stop_events.pop(camera_id, None)
+        if ev:
+            ev.set()
+            return True
+        return False
+
+    def is_demo_worker_running(self, camera_id: str) -> bool:
+        with self._worker_stop_lock:
+            ev = self._worker_stop_events.get(camera_id)
+        return ev is not None and not ev.is_set()
+
 state = AppState()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -582,16 +666,25 @@ def _write_evidence_clip(alert_id: str, pre_frames: list, post_queue: queue.Queu
         )
         print(f"[Evidence] Error writing clip {alert_id}: {exc}")
 
-def _call_groq_vlm(alert_id: str, frame: np.ndarray):
+def _call_vlm_forensics(alert_id: str, frame: np.ndarray):
+    """
+    Forensic reporting function using Groq AI (Llama-4 Scout).
+    Generates Arabic incident description for the given frame.
+    """
     global _groq_client
+    report_text = None
+    last_error = ""
+
     if not GROQ_ENABLED or not _groq_client:
         report_text = "[Forensic module offline. Ensure API key is configured and Groq is installed.]"
     else:
         try:
             ok, jpg_buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-            base64_image = base64.b64encode(jpg_buf).decode('utf-8')
-            
-            completion = _groq_client.chat.completions.create(
+            if not ok:
+                raise ValueError("JPEG encoding failed")
+            base64_image = base64.b64encode(jpg_buf).decode("utf-8")
+
+            response = _groq_client.chat.completions.create(
                 model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {
@@ -613,62 +706,18 @@ def _call_groq_vlm(alert_id: str, frame: np.ndarray):
                 max_tokens=256,
                 temperature=0.5,
             )
-            report_text = completion.choices[0].message.content.strip()
-            print(f"[VLM] Forensic report generated for {alert_id}")
-        except Exception as exc:
-            report_text = f"[Forensic analysis failed due to network or API error: {exc}]"
-            print(f"[VLM] {report_text}")
+            report_text = response.choices[0].message.content.strip()
+            print(f"[VLM] Forensic report generated for {alert_id} using Groq")
+        except Exception as groq_exc:
+            last_error = str(groq_exc)
+            print(f"[VLM] Groq engine failed: {last_error}")
 
-    current_alert = state.get_alert(alert_id)
-    if current_alert:
-        hint_score, hint_labels = _weapon_signal_from_report(report_text)
-        if hint_score > 0.0:
-            model_conf_pct = float(current_alert.get("modelConfidence", current_alert.get("confidence", 0.0)))
-            model_conf = max(0.0, min(1.0, model_conf_pct / 100.0))
-            current_weapon = max(0.0, min(1.0, float(current_alert.get("weaponScore", 0.0)) / 100.0))
-            motion_score = max(0.0, min(1.0, float(current_alert.get("motionScore", 0.0)) / 100.0))
-            fused = fusion_engine.assess(
-                violence_confidence=model_conf,
-                motion_score=motion_score,
-                weapon_score=max(current_weapon, hint_score),
-                base_severity=str(current_alert.get("severity", "high")),
-            )
-            merged_labels = set(hint_labels)
-            existing_labels = current_alert.get("weaponLabels", [])
-            if isinstance(existing_labels, list):
-                for item in existing_labels:
-                    text = str(item).strip()
-                    if text:
-                        merged_labels.add(text)
-            threat_conf = round(max(model_conf_pct, float(fused["score"])), 1)
-            updated_alert = state.update_alert(
-                alert_id,
-                {
-                    "confidence": threat_conf,
-                    "threatConfidence": threat_conf,
-                    "severity": fused["severity"],
-                    "fusionScore": fused["score"],
-                    "weaponScore": fused["weaponScore"],
-                    "fusionReason": "Weapon cue detected in forensic language analysis.",
-                    "weaponLabels": sorted(merged_labels),
-                },
-            )
-            if updated_alert:
-                state.broadcast_alert(updated_alert)
-                audit_logger.record(
-                    "weapon_text_signal",
-                    "success",
-                    role="system",
-                    alert_id=alert_id,
-                    details={
-                        "weaponScore": fused["weaponScore"],
-                        "labels": sorted(merged_labels),
-                    },
-                )
+    if report_text is None:
+        report_text = f"[Forensic analysis failed: {last_error}]"
 
     state.broadcast_alert({
-        "type": "VLM_Report", 
-        "id": alert_id, 
+        "type": "VLM_Report",
+        "id": alert_id,
         "report": report_text
     })
     state.store_report_text(alert_id, report_text)
@@ -861,7 +910,7 @@ def _decision_layer_status_payload() -> Dict[str, object]:
     payload["ignoredReason"] = status["ignored_reason"]
     payload["lastDecisionSampleTime"] = status["last_decision_sample_time"]
     payload["minDecisionIntervalSeconds"] = status["min_decision_interval_seconds"]
-    payload["baseModelThreshold"] = status["base_model_threshold"]
+    payload["baseModelThreshold"] = status.get("base_model_threshold", 0.45)
     return payload
 
 
@@ -997,166 +1046,313 @@ def _emit_face_audit_events(
         dedupe_cache.pop(key, None)
 
 
-def capture_loop():
-    import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[System] AI Engine initializing on {device.type.upper()}...")
-    
-    pipeline = ViolenceInferencePipeline(WEIGHTS_PATH, device, THRESHOLD, STRIDE)
-    state.register_pipeline(pipeline)
-    print("[System] Live Alert Decision Layer ready.")
-    
-    cap = cv2.VideoCapture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
 
-    def _ensure_bgr(frame: np.ndarray) -> np.ndarray:
-        if frame is None:
-            return frame
-        if frame.ndim == 2:
-            return cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-        if frame.ndim == 3 and frame.shape[2] == 1:
-            return cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-        if frame.ndim == 3 and frame.shape[2] == 4:
-            return cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
-        return frame
-    
-    def _read_cap_props(c):
-        return c.get(cv2.CAP_PROP_FPS) or 25.0, int(c.get(cv2.CAP_PROP_FRAME_WIDTH)), int(c.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        
+import concurrent.futures
+
+def _run_ai_task(pipeline, face_engine, frame, previous_raw_frame):
+    clean_frame = pipeline.process_frame(frame)
+    face_summary = face_engine.analyze_frame(frame)
+    motion_score = _estimate_motion_score(previous_raw_frame, frame)
+    return face_summary, motion_score
+
+def _is_live_source(source: Union[str, int]) -> bool:
+    """Returns True if source is a live webcam (integer index), False if it's a file."""
+    return isinstance(source, int)
+
+def _is_rtsp_source(source: Union[str, int]) -> bool:
+    """Returns True if source is an RTSP URL."""
+    return isinstance(source, str) and source.lower().startswith("rtsp://")
+
+def _open_capture(source: Union[str, int]) -> cv2.VideoCapture:
+    """Open a VideoCapture with optimal settings based on source type.
+
+    - Integer source  → USB/webcam device (low-latency buffer settings)
+    - rtsp:// string  → IP camera over RTSP (uses FFMPEG backend, zero-latency flags)
+    - Other string    → local video file (no special settings needed)
+    """
+    is_rtsp = isinstance(source, str) and source.lower().startswith("rtsp://")
+
+    if is_rtsp:
+        # Set FFMPEG capture options for minimum latency BEFORE opening.
+        # nobuffer       – skip internal FFMPEG demuxer buffer
+        # rtsp_transport – use TCP (more reliable, avoids UDP reordering/drops)
+        # max_delay=0    – no extra decode delay
+        # analyzeduration/probesize – skip long stream probing on open
+        os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = (
+            "rtsp_transport;tcp|"
+            "fflags;nobuffer|"
+            "flags;low_delay|"
+            "max_delay;0|"
+            "analyzeduration;100000|"
+            "probesize;50000"
+        )
+        cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+        if cap.isOpened():
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS) or 15.0
+            print(f"[System] RTSP camera opened (low-latency): {source} @ {w}x{h} {fps:.0f}fps")
+        else:
+            print(f"[System] WARNING: Could not open RTSP stream: {source}")
+    elif _is_live_source(source):
+        cap = cv2.VideoCapture(source)
+        if cap.isOpened():
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            cap.set(cv2.CAP_PROP_FPS, 30)
+            print(f"[System] USB camera opened: device {source} @ "
+                  f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x"
+                  f"{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))} "
+                  f"{cap.get(cv2.CAP_PROP_FPS):.0f}fps")
+    else:
+        cap = cv2.VideoCapture(source)
+
+    return cap
+
+def _read_cap_props(cap: cv2.VideoCapture) -> Tuple[float, int, int]:
+    fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    return fps, w, h
+
+def _drain_to_latest(cap: cv2.VideoCapture, max_drain: int = 8) -> Tuple[bool, Optional[np.ndarray]]:
+    """Drain stale RTSP frames and return only the newest one.
+
+    For live cameras the decoder buffer fills up between AI inference calls.
+    Calling cap.grab() (no decode) in a tight loop drops all queued frames,
+    then cap.retrieve() decodes just the freshest one.  This keeps latency
+    near zero without a background thread (and avoids libavcodec thread-safety
+    issues on Windows).
+    """
+    ret = False
+    for _ in range(max_drain):
+        ret = cap.grab()
+        if not ret:
+            break
+    if not ret:
+        return False, None
+    ret, frame = cap.retrieve()
+    return ret, frame
+
+def camera_worker(
+    camera_id: str,
+    source: Union[str, int],
+    device,
+    model_weights: str,
+    threshold: float,
+    stride: int,
+    stop_event: Optional[threading.Event] = None,
+):
+    import torch
+    _imports = _get_imports()
+    ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
+    FaceIntelEngine = _imports['FaceIntelEngine']
+
+    print(f"[{camera_id}] AI Engine initializing on {device.type.upper()}...")
+
+    pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
+    state.register_pipeline(pipeline)
+    local_face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
+
+    # Reuse helpers defined above
+    _is_rtsp = lambda s: isinstance(s, str) and s.lower().startswith("rtsp://")
+
+    cap = _open_capture(source)
     src_fps, width, height = _read_cap_props(cap)
+
     ring = deque(maxlen=RING_BUFFER_LEN)
-    active_post_queues = []
+    active_post_queues: list[tuple[queue.Queue, int]] = []
     last_alert_time = 0.0
     previous_raw_frame: Optional[np.ndarray] = None
     weapon_signal: Dict[str, object] = weapon_engine.latest_signal()
     face_audit_dedupe: Dict[str, float] = {}
+
+    _live_reconnect_attempts = 0
+    _MAX_RECONNECT = 5
+    current_source = source
+
+    # Background executor for face+motion AI inference
+    ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"ai-{camera_id}")
+    ai_future = None
+
     state.running = True
 
-    while state.running:
+    while state.running and not (stop_event and stop_event.is_set()):
         t0 = time.perf_counter()
-        
-        ret, raw = cap.read()
-        if not ret:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            pipeline.reset()
-            state.reset_decision_layer()
-            continue
-        raw = _ensure_bgr(raw)
 
+        # --- Frame acquisition -------------------------------------------------
+        if _is_rtsp(current_source) or _is_live_source(current_source):
+            ret, raw = _drain_to_latest(cap)
+        else:
+            ret, raw = cap.read()
+        # -----------------------------------------------------------------------
+
+        if not ret:
+            is_rtsp = isinstance(current_source, str) and current_source.lower().startswith("rtsp://")
+            if _is_live_source(current_source) or is_rtsp:
+                _live_reconnect_attempts += 1
+                print(f"[System] Live camera lost. Reconnect attempt {_live_reconnect_attempts}/{_MAX_RECONNECT}...")
+                cap.release()
+                time.sleep(2.0)
+                cap = _open_capture(current_source)
+                if cap.isOpened():
+                    src_fps, width, height = _read_cap_props(cap)
+                    _live_reconnect_attempts = 0
+                    print("[System] Live camera reconnected.")
+                elif _live_reconnect_attempts >= _MAX_RECONNECT:
+                    print("[System] Live camera unavailable. Waiting...")
+                    time.sleep(5.0)
+                    _live_reconnect_attempts = 0
+            else:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                pipeline.reset()
+            continue
+
+        _live_reconnect_attempts = 0
+
+        # Route frames to any active post-alert evidence queues
         still_active = []
         for entry in active_post_queues:
             if entry[1] > 0:
-                try: 
+                try:
                     entry[0].put_nowait(raw.copy())
-                except queue.Full: 
+                except queue.Full:
                     pass
                 entry[1] -= 1
                 still_active.append(entry)
         active_post_queues = still_active
 
-        clean_frame = pipeline.process_frame(raw)
-        ring.append(raw.copy())
-        motion_score = _estimate_motion_score(previous_raw_frame, raw)
+        # Weapon detection (synchronous)
         weapon_signal = weapon_engine.process_frame(raw)
         weapon_score = float(weapon_signal.get("score", 0.0))
+
+        # If the background AI task has finished, process its results
+        if ai_future is None or ai_future.done():
+            if ai_future is not None:
+                try:
+                    face_summary, motion_score = ai_future.result()
+                    state.store_face_summary(face_summary)
+                    cam_id = camera_id
+                    _emit_face_audit_events(
+                        face_summary=face_summary,
+                        camera_id=cam_id,
+                        dedupe_cache=face_audit_dedupe,
+                    )
+                    client_face_summary = _public_face_summary(face_summary)
+
+                    # Update the decision layer with the latest calibrated probability
+                    decision_sample_time = time.time()
+                    calibrated_prob = float(getattr(pipeline, "_last_calibrated_conf", 0.0))
+                    decision_result = state.update_decision_layer(calibrated_prob, sample_time=decision_sample_time)
+
+                    now = time.time()
+                    current_cooldown = state.get_cooldown()
+
+                    if pipeline._last_label == VIOLENCE_CLS and (now - last_alert_time > current_cooldown):
+                        last_alert_time = now
+                        alert_id = f"alert-{int(now * 1000)}"
+                        conf = pipeline._last_conf
+
+                        severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
+                        fusion = fusion_engine.assess(
+                            violence_confidence=conf,
+                            motion_score=motion_score,
+                            weapon_score=0.0,
+                            base_severity=severity,
+                        )
+                        severity = fusion["severity"]
+
+                        alert_payload = {
+                            "id": alert_id,
+                            "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+                            "isoTime": datetime.now(timezone.utc).isoformat(),
+                            "confidence": round(conf * 100, 1),
+                            "type": "Violence",
+                            "severity": severity,
+                            "cameraId": camera_id,
+                            "location": str(CAMERA_SOURCES.get(camera_id, camera_id)),
+                            "fusionScore": fusion["score"],
+                            "fusionModel": fusion["model"],
+                            "motionScore": fusion["motionScore"],
+                            "weaponScore": fusion["weaponScore"],
+                            "fusionReason": fusion["reason"],
+                            "faceSummary": client_face_summary,
+                        }
+
+                        state.register_alert(alert_payload)
+                        state.broadcast_alert(alert_payload)
+                        audit_logger.record(
+                            "alert_generated",
+                            "success",
+                            role="system",
+                            alert_id=alert_id,
+                            details={
+                                "confidence": conf,
+                                "severity": severity,
+                                "cameraId": camera_id,
+                            },
+                        )
+                        _emit_face_audit_events(
+                            face_summary=face_summary,
+                            camera_id=camera_id,
+                            dedupe_cache=face_audit_dedupe,
+                            alert_id=alert_id,
+                        )
+
+                        pre_frames = list(ring)
+                        post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
+                        active_post_queues.append([post_q, POST_ALERT_LEN])
+                        threading.Thread(
+                            target=_write_evidence_clip,
+                            args=(alert_id, pre_frames, post_q, src_fps, width, height),
+                            daemon=True
+                        ).start()
+
+                        if GROQ_ENABLED and pre_frames:
+                            threading.Thread(
+                                target=_call_vlm_forensics,
+                                args=(alert_id, pre_frames[-1].copy()),
+                                daemon=True
+                            ).start()
+
+                        if pre_frames:
+                            snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
+                            if snapshot_bytes:
+                                snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
+                                snapshot_path.write_bytes(snapshot_bytes)
+                                state.store_snapshot_path(alert_id, str(snapshot_path))
+                            if camera_id in EXAMPLE_SOURCES:
+                                telegram_clip = EXAMPLE_SOURCES[camera_id]
+                                is_demo_clip = True
+                            else:
+                                telegram_clip = str(EVIDENCE_DIR / f"{alert_id}.mp4")
+                                is_demo_clip = False
+                            telegram_notifier.enqueue_alert(
+                                alert_payload,
+                                snapshot_bytes,
+                                clip_path=telegram_clip,
+                                is_demo_clip=is_demo_clip,
+                            )
+                except Exception as exc:
+                    print(f"[System] AI worker encountered an error: {exc}")
+
+            # Submit the next background AI task (face+motion) for the current raw frame
+            try:
+                ai_future = ai_executor.submit(_run_ai_task, pipeline, local_face_engine, raw.copy(), previous_raw_frame)
+            except Exception as e:
+                print(f"[System] Failed to submit AI task: {e}")
+                ai_future = None
+
         previous_raw_frame = raw.copy()
-        face_summary = face_engine.analyze_frame(raw)
-        state.store_face_summary(face_summary)
-        cam_id = state.get_current_camera_id()
-        _emit_face_audit_events(
-            face_summary=face_summary,
-            camera_id=cam_id,
-            dedupe_cache=face_audit_dedupe,
-        )
-        client_face_summary = _public_face_summary(face_summary)
 
-        # Update live alert decision layer with calibrated probability
-        decision_sample_time = time.time()
-        calibrated_prob = float(getattr(pipeline, "_last_calibrated_conf", 0.0))
-        decision_result = state.update_decision_layer(calibrated_prob, sample_time=decision_sample_time)
+        # MJPEG streaming: encode the raw frame (unannotated) for low latency
+        ok, jpg_buf = cv2.imencode(".jpg", raw, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+        if ok:
+            state.set_frame(camera_id, jpg_buf.tobytes())
 
-        ok, jpg_buf = cv2.imencode(".jpg", clean_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
-        if ok: 
-            state.set_frame(jpg_buf.tobytes())
-
-        now = time.time()
-        current_cooldown = state.get_cooldown()
-        
-        is_confirmed_violence = bool(decision_result.get("confirmed_alert", False))
-        
-        weapon_threshold = weapon_engine.config.independent_alert_threshold
-        is_weapon_threat = weapon_score >= weapon_threshold
-        
-        if (is_confirmed_violence or is_weapon_threat) and (now - last_alert_time > current_cooldown):
-            last_alert_time = now
-            alert_id = f"alert-{int(now * 1000)}"
-            
-            alert_payload = _generate_alert_payload(
-                alert_id=alert_id,
-                pipeline=pipeline,
-                weapon_score=weapon_score,
-                weapon_signal=weapon_signal,
-                motion_score=motion_score,
-                face_summary=face_summary,
-                cam_id=cam_id,
-                now=now,
-                t0=t0,
-                decision_result=decision_result,
-            )
-
-            state.register_alert(alert_payload)
-            state.broadcast_alert(alert_payload)
-            audit_logger.record(
-                "alert_detected",
-                "success",
-                role="system",
-                alert_id=alert_id,
-                details={
-                    "cameraId": cam_id,
-                    "severity": alert_payload.get("severity"),
-                    "confidence": alert_payload.get("confidence"),
-                    "modelConfidence": alert_payload.get("modelConfidence"),
-                    "rawModelConfidence": alert_payload.get("rawModelConfidence"),
-                    "fusionScore": alert_payload.get("fusionScore"),
-                    "motionScore": alert_payload.get("motionScore"),
-                    "weaponScore": alert_payload.get("weaponScore"),
-                    "faceTotal": int(face_summary.get("totalFaces", 0)),
-                    "faceKnown": int(face_summary.get("recognizedCount", 0)),
-                    "faceUnknown": int(face_summary.get("unknownCount", 0)),
-                    "identityLabelingEnabled": bool(face_summary.get("identityLabelingEnabled", True)),
-                    "alertLatencyMs": alert_payload.get("alertLatencyMs"),
-                },
-            )
-            _emit_face_audit_events(
-                face_summary=face_summary,
-                camera_id=cam_id,
-                dedupe_cache=face_audit_dedupe,
-                alert_id=alert_id,
-            )
-
-            pre_frames = list(ring)
-            post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
-            active_post_queues.append([post_q, POST_ALERT_LEN])
-            threading.Thread(
-                target=_write_evidence_clip, 
-                args=(alert_id, pre_frames, post_q, src_fps, width, height), 
-                daemon=True
-            ).start()
-
-            if GROQ_ENABLED and pre_frames:
-                threading.Thread(
-                    target=_call_groq_vlm, 
-                    args=(alert_id, pre_frames[-1].copy()), 
-                    daemon=True
-                ).start()
-
-            if pre_frames:
-                snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
-                if snapshot_bytes:
-                    snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
-                    snapshot_path.write_bytes(snapshot_bytes)
-                    state.store_snapshot_path(alert_id, str(snapshot_path))
-                telegram_notifier.enqueue_alert(alert_payload, snapshot_bytes)
-
+        # Check for pending camera switch requests (initiated by dashboard)
         pending = state.consume_pending_switch()
         if pending:
             new_source, new_cam_id = pending
@@ -1166,54 +1362,103 @@ def capture_loop():
             face_audit_dedupe.clear()
             pipeline.reset()
             weapon_engine.reset()
-            face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
+            local_face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             state.reset_decision_layer()
             if device.type == "cuda":
                 torch.cuda.empty_cache()
-            
-            cap = cv2.VideoCapture(new_source)
-            if cap.isOpened(): 
+
+            cap = _open_capture(new_source)
+            if cap.isOpened():
                 src_fps, width, height = _read_cap_props(cap)
                 print(f"[System] Stream focused on {new_cam_id}")
             else:
                 print(f"[System] Warning: Failed to open {new_source}. Reverting to default.")
-                cap = cv2.VideoCapture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
+                cap = _open_capture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
                 src_fps, width, height = _read_cap_props(cap)
                 state.request_camera_switch(CAMERA_SOURCES[DEFAULT_CAMERA_ID], DEFAULT_CAMERA_ID)
                 state.consume_pending_switch()
 
+        # Maintain target FPS
         time.sleep(max(0, (1.0 / TARGET_FPS) - (time.perf_counter() - t0)))
-        
+
+    # Cleanup on shutdown
+    ai_executor.shutdown(wait=False)
     cap.release()
 
+
+
 # ─────────────────────────────────────────────────────────────────────────────
-# 6. FastAPI Setup & Endpoints
+# 6. Input Validation Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+# alert_id must be alphanumeric with dashes or underscores only (e.g. "alert-1715441234567").
+# This blocks path traversal sequences like "../secret" before they reach the filesystem.
+_ALERT_ID_RE = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$')
+
+def _validate_alert_id(alert_id: str) -> None:
+    """Reject alert_id that could escape intended storage directories.
+
+    Raises HTTPException 400 if the format is invalid.
+    The regex whitelist is the primary guard; the explicit substring check
+    is a secondary defense-in-depth layer.
+    """
+    if not _ALERT_ID_RE.match(alert_id):
+        raise HTTPException(status_code=400, detail="Invalid alert_id format")
+    # Redundant but explicit: these characters cannot appear after the regex passes,
+    # kept to document the intent.
+    if any(c in alert_id for c in ("..", "/", "\\", "\x00")):
+        raise HTTPException(status_code=400, detail="Invalid alert_id format")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7. FastAPI Setup & Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("[Lifespan] Starting bootstrap...")
+    # System initialization
     _init_config_and_profiles()
-    print("[Lifespan] Config and profiles initialized.")
     _finalize_config()
-    print("[Lifespan] Config finalized.")
     _init_engines()
-    print("[Lifespan] Engines initialized.")
+    if not security_controller.config.api_key:
+        print(
+            "\n[SECURITY WARNING] ADMIN_API_KEY is empty — all admin-only API routes "
+            "(set_threshold, set_cooldown, telegram/test, face/policy, category/toggle) "
+            "are accessible without authentication. "
+            "Set ADMIN_API_KEY in backend/.env before public demo or production use.\n"
+        )
     _init_category_detector()
-    print("[Lifespan] Category detector initialized.")
-    
-    if telegram_notifier:
-        telegram_notifier.start()
-    t = None
+
+    telegram_notifier.start()
+    threads = []
     state.running = True
     if CAPTURE_LOOP_ENABLED:
-        t = threading.Thread(target=capture_loop, daemon=True)
-        t.start()
+        import torch
+        # Determine active cameras
+        active_ids = []
+        env_active = os.getenv("ACTIVE_CAMERAS")
+        if env_active:
+            active_ids = [cid.strip() for cid in env_active.split(",") if cid.strip()]
+        else:
+            active_ids = list(CAMERA_SOURCES.keys())
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        for cam_id in active_ids:
+            if cam_id not in CAMERA_SOURCES:
+                print(f"[System] Warning: camera '{cam_id}' not in CAMERA_SOURCES, skipping.")
+                continue
+            source = CAMERA_SOURCES[cam_id]
+            t = threading.Thread(
+                target=camera_worker,
+                args=(cam_id, source, device, WEIGHTS_PATH, THRESHOLD, STRIDE),
+                daemon=True
+            )
+            t.start()
+            threads.append(t)
     else:
         print("[System] Capture loop disabled via AI_SENTINEL_ENABLE_CAPTURE_LOOP.")
     yield
     state.running = False
-    if t:
+    for t in threads:
         t.join(timeout=5)
     if telegram_notifier:
         telegram_notifier.stop()
@@ -1226,11 +1471,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-async def _mjpeg_generator() -> AsyncGenerator[bytes, None]:
+async def _mjpeg_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
     boundary = b"--frame\r\n"
     while True:
-        jpg = state.get_frame()
-        if jpg: 
+        jpg = state.get_frame(camera_id)
+        if jpg:
             yield boundary + b"Content-Type: image/jpeg\r\n\r\n" + jpg + b"\r\n"
         await asyncio.sleep(1 / TARGET_FPS)
 
@@ -1253,19 +1498,83 @@ async def _sse_generator(q: queue.Queue) -> AsyncGenerator[bytes, None]:
         state.unsubscribe(q)
 
 @app.get("/video_feed", summary="MJPEG Video Stream")
-async def video_feed():
-    return StreamingResponse(_mjpeg_generator(), media_type="multipart/x-mixed-replace; boundary=frame")
+async def video_feed(camera_id: str = DEFAULT_CAMERA_ID):
+    is_example = camera_id in EXAMPLE_SOURCES
+    if not is_example and camera_id not in CAMERA_SOURCES:
+        raise HTTPException(status_code=503, detail=f"Camera {camera_id} is not configured or offline")
+    return StreamingResponse(_mjpeg_generator(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
+
+@app.get("/cameras/status", summary="Camera status list")
+async def cameras_status():
+    """Return status for all configured cameras."""
+    statuses = []
+    for cam_id, source in CAMERA_SOURCES.items():
+        cam_status = state.get_camera_status(cam_id)
+        cam_status["source"] = str(source)
+        last_ts = cam_status.get("lastFrameTimestamp")
+        cam_status["running"] = (time.time() - last_ts) < 5.0 if last_ts is not None else False
+        statuses.append(cam_status)
+    return {"cameras": statuses}
 
 @app.get("/alerts", summary="SSE Event Stream")
 async def alerts():
     return StreamingResponse(_sse_generator(state.subscribe()), media_type="text/event-stream")
 
 
+@app.post("/demo_start/{clip_id}", summary="Start on-demand analysis of a demo/example clip")
+async def demo_start(clip_id: str):
+    """Start a temporary AI analysis worker for a demo clip. No-op if already running."""
+    if clip_id not in EXAMPLE_SOURCES:
+        raise HTTPException(status_code=404, detail=f"Unknown demo clip: {clip_id}")
+    clip_path = EXAMPLE_SOURCES[clip_id]
+    if not Path(clip_path).exists():
+        raise HTTPException(status_code=404, detail=f"Demo clip file not found: {clip_path}")
+    if state.is_demo_worker_running(clip_id):
+        return {"status": "already_running", "clip_id": clip_id}
+    import torch
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    stop_event = state.create_worker_stop_event(clip_id)
+    t = threading.Thread(
+        target=camera_worker,
+        args=(clip_id, clip_path, device, WEIGHTS_PATH, state.get_threshold(), STRIDE),
+        kwargs={"stop_event": stop_event},
+        daemon=True,
+        name=f"demo-worker-{clip_id}",
+    )
+    t.start()
+    print(f"[Demo] Started on-demand worker for {clip_id}: {clip_path}")
+    return {"status": "started", "clip_id": clip_id}
+
+
+@app.delete("/demo_stop/{clip_id}", summary="Stop on-demand demo clip analysis")
+async def demo_stop(clip_id: str):
+    """Stop the temporary analysis worker for a demo clip."""
+    if clip_id not in EXAMPLE_SOURCES:
+        raise HTTPException(status_code=404, detail=f"Unknown demo clip: {clip_id}")
+    stopped = state.stop_worker(clip_id)
+    print(f"[Demo] {'Stopped' if stopped else 'No active worker for'} {clip_id}")
+    return {"status": "stopped" if stopped else "not_running", "clip_id": clip_id}
+
+
+@app.get("/demo_video/{clip_id}", summary="Serve demo clip video file for browser playback")
+async def demo_video(clip_id: str):
+    """Return the raw demo clip file so the browser can play it natively in a <video> element."""
+    if clip_id not in EXAMPLE_SOURCES:
+        raise HTTPException(status_code=404, detail=f"Unknown demo clip: {clip_id}")
+    clip_path = Path(EXAMPLE_SOURCES[clip_id])
+    if not clip_path.exists():
+        raise HTTPException(status_code=404, detail=f"Demo clip file not found: {clip_id}")
+    suffix = clip_path.suffix.lower()
+    media_type = "video/mp4" if suffix == ".mp4" else "video/x-msvideo"
+    return FileResponse(str(clip_path), media_type=media_type)
+
+
 @app.get("/clips/{alert_id}", summary="Stream recorded incident clip")
 async def get_clip(alert_id: str):
     """Stream a recorded incident clip."""
+    _validate_alert_id(alert_id)
     from pathlib import Path
-    
+
     # Check evidence directory
     clip_path = EVIDENCE_DIR / f"{alert_id}.mp4"
     if not clip_path.exists():
@@ -1395,22 +1704,210 @@ async def test_telegram_notification(request: Request):
         "confidence": 100.0,
         "type": "Telegram Test",
         "severity": "high",
-        "cameraId": state.get_current_camera_id(),
+        "cameraId": DEFAULT_CAMERA_ID,
         "location": "Test channel",
     }
-    telegram_notifier.enqueue_alert(test_alert, state.get_frame())
+    snapshot = state.get_frame(DEFAULT_CAMERA_ID)
+    telegram_notifier.enqueue_alert(test_alert, snapshot)
     audit_logger.record("telegram_test", "queued", role=role, alert_id=test_alert["id"], details={"cameraId": test_alert["cameraId"]})
     return {"status": "queued", "telegram": telegram_notifier.status()}
 
 
+@app.post("/notifications/telegram/test_video", summary="Send a Telegram test video alert using a demo clip")
+async def test_telegram_video(request: Request, clip_id: str = "EXAMPLE-02"):
+    role = security_controller.authorize(request, required_role="admin")
+    if not telegram_notifier.config.ready:
+        raise HTTPException(status_code=503, detail="Telegram notifications are not configured")
+    if clip_id not in EXAMPLE_SOURCES:
+        raise HTTPException(status_code=404, detail=f"Unknown demo clip: {clip_id}")
+    clip_path = EXAMPLE_SOURCES[clip_id]
+    if not Path(clip_path).exists():
+        raise HTTPException(status_code=404, detail=f"Demo clip file not found: {clip_id}")
+
+    test_alert = {
+        "id": f"test-video-{int(time.time() * 1000)}",
+        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+        "isoTime": datetime.now(timezone.utc).isoformat(),
+        "confidence": 100.0,
+        "type": "Telegram Video Test",
+        "severity": "high",
+        "cameraId": clip_id,
+        "location": "Test channel",
+    }
+    snapshot = state.get_frame(clip_id)
+    telegram_notifier.enqueue_alert(test_alert, snapshot, clip_path=clip_path, is_demo_clip=True)
+    audit_logger.record(
+        "telegram_test_video",
+        "queued",
+        role=role,
+        alert_id=test_alert["id"],
+        details={"clipId": clip_id},
+    )
+    return {"status": "queued", "clip_id": clip_id, "telegram": telegram_notifier.status()}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DeepSeek / OpenRouter Reporting
+# ─────────────────────────────────────────────────────────────────────────────
+
+_DEMO_SOURCE_NAMES: dict[str, str] = {
+    "EXAMPLE-01": "Demo Clip 1",
+    "EXAMPLE-02": "Demo Clip 2",
+}
+
+_LIVE_SOURCE_NAMES: dict[str, str] = {
+    "CAM-01": "Live Camera Slot 1",
+    "CAM-02": "Live Camera Slot 2",
+}
+
+
+def _enrich_alert_for_report(alert: dict) -> dict:
+    """Add evidence availability and demo context fields before sending to DeepSeek."""
+    cam_id = str(alert.get("cameraId", ""))
+    alert_id = str(alert.get("id", "x"))
+    is_demo = cam_id in EXAMPLE_SOURCES
+
+    if is_demo:
+        evidence_video_available = True
+        evidence_video_type = "demo_source_video"
+        source_type = "demo_clip"
+        demo_mode = True
+        clip_review_available = True
+        visual_review_note = (
+            "Demo source video is available for review in the Demo Clips / Clip Review workflow."
+        )
+    else:
+        evidence_clip_exists = (EVIDENCE_DIR / f"{alert_id}.mp4").exists()
+        evidence_video_available = evidence_clip_exists
+        evidence_video_type = "recorded_evidence_clip" if evidence_clip_exists else "none"
+        source_type = "live_camera"
+        demo_mode = False
+        clip_review_available = evidence_clip_exists
+        visual_review_note = (
+            "Recorded incident clip is available for review."
+            if evidence_clip_exists
+            else "No saved clip is currently available."
+        )
+
+    source_name = (
+        _DEMO_SOURCE_NAMES.get(cam_id)
+        or _LIVE_SOURCE_NAMES.get(cam_id)
+        or cam_id
+    )
+
+    # Confidence percentages — alert may have separate threat vs model fields
+    raw_conf = float(alert.get("confidence") or 0)
+    threat_confidence_percent = float(
+        alert.get("threatConfidence") or alert.get("fusionScore") or raw_conf
+    )
+    model_confidence_percent = float(
+        alert.get("modelConfidence") or alert.get("calibratedConfidence") or raw_conf
+    )
+    motion_raw = float(alert.get("motionScore") or 0)
+    # motionScore from fusion is 0-1 scale; convert to percent
+    motion_score_percent = round(motion_raw * 100, 1) if motion_raw <= 1.0 else round(motion_raw, 1)
+
+    return {
+        **alert,
+        "demoMode": demo_mode,
+        "demo_mode": demo_mode,
+        "source_type": source_type,
+        "source_name": source_name,
+        "evidence_video_available": evidence_video_available,
+        "evidence_video_type": evidence_video_type,
+        "clip_review_available": clip_review_available,
+        "visual_review_note": visual_review_note,
+        "threat_confidence_percent": round(threat_confidence_percent, 1),
+        "model_confidence_percent": round(model_confidence_percent, 1),
+        "motion_score_percent": motion_score_percent,
+        "report_context": (
+            "This is an AI Sentinel surveillance alert. The report is generated from alert metadata "
+            "and available system evidence. Do not claim that no video exists if evidence_video_available is true."
+        ),
+    }
+
+
+@app.get("/reports/deepseek/status", summary="DeepSeek report service status")
+async def deepseek_status():
+    return deepseek_service.status()
+
+
+@app.post("/reports/deepseek/test", summary="Generate test DeepSeek report (no alert required)")
+async def deepseek_test(request: Request):
+    security_controller.authorize(request, required_role="viewer")
+    demo = deepseek_service.demo_alert()
+    all_alerts = state.get_all_alerts()
+    if all_alerts:
+        latest = sorted(all_alerts, key=lambda a: a.get("isoTime", ""), reverse=True)[0]
+        demo = {**latest, "id": "test-demo-report"}
+    demo = _enrich_alert_for_report(demo)
+
+    try:
+        result = deepseek_service.generate(demo, force=True)
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except TimeoutError as exc:
+        raise HTTPException(status_code=504, detail=str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.post("/reports/deepseek/{alert_id}", summary="Generate DeepSeek report for an alert")
+async def deepseek_generate(alert_id: str, request: Request, force: bool = False):
+    _validate_alert_id(alert_id)
+    security_controller.authorize(request, required_role="viewer")
+    alert = state.get_alert(alert_id)
+    if not alert:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    alert_payload = _enrich_alert_for_report(alert)
+    try:
+        result = deepseek_service.generate(alert_payload, force=force)
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except TimeoutError as exc:
+        raise HTTPException(status_code=504, detail=str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.get("/reports/deepseek/{alert_id}", summary="Fetch cached DeepSeek report")
+async def deepseek_get(alert_id: str, request: Request):
+    _validate_alert_id(alert_id)
+    security_controller.authorize(request, required_role="viewer")
+    cached = deepseek_service.get_cached(alert_id)
+    if cached is None:
+        raise HTTPException(status_code=404, detail="Report not generated yet")
+    return cached
+
+
 @app.get("/download_report/{alert_id}", summary="Fetch forensic PDF report")
 async def download_report(alert_id: str, request: Request):
+    _validate_alert_id(alert_id)
     role = security_controller.authorize(request, required_role="viewer")
     alert = state.get_alert(alert_id)
     if not alert:
         raise HTTPException(status_code=404, detail="Incident not found")
 
-    report_text = state.get_report_text(alert_id) or "Visual analysis is still pending."
+    # Prefer DeepSeek report if cached; fall back to Groq/VLM text
+    _ds_cache = deepseek_service.get_cached(alert_id)
+    if _ds_cache and isinstance(_ds_cache.get("report"), dict):
+        _r = _ds_cache["report"]
+        _parts = []
+        if _r.get("executive_summary"):
+            _parts.append(f"Summary: {_r['executive_summary']}")
+        if _r.get("severity_assessment"):
+            _parts.append(f"Severity: {_r['severity_assessment']}")
+        if _r.get("recommended_actions"):
+            _actions = _r["recommended_actions"]
+            _joined = "; ".join(str(a) for a in _actions[:3]) if isinstance(_actions, list) else str(_actions)
+            _parts.append(f"Actions: {_joined}")
+        if _r.get("final_verdict"):
+            _parts.append(f"Verdict: {_r['final_verdict']}")
+        report_text = "\n".join(_parts) if _parts else "DeepSeek report available."
+    else:
+        report_text = state.get_report_text(alert_id) or "Visual analysis is still pending."
     snapshot_path = state.get_snapshot_path(alert_id)
     evidence_path = EVIDENCE_DIR / f"{alert_id}.mp4"
     output_path = REPORTS_DIR / f"{alert_id}.pdf"
@@ -1443,14 +1940,9 @@ async def download_report(alert_id: str, request: Request):
         filename=f"{alert_id}.pdf",
     )
 
-@app.post("/switch_camera", summary="Change active camera stream")
+@app.post("/switch_camera", summary="Change active camera stream (deprecated)")
 async def switch_camera(body: CameraRequest, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    if body.camera_id not in CAMERA_SOURCES:
-        raise HTTPException(status_code=400, detail="Unknown camera_id")
-    state.request_camera_switch(CAMERA_SOURCES[body.camera_id], body.camera_id)
-    audit_logger.record("switch_camera", "success", role=role, details={"cameraId": body.camera_id})
-    return {"status": "success", "camera_id": body.camera_id}
+    raise HTTPException(status_code=410, detail="This endpoint is deprecated in multi-camera mode. Configure ACTIVE_CAMERAS environment variable to select cameras.")
 
 @app.post("/set_threshold", summary="Update model confidence threshold")
 async def set_threshold(body: ThresholdRequest, request: Request):
@@ -1468,6 +1960,7 @@ async def set_cooldown(body: CooldownRequest, request: Request):
 
 @app.get("/download_evidence/{alert_id}", summary="Fetch recorded DVR clip")
 async def download_evidence(alert_id: str, request: Request):
+    _validate_alert_id(alert_id)
     role = security_controller.authorize(request, required_role="viewer")
     status = state.get_evidence_status(alert_id)
     if not status:
@@ -1502,6 +1995,7 @@ async def audit_recent(limit: int = 20):
 
 @app.get("/evidence_chain/{alert_id}", summary="Evidence ledger entry")
 async def evidence_chain(alert_id: str, request: Request):
+    _validate_alert_id(alert_id)
     security_controller.authorize(request, required_role="viewer")
     record = evidence_ledger.get(alert_id)
     if not record:
@@ -1749,7 +2243,7 @@ async def reset_decision_layer(request: Request):
     payload["ignoredReason"] = decision_status["ignored_reason"]
     payload["lastDecisionSampleTime"] = decision_status["last_decision_sample_time"]
     payload["minDecisionIntervalSeconds"] = decision_status["min_decision_interval_seconds"]
-    payload["baseModelThreshold"] = decision_status["base_model_threshold"]
+    payload["baseModelThreshold"] = decision_status.get("base_model_threshold", 0.45)
     return {
         "status": "success",
         "decisionLayer": payload,

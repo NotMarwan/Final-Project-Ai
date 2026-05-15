@@ -1,6 +1,20 @@
-# AI-Sentinel
+# AI-Sentinel Surveillance System
 
-AI-Sentinel is a graduation-project surveillance system with a FastAPI backend for violence/threat inference and a Next.js frontend for the live dashboard and alert review workflow.
+AI-Sentinel is an intelligent surveillance system that uses AI to detect violence, weapons, and security threats in real-time video feeds. The system provides instant Telegram alerts, a web-based dashboard, and comprehensive incident reporting.
+
+## Features
+
+- **Real-time Violence Detection**: AI-powered detection of violent behavior in video feeds
+- **Weapon Detection**: Identifies weapons in camera feeds
+- **Danger Alert System**: Detects dangerous situations automatically
+- **Telegram Alerts**: Instant notifications sent to security personnel via Telegram
+- **Web Dashboard**: Modern React-based interface for monitoring cameras and alerts
+- **Incident Reporting**: Automated report generation for security incidents
+- **Multi-Camera Support**: Monitor multiple camera feeds simultaneously
+- **Face Recognition**: Optional face identification and tracking (when enabled)
+- **Evidence Capture**: Automatic clip recording and thumbnail generation
+- **Live Alert Decision Layer**: Multi-signal confirmation with motion, weapon, and fusion analysis
+- **Groq VLM Forensic Reports**: AI-generated incident descriptions in Arabic
 
 ## Current Stable Runtime Reference
 
@@ -53,42 +67,114 @@ assert sha == "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01"
 
 See `docs/01_RUNTIME_RESTORE_GUIDE.md` for the full restore checklist.
 
-## Run Backend
+## Quick Start
 
-From the project root:
+1. Copy the environment file:
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
 
-```powershell
-cd backend
-python -m uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+2. Configure your settings in `backend/.env` (see [Telegram Alerts Setup](#telegram-alerts) below)
+
+3. Install dependencies:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+
+4. Start the backend:
+   ```bash
+   python api.py
+   ```
+
+5. Start the frontend:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+## Telegram Alerts
+
+AI-Sentinel can send real-time security alerts to Telegram. This feature enables instant notification of violence, weapon detection, and danger events.
+
+### Setup
+
+1. Create a Telegram bot with [@BotFather](https://t.me/BotFather)
+2. Get your chat ID (see [documentation](docs/07_TELEGRAM_ALERTS.md))
+3. Configure environment variables in `backend/.env`:
+   ```bash
+   TELEGRAM_ENABLED=true
+   TELEGRAM_BOT_TOKEN=your_bot_token_here
+   TELEGRAM_CHAT_ID=your_chat_id_here
+   ```
+
+### Documentation
+
+For detailed setup instructions, testing steps, and troubleshooting, see:
+- **[Telegram Alerts Documentation](docs/07_TELEGRAM_ALERTS.md)** - Complete setup and configuration guide
+- **[Demo Runbook](docs/04_DEMO_RUNBOOK.md)** - Steps for demonstrating Telegram alerts
+- **[Troubleshooting Guide](docs/05_TROUBLESHOOTING.md)** - Common issues and solutions
+
+## Environment Variables
+
+Key environment variables (see `backend/.env.example` for full list):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TELEGRAM_ENABLED` | Enable Telegram alerts | `false` |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token | - |
+| `TELEGRAM_CHAT_ID` | Chat ID for alerts | - |
+| `TELEGRAM_TIMEOUT_SECONDS` | API timeout | `8.0` |
+| `TELEGRAM_MIN_ALERT_INTERVAL_SECONDS` | Min interval between alerts | `60` |
+| `TELEGRAM_SEND_TEST_ON_STARTUP` | Send test on startup | `false` |
+| `GROQ_API_KEY` | Groq API key for VLM forensic reports | - |
+
+## API Endpoints
+
+### System Status
 ```
-
-Expected verification endpoints:
-
-- `GET /health`
-- `GET /system/status`
-- `POST /decision_layer/reset`
-
-## Run Live Demo
-
-1. Start the backend.
-2. Start the frontend from the project root:
-
-```powershell
-npm install
-npm run dev
+GET /system/status
 ```
+Returns system health including Telegram configuration status and decision layer state.
 
-3. Open the dashboard.
-4. Confirm `/system/status` reports:
-   - `violenceClassIndex = 1`
-   - decision-layer thresholds are loaded
-5. Reset the decision layer before the demo:
-
-```powershell
-curl -X POST http://localhost:8000/decision_layer/reset
+### Telegram Test
 ```
+POST /notifications/telegram/test
+Authorization: Bearer <admin_token>
+```
+Sends a test message to verify Telegram configuration.
 
-See `docs/04_DEMO_RUNBOOK.md` for the full demo sequence.
+### Face Policy
+```
+GET /face/policy
+```
+Returns current face recognition policy settings.
+
+```
+POST /face/policy
+```
+Updates face recognition policy (identity labeling, audit enabled, cooldown).
+
+### Video Feed
+```
+GET /video_feed?camera_id=<camera_id>
+```
+Streams MJPEG video feed from specified camera.
+
+### Decision Layer
+```
+POST /decision_layer/reset
+```
+Resets the live alert decision layer to initial state.
+
+## Security
+
+⚠️ **Important Security Notes:**
+- Never commit `.env` file to version control
+- Keep Telegram bot token secret (like a password)
+- Use `.env.example` as template, copy to `.env` and fill in values
+- Ensure `config.yml` is in `.gitignore`
+- Rotate token if accidentally exposed
 
 ## Model And GitHub Policy
 
@@ -99,12 +185,17 @@ See `docs/04_DEMO_RUNBOOK.md` for the full demo sequence.
 - Do not rely on Git LFS unless it is explicitly approved and configured.
 - The current `.gitattributes` documents recommended Git LFS patterns only; it does not enable LFS automatically.
 
-## Key References
+## Documentation
 
-- [Project Status](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/00_PROJECT_STATUS.md)
-- [Runtime Restore Guide](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/01_RUNTIME_RESTORE_GUIDE.md)
-- [Live Alert Decision Layer V2](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/02_LIVE_ALERT_DECISION_LAYER_V2.md)
-- [Stage 12 External Eval](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/03_STAGE12_EXTERNAL_EVAL.md)
-- [Demo Runbook](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/04_DEMO_RUNBOOK.md)
-- [Troubleshooting](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/05_TROUBLESHOOTING.md)
-- [Model And Data Policy](/C:/Users/PCD/Downloads/Final%20Project%20AI%20Sentinel/docs/06_MODEL_AND_DATA_POLICY.md)
+- [Project Status](docs/00_PROJECT_STATUS.md)
+- [Runtime Restore Guide](docs/01_RUNTIME_RESTORE_GUIDE.md)
+- [Live Alert Decision Layer V2](docs/02_LIVE_ALERT_DECISION_LAYER_V2.md)
+- [Stage 12 External Eval](docs/03_STAGE12_EXTERNAL_EVAL.md)
+- [Demo Runbook](docs/04_DEMO_RUNBOOK.md)
+- [Troubleshooting](docs/05_TROUBLESHOOTING.md)
+- [Model And Data Policy](docs/06_MODEL_AND_DATA_POLICY.md)
+- [Telegram Alerts Setup](docs/07_TELEGRAM_ALERTS.md)
+
+## License
+
+[Add your license information here]

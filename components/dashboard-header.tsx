@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Camera, AlertTriangle, Wifi, WifiOff, Eye, EyeOff, ScanFace } from "lucide-react"
+import { Shield, Camera, AlertTriangle, Wifi, WifiOff, Eye, EyeOff } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
@@ -11,9 +11,9 @@ interface DashboardHeaderProps {
   sseConnected: boolean
   totalAlerts: number
   onFacePolicyClick?: () => void
-  facePolicySynced: boolean
-  facePolicySyncAgeSec: number | null
-  facePolicy: {
+  facePolicySynced?: boolean
+  facePolicySyncAgeSec?: number | null
+  facePolicy?: {
     identityLabelingEnabled: boolean
     recognitionAuditEnabled: boolean
     recognitionAuditCooldownSec: number
@@ -26,32 +26,7 @@ export function DashboardHeader({
   onPrivacyToggle,
   sseConnected,
   totalAlerts,
-  onFacePolicyClick,
-  facePolicySynced,
-  facePolicySyncAgeSec,
-  facePolicy,
 }: DashboardHeaderProps) {
-  const facePolicyVariant: "success" | "info" | "danger" = !facePolicySynced
-    ? "danger"
-    : facePolicy.identityLabelingEnabled && facePolicy.recognitionAuditEnabled
-      ? "success"
-      : "danger"
-  const syncTier = !facePolicySynced
-    ? "LOST"
-    : facePolicySyncAgeSec === null
-      ? "--"
-      : facePolicySyncAgeSec < 10
-        ? "<10s"
-        : facePolicySyncAgeSec < 60
-          ? "<1m"
-          : ">1m"
-  const facePolicyValue = !facePolicySynced
-    ? "SYNC:LOST | RETRY"
-    : `SYNC:${syncTier} | ID:${facePolicy.identityLabelingEnabled ? "ON" : "MASK"} | AUD:${facePolicy.recognitionAuditEnabled ? "ON" : "OFF"} | CD:${facePolicy.recognitionAuditCooldownSec}s`
-  const policyUpdatedHint = formatPolicyUpdatedHint(facePolicy.policyUpdatedAt)
-  const facePolicyTitle = ["Open Face Policy Controls", policyUpdatedHint]
-    .filter((line) => line && line.trim().length > 0)
-    .join(" | ")
 
   return (
     <header className="glass flex items-center justify-between px-6 py-3">
@@ -69,20 +44,12 @@ export function DashboardHeader({
             label={sseConnected ? "System Online" : "Reconnecting..."}
             variant={sseConnected ? "success" : "danger"}
           />
-          <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="3" variant="info" />
+          <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Live Slots" value="2" variant="info" />
           <StatusIndicator
             icon={<AlertTriangle className="h-3.5 w-3.5" />}
             label="Alerts This Session"
             value={String(totalAlerts)}
             variant={totalAlerts > 0 ? "danger" : "info"}
-          />
-          <StatusIndicator
-            icon={<ScanFace className="h-3.5 w-3.5" />}
-            label="Face Policy"
-            value={facePolicyValue}
-            variant={facePolicyVariant}
-            onClick={onFacePolicyClick}
-            title={facePolicyTitle}
           />
         </div>
         <div className="h-6 w-px bg-border" />
@@ -145,24 +112,3 @@ function StatusIndicator({
   )
 }
 
-function formatPolicyUpdatedHint(policyUpdatedAt: string | null): string {
-  if (!policyUpdatedAt || policyUpdatedAt.trim().length === 0) {
-    return "Policy update time: unknown"
-  }
-  const parsed = Date.parse(policyUpdatedAt)
-  if (Number.isNaN(parsed)) {
-    return `Policy updated: ${policyUpdatedAt}`
-  }
-
-  const ageSeconds = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
-  const ageTier =
-    ageSeconds < 60
-      ? "<1m"
-      : ageSeconds < 600
-        ? "<10m"
-        : ageSeconds < 3600
-          ? "<1h"
-          : ">1h"
-  const utc = new Date(parsed).toISOString().replace("T", " ").replace(".000Z", "Z")
-  return `Policy updated: ${ageTier} (${utc})`
-}

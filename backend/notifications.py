@@ -7,6 +7,7 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping
 from urllib import error, parse, request
 
@@ -153,7 +154,13 @@ class TelegramNotifier:
         severity = _normalize_severity(alert.get("severity"), default="high")
         return SEVERITY_ORDER[severity] >= SEVERITY_ORDER[self.config.min_severity]
 
-    def enqueue_alert(self, alert: Mapping[str, Any], snapshot_jpeg: bytes | None = None) -> bool:
+    def enqueue_alert(
+        self,
+        alert: Mapping[str, Any],
+        snapshot_jpeg: bytes | None = None,
+        clip_path: str | None = None,
+        is_demo_clip: bool = False,
+    ) -> bool:
         if not self.should_notify(alert):
             return False
 
@@ -169,6 +176,8 @@ class TelegramNotifier:
             "kind": "alert",
             "alert": dict(alert),
             "snapshot_jpeg": snapshot_jpeg,
+            "clip_path": clip_path,
+            "is_demo_clip": is_demo_clip,
         }
 
         try:
@@ -189,19 +198,106 @@ class TelegramNotifier:
                 break
 
             if item.get("kind") == "alert":
-                self._deliver_alert(item["alert"], item.get("snapshot_jpeg"))
+                self._deliver_alert(
+                    item["alert"],
+                    item.get("snapshot_jpeg"),
+                    item.get("clip_path"),
+                    item.get("is_demo_clip", False),
+                )
 
-    def _deliver_alert(self, alert: Mapping[str, Any], snapshot_jpeg: bytes | None) -> bool:
+    def _wait_for_clip(
+        self,
+        clip_path: Path,
+        max_wait: float = 12.0,
+        check_interval: float = 2.0,
+        min_size: int = 50_000,
+    ) -> bool:
+        """Wait for evidence clip file to appear with minimum acceptable size."""
+        elapsed = 0.0
+        while elapsed < max_wait:
+            if clip_path.exists() and clip_path.stat().st_size >= min_size:
+                return True
+            time.sleep(check_interval)
+            elapsed += check_interval
+        if clip_path.exists() and clip_path.stat().st_size > 0:
+            print(f"[Telegram] Clip may be incomplete ({clip_path.stat().st_size} bytes): {clip_path}")
+            return True
+        print(f"[Telegram] Clip not ready after {max_wait}s: {clip_path}")
+        return False
+
+    def _deliver_alert(
+        self,
+        alert: Mapping[str, Any],
+        snapshot_jpeg: bytes | None,
+        clip_path: str | None = None,
+        is_demo_clip: bool = False,
+    ) -> bool:
         alert_id = _coerce_str(alert.get("id"))
+        camera_id = _coerce_str(alert.get("cameraId", alert_id))
         if not alert_id:
             return False
 
         caption = self._format_caption(alert)
         last_error: Exception | None = None
 
+        video_bytes: bytes | None = None
+        video_filename = "alert.mp4"
+        video_mime = "video/mp4"
+
+        if clip_path:
+            clip_file = Path(clip_path)
+            if is_demo_clip:
+                print(f"[Telegram] Demo video candidate found for {camera_id}")
+                try:
+                    video_bytes = clip_file.read_bytes()
+                    video_filename = clip_file.name
+                    suffix = clip_file.suffix.lower()
+                    video_mime = (
+                        "video/mp4" if suffix == ".mp4"
+                        else "video/x-msvideo" if suffix == ".avi"
+                        else "application/octet-stream"
+                    )
+                except Exception as read_err:
+                    print(f"[Telegram] Could not read demo clip for {camera_id}: {read_err}")
+                    video_bytes = None
+            else:
+                print(f"[Telegram] Waiting for evidence clip: {clip_path}")
+                if self._wait_for_clip(clip_file):
+                    try:
+                        video_bytes = clip_file.read_bytes()
+                        video_filename = clip_file.name
+                        video_mime = "video/mp4"
+                        print(f"[Telegram] Video candidate found for {alert_id}: {len(video_bytes)} bytes")
+                    except Exception as read_err:
+                        print(f"[Telegram] Could not read clip for {alert_id}: {read_err}")
+                        video_bytes = None
+                else:
+                    print(f"[Telegram] Fallback to photo/text because clip missing for {alert_id}")
+
         for attempt in range(1, self.config.retries + 1):
             try:
-                if snapshot_jpeg:
+                if video_bytes:
+                    try:
+                        self._send_video(video_bytes, caption, video_filename, video_mime)
+                        print(f"[Telegram] Sent {'demo ' if is_demo_clip else ''}video for {alert_id}")
+                    except Exception as video_error:
+                        print(
+                            f"[Telegram] Video send failed for {alert_id}: {video_error}. "
+                            "Trying document fallback."
+                        )
+                        try:
+                            self._send_document(video_bytes, caption, video_filename, video_mime)
+                            print(f"[Telegram] Sent {'demo ' if is_demo_clip else ''}document for {alert_id}")
+                        except Exception as doc_error:
+                            print(
+                                f"[Telegram] Document send failed for {alert_id}: {doc_error}. "
+                                "Falling back to photo/text."
+                            )
+                            if snapshot_jpeg:
+                                self._send_photo(snapshot_jpeg, caption)
+                            else:
+                                self._send_message(caption)
+                elif snapshot_jpeg:
                     try:
                         self._send_photo(snapshot_jpeg, caption)
                     except Exception as photo_error:
@@ -330,4 +426,39 @@ class TelegramNotifier:
                 "disable_notification": "false",
             },
             {"photo": ("alert.jpg", photo_bytes, "image/jpeg")},
+        )
+
+    def _send_video(
+        self,
+        video_bytes: bytes,
+        caption: str,
+        filename: str = "alert.mp4",
+        mime_type: str = "video/mp4",
+    ) -> dict[str, Any]:
+        return self._request_multipart(
+            "sendVideo",
+            {
+                "chat_id": self.config.chat_id,
+                "caption": caption,
+                "disable_notification": "false",
+                "supports_streaming": "true",
+            },
+            {"video": (filename, video_bytes, mime_type)},
+        )
+
+    def _send_document(
+        self,
+        doc_bytes: bytes,
+        caption: str,
+        filename: str = "alert.mp4",
+        mime_type: str = "video/mp4",
+    ) -> dict[str, Any]:
+        return self._request_multipart(
+            "sendDocument",
+            {
+                "chat_id": self.config.chat_id,
+                "caption": caption,
+                "disable_notification": "false",
+            },
+            {"document": (filename, doc_bytes, mime_type)},
         )

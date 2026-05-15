@@ -226,9 +226,12 @@ class ViolenceInferencePipeline:
             print("[AI] Falling back to Legacy SlowFast model.")
             self.model = ViolenceDetector(num_classes=2).to(device)
             try:
-                state = torch.load(weights_path, map_location=device)
-                state_dict = self._extract_state_dict(state)
-                self.model.load_state_dict(state_dict)
+                state = torch.load("best_model.pt", map_location=device)
+                # Unwrap the model state dict if it's a full checkpoint
+                if "model_state_dict" in state:
+                    state = state["model_state_dict"]
+                self.model.load_state_dict(state)
+                print("[AI] Legacy SlowFast model weights loaded successfully.")
             except Exception as e:
                 print(f"[AI] Critical: Fallback failed: {e}")
                 self.enabled = False

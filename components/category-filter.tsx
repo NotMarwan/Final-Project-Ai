@@ -40,12 +40,11 @@ export function CategoryFilter({
     [onCategoryChange],
   )
 
-  // Use capabilities from backend if available, otherwise fallback to default list
-  const displayCategories = capabilities.length > 0 
-    ? capabilities 
+  // Use capabilities from backend if available, otherwise fallback to violence only
+  const displayCategories = capabilities.length > 0
+    ? capabilities.filter(c => c.id !== "weapon")
     : [
         { id: "violence", status: "active" } as CategoryCapability,
-        { id: "weapon", status: "experimental" } as CategoryCapability,
       ]
 
   return (

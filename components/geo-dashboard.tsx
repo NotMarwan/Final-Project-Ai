@@ -202,9 +202,7 @@ export const GeoDashboard = memo(function GeoDashboard({ alert, alerts, focusCam
               <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
                 Motion {alert.motionScore?.toFixed(1) ?? "--"}%
               </Badge>
-              <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
-                Weapon {alert.weaponScore?.toFixed(1) ?? "--"}%
-              </Badge>
+
               <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px]">
                 Model {alert.fusionModel ?? "fusion-v1"}
               </Badge>

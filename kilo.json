@@ -1,0 +1,29 @@
+{
+  "$schema": "https://kilo.ai/schema/kilo.json",
+  "version": "1.0.0",
+  "project": "AI Sentinel",
+  "description": "Real-time violence detection system with FastAPI backend, Next.js dashboard, face recognition, VLM forensic reports, and evidence management",
+  "agentsPath": ".kilo/agent",
+  "commandsPath": ".kilo/command",
+  "skillsPath": ".kilo/skill",
+  "mcpServers": {},
+  "permissions": {
+    "allowNetwork": true,
+    "allowFileRead": true,
+    "allowFileWrite": true,
+    "allowCodeExecution": true,
+    "allowShell": true
+  },
+  "ui": {
+    "theme": "dark",
+    "showAgentPanel": true
+  },
+  "agents": [
+    {
+      "name": "backend-reviewer-2",
+      "description": "Backend API & architecture deep-dive specialist (second reviewer)",
+      "enabled": true
+    }
+  ],
+  "defaultAgent": "explore"
+}
