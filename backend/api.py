@@ -261,7 +261,8 @@ def _finalize_config():
     THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
     STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
 
-JPEG_QUALITY   = 60
+JPEG_QUALITY_PRESETS = {"low": 50, "medium": 75, "high": 90}
+JPEG_QUALITY = JPEG_QUALITY_PRESETS.get(os.getenv("STREAM_QUALITY", "medium").lower(), 75)
 TARGET_FPS     = 20
 RING_BUFFER_LEN = 150  
 POST_ALERT_LEN  = 150  
