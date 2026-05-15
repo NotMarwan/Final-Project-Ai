@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  ai-sentinel:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - AI_SENTINEL_ENABLE_CAPTURE_LOOP=true
+      - STREAM_QUALITY=high
+      - AI_SENTINEL_FAST_ANNOTATE=true
+    volumes:
+      - ./reports:/app/reports
+      - ./evidence:/app/evidence
+      - ./thumbnails:/app/thumbnails
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

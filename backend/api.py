@@ -1674,6 +1674,23 @@ async def video_feed(camera_id: str = DEFAULT_CAMERA_ID):
         raise HTTPException(status_code=503, detail=f"Camera {camera_id} is not configured or offline")
     return StreamingResponse(_mjpeg_generator(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
 
+@app.post("/webrtc/offer/{camera_id}", summary="WebRTC SDP offer/answer exchange")
+async def webrtc_offer(camera_id: str, request: Request):
+    from webrtc_streamer import WebRTCManager as _WebRTCManager
+    _webrtc = _WebRTCManager()
+    if not _webrtc.available:
+        raise HTTPException(status_code=501, detail="WebRTC not available. Install: pip install aiortc av")
+    data = await request.json()
+    try:
+        result = await _webrtc.handle_offer(
+            camera_id,
+            lambda cid=camera_id: state.get_frame(cid),
+            data["sdp"], data["type"]
+        )
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"WebRTC offer failed: {exc}")
+
 @app.get("/cameras/status", summary="Camera status list")
 async def cameras_status():
     """Return status for all configured cameras."""
@@ -2386,6 +2403,22 @@ async def system_status():
             "reports": str(REPORTS_DIR),
         },
     }
+
+
+@app.get("/system/metrics", summary="Real-time pipeline performance metrics")
+async def system_metrics():
+    try:
+        from metrics import pipeline_metrics as pm
+        m = pm.summary()
+        m["webrtcAvailable"] = False
+        try:
+            from webrtc_streamer import WebRTCManager
+            m["webrtcAvailable"] = WebRTCManager().available
+        except Exception:
+            pass
+        return m
+    except Exception as exc:
+        return {"error": str(exc)}
 
 
 @app.post("/decision_layer/reset", summary="Reset live alert decision layer state")
