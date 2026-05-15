@@ -30,6 +30,20 @@ try:
 except ImportError:
     from live_alert_decision import LiveAlertDecisionLayer
 
+try:
+    from .person_detector import PersonDetector
+    from .centroid_tracker import CentroidTracker
+    from .visual_annotator import annotate as annotate_frame
+except ImportError:
+    from person_detector import PersonDetector
+    from centroid_tracker import CentroidTracker
+    from visual_annotator import annotate as annotate_frame
+
+try:
+    from .go2rtc_bridge import Go2RTCBridge
+except ImportError:
+    from go2rtc_bridge import Go2RTCBridge
+
 def _is_torch_cuda_available() -> bool:
     try:
         import torch
@@ -247,10 +261,11 @@ def _finalize_config():
     THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
     STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
 
-JPEG_QUALITY   = 80
-TARGET_FPS     = 25
+JPEG_QUALITY   = 60
+TARGET_FPS     = 20
 RING_BUFFER_LEN = 150  
 POST_ALERT_LEN  = 150  
+_FILE_SKIP_FRAMES = int(os.getenv("AI_SENTINEL_FILE_SKIP", "0"))
 
 
 def _env_flag(name: str, default: bool = True) -> bool:
@@ -292,6 +307,7 @@ audit_logger = None
 evidence_ledger = None
 audio_analyzer = None
 face_engine = None
+go2rtc_bridge: Go2RTCBridge | None = None
 
 def _init_engines():
     global telegram_notifier, fusion_engine, weapon_engine, security_controller
@@ -313,6 +329,9 @@ def _init_engines():
     evidence_ledger = imports['EvidenceLedger'].from_settings(config, BASE_DIR)
     audio_analyzer = imports['AudioRiskAnalyzer'].from_settings(config)
     face_engine = imports['FaceIntelEngine'].from_settings(config, os.environ, BASE_DIR)
+    global go2rtc_bridge
+    go2rtc_bridge = Go2RTCBridge(config, os.environ)
+    go2rtc_bridge.start()
 CAPTURE_LOOP_ENABLED = _env_flag("AI_SENTINEL_ENABLE_CAPTURE_LOOP", default=True)
 
 if GROQ_ENABLED:
@@ -447,6 +466,22 @@ class AppState:
                 self._alert_queues.remove(q)
 
     def broadcast_alert(self, payload: dict):
+        data = json.dumps(payload)
+        with self._aq_lock:
+            for q in list(self._alert_queues):
+                try:
+                    q.put_nowait(data)
+                except queue.Full:
+                    pass
+
+    def broadcast_person_data(self, camera_id: str, person_count: int, track_ids: list[str], is_threat: bool):
+        payload = {
+            "type": "person_detection",
+            "cameraId": camera_id,
+            "personCount": person_count,
+            "trackIds": track_ids,
+            "isThreat": is_threat,
+        }
         data = json.dumps(payload)
         with self._aq_lock:
             for q in list(self._alert_queues):
@@ -1049,10 +1084,34 @@ def _emit_face_audit_events(
 
 import concurrent.futures
 
-def _run_ai_task(pipeline, face_engine, frame, previous_raw_frame):
+def _run_ai_task(pipeline, face_engine, frame, previous_raw_frame,
+                 person_detector=None, centroid_tracker=None, overlay_cache=None):
     clean_frame = pipeline.process_frame(frame)
     face_summary = face_engine.analyze_frame(frame)
     motion_score = _estimate_motion_score(previous_raw_frame, frame)
+
+    tracks = []
+    person_count = 0
+    if person_detector is not None and centroid_tracker is not None:
+        try:
+            detections = person_detector.detect(frame)
+            tracks = centroid_tracker.update(detections)
+            person_count = len(tracks)
+        except Exception as exc:
+            print(f"[System] Async person detection error: {exc}")
+
+    is_threat = bool(
+        getattr(pipeline, "_last_label", None) == VIOLENCE_CLS
+        and getattr(pipeline, "_last_conf", 0) > 0.3
+    )
+    if overlay_cache is not None:
+        overlay_cache.update(
+            tracks=tracks,
+            person_count=person_count,
+            is_threat=is_threat,
+            threat_confidence=getattr(pipeline, "_last_conf", 0.0) * 100,
+        )
+
     return face_summary, motion_score
 
 def _is_live_source(source: Union[str, int]) -> bool:
@@ -1159,8 +1218,28 @@ def camera_worker(
     # Reuse helpers defined above
     _is_rtsp = lambda s: isinstance(s, str) and s.lower().startswith("rtsp://")
 
+    source_str = str(source)
+    if go2rtc_bridge and go2rtc_bridge.is_running and (source_str.startswith("rtsp://") or source_str.startswith("rtmp://")):
+        go2rtc_bridge.add_stream(camera_id, source_str)
+
     cap = _open_capture(source)
     src_fps, width, height = _read_cap_props(cap)
+
+    # Person detection + visual overlay setup (after cap is opened for width/height)
+    try:
+        person_detector = PersonDetector(device=device.type)
+        centroid_tracker = CentroidTracker()
+        centroid_tracker.configure_for_frame(width, height)
+    except Exception as exc:
+        print(f"[{camera_id}] Person detection init failed: {exc}")
+        person_detector = None
+        centroid_tracker = None
+    _fps_counter = 0
+    _fps_timer = time.perf_counter()
+    _current_fps = 0.0
+
+    from frame_pipeline import OverlayCache
+    overlay_cache = OverlayCache()
 
     ring = deque(maxlen=RING_BUFFER_LEN)
     active_post_queues: list[tuple[queue.Queue, int]] = []
@@ -1174,7 +1253,7 @@ def camera_worker(
     current_source = source
 
     # Background executor for face+motion AI inference
-    ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix=f"ai-{camera_id}")
+    ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix=f"ai-{camera_id}")
     ai_future = None
 
     state.running = True
@@ -1187,6 +1266,11 @@ def camera_worker(
             ret, raw = _drain_to_latest(cap)
         else:
             ret, raw = cap.read()
+            if ret and _FILE_SKIP_FRAMES > 0:
+                for _ in range(_FILE_SKIP_FRAMES):
+                    skip_ret, _ = cap.read()
+                    if not skip_ret:
+                        break
         # -----------------------------------------------------------------------
 
         if not ret:
@@ -1340,15 +1424,58 @@ def camera_worker(
 
             # Submit the next background AI task (face+motion) for the current raw frame
             try:
-                ai_future = ai_executor.submit(_run_ai_task, pipeline, local_face_engine, raw.copy(), previous_raw_frame)
+                ai_future = ai_executor.submit(
+                    _run_ai_task, pipeline, local_face_engine, raw.copy(),
+                    previous_raw_frame, person_detector, centroid_tracker, overlay_cache
+                )
             except Exception as e:
                 print(f"[System] Failed to submit AI task: {e}")
                 ai_future = None
 
         previous_raw_frame = raw.copy()
 
-        # MJPEG streaming: encode the raw frame (unannotated) for low latency
-        ok, jpg_buf = cv2.imencode(".jpg", raw, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+        # ── Read latest detection results from async AI cache ──
+        ov = overlay_cache.snapshot()
+        tracks = ov["tracks"]
+        person_count = ov["person_count"]
+        is_threat_now = ov["is_threat"]
+        threat_conf = ov["threat_confidence"]
+
+        # FPS counter
+        _fps_counter += 1
+        now_time = time.perf_counter()
+        if now_time - _fps_timer >= 1.0:
+            _current_fps = _fps_counter / (now_time - _fps_timer)
+            _fps_counter = 0
+            _fps_timer = now_time
+
+        # ── Annotate frame with visual overlays ──
+        try:
+            annotated = annotate_frame(
+                frame=raw,
+                tracks=tracks,
+                person_count=person_count,
+                is_threat=is_threat_now,
+                threat_confidence=threat_conf,
+                camera_id=camera_id,
+                fps=_current_fps,
+            )
+        except Exception as exc:
+            print(f"[System] Annotation error: {exc}")
+            annotated = raw  # fall back to raw frame
+
+        # Broadcast person detection metadata (every 15 frames to reduce SSE noise)
+        if _fps_counter % 15 == 0:
+            track_ids = [getattr(t, "label", f"P-{i}") for i, t in enumerate(tracks)]
+            state.broadcast_person_data(
+                camera_id=camera_id,
+                person_count=person_count,
+                track_ids=track_ids,
+                is_threat=is_threat_now,
+            )
+
+        # MJPEG streaming: encode the annotated frame
+        ok, jpg_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok:
             state.set_frame(camera_id, jpg_buf.tobytes())
 
@@ -1362,6 +1489,7 @@ def camera_worker(
             face_audit_dedupe.clear()
             pipeline.reset()
             weapon_engine.reset()
+            centroid_tracker.reset()
             local_face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             state.reset_decision_layer()
             if device.type == "cuda":
@@ -1370,6 +1498,7 @@ def camera_worker(
             cap = _open_capture(new_source)
             if cap.isOpened():
                 src_fps, width, height = _read_cap_props(cap)
+                centroid_tracker.configure_for_frame(width, height)
                 print(f"[System] Stream focused on {new_cam_id}")
             else:
                 print(f"[System] Warning: Failed to open {new_source}. Reverting to default.")
@@ -1384,6 +1513,8 @@ def camera_worker(
     # Cleanup on shutdown
     ai_executor.shutdown(wait=False)
     cap.release()
+    if go2rtc_bridge and go2rtc_bridge.is_running:
+        go2rtc_bridge.remove_stream(camera_id)
 
 
 
@@ -1462,6 +1593,8 @@ async def lifespan(app: FastAPI):
         t.join(timeout=5)
     if telegram_notifier:
         telegram_notifier.stop()
+    if go2rtc_bridge:
+        go2rtc_bridge.stop()
 
 app = FastAPI(lifespan=lifespan, title="AI Sentinel Advanced Backend")
 app.add_middleware(
@@ -1496,6 +1629,41 @@ async def _sse_generator(q: queue.Queue) -> AsyncGenerator[bytes, None]:
         pass
     finally: 
         state.unsubscribe(q)
+
+# ── WebRTC / go2rtc Proxy Endpoints ──────────────────────────────────────────
+
+@app.get("/api/webrtc/{cam_id}", summary="Get WebRTC stream metadata for camera")
+async def webrtc_stream(cam_id: str):
+    if not go2rtc_bridge or not go2rtc_bridge.is_running:
+        raise HTTPException(status_code=503, detail="WebRTC not available")
+    whep_url = go2rtc_bridge.get_whep_url(cam_id)
+    if not whep_url:
+        raise HTTPException(status_code=404, detail="Stream not found")
+    return {"cam_id": cam_id, "url": whep_url, "protocol": "webrtc"}
+
+@app.post("/api/webrtc/{cam_id}/whep", summary="Proxy WHEP SDP offer to go2rtc")
+async def webrtc_whep_offer(cam_id: str, request: Request):
+    if not go2rtc_bridge or not go2rtc_bridge.is_running:
+        raise HTTPException(status_code=503, detail="WebRTC not available")
+    body = await request.body()
+    status, response_body = go2rtc_bridge.proxy_whep(
+        cam_id, "POST", body.decode() if body else None, "application/sdp"
+    )
+    if status != 200:
+        raise HTTPException(status_code=status, detail="WHEP negotiation failed")
+    return Response(content=response_body, media_type="application/sdp")
+
+@app.patch("/api/webrtc/{cam_id}/whep", summary="Proxy ICE trickle to go2rtc")
+async def webrtc_whep_ice(cam_id: str, request: Request):
+    if not go2rtc_bridge or not go2rtc_bridge.is_running:
+        raise HTTPException(status_code=503, detail="WebRTC not available")
+    body = await request.body()
+    status, response_body = go2rtc_bridge.proxy_ice(cam_id, body.decode() if body else None)
+    if status not in (200, 204):
+        raise HTTPException(status_code=status, detail="ICE trickle failed")
+    return Response(content=response_body, media_type="application/trickle-ice-sdpfrag")
+
+# ── MJPEG / Standard Endpoints ───────────────────────────────────────────────
 
 @app.get("/video_feed", summary="MJPEG Video Stream")
 async def video_feed(camera_id: str = DEFAULT_CAMERA_ID):
