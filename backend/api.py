@@ -1572,7 +1572,8 @@ async def lifespan(app: FastAPI):
             active_ids = [cid.strip() for cid in env_active.split(",") if cid.strip()]
         else:
             active_ids = list(CAMERA_SOURCES.keys())
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        from device_config import get_optimal_device
+        device = get_optimal_device(prefer_gpu=True)
         for cam_id in active_ids:
             if cam_id not in CAMERA_SOURCES:
                 print(f"[System] Warning: camera '{cam_id}' not in CAMERA_SOURCES, skipping.")
@@ -1699,8 +1700,8 @@ async def demo_start(clip_id: str):
         raise HTTPException(status_code=404, detail=f"Demo clip file not found: {clip_path}")
     if state.is_demo_worker_running(clip_id):
         return {"status": "already_running", "clip_id": clip_id}
-    import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    from device_config import get_optimal_device
+    device = get_optimal_device(prefer_gpu=True)
     stop_event = state.create_worker_stop_event(clip_id)
     t = threading.Thread(
         target=camera_worker,
