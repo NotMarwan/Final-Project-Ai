@@ -309,6 +309,7 @@ evidence_ledger = None
 audio_analyzer = None
 face_engine = None
 go2rtc_bridge: Go2RTCBridge | None = None
+_webrtc_manager = None
 
 def _init_engines():
     global telegram_notifier, fusion_engine, weapon_engine, security_controller
@@ -1240,7 +1241,9 @@ def camera_worker(
     _current_fps = 0.0
 
     from frame_pipeline import OverlayCache
+    from metrics import pipeline_metrics as _pm
     overlay_cache = OverlayCache()
+    _ai_task_submit_time = 0.0
 
     ring = deque(maxlen=RING_BUFFER_LEN)
     active_post_queues: list[tuple[queue.Queue, int]] = []
@@ -1309,14 +1312,19 @@ def camera_worker(
                 still_active.append(entry)
         active_post_queues = still_active
 
-        # Weapon detection (synchronous)
+        # Weapon detection (synchronous — already async internally)
         weapon_signal = weapon_engine.process_frame(raw)
         weapon_score = float(weapon_signal.get("score", 0.0))
+        overlay_cache.update(weapon_score=weapon_score)
+        _pm.record_weapon(weapon_score)
 
         # If the background AI task has finished, process its results
         if ai_future is None or ai_future.done():
             if ai_future is not None:
                 try:
+                    if _ai_task_submit_time > 0:
+                        _pm.record_inference((time.perf_counter() - _ai_task_submit_time) * 1000)
+                        _ai_task_submit_time = 0
                     face_summary, motion_score = ai_future.result()
                     state.store_face_summary(face_summary)
                     cam_id = camera_id
@@ -1425,6 +1433,7 @@ def camera_worker(
 
             # Submit the next background AI task (face+motion) for the current raw frame
             try:
+                _ai_task_submit_time = time.perf_counter()
                 ai_future = ai_executor.submit(
                     _run_ai_task, pipeline, local_face_engine, raw.copy(),
                     previous_raw_frame, person_detector, centroid_tracker, overlay_cache
@@ -1432,6 +1441,7 @@ def camera_worker(
             except Exception as e:
                 print(f"[System] Failed to submit AI task: {e}")
                 ai_future = None
+                _ai_task_submit_time = 0
 
         previous_raw_frame = raw.copy()
 
@@ -1441,6 +1451,7 @@ def camera_worker(
         person_count = ov["person_count"]
         is_threat_now = ov["is_threat"]
         threat_conf = ov["threat_confidence"]
+        _pm.record_person(person_count)
 
         # FPS counter
         _fps_counter += 1
@@ -1449,6 +1460,7 @@ def camera_worker(
             _current_fps = _fps_counter / (now_time - _fps_timer)
             _fps_counter = 0
             _fps_timer = now_time
+            _pm.record_stream(_current_fps)
 
         # ── Annotate frame with visual overlays ──
         try:
@@ -1476,8 +1488,10 @@ def camera_worker(
             )
 
         # MJPEG streaming: encode the annotated frame
+        _enc_t0 = time.perf_counter()
         ok, jpg_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if ok:
+            _pm.record_encode((time.perf_counter() - _enc_t0) * 1000)
             state.set_frame(camera_id, jpg_buf.tobytes())
 
         # Check for pending camera switch requests (initiated by dashboard)
@@ -1512,7 +1526,7 @@ def camera_worker(
         time.sleep(max(0, (1.0 / TARGET_FPS) - (time.perf_counter() - t0)))
 
     # Cleanup on shutdown
-    ai_executor.shutdown(wait=False)
+    ai_executor.shutdown(wait=True, cancel_futures=True)
     cap.release()
     if go2rtc_bridge and go2rtc_bridge.is_running:
         go2rtc_bridge.remove_stream(camera_id)
@@ -1561,6 +1575,14 @@ async def lifespan(app: FastAPI):
         )
     _init_category_detector()
 
+    global _webrtc_manager
+    try:
+        from webrtc_streamer import WebRTCManager
+        _webrtc_manager = WebRTCManager()
+        print(f"[System] WebRTC manager ready (available={_webrtc_manager.available})")
+    except Exception as exc:
+        print(f"[System] WebRTC init skipped: {exc}")
+
     telegram_notifier.start()
     threads = []
     state.running = True
@@ -1597,6 +1619,11 @@ async def lifespan(app: FastAPI):
         telegram_notifier.stop()
     if go2rtc_bridge:
         go2rtc_bridge.stop()
+    if _webrtc_manager is not None:
+        try:
+            await _webrtc_manager.close_all()
+        except Exception:
+            pass
 
 app = FastAPI(lifespan=lifespan, title="AI Sentinel Advanced Backend")
 app.add_middleware(
@@ -1676,13 +1703,13 @@ async def video_feed(camera_id: str = DEFAULT_CAMERA_ID):
 
 @app.post("/webrtc/offer/{camera_id}", summary="WebRTC SDP offer/answer exchange")
 async def webrtc_offer(camera_id: str, request: Request):
-    from webrtc_streamer import WebRTCManager as _WebRTCManager
-    _webrtc = _WebRTCManager()
-    if not _webrtc.available:
+    if _webrtc_manager is None:
+        raise HTTPException(status_code=501, detail="WebRTC not initialized")
+    if not _webrtc_manager.available:
         raise HTTPException(status_code=501, detail="WebRTC not available. Install: pip install aiortc av")
     data = await request.json()
     try:
-        result = await _webrtc.handle_offer(
+        result = await _webrtc_manager.handle_offer(
             camera_id,
             lambda cid=camera_id: state.get_frame(cid),
             data["sdp"], data["type"]
