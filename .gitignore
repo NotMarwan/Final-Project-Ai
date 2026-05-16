@@ -17,6 +17,7 @@ node_modules/
 # Misc
 .DS_Store
 *.pem
+spawn.js
 
 # Env
 .env
@@ -79,6 +80,9 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# Python virtual environment
+backend/venv/
+
 # Databases and experiment logs
 *.db
 *.sqlite
@@ -96,3 +100,8 @@ Desktop.ini
 backend/face_policy_overrides.json
 backend/known_faces_registry.json
 backend/camera_profiles.yml
+
+# go2rtc binary (downloaded via setup script)
+go2rtc.exe
+go2rtc
+go2rtc.zip

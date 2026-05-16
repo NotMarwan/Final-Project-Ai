@@ -66,27 +66,42 @@ categories:
   violence_enabled: true
   violence_threshold: 0.75
   violence_weight: 1.0
-  
+
   weapon_enabled: true
   weapon_threshold: 0.55
   independent_alert_threshold: 0.65
   weapon_weight: 0.9
-  
+
   crowd_surge_enabled: true
   crowd_surge_threshold: 0.70
   crowd_surge_weight: 0.8
-  
+
   fall_enabled: false
   fall_threshold: 0.65
   fall_weight: 0.85
-  
+
   intrusion_enabled: false
   intrusion_threshold: 0.60
   intrusion_weight: 0.75
-  
+
   loitering_enabled: false
   loitering_threshold: 0.50
   loitering_weight: 0.6
+
+# Weapon detector configuration
+weapon:
+  enabled: true
+  backend: yolo
+  weight_path: "./weapon_hadi_yolo.pt"
+  labels: ["pistol", "knife"]
+  interval: 8
+  min_confidence: 0.20
+  ema_alpha: 0.45
+  input_size: 640
+  preload_on_startup: false
+  min_interval_ms: 2500
+  realtime_threshold_ms: 500
+  independent_alert_threshold: 0.65
 
 # Clip settings
 clips:
@@ -94,13 +109,25 @@ clips:
   max_clips_stored: 100
   clip_retention_days: 30
 
+# Person overlay configuration
+person_overlay:
+  enabled: true
+  conf_threshold: 0.35
+  infer_interval: 5
+
 # Performance optimization
 performance:
   inference_timeout_ms: 500
   frame_cache_size: 300
   async_inference: true
 
+webrtc:
+  enabled: false
+  port: 1984
+  go2rtc_binary: "./go2rtc"  # relative to backend dir
+  go2rtc_config: "./go2rtc.yml"
+
 server:
   host: "0.0.0.0"
-  port: 8000
+  port: 8002
   cors_origins: ["*"]
