@@ -1,5 +1,7 @@
 # AI Sentinel Video Performance & Streaming Overhaul
 
+> See also: [Implementation Plan](VIDEO_PERFORMANCE_OVERHAUL_PLAN.md) | [README](../README.md) | [WebRTC Streaming Plan](superpowers/plans/2026-05-16-phase1-webrtc-streaming.md)
+
 ## Problem Statement
 
 The current video pipeline suffers from severe performance degradation causing:

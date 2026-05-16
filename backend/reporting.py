@@ -20,9 +20,18 @@ from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Tabl
 
 ARABIC_FONT_NAME = "AIArabic"
 ARABIC_FONT_PATHS = [
+    # Windows
     Path(r"C:\Windows\Fonts\DTNASKH0.TTF"),
     Path(r"C:\Windows\Fonts\tahoma.ttf"),
     Path(r"C:\Windows\Fonts\arial.ttf"),
+    # Linux / Docker (DejaVu, Liberation, FreeSans — commonly available)
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+    Path("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
+    Path("/usr/share/fonts/truetype/freefont/FreeSans.ttf"),
+    Path("/usr/share/fonts/opentype/noto/NotoSans-Regular.ttf"),
+    # macOS
+    Path("/Library/Fonts/Arial.ttf"),
+    Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
 ]
 
 

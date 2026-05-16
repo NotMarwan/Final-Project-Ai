@@ -1,5 +1,7 @@
 # Stage 12 External Eval
 
+> See also: [Project Status](00_PROJECT_STATUS.md) | [Live Alert Decision Layer V2](02_LIVE_ALERT_DECISION_LAYER_V2.md) | [README](../README.md)
+
 ## Dataset
 
 - Dataset: `UBI-FightsAll`

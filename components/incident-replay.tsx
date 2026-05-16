@@ -10,15 +10,12 @@ import {
   Volume2,
   VolumeX,
   Maximize2,
-  ChevronUp,
-  ChevronDown,
   Info,
   Loader2,
   WifiOff,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
 interface IncidentReplayProps {
@@ -41,7 +38,6 @@ export function IncidentReplay({
   confidence,
   location,
   timestamp,
-  onClose,
   className,
   autoPlay = true,
   maxDuration,
@@ -51,8 +47,7 @@ export function IncidentReplay({
   const [isPlaying, setIsPlaying] = useState(autoPlay)
   const [isMuted, setIsMuted] = useState(true)
   const [progress, setProgress] = useState(0)
-  const [showOverlay, setShowOverlay] = useState(true)
-  const [isLooping, setIsLooping] = useState(true)
+  const [isLooping] = useState(true)
   const [clipStatus, setClipStatus] = useState<"idle" | "loading" | "ready" | "error">("idle")
   const [retryCount, setRetryCount] = useState(0)
   const MAX_AUTO_RETRIES = 10

@@ -1,5 +1,7 @@
 # Demo Runbook - AI-Sentinel Telegram Alerts
 
+> See also: [Telegram Alerts Setup](07_TELEGRAM_ALERTS.md) | [Troubleshooting](05_TROUBLESHOOTING.md) | [Live Alert Decision Layer V2](02_LIVE_ALERT_DECISION_LAYER_V2.md) | [Project Status](00_PROJECT_STATUS.md) | [README](../README.md) | [API Reference](API_REFERENCE.md)
+
 ## Before Demo Checklist
 
 ### System Preparation

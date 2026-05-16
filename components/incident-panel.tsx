@@ -6,7 +6,7 @@ import {
   ShieldAlert, XCircle, Download, ChevronRight,
   ShieldCheck, Loader2, CheckCircle2, AlertCircle,
   SlidersHorizontal, CheckCheck, Info, X,
-  FileSearch, Sparkles, Timer, FileDown, UserRound, ScanFace, Copy
+  Timer, FileDown
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -39,12 +39,11 @@ type ExportPhase =
 
 interface IncidentPanelProps {
   alert: LiveAlert | null
-  focusFacePolicySignal?: number
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPanelProps) {
+export function IncidentPanel({ alert }: IncidentPanelProps) {
   const [exportState,   setExportState]   = useState<ExportPhase>({ phase: "idle" })
   const [reportState,   setReportState]   = useState<ExportPhase>({ phase: "idle" })
   const [toasts,        setToasts]        = useState<Toast[]>([])
@@ -56,24 +55,10 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
   // شريط الكولداون (Alert Timeout)
   const [cooldown,      setCooldown]      = useState<number>(60)
   const [cooldownBusy,  setCooldownBusy]  = useState(false)
-  
-  // Face policy controls
-  const [faceIdentityLabeling, setFaceIdentityLabeling] = useState(true)
-  const [faceIdentityBusy, setFaceIdentityBusy] = useState(false)
-  const [faceAuditEnabled, setFaceAuditEnabled] = useState(true)
-  const [faceAuditBusy, setFaceAuditBusy] = useState(false)
-  const [faceAuditCooldown, setFaceAuditCooldown] = useState(25)
-  const [faceAuditCooldownBusy, setFaceAuditCooldownBusy] = useState(false)
-  const [facePolicyReloadBusy, setFacePolicyReloadBusy] = useState(false)
-  const [facePolicyUpdatedAt, setFacePolicyUpdatedAt] = useState<string | null>(null)
 
   const toastCounter        = useRef(0)
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const debounceCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const debounceFaceAuditCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const facePolicyPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const facePolicyControlsRef = useRef<HTMLDivElement | null>(null)
-  const [facePolicyPulse, setFacePolicyPulse] = useState(false)
 
   // ── Reset export state when a new alert arrives ────────────────────────────
   useEffect(() => {
@@ -254,165 +239,9 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
     debounceCooldownRef.current = setTimeout(() => sendCooldown(value), THRESHOLD_DEBOUNCE_MS)
   }, [sendCooldown])
 
-  const loadFacePolicy = useCallback(async () => {
-    try {
-      let policy: Record<string, unknown> = {}
-
-      const policyRes = await fetch(`${API_BASE}/face/policy`)
-      if (policyRes.ok) {
-        const policyPayload = await policyRes.json()
-        policy = (policyPayload?.policy ?? {}) as Record<string, unknown>
-      } else {
-        const statusRes = await fetch(`${API_BASE}/face/status`)
-        if (!statusRes.ok) return
-        const statusPayload = await statusRes.json()
-        policy = (statusPayload?.policy ?? {}) as Record<string, unknown>
-      }
-
-      if (typeof policy.identityLabelingEnabled === "boolean") setFaceIdentityLabeling(policy.identityLabelingEnabled)
-      if (typeof policy.recognitionAuditEnabled === "boolean") setFaceAuditEnabled(policy.recognitionAuditEnabled)
-      if (typeof policy.recognitionAuditCooldownSec === "number") setFaceAuditCooldown(policy.recognitionAuditCooldownSec)
-      if (typeof policy.policyUpdatedAt === "string" && policy.policyUpdatedAt.trim().length > 0) {
-        setFacePolicyUpdatedAt(policy.policyUpdatedAt)
-      }
-    } catch {
-      // Keep local defaults when API is unreachable.
-    }
-  }, [])
-
-  const sendFacePolicy = useCallback(async (body: Record<string, unknown>) => {
-    const res = await fetch(`${API_BASE}/face/policy`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    if (!res.ok) {
-      const responseBody = await res.json().catch(() => ({}))
-      throw new Error(responseBody?.detail ?? `Server error ${res.status}`)
-    }
-  }, [])
-
-  const toggleIdentityLabeling = useCallback(async () => {
-    const next = !faceIdentityLabeling
-    setFaceIdentityLabeling(next)
-    setFaceIdentityBusy(true)
-    try {
-      await sendFacePolicy({ identity_labeling_enabled: next })
-      addToast(next ? "Identity labels enabled." : "Identity labels masked.", "success")
-    } catch (err) {
-      setFaceIdentityLabeling(!next)
-      const msg = err instanceof Error ? err.message : "Failed to update identity policy."
-      addToast(msg, "error")
-    } finally {
-      setFaceIdentityBusy(false)
-    }
-  }, [faceIdentityLabeling, sendFacePolicy, addToast])
-
-  const toggleFaceAudit = useCallback(async () => {
-    const next = !faceAuditEnabled
-    setFaceAuditEnabled(next)
-    setFaceAuditBusy(true)
-    try {
-      await sendFacePolicy({ recognition_audit_enabled: next })
-      addToast(next ? "Face audit enabled." : "Face audit paused.", "success")
-    } catch (err) {
-      setFaceAuditEnabled(!next)
-      const msg = err instanceof Error ? err.message : "Failed to update face audit policy."
-      addToast(msg, "error")
-    } finally {
-      setFaceAuditBusy(false)
-    }
-  }, [faceAuditEnabled, sendFacePolicy, addToast])
-
-  const sendFaceAuditCooldown = useCallback(async (value: number) => {
-    setFaceAuditCooldownBusy(true)
-    try {
-      await sendFacePolicy({ recognition_audit_cooldown_sec: value })
-      addToast(`Face audit cooldown set to ${value}s`, "success")
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to update face audit cooldown."
-      addToast(msg, "error")
-    } finally {
-      setFaceAuditCooldownBusy(false)
-    }
-  }, [sendFacePolicy, addToast])
-
-  const handleFaceAuditCooldownChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value)
-    setFaceAuditCooldown(value)
-    if (debounceFaceAuditCooldownRef.current !== null) clearTimeout(debounceFaceAuditCooldownRef.current)
-    debounceFaceAuditCooldownRef.current = setTimeout(() => sendFaceAuditCooldown(value), THRESHOLD_DEBOUNCE_MS)
-  }, [sendFaceAuditCooldown])
-
-  const reloadFacePolicyFromDisk = useCallback(async () => {
-    setFacePolicyReloadBusy(true)
-    try {
-      const res = await fetch(`${API_BASE}/face/policy/reload`, { method: "POST" })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body?.detail ?? `Server error ${res.status}`)
-      }
-      await loadFacePolicy()
-      addToast("Face policy reloaded from disk.", "success")
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to reload policy from disk."
-      addToast(msg, "error")
-    } finally {
-      setFacePolicyReloadBusy(false)
-    }
-  }, [loadFacePolicy, addToast])
-
-  const copyPolicyUpdatedAt = useCallback(async () => {
-    const raw = (facePolicyUpdatedAt ?? "").trim()
-    if (!raw) {
-      addToast("No policy timestamp available yet.", "info")
-      return
-    }
-
-    try {
-      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(raw)
-      } else if (typeof document !== "undefined") {
-        const textarea = document.createElement("textarea")
-        textarea.value = raw
-        textarea.setAttribute("readonly", "true")
-        textarea.style.position = "fixed"
-        textarea.style.opacity = "0"
-        textarea.style.pointerEvents = "none"
-        document.body.appendChild(textarea)
-        textarea.select()
-        const copied = document.execCommand("copy")
-        document.body.removeChild(textarea)
-        if (!copied) throw new Error("copy-failed")
-      } else {
-        throw new Error("clipboard-unavailable")
-      }
-      addToast("Policy timestamp copied.", "success")
-    } catch {
-      addToast("Copy failed. Please copy manually.", "error")
-    }
-  }, [facePolicyUpdatedAt, addToast])
-
-  useEffect(() => {
-    void loadFacePolicy()
-  }, [loadFacePolicy])
-
-  useEffect(() => {
-    if (focusFacePolicySignal <= 0) return
-    const section = facePolicyControlsRef.current
-    if (!section) return
-
-    section.scrollIntoView({ behavior: "smooth", block: "center" })
-    setFacePolicyPulse(true)
-    if (facePolicyPulseTimerRef.current !== null) clearTimeout(facePolicyPulseTimerRef.current)
-    facePolicyPulseTimerRef.current = setTimeout(() => setFacePolicyPulse(false), 1_600)
-  }, [focusFacePolicySignal])
-
   useEffect(() => () => {
     if (debounceTimerRef.current !== null) clearTimeout(debounceTimerRef.current)
     if (debounceCooldownRef.current !== null) clearTimeout(debounceCooldownRef.current)
-    if (debounceFaceAuditCooldownRef.current !== null) clearTimeout(debounceFaceAuditCooldownRef.current)
-    if (facePolicyPulseTimerRef.current !== null) clearTimeout(facePolicyPulseTimerRef.current)
   }, [])
 
   // ── Render: no active incident ─────────────────────────────────────────────
@@ -439,19 +268,10 @@ export function IncidentPanel({ alert, focusFacePolicySignal = 0 }: IncidentPane
   }
 
   // ── Render: active incident ────────────────────────────────────────────────
-  const faceSummary = alert.faceSummary
-  const recognizedPeople = faceSummary?.recognized ?? []
-  const unknownIds = faceSummary?.unknownIds ?? []
-  const unknownDetails = faceSummary?.unknownDetails ?? []
-  const knownCount = faceSummary?.recognizedCount ?? recognizedPeople.length
-  const unknownCount = faceSummary?.unknownCount ?? unknownIds.length
-  const totalFaces = faceSummary?.totalFaces ?? knownCount + unknownCount
   const modelConfidence = alert.modelConfidence ?? alert.confidence
   const rawModelConfidence = alert.rawModelConfidence ?? modelConfidence
   const threatConfidence = alert.threatConfidence ?? alert.fusionScore ?? alert.confidence
   const motionScore = alert.motionScore ?? 0
-  const weaponScore = alert.weaponScore ?? 0
-  const weaponLabels = (alert.weaponLabels ?? []).filter(Boolean)
 
   return (
     <div className="relative flex h-full flex-col gap-4 p-4">
@@ -669,121 +489,6 @@ function CooldownSlider({ value, busy, onChange }: { value: number; busy: boolea
 
 // ─── Toast stack ─────────────────────────────────────────────────────────────
 
-function FacePolicyControls({
-  identityLabeling,
-  identityBusy,
-  auditEnabled,
-  auditBusy,
-  auditCooldown,
-  auditCooldownBusy,
-  onToggleIdentity,
-  onToggleAudit,
-  onChangeAuditCooldown,
-  onReloadPolicy,
-  reloadBusy,
-  policyUpdatedAt,
-  onCopyPolicyUpdatedAt,
-  containerRef,
-  highlight,
-}: {
-  identityLabeling: boolean
-  identityBusy: boolean
-  auditEnabled: boolean
-  auditBusy: boolean
-  auditCooldown: number
-  auditCooldownBusy: boolean
-  onToggleIdentity: () => void
-  onToggleAudit: () => void
-  onChangeAuditCooldown: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onReloadPolicy: () => void
-  reloadBusy: boolean
-  policyUpdatedAt: string | null
-  onCopyPolicyUpdatedAt: () => void
-  containerRef?: React.RefObject<HTMLDivElement | null>
-  highlight?: boolean
-}) {
-  return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "rounded-xl border border-border bg-card p-3.5 shadow-sm transition-all duration-500",
-        highlight ? "ring-2 ring-primary/50 shadow-primary/15" : "",
-      )}
-    >
-      <div className="mb-2.5 flex items-center gap-2">
-        <ScanFace className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-semibold text-foreground">Face Policy Controls</span>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onReloadPolicy}
-          disabled={reloadBusy}
-          className="ml-auto h-7 min-w-[96px] text-[10px] font-semibold"
-        >
-          {reloadBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : "RELOAD"}
-        </Button>
-      </div>
-      <div className="mb-2.5 flex items-center gap-2">
-        <p className="text-[10px] font-mono text-muted-foreground">
-          Policy Updated: {formatPolicyUpdatedHint(policyUpdatedAt)}
-        </p>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onCopyPolicyUpdatedAt}
-          disabled={!policyUpdatedAt || reloadBusy}
-          className="ml-auto h-6 min-w-[78px] gap-1.5 px-2 text-[9px] font-semibold"
-          title="Copy policy timestamp"
-        >
-          <Copy className="h-3 w-3" />
-          COPY
-        </Button>
-      </div>
-
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Identity Labels</p>
-            <p className="text-[11px] text-foreground/90">Show real known names in alerts.</p>
-          </div>
-          <Button size="sm" variant="outline" onClick={onToggleIdentity} disabled={identityBusy} className={cn("h-7 min-w-[96px] text-[10px] font-semibold", identityLabeling ? "border-success/30 bg-success/10 text-success hover:bg-success/20" : "border-warning/30 bg-warning/10 text-warning hover:bg-warning/20")}>
-            {identityBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : identityLabeling ? "ON" : "MASKED"}
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Recognition Audit</p>
-            <p className="text-[11px] text-foreground/90">Write known/unknown sightings to audit log.</p>
-          </div>
-          <Button size="sm" variant="outline" onClick={onToggleAudit} disabled={auditBusy} className={cn("h-7 min-w-[96px] text-[10px] font-semibold", auditEnabled ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-secondary/30 text-muted-foreground hover:bg-secondary")}>
-            {auditBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : auditEnabled ? "ENABLED" : "PAUSED"}
-          </Button>
-        </div>
-
-        <div className="rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
-          <div className="mb-2 flex items-center gap-2">
-            <Timer className="h-3.5 w-3.5 text-primary" />
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Audit Cooldown</p>
-            {auditCooldownBusy ? <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" /> : <span className="ml-auto font-mono text-[11px] font-bold text-primary">{auditCooldown}s</span>}
-          </div>
-          <input
-            type="range"
-            min={5}
-            max={120}
-            step={5}
-            value={auditCooldown}
-            onChange={onChangeAuditCooldown}
-            aria-label="Face audit cooldown"
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-secondary outline-none"
-            style={{ background: `linear-gradient(to right,#22c55e 0%,#22c55e ${((auditCooldown - 5) / 115) * 100}%,rgb(30 41 59) ${((auditCooldown - 5) / 115) * 100}%,rgb(30 41 59) 100%)` }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ToastStack({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
   if (toasts.length === 0) return null
   return (
@@ -830,35 +535,6 @@ function MetadataRow({ icon, label, value }: { icon: React.ReactNode; label: str
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
-function FaceMetric({ label, value, tone }: { label: string; value: string; tone: string }) {
-  return (
-    <div className="rounded-lg border border-border/60 bg-background/60 px-2 py-1.5 text-center">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
-      <p className={cn("font-mono text-xs font-bold", tone)}>{value}</p>
-    </div>
-  )
-}
 
-function formatPolicyUpdatedHint(policyUpdatedAt: string | null): string {
-  if (!policyUpdatedAt || policyUpdatedAt.trim().length === 0) {
-    return "Unknown"
-  }
-  const parsed = Date.parse(policyUpdatedAt)
-  if (Number.isNaN(parsed)) {
-    return policyUpdatedAt
-  }
-
-  const ageSeconds = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
-  const ageTier =
-    ageSeconds < 60
-      ? "<1m"
-      : ageSeconds < 600
-        ? "<10m"
-        : ageSeconds < 3600
-          ? "<1h"
-          : ">1h"
-  const utc = new Date(parsed).toISOString().replace("T", " ").replace(".000Z", "Z")
-  return `${ageTier} (${utc})`
-}
 
 const _sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))

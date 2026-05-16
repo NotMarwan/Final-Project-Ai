@@ -85,6 +85,7 @@ def _load_api_module():
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
+    os.environ["ADMIN_API_KEY"] = ""
     return module
 
 

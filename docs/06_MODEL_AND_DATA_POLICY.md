@@ -1,5 +1,7 @@
 # Model And Data Policy
 
+> See also: [Project Status](00_PROJECT_STATUS.md) | [Runtime Restore Guide](01_RUNTIME_RESTORE_GUIDE.md) | [README](../README.md) | [Preservation Manifests](../manifests/)
+
 ## Model Weights
 
 - Do not commit model weights directly to normal GitHub history.

@@ -1,5 +1,7 @@
 # AI-Sentinel Telegram Alerts Documentation
 
+> See also: [Demo Runbook](04_DEMO_RUNBOOK.md) | [Troubleshooting](05_TROUBLESHOOTING.md) | [API Reference](API_REFERENCE.md) | [Environment Variables](ENV_VARS.md) | [README](../README.md) | [Arabic Guide](../telegram_setup_guide_ar.md)
+
 ## Purpose
 
 The AI-Sentinel Telegram alert system provides real-time notifications for security events detected by the AI-Sentinel surveillance system. Alerts are sent directly to a Telegram chat when violence, weapon, or danger events are confirmed, enabling rapid response to security incidents.

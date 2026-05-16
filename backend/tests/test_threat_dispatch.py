@@ -3,13 +3,17 @@ import time
 from unittest.mock import MagicMock, patch
 
 @patch("backend.api.fusion_engine")
-def test_weapon_only_triggers_alert(mock_fusion):
+@patch("backend.api.weapon_engine")
+def test_weapon_only_triggers_alert(mock_weapon_engine, mock_fusion):
     # Setup
     mock_pipeline = MagicMock()
     mock_pipeline._is_violent = False
     mock_pipeline._last_conf = 0.1
     
     mock_weapon_signal = {"ready": True, "labels": ["handgun"]}
+    
+    # Mock weapon engine
+    mock_weapon_engine.config.independent_alert_threshold = 0.65
     
     # Mock fusion engine
     mock_fusion.config.weapon_threshold = 0.55
@@ -41,13 +45,17 @@ def test_weapon_only_triggers_alert(mock_fusion):
     assert payload["confidence"] == 85.0
 
 @patch("backend.api.fusion_engine")
-def test_violence_triggers_alert(mock_fusion):
+@patch("backend.api.weapon_engine")
+def test_violence_triggers_alert(mock_weapon_engine, mock_fusion):
     # Setup
     mock_pipeline = MagicMock()
     mock_pipeline._is_violent = True
     mock_pipeline._last_conf = 0.85
     
     mock_weapon_signal = {"ready": True, "labels": []}
+    
+    # Mock weapon engine
+    mock_weapon_engine.config.independent_alert_threshold = 0.65
     
     # Mock fusion engine
     mock_fusion.assess.return_value = {
@@ -70,7 +78,8 @@ def test_violence_triggers_alert(mock_fusion):
         face_summary={},
         cam_id="CAM-01",
         now=time.time(),
-        t0=time.perf_counter()
+        t0=time.perf_counter(),
+        decision_result={"confirmed_alert": True, "alert_state": "CONFIRMED_VIOLENCE"}
     )
     
     assert payload["threatType"] == "violence"

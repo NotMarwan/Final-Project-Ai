@@ -1,10 +1,10 @@
 "use client"
 
-import { memo, useState, useEffect, useCallback } from "react"
+import { memo, useState, useCallback } from "react"
 import {
   Settings2, Layers, Tag, Gauge, Users,
-  SlidersHorizontal, Eye, EyeOff, RotateCcw,
-  Palette, Minus, Plus
+  SlidersHorizontal, Eye, RotateCcw,
+  Palette, Minus
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"

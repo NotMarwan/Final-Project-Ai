@@ -1,5 +1,7 @@
 # Troubleshooting Guide - AI-Sentinel Telegram Alerts
 
+> See also: [Telegram Alerts Setup](07_TELEGRAM_ALERTS.md) | [Demo Runbook](04_DEMO_RUNBOOK.md) | [API Reference](API_REFERENCE.md) | [Environment Variables](ENV_VARS.md) | [README](../README.md)
+
 ## Telegram-Specific Issues
 
 ### 1. Telegram Bot Token Empty

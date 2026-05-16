@@ -1,5 +1,7 @@
 # AI Sentinel Video Performance Overhaul — Implementation Plan
 
+> See also: [Design Doc](VIDEO_PERFORMANCE_OVERHAUL_DESIGN.md) | [README](../README.md) | [WebRTC Streaming Plan](superpowers/plans/2026-05-16-phase1-webrtc-streaming.md)
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Fix choppy video, detection lag, and frame dropping by decoupling capture from AI inference, optimizing inference paths, and replacing MJPEG with modern streaming.

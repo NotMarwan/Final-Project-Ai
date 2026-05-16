@@ -311,6 +311,9 @@ class TelegramNotifier:
                     self._send_message(caption)
 
                 with self._sent_lock:
+                    # Prune to prevent unbounded memory growth over long deployments
+                    if len(self._sent_alert_ids) > 1000:
+                        self._sent_alert_ids = set(list(self._sent_alert_ids)[-500:])
                     self._sent_alert_ids.add(alert_id)
 
                 print(f"[Telegram] Alert sent: {alert_id}")

@@ -220,7 +220,6 @@ def _default_camera_sources() -> Dict[str, Union[str, int]]:
     return {
         "CAM-01": _normalize_camera_source(os.getenv("CAM1_SOURCE", "cam1.mp4"), BASE_DIR),
         "CAM-02": _normalize_camera_source(os.getenv("CAM2_SOURCE", "cam2.mp4"), BASE_DIR),
-        "CAM-03": _normalize_camera_source(os.getenv("CAM3_SOURCE", "cam3.mp4"), BASE_DIR),
     }
 
 
@@ -229,7 +228,9 @@ def _load_camera_sources() -> Dict[str, Union[str, int]]:
     if profile_path.exists():
         profile_sources = _load_profile_camera_sources(profile_path)
         print(f"[System] Profile found at {profile_path}. Active cameras: {len(profile_sources)}")
-        return profile_sources
+        if profile_sources:
+            return profile_sources
+        print("[System] Profile has no active cameras. Falling back to environment/default sources.")
     print("[System] No camera_profiles.yml found. Using environment/default sources.")
     return _default_camera_sources()
 
@@ -245,6 +246,14 @@ def _load_example_sources() -> Dict[str, str]:
     return {
         "EXAMPLE-01": str(_project_root / "Wq0BuA8GM84_0.avi"),
         "EXAMPLE-02": str(_project_root / "YDOJvzChqSg_0 (1).avi"),
+        "EXAMPLE-03": str(_project_root / "violence" / "1Kbw1bUw_0.avi"),
+        "EXAMPLE-04": str(_project_root / "violence" / "EFv961C5RgY_0.avi"),
+        "EXAMPLE-05": str(_project_root / "violence" / "A7FCl8G35Cs_0.avi"),
+        "EXAMPLE-06": str(_project_root / "violence" / "7gLKFV5voOg_1.avi"),
+        "EXAMPLE-07": str(_project_root / "violence" / "RIXaF_TkLlU_0.avi"),
+        "EXAMPLE-08": str(_project_root / "violence" / "JECBfnp2ZXc_2.avi"),
+        "EXAMPLE-09": str(_project_root / "violence" / "39BFeYnbu-I_3.avi"),
+        "EXAMPLE-10": str(_project_root / "violence" / "1MVS2QPWbHc_3.avi"),
     }
 
 EXAMPLE_SOURCES: Dict[str, str] = _load_example_sources()
@@ -1224,11 +1233,7 @@ def camera_worker(
     ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
     FaceIntelEngine = _imports['FaceIntelEngine']
 
-    print(f"[{camera_id}] AI Engine initializing on {device.type.upper()}...")
-
-    pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
-    state.register_pipeline(pipeline)
-    local_face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
+    print(f"[{camera_id}] Camera worker starting...")
 
     # Reuse helpers defined above
     _is_rtsp = lambda s: isinstance(s, str) and s.lower().startswith("rtsp://")
@@ -1273,6 +1278,10 @@ def camera_worker(
     ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix=f"ai-{camera_id}")
     ai_future = None
 
+    # Lazy initialization — model loads on first frame, not at startup
+    pipeline = None
+    local_face_engine = None
+
     state.running = True
 
     while state.running and not (stop_event and stop_event.is_set()):
@@ -1289,6 +1298,17 @@ def camera_worker(
                     if not skip_ret:
                         break
         # -----------------------------------------------------------------------
+
+        # Lazy-load AI model on first successful frame
+        if ret and pipeline is None:
+            print(f"[{camera_id}] AI Engine initializing on {device.type.upper()}...")
+            _imports = _get_imports()
+            ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
+            FaceIntelEngine = _imports['FaceIntelEngine']
+            pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
+            state.register_pipeline(pipeline)
+            local_face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
+            print(f"[{camera_id}] AI Engine ready.")
 
         if not ret:
             is_rtsp = isinstance(current_source, str) and current_source.lower().startswith("rtsp://")
@@ -1308,7 +1328,8 @@ def camera_worker(
                     _live_reconnect_attempts = 0
             else:
                 cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                pipeline.reset()
+                if pipeline is not None:
+                    pipeline.reset()
             continue
 
         _live_reconnect_attempts = 0
@@ -1445,16 +1466,17 @@ def camera_worker(
                     print(f"[System] AI worker encountered an error: {exc}")
 
             # Submit the next background AI task (face+motion) for the current raw frame
-            try:
-                _ai_task_submit_time = time.perf_counter()
-                ai_future = ai_executor.submit(
-                    _run_ai_task, pipeline, local_face_engine, raw.copy(),
-                    previous_raw_frame, person_detector, centroid_tracker, overlay_cache
-                )
-            except Exception as e:
-                print(f"[System] Failed to submit AI task: {e}")
-                ai_future = None
-                _ai_task_submit_time = 0
+            if pipeline is not None:
+                try:
+                    _ai_task_submit_time = time.perf_counter()
+                    ai_future = ai_executor.submit(
+                        _run_ai_task, pipeline, local_face_engine, raw.copy(),
+                        previous_raw_frame, person_detector, centroid_tracker, overlay_cache
+                    )
+                except Exception as e:
+                    print(f"[System] Failed to submit AI task: {e}")
+                    ai_future = None
+                    _ai_task_submit_time = 0
 
         previous_raw_frame = raw.copy()
 
@@ -1538,10 +1560,12 @@ def camera_worker(
             ring.clear()
             active_post_queues.clear()
             face_audit_dedupe.clear()
-            pipeline.reset()
+            if pipeline is not None:
+                pipeline.reset()
             weapon_engine.reset()
             centroid_tracker.reset()
-            local_face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
+            if local_face_engine is not None:
+                local_face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
             state.reset_decision_layer()
             if device.type == "cuda":
                 torch.cuda.empty_cache()
@@ -1631,7 +1655,10 @@ async def lifespan(app: FastAPI):
             active_ids = [cid.strip() for cid in env_active.split(",") if cid.strip()]
         else:
             active_ids = list(CAMERA_SOURCES.keys())
-        from device_config import get_optimal_device
+        try:
+            from .device_config import get_optimal_device
+        except ImportError:
+            from device_config import get_optimal_device
         device = get_optimal_device(prefer_gpu=True)
         _raw_mode = _env_flag("AI_SENTINEL_RAW_STREAM", default=False)
         for cam_id in active_ids:
@@ -2025,6 +2052,14 @@ async def test_telegram_video(request: Request, clip_id: str = "EXAMPLE-02"):
 _DEMO_SOURCE_NAMES: dict[str, str] = {
     "EXAMPLE-01": "Demo Clip 1",
     "EXAMPLE-02": "Demo Clip 2",
+    "EXAMPLE-03": "Demo Clip 3",
+    "EXAMPLE-04": "Demo Clip 4",
+    "EXAMPLE-05": "Demo Clip 5",
+    "EXAMPLE-06": "Demo Clip 6",
+    "EXAMPLE-07": "Demo Clip 7",
+    "EXAMPLE-08": "Demo Clip 8",
+    "EXAMPLE-09": "Demo Clip 9",
+    "EXAMPLE-10": "Demo Clip 10",
 }
 
 _LIVE_SOURCE_NAMES: dict[str, str] = {

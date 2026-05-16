@@ -17,7 +17,7 @@ fusion:
 notifications:
   telegram:
     enabled: true
-    bot_token: "8635683539:AAEm2pmJW3ABS9DiqxZYjlSdsPswdL5ZY08"
+    bot_token: ""          # Set via TELEGRAM_BOT_TOKEN in backend/.env (never commit real tokens)
     chat_id: "965061538"
     min_severity: "high"
 
@@ -130,4 +130,6 @@ webrtc:
 server:
   host: "0.0.0.0"
   port: 8002
-  cors_origins: ["*"]
+  # Restrict CORS to known frontend origins.
+  # For tunnel access (ngrok/Cloudflare), add the tunnel URL via CORS_ORIGINS env var in backend/.env
+  cors_origins: ["http://localhost:3000", "http://127.0.0.1:3000"]

@@ -14,8 +14,9 @@ import {
 import { cn } from "@/lib/utils"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
-const API_KEY = process.env.NEXT_PUBLIC_ADMIN_API_KEY ?? "sentinel-demo-2026"
-const authHeaders = { "X-API-Key": API_KEY }
+// No hardcoded key fallback — backend runs in open demo mode when no API key is configured.
+const API_KEY = process.env.NEXT_PUBLIC_ADMIN_API_KEY
+const authHeaders: Record<string, string> = API_KEY ? { "X-API-Key": API_KEY } : {}
 
 interface ReportData {
   // v2 fields

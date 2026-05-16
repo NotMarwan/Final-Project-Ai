@@ -86,6 +86,7 @@ def test_weapon_realtime_flag():
     config = WeaponConfig(enabled=True, realtime_threshold_ms=500)
     engine = WeaponSignalEngine(config)
     engine._model = object()
+    engine._backend = object()
     
     # Case 1: Slow
     engine._last_inference_latency_ms = 600

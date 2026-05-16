@@ -1,5 +1,7 @@
 # Live Alert Decision Layer V2
 
+> See also: [Project Status](00_PROJECT_STATUS.md) | [Demo Runbook](04_DEMO_RUNBOOK.md) | [API Reference](API_REFERENCE.md) | [Stage 12 External Eval](03_STAGE12_EXTERNAL_EVAL.md) | [README](../README.md)
+
 ## Problem
 
 The live pipeline could show false-positive behavior when:

@@ -1,5 +1,7 @@
 # Runtime Restore Guide
 
+> See also: [Project Status](00_PROJECT_STATUS.md) | [Demo Runbook](04_DEMO_RUNBOOK.md) | [Model and Data Policy](06_MODEL_AND_DATA_POLICY.md) | [API Reference](API_REFERENCE.md) | [README](../README.md)
+
 ## Goal
 
 Restore a known AI-Sentinel runtime in Colab after a runtime reset without retraining or changing weights.

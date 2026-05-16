@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useEffect } from "react"
+import React, { useEffect } from "react"
 import { useClipPlayback } from "@/hooks/use-clip-playback"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"

@@ -4,6 +4,7 @@ opencv-python
 numpy
 torch
 torchvision
+ultralytics
 pyyaml
 python-dotenv
 groq

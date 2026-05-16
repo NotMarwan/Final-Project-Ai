@@ -209,12 +209,16 @@ class ViolenceInferencePipeline:
         self.disabled_reason = ""
         self._inference_running = False
         self._inference_lock = threading.Lock()
+        self._state_lock = threading.Lock()  # Protects _last_conf, _is_violent etc.
 
         print(f"[AI] Initializing X3D-M on {device}...")
         try:
             self.model = X3DViolenceModel(num_classes=2).to(device)
+            print(f"[AI] Model architecture created.")
             if os.path.exists(weights_path):
-                state = torch.load(weights_path, map_location=device)
+                print(f"[AI] Loading weights from {weights_path}...")
+                state = torch.load(weights_path, map_location=device, weights_only=True)
+                print(f"[AI] Weights loaded into memory.")
                 state_dict = self._extract_state_dict(state)
                 self.model.load_state_dict(state_dict)
                 self.is_x3d = True
@@ -226,7 +230,9 @@ class ViolenceInferencePipeline:
             print("[AI] Falling back to Legacy SlowFast model.")
             self.model = ViolenceDetector(num_classes=2).to(device)
             try:
-                state = torch.load("best_model.pt", map_location=device)
+                print("[AI] Loading legacy weights...")
+                state = torch.load("best_model.pt", map_location=device, weights_only=True)
+                print("[AI] Legacy weights loaded into memory.")
                 # Unwrap the model state dict if it's a full checkpoint
                 if "model_state_dict" in state:
                     state = state["model_state_dict"]
@@ -298,24 +304,25 @@ class ViolenceInferencePipeline:
             raw_conf = probs[VIOLENCE_CLS].item()
             calibrated_conf = self._calibrate_confidence(logits, raw_conf)
             
-            self._last_raw_conf = raw_conf
-            self._last_calibrated_conf = calibrated_conf
-            
-            # EMA smoothing after warmup
-            if self._counter > WINDOW_SIZE:
-                smoothed_conf = (self._ema_alpha * calibrated_conf) + ((1.0 - self._ema_alpha) * self._last_conf)
-            else:
-                smoothed_conf = calibrated_conf
+            with self._state_lock:
+                self._last_raw_conf = raw_conf
+                self._last_calibrated_conf = calibrated_conf
                 
-            self._last_conf = float(max(0.0, min(1.0, smoothed_conf)))
-            self._last_label = int(torch.argmax(probs).item())
-            self._last_threat_type = THREAT_CATEGORIES.get(self._last_label, "unknown")
-            
-            # Hysteresis for state change
-            if self._is_violent:
-                self._is_violent = bool(self._last_conf >= self._release_threshold())
-            else:
-                self._is_violent = bool(self._last_conf >= self.threshold)
+                # EMA smoothing after warmup
+                if self._counter > WINDOW_SIZE:
+                    smoothed_conf = (self._ema_alpha * calibrated_conf) + ((1.0 - self._ema_alpha) * self._last_conf)
+                else:
+                    smoothed_conf = calibrated_conf
+                    
+                self._last_conf = float(max(0.0, min(1.0, smoothed_conf)))
+                self._last_label = int(torch.argmax(probs).item())
+                self._last_threat_type = THREAT_CATEGORIES.get(self._last_label, "unknown")
+                
+                # Hysteresis for state change
+                if self._is_violent:
+                    self._is_violent = bool(self._last_conf >= self._release_threshold())
+                else:
+                    self._is_violent = bool(self._last_conf >= self.threshold)
 
             
             latency = (time.perf_counter() - start_time) * 1000

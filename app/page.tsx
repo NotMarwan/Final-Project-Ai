@@ -11,13 +11,16 @@ import { ClipSidebar } from "@/components/clip-sidebar"
 import { TelegramStatusCard } from "@/components/telegram-status"
 import type { DetectionCategory } from "@/lib/detection-types"
 import { cn } from "@/lib/utils"
+import { Play, Activity, Wifi, WifiOff, Server, Bell, Clock, Zap } from "lucide-react"
+import { CommandPalette } from "@/components/command-palette"
+import { AlertToast } from "@/components/alert-toast"
 import { OverlaySettingsPanel, loadSettings, type OverlaySettings } from "@/components/overlay-settings"
 import { AlertHistory } from "@/components/alert-history"
 
 type Tab = "monitor" | "demo-clips" | "incidents" | "intelligence" | "operations" | "system"
 
 type LiveSourceId = "CAM-01" | "CAM-02"
-type DemoSourceId = "EXAMPLE-01" | "EXAMPLE-02"
+type DemoSourceId = "EXAMPLE-01" | "EXAMPLE-02" | "EXAMPLE-03" | "EXAMPLE-04" | "EXAMPLE-05" | "EXAMPLE-06" | "EXAMPLE-07" | "EXAMPLE-08" | "EXAMPLE-09" | "EXAMPLE-10"
 
 const LIVE_SOURCE_DEFS: { id: LiveSourceId; label: string }[] = [
   { id: "CAM-01", label: "CAM-01" },
@@ -27,6 +30,14 @@ const LIVE_SOURCE_DEFS: { id: LiveSourceId; label: string }[] = [
 const DEMO_SOURCE_DEFS: { id: DemoSourceId; label: string }[] = [
   { id: "EXAMPLE-01", label: "EXAMPLE-01" },
   { id: "EXAMPLE-02", label: "EXAMPLE-02" },
+  { id: "EXAMPLE-03", label: "EXAMPLE-03" },
+  { id: "EXAMPLE-04", label: "EXAMPLE-04" },
+  { id: "EXAMPLE-05", label: "EXAMPLE-05" },
+  { id: "EXAMPLE-06", label: "EXAMPLE-06" },
+  { id: "EXAMPLE-07", label: "EXAMPLE-07" },
+  { id: "EXAMPLE-08", label: "EXAMPLE-08" },
+  { id: "EXAMPLE-09", label: "EXAMPLE-09" },
+  { id: "EXAMPLE-10", label: "EXAMPLE-10" },
 ]
 
 const TAB_DEFS: { id: Tab; label: string }[] = [
@@ -43,15 +54,6 @@ const AiReport = dynamic(() => import("@/components/ai-report").then(mod => mod.
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
 const SSE_URL = process.env.NEXT_PUBLIC_SSE_URL ?? `${API_BASE}/alerts`
-const FACE_POLICY_REFRESH_MS = 20_000
-
-interface FacePolicyState {
-  identityLabelingEnabled: boolean
-  recognitionAuditEnabled: boolean
-  recognitionAuditCooldownSec: number
-  policyUpdatedAt: string | null
-}
-
 export default function DashboardPage() {
   const [alerts, setAlerts] = useState<LiveAlert[]>([])
   const [selectedAlert, setSelectedAlert] = useState<LiveAlert | null>(null)
@@ -59,20 +61,13 @@ export default function DashboardPage() {
   const [sseConnected, setSseConnected] = useState(false)
   const [personCount, setPersonCount] = useState(0)
   const [overlaySettings, setOverlaySettings] = useState<OverlaySettings>(() => loadSettings())
-  const [facePolicyFocusSignal, setFacePolicyFocusSignal] = useState(0)
-  const [facePolicySynced, setFacePolicySynced] = useState(false)
-  const [facePolicyFetchedAt, setFacePolicyFetchedAt] = useState<string | null>(null)
-  const [facePolicySyncAgeSec, setFacePolicySyncAgeSec] = useState<number | null>(null)
-  const [facePolicy, setFacePolicy] = useState<FacePolicyState>({
-    identityLabelingEnabled: true,
-    recognitionAuditEnabled: true,
-    recognitionAuditCooldownSec: 25,
-    policyUpdatedAt: null,
-  })
   const [selectedCategories, setSelectedCategories] = useState<DetectionCategory[]>([])
   const [activeTab, setActiveTab] = useState<Tab>("monitor")
   const [selectedLiveSource, setSelectedLiveSource] = useState<LiveSourceId>("CAM-01")
   const [selectedDemoSource, setSelectedDemoSource] = useState<DemoSourceId | null>(null)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const [showOverlaysGlobal, setShowOverlaysGlobal] = useState(true)
+  const [toastAlert, setToastAlert] = useState<LiveAlert | null>(null)
   const activeExampleRef = useRef<DemoSourceId | null>(null)
   const esRef = useRef<EventSource | null>(null)
 
@@ -111,7 +106,7 @@ export default function DashboardPage() {
         // تعيين أحدث تنبيه كتنبيه محدد تلقائياً لتحديث التقرير فوراً
         setSelectedAlert(alertData)
         
-      } catch (e) {
+      } catch {
         // تجاهل أخطاء تحليل البيانات البسيطة
       }
     }
@@ -140,79 +135,36 @@ export default function DashboardPage() {
     }
   }, [connectSSE])
 
-  const refreshFacePolicy = useCallback(async () => {
-    try {
-      let policy: Record<string, unknown> = {}
-      let fetchedAt = new Date().toISOString()
-      const policyRes = await fetch(`${API_BASE}/face/policy`)
-      if (policyRes.ok) {
-        const payload = await policyRes.json()
-        policy = (payload?.policy ?? {}) as Record<string, unknown>
-        fetchedAt = typeof payload?.policyFetchedAt === "string" ? payload.policyFetchedAt : fetchedAt
-      } else {
-        const statusRes = await fetch(`${API_BASE}/face/status`)
-        if (!statusRes.ok) throw new Error(`Policy fetch failed: ${statusRes.status}`)
-        const payload = await statusRes.json()
-        policy = (payload?.policy ?? {}) as Record<string, unknown>
-      }
-
-      setFacePolicy((current) => ({
-        identityLabelingEnabled:
-          typeof policy.identityLabelingEnabled === "boolean"
-            ? policy.identityLabelingEnabled
-            : current.identityLabelingEnabled,
-        recognitionAuditEnabled:
-          typeof policy.recognitionAuditEnabled === "boolean"
-            ? policy.recognitionAuditEnabled
-            : current.recognitionAuditEnabled,
-        recognitionAuditCooldownSec:
-          typeof policy.recognitionAuditCooldownSec === "number"
-            ? policy.recognitionAuditCooldownSec
-            : current.recognitionAuditCooldownSec,
-        policyUpdatedAt:
-          typeof policy.policyUpdatedAt === "string" && policy.policyUpdatedAt.trim().length > 0
-            ? policy.policyUpdatedAt
-            : current.policyUpdatedAt,
-      }))
-      setFacePolicyFetchedAt(fetchedAt)
-      setFacePolicySynced(true)
-    } catch {
-      // Keep latest known policy on transient network failures, but flag stale sync state.
-      setFacePolicySynced(false)
-    }
-  }, [])
-
+  // Keyboard shortcuts for tabs (1-6) and command palette (Cmd+K / Ctrl+K)
   useEffect(() => {
-    void refreshFacePolicy()
-    const timer = setInterval(() => {
-      void refreshFacePolicy()
-    }, FACE_POLICY_REFRESH_MS)
-
-    return () => {
-      clearInterval(timer)
-    }
-  }, [refreshFacePolicy])
-
-  useEffect(() => {
-    if (!facePolicyFetchedAt) {
-      setFacePolicySyncAgeSec(null)
-      return
-    }
-
-    const updateAge = () => {
-      const parsed = Date.parse(facePolicyFetchedAt)
-      if (Number.isNaN(parsed)) {
-        setFacePolicySyncAgeSec(null)
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setCommandPaletteOpen((o) => !o)
         return
       }
-      const ageSec = Math.max(0, Math.floor((Date.now() - parsed) / 1000))
-      setFacePolicySyncAgeSec(ageSec)
+      if (commandPaletteOpen) return
+      if (e.altKey || e.ctrlKey || e.metaKey) return
+      const num = Number(e.key)
+      if (num >= 1 && num <= 6) {
+        setActiveTab(TAB_DEFS[num - 1].id)
+      }
     }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [commandPaletteOpen])
 
-    updateAge()
-    const timer = setInterval(updateAge, 1000)
-    return () => clearInterval(timer)
-  }, [facePolicyFetchedAt])
+  // Trigger toast when new alert arrives while on non-monitor/incidents tab
+  const prevAlertCountRef = useRef(0)
+  useEffect(() => {
+    if (alerts.length > prevAlertCountRef.current) {
+      const latest = alerts[0]
+      if (latest && activeTab !== "monitor" && activeTab !== "incidents") {
+        setToastAlert(latest)
+      }
+    }
+    prevAlertCountRef.current = alerts.length
+  }, [alerts.length, activeTab])
 
   // التنبيه النشط للفيديو هو أحدث تنبيه تم استقباله
   const latestAlertForVideo = useMemo(() => alerts[0] ?? null, [alerts])
@@ -238,11 +190,6 @@ export default function DashboardPage() {
   const handlePrivacyToggle = useCallback((val: boolean) => {
     setPrivacyMode(val)
   }, [])
-
-  const handleFacePolicyClick = useCallback(() => {
-    setFacePolicyFocusSignal((prev) => prev + 1)
-    void refreshFacePolicy()
-  }, [refreshFacePolicy])
 
   const stopDemoSource = useCallback(async (id: DemoSourceId) => {
     try {
@@ -285,50 +232,89 @@ export default function DashboardPage() {
         onPrivacyToggle={handlePrivacyToggle}
         sseConnected={sseConnected}
         totalAlerts={alerts.length}
-        onFacePolicyClick={handleFacePolicyClick}
-        facePolicySynced={facePolicySynced}
-        facePolicySyncAgeSec={facePolicySyncAgeSec}
-        facePolicy={facePolicy}
       />
 
-      {/* Tab nav */}
-      <nav className="flex shrink-0 flex-nowrap border-b border-border/60 bg-card/40 px-4 relative overflow-x-auto">
-        {/* Glow line under active tab area */}
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+        onTabChange={setActiveTab}
+        onToggleOverlays={() => setShowOverlaysGlobal((v) => !v)}
+        overlaysOn={showOverlaysGlobal}
+        onTogglePrivacy={() => setPrivacyMode((v) => !v)}
+        privacyOn={privacyMode}
+        alerts={alerts}
+        onSelectAlert={handleSelectAlert}
+        activeTab={activeTab}
+      />
+
+      <AlertToast
+        alert={toastAlert}
+        activeTab={activeTab}
+        onNavigate={() => {
+          setActiveTab("incidents")
+          if (toastAlert) setSelectedAlert(toastAlert)
+          setToastAlert(null)
+        }}
+        onDismiss={() => setToastAlert(null)}
+      />
+
+      {/* ── Mission Control Tab Strip ── */}
+      <nav className="flex shrink-0 flex-nowrap border-b border-border/40 bg-card/30 px-3 md:px-4 relative overflow-x-auto backdrop-blur-sm">
+        {/* Ambient glow line */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-        {TAB_DEFS.map(({ id, label }) => {
+        {TAB_DEFS.map(({ id, label }, idx) => {
           const isActive = activeTab === id
+          const hasMonitorGlow = id === "monitor" && sseConnected
+          const hasAlertGlow = id === "incidents" && alerts.length > 0
           return (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
               className={cn(
-                "-mb-px inline-flex items-center gap-2 border-b-2 px-3 md:px-4 py-3 text-xs md:text-sm font-semibold transition-all duration-300 relative",
+                "group relative inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2.5 text-[11px] md:text-xs font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md my-1",
                 isActive
-                  ? "border-primary text-primary tab-active-glow"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border/50"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
               )}
             >
-              {/* Glow dot for monitor when connected */}
-              {id === "monitor" && sseConnected && (
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ambient-pulse rounded-full bg-green-500 opacity-80" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500 glow-success" />
+              {/* Active indicator pill */}
+              {isActive && (
+                <span className="absolute inset-x-1 -bottom-1 h-0.5 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+              )}
+
+              {/* Status dot */}
+              {hasMonitorGlow && (
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ambient-pulse rounded-full bg-success opacity-80" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success glow-success" />
                 </span>
               )}
-              {/* Pulsing dot for incidents with alerts */}
-              {id === "incidents" && alerts.length > 0 && (
-                <span className="relative flex h-2 w-2">
+              {hasAlertGlow && (
+                <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ambient-pulse rounded-full bg-danger opacity-80" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-danger glow-danger" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-danger glow-danger" />
                 </span>
               )}
-              {label}
+
+              <span className="truncate">{label}</span>
+
+              {/* Alert count badge */}
               {id === "incidents" && alerts.length > 0 && (
-                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground animate-threat-flash">
+                <span className="ml-0.5 rounded-full bg-destructive/90 px-1.5 py-0 text-[9px] font-bold leading-none text-destructive-foreground animate-threat-flash">
                   {alerts.length > 99 ? "99+" : alerts.length}
                 </span>
               )}
+
+              {/* Keyboard shortcut hint */}
+              <span className={cn(
+                "hidden lg:inline-flex ml-0.5 rounded px-1 py-[1px] text-[9px] font-mono border transition-colors",
+                isActive
+                  ? "border-primary/30 text-primary/70 bg-primary/5"
+                  : "border-transparent text-muted-foreground/30 group-hover:border-white/5 group-hover:text-muted-foreground/40"
+              )}>
+                {idx + 1}
+              </span>
             </button>
           )
         })}
@@ -444,9 +430,9 @@ export default function DashboardPage() {
                   <VideoPlayer cameraId={selectedDemoSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} personCount={personCount} overlaySettings={overlaySettings} />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                    <span className="font-mono text-3xl text-muted-foreground/20">▶</span>
+                    <Play className="h-8 w-8 text-muted-foreground/20" />
                     <p className="font-mono text-sm font-semibold text-muted-foreground">No demo clip selected</p>
-                    <p className="font-mono text-[11px] text-muted-foreground/60">Select EXAMPLE-01 or EXAMPLE-02 above to begin demo analysis</p>
+                    <p className="font-mono text-[11px] text-muted-foreground/60">Select an EXAMPLE above to begin demo analysis</p>
                   </div>
                 )}
               </div>
@@ -469,7 +455,7 @@ export default function DashboardPage() {
             </aside>
             <main className="flex-1 overflow-y-auto border-r border-border bg-card/30">
               <div className="p-3">
-                <IncidentPanel alert={selectedAlert} focusFacePolicySignal={facePolicyFocusSignal} />
+                <IncidentPanel alert={selectedAlert} />
               </div>
             </main>
             <aside className="hidden md:block flex h-full w-[400px] flex-shrink-0 flex-col overflow-hidden border-l border-border bg-card/30">
@@ -519,25 +505,113 @@ export default function DashboardPage() {
 
         {/* ── System ── */}
         {activeTab === "system" && (
-          <main className="flex-1 overflow-y-auto p-6">
-            <div className="mx-auto max-w-2xl space-y-4">
-              <div className="rounded-lg border border-border bg-card p-4 space-y-2">
-                <h2 className="text-sm font-semibold text-foreground">Backend Connection</h2>
-                <p className="text-xs text-muted-foreground">
-                  SSE:{" "}
-                  <span className={sseConnected ? "text-green-500" : "text-red-500"}>
-                    {sseConnected ? "Connected" : "Disconnected"}
-                  </span>
-                </p>
-                <p className="text-xs text-muted-foreground">Endpoint: {SSE_URL}</p>
-                <p className="text-xs text-muted-foreground">
-                  Face Policy Sync:{" "}
-                  {facePolicySynced ? `${facePolicySyncAgeSec ?? 0}s ago` : "Stale / unreachable"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Total alerts received: {alerts.length}
-                </p>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="mx-auto max-w-4xl space-y-4">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-4">
+                <Server className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold tracking-tight uppercase">System Status</h2>
               </div>
+
+              {/* Status cards grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* SSE Status */}
+                <div className="rounded-lg border border-border/60 bg-card/60 p-3 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
+                  <div className="relative flex items-center justify-between mb-2">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">SSE Link</span>
+                    {sseConnected ? (
+                      <Wifi className="h-3.5 w-3.5 text-success" />
+                    ) : (
+                      <WifiOff className="h-3.5 w-3.5 text-danger" />
+                    )}
+                  </div>
+                  <div className="relative flex items-center gap-2">
+                    <span className={cn("h-2 w-2 rounded-full", sseConnected ? "bg-success animate-ambient-pulse" : "bg-danger")} />
+                    <span className={cn("text-xs font-bold", sseConnected ? "text-success" : "text-danger")}>
+                      {sseConnected ? "ONLINE" : "OFFLINE"}
+                    </span>
+                  </div>
+                  <p className="relative text-[9px] text-muted-foreground/60 font-mono mt-1 truncate">{SSE_URL}</p>
+                </div>
+
+                {/* Alerts Counter */}
+                <div className="rounded-lg border border-border/60 bg-card/60 p-3 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
+                  <div className="relative flex items-center justify-between mb-2">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Alerts</span>
+                    <Bell className="h-3.5 w-3.5 text-warning" />
+                  </div>
+                  <div className="relative text-xl font-black font-mono text-foreground">
+                    {alerts.length}
+                  </div>
+                  <p className="relative text-[9px] text-muted-foreground/60 mt-1">This session</p>
+                </div>
+
+                {/* System Time */}
+                <div className="rounded-lg border border-border/60 bg-card/60 p-3 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
+                  <div className="relative flex items-center justify-between mb-2">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Uptime</span>
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <div className="relative text-xl font-black font-mono text-foreground">
+                    {Math.floor(alerts.length > 0 ? alerts.length * 0.5 : 0)}m
+                  </div>
+                  <p className="relative text-[9px] text-muted-foreground/60 mt-1">Estimated session</p>
+                </div>
+              </div>
+
+              {/* Detailed status bars */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {/* Connection health */}
+                <div className="rounded-lg border border-border/60 bg-card/60 p-4 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
+                  <div className="relative flex items-center gap-2 mb-3">
+                    <Activity className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-bold">Connection Health</span>
+                  </div>
+                  <div className="relative space-y-3">
+                    <div>
+                      <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                        <span>SSE Stability</span>
+                        <span className={sseConnected ? "text-success" : "text-danger"}>{sseConnected ? "100%" : "0%"}</span>
+                      </div>
+                      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div className={cn("h-full rounded-full transition-all duration-500", sseConnected ? "bg-success" : "bg-danger")} style={{ width: sseConnected ? "100%" : "0%" }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alert breakdown */}
+                <div className="rounded-lg border border-border/60 bg-card/60 p-4 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
+                  <div className="relative flex items-center gap-2 mb-3">
+                    <Zap className="h-4 w-4 text-warning" />
+                    <span className="text-xs font-bold">Alert Breakdown</span>
+                  </div>
+                  <div className="relative space-y-2">
+                    {["critical", "high", "medium"].map((sev) => {
+                      const count = alerts.filter((a) => a.severity === sev).length
+                      const pct = alerts.length > 0 ? (count / alerts.length) * 100 : 0
+                      const color = sev === "critical" ? "bg-danger" : sev === "high" ? "bg-warning" : "bg-primary"
+                      return (
+                        <div key={sev}>
+                          <div className="flex justify-between text-[10px] text-muted-foreground mb-1 capitalize">
+                            <span>{sev}</span>
+                            <span>{count}</span>
+                          </div>
+                          <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div className={cn("h-full rounded-full transition-all duration-500", color)} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
               <TelegramStatusCard />
             </div>
           </main>

@@ -1,19 +1,16 @@
 "use client"
 
-import { memo, useState, useMemo, useCallback } from "react"
+import { memo, useState, useMemo } from "react"
 import {
-  Search, Filter, Clock, AlertTriangle,
-  ChevronDown, ChevronUp, Camera, MapPin,
-  X, ShieldAlert, CalendarDays, BarChart3,
+  Search, Clock, AlertTriangle,
+  ChevronDown, ChevronUp, MapPin,
+  X, CalendarDays, BarChart3,
   CheckCircle2, AlertCircle, XCircle
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
-import type { DetectionCategory } from "@/lib/detection-types"
-import { CATEGORY_LABELS, CATEGORY_COLORS } from "@/lib/detection-types"
 
 interface AlertHistoryProps {
   alerts: LiveAlert[]
@@ -69,6 +66,7 @@ function formatDateGroup(timestamp: string): string {
   return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function formatTime(timestamp: string): string {
   return new Date(timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 }

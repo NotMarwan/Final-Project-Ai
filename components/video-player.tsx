@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef, useMemo, memo, useCallback } from "react"
+import { useState, useEffect, useRef, memo } from "react"
 import {
-  Repeat, Timer, Radio, Play, Pause, Maximize2,
-  WifiOff, Loader2, Camera, Layers,
+  Radio, Play, Pause,
+  WifiOff, Loader2, Film, ShieldAlert,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -72,6 +72,7 @@ export interface LiveAlert {
   allCategories?: DetectionCategory[]
   threatType?: "violence" | "weapon"
   alertLatencyMs?: number
+  personCount?: number
 }
 
 interface VideoPlayerProps {
@@ -102,13 +103,36 @@ const CAMERAS = [
   { id: "CAM-02",     label: "CAM-02",       isLive: true,  isDemo: false },
   { id: "EXAMPLE-01", label: "Fight Clip 1", isLive: false, isDemo: true  },
   { id: "EXAMPLE-02", label: "Fight Clip 2", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-03", label: "Violence 1", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-04", label: "Violence 2", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-05", label: "Violence 3", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-06", label: "Violence 4", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-07", label: "Violence 5", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-08", label: "Violence 6", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-09", label: "Violence 7", isLive: false, isDemo: true  },
+  { id: "EXAMPLE-10", label: "Violence 8", isLive: false, isDemo: true  },
 ] as const
 
 type CameraId = (typeof CAMERAS)[number]["id"]
 
+const AST_OFFSET_MS = 3 * 60 * 60 * 1000 // UTC+3 Arabia Standard Time
+
+function toAST(date: Date): string {
+  const astTime = new Date(date.getTime() + AST_OFFSET_MS)
+  return astTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+}
+
+function formatASTFromISO(isoString: string): string {
+  try {
+    const date = new Date(isoString)
+    return toAST(date)
+  } catch {
+    return "--:--:--"
+  }
+}
+
 export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode, personCount = 0, overlaySettings }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
-  const [activeControl, setActiveControl] = useState<string | null>(null)
   const [streamError,   setStreamError]   = useState(false)
   const [streamKey,     setStreamKey]     = useState(0)
   const [demoLoading,   setDemoLoading]   = useState(false)
@@ -127,6 +151,21 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const videoContainerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 })
+
+  const [isMounted, setIsMounted] = useState(false)
+  const [liveClock, setLiveClock] = useState("--:--:--")
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+    const tick = () => setLiveClock(toAST(new Date()))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [isMounted])
 
   const { data: detectionData } = useDetectionStream(propCameraId)
 
@@ -161,27 +200,11 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
 
   const threatConfidence = visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
   const modelConfidence = visibleAlert?.modelConfidence ?? visibleAlert?.confidence ?? 0
-  const confidence = visibleAlert?.confidence ?? 0
   const cameraId = visibleAlert?.cameraId ?? propCameraId;
-  const timestamp  = visibleAlert?.timestamp  ?? "--:--:-- UTC"
-  const faceSummary = visibleAlert?.faceSummary ?? null
-
-  const faceKnownLabels = useMemo(() => {
-    if (!faceSummary?.recognized) return []
-    const labels = faceSummary.recognized
-      .map((item) => (item?.label ?? item?.personId ?? "").trim())
-      .filter(Boolean)
-    return Array.from(new Set(labels))
-  }, [faceSummary])
-
-  const faceUnknownIds = useMemo(() => {
-    if (!faceSummary?.unknownIds) return []
-    return Array.from(new Set(faceSummary.unknownIds.map((id) => id.trim()).filter(Boolean)))
-  }, [faceSummary])
-
-  const faceKnownCount = faceSummary?.recognizedCount ?? faceKnownLabels.length
-  const faceUnknownCount = faceSummary?.unknownCount ?? faceUnknownIds.length
-  const hasFaceIntelData = Boolean(faceSummary?.enabled && (faceSummary.totalFaces > 0 || faceKnownCount > 0 || faceUnknownCount > 0))
+  const timestamp = visibleAlert?.isoTime
+    ? formatASTFromISO(visibleAlert.isoTime)
+    : liveClock
+  // faceSummary available from visibleAlert for future use
 
 
 
@@ -243,8 +266,8 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
               <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
             </div>
-            <span className="text-sm font-black uppercase tracking-widest text-danger animate-glitch">
-              ⚠ VIOLENCE DETECTED — THREAT {threatConfidence.toFixed(1)}% | MODEL {modelConfidence.toFixed(1)}%
+            <span className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-danger animate-glitch">
+              <ShieldAlert className="h-4 w-4" /> VIOLENCE DETECTED — THREAT {threatConfidence.toFixed(1)}% | MODEL {modelConfidence.toFixed(1)}%
             </span>
           </div>
         ) : (
@@ -263,9 +286,9 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               )}
               {propCameraId} —{" "}
               {CAMERAS.find(c => c.id === propCameraId)?.isLive
-               ? <span className="text-red-400 font-bold animate-ambient-pulse">🔴 LIVE</span>
-               : CAMERAS.find(c => c.id === propCameraId)?.isDemo
-               ? <span className="text-amber-400 font-bold">🎬 DEMO</span>
+                   ? <span className="inline-flex items-center gap-1 text-red-400 font-bold animate-ambient-pulse"><Radio className="h-3 w-3" /> LIVE</span>
+                   : CAMERAS.find(c => c.id === propCameraId)?.isDemo
+                   ? <span className="inline-flex items-center gap-1 text-amber-400 font-bold"><Film className="h-3 w-3" /> DEMO</span>
                : <span>Playback</span>
              }
             </span>
@@ -405,7 +428,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
                 <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
                 <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
               </div>
-              <span className="font-mono text-base font-black uppercase tracking-wider text-danger drop-shadow-lg animate-glitch">⚠ VIOLENCE DETECTED</span>
+              <span className="inline-flex items-center gap-2 font-mono text-base font-black uppercase tracking-wider text-danger drop-shadow-lg animate-glitch"><ShieldAlert className="h-5 w-5" /> VIOLENCE DETECTED</span>
               <div className="relative">
                 <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
                 <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
@@ -486,7 +509,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
                 {propCameraId}
               </span>
               <span className="font-mono text-[10px] text-white/40">
-                {visibleAlert?.timestamp ?? new Date().toLocaleTimeString()}
+                {visibleAlert?.isoTime ? formatASTFromISO(visibleAlert.isoTime) : liveClock}
               </span>
             </div>
 
@@ -507,6 +530,9 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           </>
         )}
       </div>
+
+      {/* ── Threat Timeline ── */}
+      <ThreatTimeline activeAlert={visibleAlert} showViolence={showViolence} />
 
       {/* ── Controls Bar ── */}
       <div className="flex items-center justify-between border-t border-border bg-card px-4 py-2">
@@ -538,3 +564,60 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
     </div>
   )
 })
+
+/* ── Threat Timeline Bar ── */
+function ThreatTimeline({
+  activeAlert,
+  showViolence,
+}: {
+  activeAlert: LiveAlert | null
+  showViolence: boolean
+}) {
+  const [ticks, setTicks] = useState<{ age: number; severity: string }[]>([])
+
+  useEffect(() => {
+    if (!activeAlert || !showViolence) return
+    const now = Date.now()
+    setTicks((prev) => {
+      const filtered = prev.filter((t) => now - t.age < 60_000)
+      return [...filtered, { age: now, severity: activeAlert.severity }]
+    })
+  }, [activeAlert?.id, showViolence])
+
+  // Decay old ticks every second
+  useEffect(() => {
+    const id = setInterval(() => {
+      const now = Date.now()
+      setTicks((prev) => prev.filter((t) => now - t.age < 60_000))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="shrink-0 h-7 border-t border-border/40 bg-black/80 flex items-center px-3 gap-1 overflow-hidden relative">
+      <span className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider shrink-0 mr-1">Timeline</span>
+      <div className="flex-1 flex items-center gap-[2px] h-2">
+        {Array.from({ length: 60 }).map((_, i) => {
+          const tick = ticks.find((t) => {
+            const secAgo = (Date.now() - t.age) / 1000
+            return Math.floor(secAgo) === i
+          })
+          return (
+            <div
+              key={i}
+              className={cn(
+                "flex-1 h-full rounded-sm transition-all duration-300",
+                tick
+                  ? tick.severity === "critical"
+                    ? "bg-danger animate-timeline-pulse"
+                    : "bg-warning"
+                  : "bg-white/[0.04]"
+              )}
+            />
+          )
+        })}
+      </div>
+      <span className="text-[9px] font-mono text-muted-foreground/30 shrink-0 ml-1">60s</span>
+    </div>
+  )
+}

@@ -1,5 +1,7 @@
 # Project Status
 
+> See also: [README](../README.md) | [Runtime Restore Guide](01_RUNTIME_RESTORE_GUIDE.md) | [Demo Runbook](04_DEMO_RUNBOOK.md) | [Model and Data Policy](06_MODEL_AND_DATA_POLICY.md) | [Changelog](../CHANGELOG.md)
+
 ## Freeze Date
 
 - Freeze snapshot date: `2026-05-07`
@@ -9,7 +11,7 @@
 - `FINAL_LIVE_ALERT_API_CHECK: PASS`
 - `SAFE_TO_RUN_LIVE_DEMO: True`
 - `VIOLENCE_CLS = 1`
-- Live Alert Decision Layer V2: enabled and documented
+- Live Alert Decision Layer V2: enabled and documented (see [full docs](02_LIVE_ALERT_DECISION_LAYER_V2.md))
 - False-positive replay after V2:
   - `FALSE_POSITIVE_REPLAY_COUNT: 5`
   - `STILL_CONFIRMED_ALERT_COUNT: 0`
@@ -37,15 +39,17 @@ Status note: the local file currently present in this workspace does not match t
 - Visible alert safety:
   - red alert uses `confirmed_alert`
   - `model_prediction` is internal only
+- See [Live Alert Decision Layer V2](02_LIVE_ALERT_DECISION_LAYER_V2.md) for state machine and design rationale
 
 ## Safe To Run
 
 - Backend API with `backend/api.py`
-- Live decision layer reset endpoint: `POST /decision_layer/reset`
+- Live decision layer reset endpoint: `POST /decision_layer/reset` (see [API Reference](API_REFERENCE.md))
 - Combined status endpoint: `GET /system/status`
 - Verification notebook:
   - `notebooks/colab_verify_live_alert_decision_layer.ipynb`
-- Demo flow described in `docs/04_DEMO_RUNBOOK.md`
+- Demo flow described in [Demo Runbook](04_DEMO_RUNBOOK.md)
+- Environment variable reference: [Env Vars](ENV_VARS.md)
 
 ## Do Not Change During Preservation Freeze
 

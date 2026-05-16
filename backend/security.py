@@ -58,10 +58,12 @@ class AccessController:
                 raise HTTPException(status_code=401, detail="Invalid API key")
             if not role or role == "viewer":
                 role = "admin" if required_role == "admin" else "operator"
-        elif required_role == "admin" and role not in {"admin", "operator"}:
-            # In local/demo mode, treat admin-only routes as accessible even when
-            # the frontend does not send an explicit privileged role header.
-            role = "admin"
+        else:
+            # Demo / open-access mode: no API key is configured.
+            # Grant the minimum role required so every route stays accessible
+            # to all group members without authentication.
+            if required_role in {"admin", "operator"}:
+                role = required_role
 
         if required_role == "admin" and role not in {"admin", "operator"}:
             raise HTTPException(status_code=403, detail="Admin role required")
