@@ -26,6 +26,9 @@ interface CanvasOverlayProps {
   containerHeight: number
   showBoxes?: boolean
   showLabels?: boolean
+  opacity?: number
+  boxThickness?: number
+  labelStyle?: "chip" | "plain"
 }
 
 export function CanvasOverlay({
@@ -36,6 +39,9 @@ export function CanvasOverlay({
   containerHeight,
   showBoxes = true,
   showLabels = true,
+  opacity = 100,
+  boxThickness = 2,
+  labelStyle = "chip",
 }: CanvasOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animFrameRef = useRef<number>(0)
@@ -52,9 +58,12 @@ export function CanvasOverlay({
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     if (!data || !showBoxes) return
 
-    ctx.lineWidth = 2
-    ctx.font = 'bold 13px "Segoe UI", Roboto, sans-serif'
+    ctx.lineWidth = boxThickness
+    ctx.font = labelStyle === "chip"
+      ? 'bold 12px "Segoe UI", Roboto, sans-serif'
+      : 'bold 11px "Segoe UI", Roboto, sans-serif'
     ctx.textBaseline = "top"
+    ctx.globalAlpha = opacity / 100
 
     data.tracks.forEach((track) => {
       const [x1, y1, x2, y2] = track.bbox
@@ -89,16 +98,26 @@ export function CanvasOverlay({
       ctx.shadowBlur = 0
 
       if (showLabels) {
-        const labelText = `${track.id} ${(track.confidence * 100).toFixed(0)}%`
+        const pct = (track.confidence * 100).toFixed(0)
+        const labelText = labelStyle === "chip"
+          ? `● ${track.id} ${pct}%`
+          : `${track.id} ${pct}%`
         const textMetrics = ctx.measureText(labelText)
         const textW = textMetrics.width + 12
-        const textH = 18
+        const textH = labelStyle === "chip" ? 18 : 14
         const badgeY = Math.max(0, sy1 - textH - 4)
 
-        ctx.fillStyle = colorStr
-        ctx.fillRect(sx1, badgeY, textW, textH)
-        ctx.fillStyle = "#000"
-        ctx.fillText(labelText, sx1 + 6, badgeY + 3)
+        if (labelStyle === "chip") {
+          ctx.fillStyle = colorStr
+          ctx.fillRect(sx1, badgeY, textW, textH)
+          ctx.fillStyle = "#000"
+          ctx.fillText(labelText, sx1 + 6, badgeY + 3)
+        } else {
+          ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
+          ctx.fillRect(sx1, badgeY, textW, textH)
+          ctx.fillStyle = "#fff"
+          ctx.fillText(labelText, sx1 + 4, badgeY + 2)
+        }
       }
     })
 
@@ -108,7 +127,9 @@ export function CanvasOverlay({
       ctx.lineWidth = 4
       ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4)
     }
-  }, [data, scaleX, scaleY, showBoxes, showLabels])
+
+    ctx.globalAlpha = 1
+  }, [data, scaleX, scaleY, showBoxes, showLabels, boxThickness, labelStyle, opacity])
 
   useEffect(() => {
     const animate = () => {

@@ -10,6 +10,8 @@ import { GeoDashboard } from "@/components/geo-dashboard"
 import { ClipSidebar } from "@/components/clip-sidebar"
 import { TelegramStatusCard } from "@/components/telegram-status"
 import type { DetectionCategory } from "@/lib/detection-types"
+import { cn } from "@/lib/utils"
+import { OverlaySettingsPanel, loadSettings, type OverlaySettings } from "@/components/overlay-settings"
 
 type Tab = "monitor" | "demo-clips" | "incidents" | "intelligence" | "operations" | "system"
 
@@ -54,6 +56,8 @@ export default function DashboardPage() {
   const [selectedAlert, setSelectedAlert] = useState<LiveAlert | null>(null)
   const [privacyMode, setPrivacyMode] = useState(false)
   const [sseConnected, setSseConnected] = useState(false)
+  const [personCount, setPersonCount] = useState(0)
+  const [overlaySettings, setOverlaySettings] = useState<OverlaySettings>(() => loadSettings())
   const [facePolicyFocusSignal, setFacePolicyFocusSignal] = useState(0)
   const [facePolicySynced, setFacePolicySynced] = useState(false)
   const [facePolicyFetchedAt, setFacePolicyFetchedAt] = useState<string | null>(null)
@@ -88,6 +92,14 @@ export default function DashboardPage() {
 
         // تجاهل تقارير الذكاء الاصطناعي النصية هنا لأنها تُعالج داخل مكون AiReport
         if (data.type === "VLM_Report") return
+
+        // Handle person detection metadata
+        if (data.type === "person_detection") {
+          if (typeof data.personCount === "number") {
+            setPersonCount(data.personCount)
+          }
+          return
+        }
 
         const alertData = data as LiveAlert
         setAlerts((prev) => {
@@ -266,7 +278,7 @@ export default function DashboardPage() {
   }, [stopDemoSource])
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground bg-gradient-animated bg-grid-pattern">
       <DashboardHeader
         privacyMode={privacyMode}
         onPrivacyToggle={handlePrivacyToggle}
@@ -279,31 +291,46 @@ export default function DashboardPage() {
       />
 
       {/* Tab nav */}
-      <nav className="flex shrink-0 border-b border-border bg-card/40 px-4">
-        {TAB_DEFS.map(({ id, label }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={`-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {id === "monitor" && sseConnected && (
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-              </span>
-            )}
-            {label}
-            {id === "incidents" && alerts.length > 0 && (
-              <span className="rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold leading-none text-destructive-foreground">
-                {alerts.length > 99 ? "99+" : alerts.length}
-              </span>
-            )}
-          </button>
-        ))}
+      <nav className="flex shrink-0 flex-nowrap border-b border-border/60 bg-card/40 px-4 relative overflow-x-auto">
+        {/* Glow line under active tab area */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+        {TAB_DEFS.map(({ id, label }) => {
+          const isActive = activeTab === id
+          return (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={cn(
+                "-mb-px inline-flex items-center gap-2 border-b-2 px-3 md:px-4 py-3 text-xs md:text-sm font-semibold transition-all duration-300 relative",
+                isActive
+                  ? "border-primary text-primary tab-active-glow"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border/50"
+              )}
+            >
+              {/* Glow dot for monitor when connected */}
+              {id === "monitor" && sseConnected && (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ambient-pulse rounded-full bg-green-500 opacity-80" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500 glow-success" />
+                </span>
+              )}
+              {/* Pulsing dot for incidents with alerts */}
+              {id === "incidents" && alerts.length > 0 && (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ambient-pulse rounded-full bg-danger opacity-80" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-danger glow-danger" />
+                </span>
+              )}
+              {label}
+              {id === "incidents" && alerts.length > 0 && (
+                <span className="ml-1 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground animate-threat-flash">
+                  {alerts.length > 99 ? "99+" : alerts.length}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </nav>
 
       {/* Tab content */}
@@ -312,7 +339,7 @@ export default function DashboardPage() {
         {/* ── Live Monitor ── */}
         {activeTab === "monitor" && (
           <>
-            <aside className="flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
+            <aside className="hidden md:block flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
                 selectedAlertId={selectedAlert?.id ?? null}
@@ -344,18 +371,25 @@ export default function DashboardPage() {
                 <span className="ml-auto font-mono text-[9px] text-muted-foreground/60">
                   Live monitoring sources: CAM-01 + CAM-02
                 </span>
+                <OverlaySettingsPanel
+                  settings={overlaySettings}
+                  onChange={(s) => {
+                    setOverlaySettings(s)
+                    try { localStorage.setItem("ai-sentinel-overlay-settings", JSON.stringify(s)) } catch { /* ignore */ }
+                  }}
+                />
               </div>
               <div className="flex-1 overflow-hidden">
-                <VideoPlayer cameraId={selectedLiveSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} />
+                <VideoPlayer cameraId={selectedLiveSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} personCount={personCount} overlaySettings={overlaySettings} />
               </div>
-            </main>
-          </>
-        )}
+              </main>
+            </>
+          )}
 
-        {/* ── Demo Clips ── */}
-        {activeTab === "demo-clips" && (
+          {/* ── Demo Clips ── */}
+          {activeTab === "demo-clips" && (
           <>
-            <aside className="flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
+            <aside className="hidden md:block flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
                 selectedAlertId={selectedAlert?.id ?? null}
@@ -387,10 +421,17 @@ export default function DashboardPage() {
                 <span className="ml-auto font-mono text-[9px] text-muted-foreground/60">
                   Demo clips are analyzed only when selected
                 </span>
+                <OverlaySettingsPanel
+                  settings={overlaySettings}
+                  onChange={(s) => {
+                    setOverlaySettings(s)
+                    try { localStorage.setItem("ai-sentinel-overlay-settings", JSON.stringify(s)) } catch { /* ignore */ }
+                  }}
+                />
               </div>
               <div className="flex-1 overflow-hidden">
                 {selectedDemoSource ? (
-                  <VideoPlayer cameraId={selectedDemoSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} />
+                  <VideoPlayer cameraId={selectedDemoSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} personCount={personCount} overlaySettings={overlaySettings} />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
                     <span className="font-mono text-3xl text-muted-foreground/20">▶</span>
@@ -406,7 +447,7 @@ export default function DashboardPage() {
         {/* ── Incidents ── */}
         {activeTab === "incidents" && (
           <>
-            <aside className="flex h-full w-[320px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
+            <aside className="hidden md:block flex h-full w-[320px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
                 selectedAlertId={selectedAlert?.id ?? null}
@@ -421,7 +462,7 @@ export default function DashboardPage() {
                 <IncidentPanel alert={selectedAlert} focusFacePolicySignal={facePolicyFocusSignal} />
               </div>
             </main>
-            <aside className="flex h-full w-[400px] flex-shrink-0 flex-col overflow-hidden border-l border-border bg-card/30">
+            <aside className="hidden md:block flex h-full w-[400px] flex-shrink-0 flex-col overflow-hidden border-l border-border bg-card/30">
               <ClipSidebar
                 alerts={alerts}
                 selectedAlertId={selectedAlert?.id}
@@ -434,7 +475,7 @@ export default function DashboardPage() {
         {/* ── Intelligence ── */}
         {activeTab === "intelligence" && (
           <>
-            <aside className="flex h-full w-[280px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
+            <aside className="hidden md:block flex h-full w-[280px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
                 selectedAlertId={selectedAlert?.id ?? null}
@@ -460,7 +501,7 @@ export default function DashboardPage() {
                 focusCameraId={selectedAlert?.cameraId ?? latestAlertForVideo?.cameraId ?? "CAM-01"}
               />
             </main>
-            <aside className="w-[320px] flex-shrink-0 overflow-y-auto border-l border-border bg-card/30 p-3">
+            <aside className="hidden md:block w-[320px] flex-shrink-0 overflow-y-auto border-l border-border bg-card/30 p-3">
               <TelegramStatusCard />
             </aside>
           </>

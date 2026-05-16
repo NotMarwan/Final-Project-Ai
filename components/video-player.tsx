@@ -12,6 +12,7 @@ import type { DetectionCategory, CategoryScore } from "@/lib/detection-types"
 import { WebRTCPlayer } from "@/components/webrtc-player"
 import { CanvasOverlay } from "@/components/canvas-overlay"
 import { useDetectionStream } from "@/hooks/use-detection-stream"
+import { OverlaySettingsPanel } from "@/components/overlay-settings"
 
 export interface FaceObservation {
   id: string
@@ -78,6 +79,17 @@ interface VideoPlayerProps {
   activeAlert: LiveAlert | null
   privacyMode: boolean
   personCount?: number
+  overlaySettings?: {
+    showBoxes: boolean
+    showLabels: boolean
+    showFps: boolean
+    showPersonCount: boolean
+    showTimestamp: boolean
+    showThreatBadge: boolean
+    opacity: number
+    boxThickness: number
+    labelStyle: "chip" | "plain"
+  }
 }
 
 const API_BASE          = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
@@ -94,7 +106,7 @@ const CAMERAS = [
 
 type CameraId = (typeof CAMERAS)[number]["id"]
 
-export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode, personCount = 0 }: VideoPlayerProps) {
+export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode, personCount = 0, overlaySettings }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
   const [activeControl, setActiveControl] = useState<string | null>(null)
   const [streamError,   setStreamError]   = useState(false)
@@ -111,7 +123,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
 
   const [showViolence, setShowViolence] = useState(false)
   const [visibleAlert, setVisibleAlert] = useState<LiveAlert | null>(null)
-  const [showOverlays, setShowOverlays] = useState(true)
+  const [showOverlays, setShowOverlays] = useState(() => overlaySettings?.showBoxes ?? true)
   const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const videoContainerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 })
@@ -327,6 +339,9 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               containerHeight={containerSize.height}
               showBoxes={showOverlays}
               showLabels={showOverlays}
+              opacity={overlaySettings?.opacity ?? 85}
+              boxThickness={overlaySettings?.boxThickness ?? 2}
+              labelStyle={overlaySettings?.labelStyle ?? "chip"}
             />
           </>
         )}
@@ -354,6 +369,9 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               containerHeight={containerSize.height}
               showBoxes={showOverlays}
               showLabels={showOverlays}
+              opacity={overlaySettings?.opacity ?? 85}
+              boxThickness={overlaySettings?.boxThickness ?? 2}
+              labelStyle={overlaySettings?.labelStyle ?? "chip"}
             />
           </>
         )}
@@ -494,19 +512,26 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
       <div className="flex items-center justify-between border-t border-border bg-card px-4 py-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setIsPlaying((p) => !p)}>{isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}</Button>
-          <Button
-            variant={showOverlays ? "default" : "outline"}
-            size="sm"
-            className="h-7 text-xs gap-1"
-            onClick={() => setShowOverlays((v) => !v)}
-          >
-            <Layers className="h-3 w-3" />
-            {showOverlays ? "Boxes On" : "Boxes Off"}
-          </Button>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <OverlaySettingsPanel
+            settings={{
+              showBoxes: showOverlays,
+              showLabels: showOverlays,
+              showFps: true,
+              showPersonCount: true,
+              showTimestamp: true,
+              showThreatBadge: true,
+              opacity: overlaySettings?.opacity ?? 85,
+              boxThickness: overlaySettings?.boxThickness ?? 2,
+              labelStyle: overlaySettings?.labelStyle ?? "chip",
+            }}
+            onChange={(s) => {
+              setShowOverlays(s.showBoxes)
+            }}
+          />
           {detectionData?.fps && (
-            <span className="font-mono text-[10px] text-muted-foreground">{detectionData.fps.toFixed(0)} FPS</span>
+            <span className="font-mono text-[10px] text-muted-foreground ml-2">{detectionData.fps.toFixed(0)} FPS</span>
           )}
         </div>
       </div>
