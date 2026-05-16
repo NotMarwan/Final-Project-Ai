@@ -422,6 +422,10 @@ class AppState:
         self._cam_stats_lock = threading.Lock()
         self._camera_heartbeats: Dict[str, float] = {}
         self._camera_alert_counts: Dict[str, int] = {}
+
+        # Per-camera detection metadata for frontend overlay rendering
+        self._detection_meta_lock = threading.Lock()
+        self._detection_meta: Dict[str, dict] = {}
         
         # Threshold management and pipeline registry
         self._threshold_lock = threading.Lock()
@@ -654,6 +658,14 @@ class AppState:
         with self._worker_stop_lock:
             ev = self._worker_stop_events.get(camera_id)
         return ev is not None and not ev.is_set()
+
+    def set_detection_meta(self, camera_id: str, meta: dict):
+        with self._detection_meta_lock:
+            self._detection_meta[camera_id] = dict(meta)
+
+    def get_detection_meta(self, camera_id: str) -> Optional[dict]:
+        with self._detection_meta_lock:
+            return dict(self._detection_meta.get(camera_id, {}))
 
 state = AppState()
 
@@ -1205,6 +1217,7 @@ def camera_worker(
     threshold: float,
     stride: int,
     stop_event: Optional[threading.Event] = None,
+    raw_mode: bool = False,
 ):
     import torch
     _imports = _get_imports()
@@ -1463,19 +1476,22 @@ def camera_worker(
             _pm.record_stream(_current_fps)
 
         # ── Annotate frame with visual overlays ──
-        try:
-            annotated = annotate_frame(
-                frame=raw,
-                tracks=tracks,
-                person_count=person_count,
-                is_threat=is_threat_now,
-                threat_confidence=threat_conf,
-                camera_id=camera_id,
-                fps=_current_fps,
-            )
-        except Exception as exc:
-            print(f"[System] Annotation error: {exc}")
-            annotated = raw  # fall back to raw frame
+        if raw_mode:
+            annotated = raw  # Clean frame — overlays rendered by frontend
+        else:
+            try:
+                annotated = annotate_frame(
+                    frame=raw,
+                    tracks=tracks,
+                    person_count=person_count,
+                    is_threat=is_threat_now,
+                    threat_confidence=threat_conf,
+                    camera_id=camera_id,
+                    fps=_current_fps,
+                )
+            except Exception as exc:
+                print(f"[System] Annotation error: {exc}")
+                annotated = raw  # fall back to raw frame
 
         # Broadcast person detection metadata (every 15 frames to reduce SSE noise)
         if _fps_counter % 15 == 0:
@@ -1493,6 +1509,26 @@ def camera_worker(
         if ok:
             _pm.record_encode((time.perf_counter() - _enc_t0) * 1000)
             state.set_frame(camera_id, jpg_buf.tobytes())
+
+        # Emit detection metadata for frontend overlay rendering
+        state.set_detection_meta(camera_id, {
+            "cameraId": camera_id,
+            "timestamp": time.time(),
+            "tracks": [
+                {
+                    "id": getattr(t, "label", f"P-{i}"),
+                    "bbox": list(getattr(t, "bbox", [0, 0, 0, 0])),
+                    "confidence": round(float(getattr(t, "confidence", 0.0)), 3),
+                    "color": list(getattr(t, "color", [0, 255, 255])),
+                }
+                for i, t in enumerate(tracks)
+            ],
+            "personCount": person_count,
+            "isThreat": is_threat_now,
+            "threatConfidence": round(threat_conf, 1),
+            "weaponScore": round(float(weapon_signal.get("score", 0.0)), 3),
+            "fps": round(_current_fps, 1),
+        })
 
         # Check for pending camera switch requests (initiated by dashboard)
         pending = state.consume_pending_switch()
@@ -1597,6 +1633,7 @@ async def lifespan(app: FastAPI):
             active_ids = list(CAMERA_SOURCES.keys())
         from device_config import get_optimal_device
         device = get_optimal_device(prefer_gpu=True)
+        _raw_mode = _env_flag("AI_SENTINEL_RAW_STREAM", default=False)
         for cam_id in active_ids:
             if cam_id not in CAMERA_SOURCES:
                 print(f"[System] Warning: camera '{cam_id}' not in CAMERA_SOURCES, skipping.")
@@ -1605,6 +1642,7 @@ async def lifespan(app: FastAPI):
             t = threading.Thread(
                 target=camera_worker,
                 args=(cam_id, source, device, WEIGHTS_PATH, THRESHOLD, STRIDE),
+                kwargs={"raw_mode": _raw_mode},
                 daemon=True
             )
             t.start()
@@ -1735,6 +1773,26 @@ async def alerts():
     return StreamingResponse(_sse_generator(state.subscribe()), media_type="text/event-stream")
 
 
+async def _detection_sse_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
+    while True:
+        meta = state.get_detection_meta(camera_id)
+        if meta:
+            import json
+            yield f"data: {json.dumps(meta)}\n\n".encode()
+        await asyncio.sleep(0.1)
+
+
+@app.get("/detections", summary="SSE Detection Metadata Stream")
+async def detections(camera_id: str = DEFAULT_CAMERA_ID):
+    """Stream real-time detection metadata (tracks, person count, threat) for frontend overlay rendering."""
+    if camera_id not in CAMERA_SOURCES and camera_id not in EXAMPLE_SOURCES:
+        raise HTTPException(status_code=503, detail=f"Camera {camera_id} not configured")
+    return StreamingResponse(
+        _detection_sse_generator(camera_id),
+        media_type="text/event-stream",
+    )
+
+
 @app.post("/demo_start/{clip_id}", summary="Start on-demand analysis of a demo/example clip")
 async def demo_start(clip_id: str):
     """Start a temporary AI analysis worker for a demo clip. No-op if already running."""
@@ -1751,7 +1809,7 @@ async def demo_start(clip_id: str):
     t = threading.Thread(
         target=camera_worker,
         args=(clip_id, clip_path, device, WEIGHTS_PATH, state.get_threshold(), STRIDE),
-        kwargs={"stop_event": stop_event},
+        kwargs={"stop_event": stop_event, "raw_mode": _env_flag("AI_SENTINEL_RAW_STREAM", default=False)},
         daemon=True,
         name=f"demo-worker-{clip_id}",
     )
