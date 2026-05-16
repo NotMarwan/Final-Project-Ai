@@ -12,6 +12,7 @@ import { TelegramStatusCard } from "@/components/telegram-status"
 import type { DetectionCategory } from "@/lib/detection-types"
 import { cn } from "@/lib/utils"
 import { OverlaySettingsPanel, loadSettings, type OverlaySettings } from "@/components/overlay-settings"
+import { AlertHistory } from "@/components/alert-history"
 
 type Tab = "monitor" | "demo-clips" | "incidents" | "intelligence" | "operations" | "system"
 
@@ -339,15 +340,24 @@ export default function DashboardPage() {
         {/* ── Live Monitor ── */}
         {activeTab === "monitor" && (
           <>
-            <aside className="hidden md:block flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
-              <AlertFeed
-                alerts={filteredAlerts}
-                selectedAlertId={selectedAlert?.id ?? null}
-                onSelectAlert={handleSelectAlert}
-                selectedCategories={selectedCategories}
-                onCategoryChange={setSelectedCategories}
-                categoryCounts={categoryCounts}
-              />
+            <aside className="hidden md:flex flex-col h-full w-[300px] flex-shrink-0 overflow-hidden border-r border-border bg-card/30">
+              <div className="flex-1 overflow-hidden">
+                <AlertFeed
+                  alerts={filteredAlerts}
+                  selectedAlertId={selectedAlert?.id ?? null}
+                  onSelectAlert={handleSelectAlert}
+                  selectedCategories={selectedCategories}
+                  onCategoryChange={setSelectedCategories}
+                  categoryCounts={categoryCounts}
+                />
+              </div>
+              <div className="border-t border-border/60 h-[200px] flex-shrink-0 overflow-hidden">
+                <AlertHistory
+                  alerts={alerts}
+                  selectedAlertId={selectedAlert?.id ?? null}
+                  onSelectAlert={handleSelectAlert}
+                />
+              </div>
             </aside>
             <main className="flex-1 flex flex-col overflow-hidden bg-black">
               {/* Live source switcher — live cameras only */}
