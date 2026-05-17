@@ -99,18 +99,11 @@ const OVERLAY_LINGER_MS = 8_000
 const DEMO_LOADING_MS   = 4_000
 
 const CAMERAS = [
-  { id: "CAM-01",     label: "CAM-01",       isLive: true,  isDemo: false },
-  { id: "CAM-02",     label: "CAM-02",       isLive: true,  isDemo: false },
-  { id: "EXAMPLE-01", label: "Fight Clip 1", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-02", label: "Fight Clip 2", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-03", label: "Violence 1", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-04", label: "Violence 2", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-05", label: "Violence 3", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-06", label: "Violence 4", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-07", label: "Violence 5", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-08", label: "Violence 6", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-09", label: "Violence 7", isLive: false, isDemo: true  },
-  { id: "EXAMPLE-10", label: "Violence 8", isLive: false, isDemo: true  },
+  { id: "CAM-01",     label: "CAM-01",          isLive: true,  isDemo: false },
+  { id: "CAM-02",     label: "CAM-02",          isLive: true,  isDemo: false },
+  { id: "EXAMPLE-01", label: "FIGHT SAMPLE 1",  isLive: false, isDemo: true  },
+  { id: "EXAMPLE-02", label: "FIGHT SAMPLE 2",  isLive: false, isDemo: true  },
+  { id: "EXAMPLE-03", label: "VIOLENCE SAMPLE 3", isLive: false, isDemo: true  },
 ] as const
 
 type CameraId = (typeof CAMERAS)[number]["id"]
@@ -356,8 +349,8 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
             />
             <CanvasOverlay
               data={detectionData}
-              videoWidth={1280}
-              videoHeight={720}
+              videoWidth={detectionData?.videoWidth ?? 1280}
+              videoHeight={detectionData?.videoHeight ?? 720}
               containerWidth={containerSize.width}
               containerHeight={containerSize.height}
               showBoxes={showOverlays}
@@ -373,7 +366,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         {!isDemo && !streamError && !isLiveDemoMode && (
           <>
             <div className="absolute inset-0">
-              <img key={streamKey} src={streamSrc} className={`h-full w-full object-cover ${webrtcReady ? "invisible" : "visible"}`} onError={() => setStreamError(true)} />
+              <img key={streamKey} src={streamSrc} className={`h-full w-full object-contain ${webrtcReady ? "invisible" : "visible"}`} onError={() => setStreamError(true)} />
               {webrtcUrl && !webrtcFailed && (
                 <WebRTCPlayer
                   streamUrl={webrtcUrl}
@@ -386,8 +379,8 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
             </div>
             <CanvasOverlay
               data={detectionData}
-              videoWidth={1280}
-              videoHeight={720}
+              videoWidth={detectionData?.videoWidth ?? 1280}
+              videoHeight={detectionData?.videoHeight ?? 720}
               containerWidth={containerSize.width}
               containerHeight={containerSize.height}
               showBoxes={showOverlays}
@@ -464,28 +457,6 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           <span className={cn("h-2.5 w-2.5 rounded-full", showViolence ? "bg-danger animate-ambient-pulse" : "bg-danger animate-pulse")} />
           <span className={cn("font-mono text-[10px] font-bold tracking-widest", showViolence ? "text-danger animate-threat-flash" : "text-danger/70")}>REC</span>
         </div>
-
-        {/* Timestamp and camera ID overlay */}
-        <div className="pointer-events-none absolute bottom-10 left-3 z-20 flex items-center gap-2">
-          <span className="font-mono text-[10px] text-white/60 backdrop-blur-sm px-1.5 py-0.5 rounded bg-black/30">{timestamp}</span>
-          <span className="text-[10px] text-white/30">|</span>
-          <span className="font-mono text-[10px] text-primary/80 backdrop-blur-sm px-1.5 py-0.5 rounded bg-black/30">{cameraId}</span>
-        </div>
-
-        {/* Confidence score overlay */}
-        {showViolence && visibleAlert && (
-          <div className="pointer-events-none absolute bottom-10 right-3 z-20">
-            <div className="backdrop-blur-sm bg-black/50 rounded-lg border border-danger/30 px-3 py-1.5">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-[9px] text-danger/80 uppercase">Threat</span>
-                <span className="font-mono text-xs font-bold text-danger">{(visibleAlert.threatConfidence ?? 0).toFixed(1)}%</span>
-              </div>
-              <div className="w-20 h-1 bg-secondary rounded-full overflow-hidden">
-                <div className="h-full bg-danger animate-shimmer rounded-full" style={{ width: `${visibleAlert.threatConfidence ?? 0}%` }} />
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── CSS HUD Overlays (crisp, rendered by browser) ── */}
         {showOverlays && (

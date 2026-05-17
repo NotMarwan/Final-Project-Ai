@@ -16,7 +16,7 @@ function getClipUrl(alert: LiveAlert): string {
   return alert.clipUrl ?? `${API_BASE}/clips/${alert.id}`
 }
 
-const DEMO_CAMERA_IDS = new Set(["EXAMPLE-01", "EXAMPLE-02", "EXAMPLE-03", "EXAMPLE-04", "EXAMPLE-05", "EXAMPLE-06", "EXAMPLE-07", "EXAMPLE-08", "EXAMPLE-09", "EXAMPLE-10"])
+const DEMO_CAMERA_IDS = new Set(["EXAMPLE-01", "EXAMPLE-02", "EXAMPLE-03"])
 const isDemoAlert = (alert: LiveAlert) => DEMO_CAMERA_IDS.has(alert.cameraId)
 
 function DemoClipReplay({ alert }: { alert: LiveAlert }) {
