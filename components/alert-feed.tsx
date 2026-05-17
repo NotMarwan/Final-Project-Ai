@@ -79,7 +79,7 @@ function AlertItem({
       <div className="flex items-center justify-between mb-2">
         <div className="relative">
           <span className={cn("absolute inset-0 rounded-full blur-md animate-ambient-pulse", alert.severity === "critical" ? "bg-danger/40" : "bg-warning/40")} />
-          <Badge className={cn("text-[9px] uppercase font-bold border-0", alert.severity === "critical" ? "bg-danger text-white" : "bg-warning text-black", severityGlow)}>
+          <Badge className={cn("text-[10px] uppercase font-bold border-0", alert.severity === "critical" ? "bg-danger text-white" : "bg-warning text-black", severityGlow)}>
             {alert.severity}
           </Badge>
         </div>
@@ -108,6 +108,16 @@ function AlertItem({
             {alert.cameraId}
           </Badge>
         )}
+        <Badge
+          variant="outline"
+          className={`text-[9px] px-1 py-0 font-bold border ${
+            alert.cameraId.startsWith("EXAMPLE-")
+              ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+              : "bg-red-500/20 text-red-400 border-red-500/30"
+          }`}
+        >
+          {alert.cameraId.startsWith("EXAMPLE-") ? "DEMO" : "LIVE"}
+        </Badge>
       </div>
 
       {/* Info grid */}
