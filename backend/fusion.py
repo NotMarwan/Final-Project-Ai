@@ -117,3 +117,81 @@ class ThreatFusionEngine:
             "weaponEnabled": self.config.enabled,
             "reason": reason,
         }
+
+    def assess_multi_threat(
+        self,
+        *,
+        violence_confidence: float,
+        motion_score: float = 0.0,
+        weapon_score: float = 0.0,
+        violence_bbox: list | None = None,
+        weapon_bbox: list | None = None,
+        weapon_labels: list | None = None,
+        base_severity: str = "high",
+    ) -> dict:
+        base_result = self.assess(
+            violence_confidence=violence_confidence,
+            motion_score=motion_score,
+            weapon_score=weapon_score,
+            base_severity=base_severity,
+        )
+
+        violence = _clamp(violence_confidence)
+        weapon = _clamp(weapon_score)
+        weapon_threshold = self.config.weapon_threshold
+
+        threat_boxes = []
+
+        if violence >= 0.5 and violence_bbox:
+            threat_boxes.append({
+                "id": "violence-01",
+                "type": "violence",
+                "bbox": violence_bbox,
+                "confidence": round(violence, 3),
+                "color": [239, 68, 68],
+                "label": "VIOLENCE",
+            })
+
+        if weapon >= weapon_threshold and weapon_bbox:
+            w_type = "unknown"
+            if weapon_labels:
+                labels_lower = [l.lower() for l in weapon_labels]
+                if any(k in l for l in labels_lower for k in ["gun", "pistol", "rifle", "revolver", "shotgun"]):
+                    w_type = "gun"
+                elif any(k in l for l in labels_lower for k in ["knife", "blade", "sword"]):
+                    w_type = "knife"
+
+            color_map = {
+                "gun": [220, 38, 38],
+                "knife": [245, 158, 11],
+                "unknown": [234, 179, 8],
+            }
+
+            threat_boxes.append({
+                "id": "weapon-" + w_type,
+                "type": "weapon",
+                "weaponType": w_type,
+                "bbox": weapon_bbox,
+                "confidence": round(weapon, 3),
+                "color": color_map.get(w_type, [234, 179, 8]),
+                "label": w_type.upper() if w_type != "unknown" else "WEAPON",
+            })
+
+        has_violence = violence >= 0.5
+        has_weapon = weapon >= weapon_threshold
+        is_multi_threat = has_violence and has_weapon
+
+        return {
+            **base_result,
+            "multiThreat": {
+                "hasViolence": has_violence,
+                "hasWeapon": has_weapon,
+                "isMultiThreat": is_multi_threat,
+                "violenceScore": round(violence * 100, 1),
+                "weaponScore": round(weapon * 100, 1),
+                "fusedScore": base_result["score"],
+                "severity": base_result["severity"],
+                "threatBoxes": threat_boxes,
+                "reason": base_result["reason"],
+            },
+        }

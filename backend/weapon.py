@@ -117,10 +117,9 @@ class _YOLOBackend:
     def categories(self) -> tuple[str, ...]:
         return tuple(self._categories.values())
 
-    def predict(self, frame: np.ndarray) -> list[tuple[float, str]]:
-        """Run inference on a single frame. Returns list of (confidence, label)."""
+    def predict(self, frame: np.ndarray) -> list[tuple[float, str, list[float]]]:
+        """Run inference on a single frame. Returns list of (confidence, label, bbox)."""
         try:
-            # YOLO accepts BGR numpy arrays directly
             results = self._model.predict(
                 frame,
                 verbose=False,
@@ -128,21 +127,24 @@ class _YOLOBackend:
                 device=str(self.device),
             )
             result = results[0]
-            hits: list[tuple[float, str]] = []
+            hits: list[tuple[float, str, list[float]]] = []
 
             if result.boxes is None:
                 return hits
 
+            h, w = frame.shape[:2]
             for box in result.boxes:
                 cls_id = int(box.cls[0].item())
                 conf = float(box.conf[0].item())
                 label = self._categories.get(cls_id, f"class_{cls_id}")
+                # Extract bbox in [x1, y1, x2, y2] normalized to 0-1
+                xyxy = box.xyxy[0].cpu().tolist()
+                bbox = [xyxy[0] / w, xyxy[1] / h, xyxy[2] / w, xyxy[3] / h]
                 if self._is_weapon_label(label):
-                    hits.append((conf, label))
+                    hits.append((conf, label, bbox))
 
             return hits
         except Exception:
-            # YOLO inference errors are typically transient
             return []
 
     def _is_weapon_label(self, label: str) -> bool:
@@ -183,11 +185,12 @@ class _TorchvisionBackend:
     def categories(self) -> tuple[str, ...]:
         return self._categories
 
-    def predict(self, frame: np.ndarray) -> list[tuple[float, str]]:
-        """Run inference on a single BGR frame."""
+    def predict(self, frame: np.ndarray) -> list[tuple[float, str, list[float]]]:
+        """Run inference on a single BGR frame. Returns list of (confidence, label, bbox)."""
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w = rgb.shape[:2]
         max_side = max(h, w)
+        scale = 1.0
         if max_side > 640:
             scale = 640 / float(max_side)
             rgb = cv2.resize(rgb, (max(1, int(w * scale)), max(1, int(h * scale))), interpolation=cv2.INTER_AREA)
@@ -199,19 +202,30 @@ class _TorchvisionBackend:
 
         scores = output.get("scores")
         labels = output.get("labels")
+        boxes = output.get("boxes")
         if scores is None or labels is None:
             return []
 
-        hits: list[tuple[float, str]] = []
+        hits: list[tuple[float, str, list[float]]] = []
         scores_list = scores.detach().cpu().tolist()
         labels_list = labels.detach().cpu().tolist()
 
-        for score, label_idx in zip(scores_list, labels_list):
+        for i, (score, label_idx) in enumerate(zip(scores_list, labels_list)):
             if float(score) < self.min_confidence:
                 continue
             label = self._label_for_index(int(label_idx))
             if self._is_weapon_label(label):
-                hits.append((float(score), label))
+                if boxes is not None:
+                    box = boxes[i].detach().cpu().tolist()
+                    bbox = [
+                        max(0, min(1, (box[0] / scale) / w)),
+                        max(0, min(1, (box[1] / scale) / h)),
+                        max(0, min(1, (box[2] / scale) / w)),
+                        max(0, min(1, (box[3] / scale) / h)),
+                    ]
+                else:
+                    bbox = [0.0, 0.0, 1.0, 1.0]
+                hits.append((float(score), label, bbox))
 
         return hits
 
@@ -224,6 +238,73 @@ class _TorchvisionBackend:
         normalized = str(label).strip().lower()
         if not normalized:
             return False
+        return any(token in normalized for token in self.labels)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Backend: ONNX Runtime (fast inference)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class _ONNXBackend:
+    """ONNX Runtime backend for faster inference."""
+
+    def __init__(self, model_path: str, min_confidence: float, labels: tuple[str, ...]):
+        self.min_confidence = min_confidence
+        self.labels = labels
+        self.session = None
+        self.input_name = None
+        try:
+            import onnxruntime as ort
+            from device_utils import get_onnx_providers
+            self.session = ort.InferenceSession(model_path, providers=get_onnx_providers())
+            self.input_name = self.session.get_inputs()[0].name
+        except Exception as exc:
+            raise RuntimeError(f"Failed to load ONNX model from {model_path}: {exc}") from exc
+
+    @property
+    def categories(self) -> tuple[str, ...]:
+        return self.labels
+
+    def predict(self, frame: np.ndarray) -> list[tuple[float, str]]:
+        """Run ONNX inference on a single frame. Handles YOLOv8 output format."""
+        try:
+            import numpy as np
+            img = cv2.resize(frame, (640, 640))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = img.astype(np.float32) / 255.0
+            img = img.transpose(2, 0, 1)  # HWC to CHW
+            img = np.expand_dims(img, 0)  # Add batch dim
+
+            outputs = self.session.run(None, {self.input_name: img})
+            output = outputs[0]  # YOLOv8: [1, 4+nc, num_detections] = [1, 10, 8400]
+
+            # Transpose to [num_detections, 4+nc] = [8400, 10]
+            if output.ndim == 3:
+                output = output[0].T  # [10, 8400] -> [8400, 10]
+
+            num_classes = len(self.labels)
+            hits = []
+
+            for det in output:
+                # First 4 values are bbox (x1, y1, x2, y2) in normalized coords
+                bbox = [float(det[0]), float(det[1]), float(det[2]), float(det[3])]
+                # Next num_classes values are class scores
+                class_scores = det[4:4 + num_classes]
+                max_score = float(np.max(class_scores))
+                cls_id = int(np.argmax(class_scores))
+
+                if max_score < self.min_confidence:
+                    continue
+
+                label = self.labels[cls_id] if cls_id < len(self.labels) else f"class_{cls_id}"
+                if self._is_weapon_label(label):
+                    hits.append((max_score, label, bbox))
+            return hits
+        except Exception:
+            return []
+
+    def _is_weapon_label(self, label: str) -> bool:
+        normalized = str(label).strip().lower()
         return any(token in normalized for token in self.labels)
 
 
@@ -243,9 +324,10 @@ class WeaponSignalEngine:
         self._frame_counter = 0
         self._inference_running = False
         self._lock = threading.Lock()
-        self._backend: _YOLOBackend | _TorchvisionBackend | None = None
+        self._backend: _YOLOBackend | _TorchvisionBackend | _ONNXBackend | None = None
         self._last_score = 0.0
         self._last_labels: list[str] = []
+        self._last_bbox: list[float] | None = None
         self._last_latency_ms = 0.0
         self._last_inference_latency_ms = 0.0
         self._last_load_latency_ms = 0.0
@@ -272,6 +354,7 @@ class WeaponSignalEngine:
             self._inference_running = False
             self._last_score = 0.0
             self._last_labels = []
+            self._last_bbox = None
 
     def latest_signal(self) -> dict[str, Any]:
         with self._lock:
@@ -290,6 +373,7 @@ class WeaponSignalEngine:
                 "isRealtime": is_realtime,
                 "score": round(float(self._last_score), 4),
                 "labels": list(self._last_labels),
+                "bbox": list(self._last_bbox) if self._last_bbox else None,
                 "latencyMs": round(float(self._last_latency_ms), 1),
                 "inferenceLatencyMs": round(float(self._last_inference_latency_ms), 1),
                 "loadLatencyMs": round(float(self._last_load_latency_ms), 1),
@@ -358,9 +442,11 @@ class WeaponSignalEngine:
             weapon_hits = self._backend.predict(frame)
 
             if weapon_hits:
-                best_score = max(item[0] for item in weapon_hits)
+                best_hit = max(weapon_hits, key=lambda row: row[0])
+                best_score = best_hit[0]
                 top_labels = [item[1] for item in sorted(weapon_hits, key=lambda row: row[0], reverse=True)[:3]]
-                self._update_score(best=best_score, labels=top_labels)
+                best_bbox = best_hit[2] if len(best_hit) > 2 else None
+                self._update_score(best=best_score, labels=top_labels, bbox=best_bbox)
             else:
                 self._update_score(best=0.0, labels=[])
 
@@ -377,7 +463,7 @@ class WeaponSignalEngine:
         """Preload the model into memory."""
         return self._ensure_model_loaded()
 
-    def _update_score(self, *, best: float, labels: list[str]) -> None:
+    def _update_score(self, *, best: float, labels: list[str], bbox: list[float] | None = None) -> None:
         best = max(0.0, min(1.0, float(best)))
         with self._lock:
             prev = float(self._last_score)
@@ -387,6 +473,10 @@ class WeaponSignalEngine:
                 blended = prev * 0.85
             self._last_score = max(0.0, min(1.0, blended))
             self._last_labels = labels
+            if bbox is not None:
+                self._last_bbox = list(bbox)
+            elif best == 0.0:
+                self._last_bbox = None
 
     def _ensure_model_loaded(self) -> bool:
         if self._backend is not None:
@@ -403,7 +493,17 @@ class WeaponSignalEngine:
         start_load = time.perf_counter()
 
         try:
-            if self.config.backend == "yolo":
+            # Try ONNX first (faster)
+            from pathlib import Path
+            onnx_path = Path(__file__).parent / "models" / "weapon_yolo.onnx"
+            if onnx_path.exists() and self.config.backend == "yolo":
+                self._backend = _ONNXBackend(
+                    model_path=str(onnx_path),
+                    min_confidence=self.config.min_confidence,
+                    labels=self.config.labels,
+                )
+                print(f"[Weapon] ONNX detector ready ({(time.perf_counter() - start_load) * 1000:.1f}ms).")
+            elif self.config.backend == "yolo":
                 self._backend = _YOLOBackend(
                     weight_path=self.config.weight_path,
                     device=self.device,
@@ -411,7 +511,6 @@ class WeaponSignalEngine:
                     labels=self.config.labels,
                 )
                 print(f"[Weapon] YOLO detector ready on {self.device.type.upper()} ({(time.perf_counter() - start_load) * 1000:.1f}ms).")
-
             elif self.config.backend == "torchvision_coco":
                 self._backend = _TorchvisionBackend(
                     device=self.device,
@@ -419,7 +518,6 @@ class WeaponSignalEngine:
                     labels=self.config.labels,
                 )
                 print(f"[Weapon] torchvision detector ready on {self.device.type.upper()} ({(time.perf_counter() - start_load) * 1000:.1f}ms).")
-
             else:
                 raise ValueError(f"Unsupported backend: {self.config.backend}")
 

@@ -67,3 +67,25 @@ export const CATEGORY_ICONS: Record<DetectionCategory, string> = {
   intrusion: "ShieldAlert",
   loitering: "Clock",
 }
+
+export interface ThreatBox {
+  id: string
+  type: "violence" | "weapon"
+  weaponType?: "gun" | "knife" | "explosive" | "unknown"
+  bbox: [number, number, number, number]
+  confidence: number
+  color: [number, number, number]
+  label: string
+}
+
+export interface MultiThreatData {
+  hasViolence: boolean
+  hasWeapon: boolean
+  isMultiThreat: boolean
+  violenceScore: number
+  weaponScore: number
+  fusedScore: number
+  severity: "low" | "medium" | "high" | "critical"
+  threatBoxes: ThreatBox[]
+  reason: string
+}

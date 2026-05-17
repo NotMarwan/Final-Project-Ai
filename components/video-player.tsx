@@ -13,6 +13,8 @@ import { WebRTCPlayer } from "@/components/webrtc-player"
 import { CanvasOverlay } from "@/components/canvas-overlay"
 import { useDetectionStream } from "@/hooks/use-detection-stream"
 import { OverlaySettingsPanel } from "@/components/overlay-settings"
+import { MultiThreatBanner } from "@/components/multi-threat-banner"
+import { ConfidenceBars } from "@/components/confidence-bars"
 
 export interface FaceObservation {
   id: string
@@ -162,6 +164,15 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
 
   const { data: detectionData } = useDetectionStream(propCameraId)
 
+  const multiThreat = detectionData?.multiThreat
+  const hasViolence = multiThreat?.hasViolence ?? showViolence
+  const hasWeapon = multiThreat?.hasWeapon ?? (detectionData?.weaponScore ?? 0) > 50
+  const isMultiThreat = multiThreat?.isMultiThreat ?? (hasViolence && hasWeapon)
+  const violenceScore = multiThreat?.violenceScore ?? (visibleAlert?.confidence ?? 0)
+  const weaponScore = multiThreat?.weaponScore ?? (visibleAlert?.weaponScore ?? 0)
+  const threatSeverity = multiThreat?.severity ?? visibleAlert?.severity ?? "medium"
+  const threatWeaponType = multiThreat?.threatBoxes?.find(b => b.type === "weapon")?.weaponType
+
   useEffect(() => {
     if (activeAlert === null) return
     if (activeAlert.cameraId !== propCameraId) return 
@@ -192,11 +203,6 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   }, [])
 
   const threatConfidence = visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
-  const modelConfidence = visibleAlert?.modelConfidence ?? visibleAlert?.confidence ?? 0
-  const cameraId = visibleAlert?.cameraId ?? propCameraId;
-  const timestamp = visibleAlert?.isoTime
-    ? formatASTFromISO(visibleAlert.isoTime)
-    : liveClock
   // faceSummary available from visibleAlert for future use
 
 
@@ -260,7 +266,13 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
             </div>
             <span className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-danger animate-glitch">
-              <ShieldAlert className="h-4 w-4" /> VIOLENCE DETECTED — THREAT {threatConfidence.toFixed(1)}% | MODEL {modelConfidence.toFixed(1)}%
+              <ShieldAlert className="h-4 w-4" />
+              {isMultiThreat
+                ? "VIOLENCE + WEAPON — THREAT " + threatConfidence.toFixed(1) + "%"
+                : hasWeapon
+                ? "WEAPON DETECTED — " + weaponScore.toFixed(1) + "%"
+                : "VIOLENCE DETECTED — THREAT " + threatConfidence.toFixed(1) + "%"
+              }
             </span>
           </div>
         ) : (
@@ -403,7 +415,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         )}
 
         {/* Threat border pulse */}
-        {showViolence && <div className="pointer-events-none absolute inset-0 z-10 border-[3px] border-danger animate-pulse-danger" />}
+        {(hasViolence || hasWeapon) && <div className="pointer-events-none absolute inset-0 z-10 border-[3px] border-danger animate-pulse-danger" />}
 
         {/* Scan line overlay */}
         <div className={cn("pointer-events-none absolute inset-0 z-10 transition-opacity duration-700", showViolence ? "opacity-60" : "opacity-20")} style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px)" }} />
@@ -413,22 +425,26 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           <div className="pointer-events-none absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent z-10 animate-scan-video opacity-40" />
         )}
 
-        {/* Threat overlay banner */}
-        {showViolence && (
-          <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center pt-6">
-            <div className="flex items-center gap-3 rounded-lg border border-danger/50 bg-black/70 px-6 py-3 backdrop-blur-sm animate-alert-enter">
-              <div className="relative">
-                <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
-                <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
-              </div>
-              <span className="inline-flex items-center gap-2 font-mono text-base font-black uppercase tracking-wider text-danger drop-shadow-lg animate-glitch"><ShieldAlert className="h-5 w-5" /> VIOLENCE DETECTED</span>
-              <div className="relative">
-                <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
-                <span className="relative flex h-3 w-3 bg-danger rounded-full animate-ping" />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Multi-threat banner and confidence bars */}
+        <MultiThreatBanner
+          hasViolence={hasViolence}
+          hasWeapon={hasWeapon}
+          isMultiThreat={isMultiThreat}
+          violenceScore={violenceScore}
+          weaponScore={weaponScore}
+          severity={threatSeverity}
+          weaponType={threatWeaponType}
+          cameraId={propCameraId}
+        />
+
+        <ConfidenceBars
+          bars={[
+            { label: "Violence", value: violenceScore, color: "bg-red-500", icon: "V" },
+            { label: "Weapon", value: weaponScore, color: "bg-orange-500", icon: "W" },
+            { label: "Fused", value: multiThreat?.fusedScore ?? 0, color: "bg-blue-500", icon: "F" },
+          ]}
+          visible={hasViolence || hasWeapon}
+        />
 
         {/* Tactical HUD corners - normal state */}
         {!showViolence && (

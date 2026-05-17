@@ -2,24 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { DetectionOverlayData } from "@/components/canvas-overlay"
+import { areDetectionOverlayDataEqual } from "@/lib/live-visual-state"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
-
-function shallowEqual(a: DetectionOverlayData, b: DetectionOverlayData): boolean {
-  if (a.personCount !== b.personCount) return false
-  if (a.isThreat !== b.isThreat) return false
-  if (a.threatConfidence !== b.threatConfidence) return false
-  if (a.fps !== b.fps) return false
-  if (a.tracks.length !== b.tracks.length) return false
-  for (let i = 0; i < a.tracks.length; i++) {
-    const at = a.tracks[i]
-    const bt = b.tracks[i]
-    if (at.id !== bt.id || at.confidence !== bt.confidence) return false
-    if (at.bbox[0] !== bt.bbox[0] || at.bbox[1] !== bt.bbox[1] ||
-        at.bbox[2] !== bt.bbox[2] || at.bbox[3] !== bt.bbox[3]) return false
-  }
-  return true
-}
 
 export function useDetectionStream(cameraId: string) {
   const [data, setData] = useState<DetectionOverlayData | null>(null)
@@ -58,8 +43,29 @@ export function useDetectionStream(cameraId: string) {
           threatConfidence: parsed.threatConfidence ?? 0,
           fps: parsed.fps ?? 0,
           weaponScore: parsed.weaponScore ?? 0,
+          videoWidth: parsed.videoWidth ?? 1280,
+          videoHeight: parsed.videoHeight ?? 720,
+          multiThreat: parsed.multiThreat ? {
+            hasViolence: parsed.multiThreat.hasViolence ?? false,
+            hasWeapon: parsed.multiThreat.hasWeapon ?? false,
+            isMultiThreat: parsed.multiThreat.isMultiThreat ?? false,
+            violenceScore: parsed.multiThreat.violenceScore ?? 0,
+            weaponScore: parsed.multiThreat.weaponScore ?? 0,
+            fusedScore: parsed.multiThreat.fusedScore ?? 0,
+            severity: parsed.multiThreat.severity ?? "medium",
+            threatBoxes: (parsed.multiThreat.threatBoxes || []).map((b: any) => ({
+              id: b.id ?? "?",
+              type: b.type ?? "violence",
+              weaponType: b.weaponType,
+              bbox: b.bbox ?? [0, 0, 0, 0],
+              confidence: b.confidence ?? 0,
+              color: b.color ?? [239, 68, 68],
+              label: b.label ?? "THREAT",
+            })),
+            reason: parsed.multiThreat.reason ?? "",
+          } : undefined,
         }
-        if (!lastDataRef.current || !shallowEqual(lastDataRef.current, mapped)) {
+        if (!lastDataRef.current || !areDetectionOverlayDataEqual(lastDataRef.current, mapped)) {
           lastDataRef.current = mapped
           setData(mapped)
         }

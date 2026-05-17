@@ -1095,6 +1095,14 @@ def camera_worker(
 
     # ── Start render thread ──
     def _on_threat_callback(alert_payload, snapshot_jpeg, clip_path):
+        state.register_alert(alert_payload)
+        if snapshot_jpeg:
+            thumb_path = THUMBNAILS_DIR / f"{alert_payload.get('id', 'unknown')}.jpg"
+            try:
+                thumb_path.write_bytes(snapshot_jpeg)
+                alert_payload["thumbnailPath"] = str(thumb_path)
+            except Exception:
+                pass
         state.broadcast_alert(alert_payload)
         if telegram_notifier is not None:
             telegram_notifier.enqueue_alert(alert_payload, snapshot_jpeg, clip_path)
@@ -1110,6 +1118,7 @@ def camera_worker(
         set_detection_meta_fn=state.set_detection_meta,
         on_threat_fn=_on_threat_callback,
         decision_layer=state._decision_layer,
+        fusion_engine=fusion_engine,
         target_fps=TARGET_FPS,
         jpeg_quality=JPEG_QUALITY,
     )
@@ -1123,6 +1132,22 @@ def camera_worker(
     fps_timer = time.perf_counter()
 
     while state.running and not effective_stop.is_set():
+        # Health check: restart inference subprocess if it died
+        if not inf_process.is_alive():
+            print(f"[{camera_id}] Inference subprocess died! Restarting...")
+            mp_stop_event.clear()
+            result_queue_mp = mp.Queue(maxsize=30)
+            frame_queue_mp = mp.Queue(maxsize=3)
+            inf_process = mp.Process(
+                target=inference_worker,
+                args=(frame_queue_mp, result_queue_mp, mp_stop_event, dict(inf_config)),
+                daemon=True,
+                name=f"inference-{camera_id}",
+            )
+            inf_process.start()
+            render_thread.result_queue_mp = result_queue_mp
+            print(f"[{camera_id}] Inference subprocess restarted (pid={inf_process.pid}).")
+
         ret, raw = capture.read_frame()
 
         if not ret:
