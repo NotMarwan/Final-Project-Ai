@@ -73,7 +73,7 @@ def run_evaluation(weights_path: str, device: str = "cpu", confidence_threshold:
         enabled=True,
         backend="yolo",
         weight_path=weights_path,
-        labels=("pistol", "rifle", "knife"),
+        labels=("pistol", "rifle", "shotgun", "knife", "sword", "revolver"),
         interval=1,
         min_interval_ms=0,
         min_confidence=confidence_threshold,
@@ -374,7 +374,7 @@ def generate_figures(report: dict, output_dir: str) -> list[str]:
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate weapon detection model")
-    parser.add_argument("--weights", type=str, default="./backend/weapon_yolo.pt", help="Path to model weights")
+    parser.add_argument("--weights", type=str, default="./best.pt", help="Path to model weights")
     parser.add_argument("--device", type=str, default="cpu", help="Device: cpu, cuda")
     parser.add_argument("--conf", type=float, default=0.20, help="Confidence threshold")
     parser.add_argument("--output-dir", type=str, default="./thesis_results", help="Output directory")
