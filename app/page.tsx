@@ -20,7 +20,7 @@ import { AlertHistory } from "@/components/alert-history"
 type Tab = "monitor" | "demo-clips" | "incidents" | "intelligence" | "operations" | "system"
 
 type LiveSourceId = "CAM-01" | "CAM-02"
-type DemoSourceId = "EXAMPLE-01" | "EXAMPLE-02" | "EXAMPLE-03" | "EXAMPLE-04" | "EXAMPLE-05" | "EXAMPLE-06" | "EXAMPLE-07" | "EXAMPLE-08" | "EXAMPLE-09" | "EXAMPLE-10"
+type DemoSourceId = "EXAMPLE-01" | "EXAMPLE-02" | "EXAMPLE-03"
 
 const LIVE_SOURCE_DEFS: { id: LiveSourceId; label: string }[] = [
   { id: "CAM-01", label: "CAM-01" },
@@ -28,16 +28,9 @@ const LIVE_SOURCE_DEFS: { id: LiveSourceId; label: string }[] = [
 ]
 
 const DEMO_SOURCE_DEFS: { id: DemoSourceId; label: string }[] = [
-  { id: "EXAMPLE-01", label: "EXAMPLE-01" },
-  { id: "EXAMPLE-02", label: "EXAMPLE-02" },
-  { id: "EXAMPLE-03", label: "EXAMPLE-03" },
-  { id: "EXAMPLE-04", label: "EXAMPLE-04" },
-  { id: "EXAMPLE-05", label: "EXAMPLE-05" },
-  { id: "EXAMPLE-06", label: "EXAMPLE-06" },
-  { id: "EXAMPLE-07", label: "EXAMPLE-07" },
-  { id: "EXAMPLE-08", label: "EXAMPLE-08" },
-  { id: "EXAMPLE-09", label: "EXAMPLE-09" },
-  { id: "EXAMPLE-10", label: "EXAMPLE-10" },
+  { id: "EXAMPLE-01", label: "FIGHT SAMPLE 1" },
+  { id: "EXAMPLE-02", label: "FIGHT SAMPLE 2" },
+  { id: "EXAMPLE-03", label: "VIOLENCE SAMPLE 3" },
 ]
 
 const TAB_DEFS: { id: Tab; label: string }[] = [
@@ -259,7 +252,7 @@ export default function DashboardPage() {
       />
 
       {/* ── Mission Control Tab Strip ── */}
-      <nav className="flex shrink-0 flex-nowrap border-b border-border/40 bg-card/30 px-3 md:px-4 relative overflow-x-auto backdrop-blur-sm">
+      <nav role="tablist" aria-label="Dashboard sections" className="flex shrink-0 flex-nowrap border-b border-border/40 bg-card/30 px-3 md:px-4 relative overflow-x-auto backdrop-blur-sm">
         {/* Ambient glow line */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
@@ -270,9 +263,14 @@ export default function DashboardPage() {
           return (
             <button
               key={id}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`panel-${id}`}
+              id={`tab-${id}`}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTab(id)}
               className={cn(
-                "group relative inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2.5 text-[11px] md:text-xs font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md my-1",
+                "group relative inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md my-1",
                 isActive
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
@@ -301,14 +299,14 @@ export default function DashboardPage() {
 
               {/* Alert count badge */}
               {id === "incidents" && alerts.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-destructive/90 px-1.5 py-0 text-[9px] font-bold leading-none text-destructive-foreground animate-threat-flash">
+                <span className="ml-0.5 rounded-full bg-destructive/90 px-1.5 py-0 text-[10px] font-bold leading-none text-destructive-foreground animate-threat-flash">
                   {alerts.length > 99 ? "99+" : alerts.length}
                 </span>
               )}
 
               {/* Keyboard shortcut hint */}
               <span className={cn(
-                "hidden lg:inline-flex ml-0.5 rounded px-1 py-[1px] text-[9px] font-mono border transition-colors",
+                "hidden lg:inline-flex ml-0.5 rounded px-1 py-[1px] text-[10px] font-mono border transition-colors",
                 isActive
                   ? "border-primary/30 text-primary/70 bg-primary/5"
                   : "border-transparent text-muted-foreground/30 group-hover:border-white/5 group-hover:text-muted-foreground/40"
@@ -325,7 +323,7 @@ export default function DashboardPage() {
 
         {/* ── Live Monitor ── */}
         {activeTab === "monitor" && (
-          <>
+          <div id="panel-monitor" role="tabpanel" aria-labelledby="tab-monitor" className="flex flex-1 overflow-hidden">
             <aside className="hidden md:flex flex-col h-full w-[300px] flex-shrink-0 overflow-hidden border-r border-border bg-card/30">
               <div className="flex-1 overflow-hidden">
                 <AlertFeed
@@ -353,7 +351,7 @@ export default function DashboardPage() {
                   <button
                     key={id}
                     onClick={() => setSelectedLiveSource(id)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 min-h-[44px] text-xs font-semibold transition-colors ${
                       selectedLiveSource === id
                         ? "border-red-500 bg-red-500/20 text-red-400"
                         : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -361,7 +359,7 @@ export default function DashboardPage() {
                   >
                     <span className={`h-1.5 w-1.5 rounded-full ${selectedLiveSource === id ? "bg-red-500 animate-pulse" : "bg-muted-foreground/40"}`} />
                     {label}
-                    <span className="rounded px-1 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">LIVE</span>
+                    <span className="rounded px-1 py-0.5 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">LIVE</span>
                   </button>
                 ))}
                 <span className="ml-auto font-mono text-[9px] text-muted-foreground/60">
@@ -379,12 +377,12 @@ export default function DashboardPage() {
                 <VideoPlayer cameraId={selectedLiveSource} activeAlert={latestAlertForVideo} privacyMode={privacyMode} personCount={personCount} overlaySettings={overlaySettings} />
               </div>
               </main>
-            </>
+            </div>
           )}
 
           {/* ── Demo Clips ── */}
           {activeTab === "demo-clips" && (
-          <>
+          <div id="panel-demo-clips" role="tabpanel" aria-labelledby="tab-demo-clips" className="flex flex-1 overflow-hidden">
             <aside className="hidden md:block flex h-full w-[300px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
@@ -403,7 +401,7 @@ export default function DashboardPage() {
                   <button
                     key={id}
                     onClick={() => void handleDemoSelect(id)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 min-h-[44px] text-xs font-semibold transition-colors ${
                       selectedDemoSource === id
                         ? "border-amber-500 bg-amber-500/20 text-amber-400"
                         : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -411,7 +409,7 @@ export default function DashboardPage() {
                   >
                     <span className={`h-1.5 w-1.5 rounded-full ${selectedDemoSource === id ? "bg-amber-400" : "bg-muted-foreground/40"}`} />
                     {label}
-                    <span className="rounded px-1 py-0.5 text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">DEMO</span>
+                    <span className="rounded px-1 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">DEMO</span>
                   </button>
                 ))}
                 <span className="ml-auto font-mono text-[9px] text-muted-foreground/60">
@@ -437,12 +435,12 @@ export default function DashboardPage() {
                 )}
               </div>
             </main>
-          </>
+          </div>
         )}
 
         {/* ── Incidents ── */}
         {activeTab === "incidents" && (
-          <>
+          <div id="panel-incidents" role="tabpanel" aria-labelledby="tab-incidents" className="flex flex-1 overflow-hidden">
             <aside className="hidden md:block flex h-full w-[320px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
@@ -465,12 +463,12 @@ export default function DashboardPage() {
                 onSelectAlert={handleSelectAlert}
               />
             </aside>
-          </>
+          </div>
         )}
 
         {/* ── Intelligence ── */}
         {activeTab === "intelligence" && (
-          <>
+          <div id="panel-intelligence" role="tabpanel" aria-labelledby="tab-intelligence" className="flex flex-1 overflow-hidden">
             <aside className="hidden md:block flex h-full w-[280px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-card/30">
               <AlertFeed
                 alerts={filteredAlerts}
@@ -484,12 +482,12 @@ export default function DashboardPage() {
             <main className="flex-1 overflow-y-auto bg-background/20 p-4">
               <AiReport alertId={selectedAlert?.id} />
             </main>
-          </>
+          </div>
         )}
 
         {/* ── Operations ── */}
         {activeTab === "operations" && (
-          <>
+          <div id="panel-operations" role="tabpanel" aria-labelledby="tab-operations" className="flex flex-1 overflow-hidden">
             <main className="flex-1 overflow-y-auto p-4">
               <GeoDashboard
                 alert={selectedAlert ?? latestAlertForVideo}
@@ -500,12 +498,13 @@ export default function DashboardPage() {
             <aside className="hidden md:block w-[320px] flex-shrink-0 overflow-y-auto border-l border-border bg-card/30 p-3">
               <TelegramStatusCard />
             </aside>
-          </>
+          </div>
         )}
 
         {/* ── System ── */}
         {activeTab === "system" && (
-          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div id="panel-system" role="tabpanel" aria-labelledby="tab-system" className="flex flex-1 overflow-hidden">
+            <main className="flex-1 overflow-y-auto p-4 md:p-6">
             <div className="mx-auto max-w-4xl space-y-4">
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
@@ -615,6 +614,7 @@ export default function DashboardPage() {
               <TelegramStatusCard />
             </div>
           </main>
+          </div>
         )}
 
       </div>
