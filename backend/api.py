@@ -6,6 +6,7 @@ import os
 import time
 import threading
 import queue
+import multiprocessing as mp
 import base64
 import re
 import yaml
@@ -242,16 +243,9 @@ if DEFAULT_CAMERA_ID not in CAMERA_SOURCES and CAMERA_SOURCES:
 def _load_example_sources() -> Dict[str, str]:
     _project_root = BASE_DIR.parent
     return {
-        "EXAMPLE-01": str(_project_root / "Wq0BuA8GM84_0.avi"),
-        "EXAMPLE-02": str(_project_root / "YDOJvzChqSg_0 (1).avi"),
-        "EXAMPLE-03": str(_project_root / "violence" / "1Kbw1bUw_0.avi"),
-        "EXAMPLE-04": str(_project_root / "violence" / "EFv961C5RgY_0.avi"),
-        "EXAMPLE-05": str(_project_root / "violence" / "A7FCl8G35Cs_0.avi"),
-        "EXAMPLE-06": str(_project_root / "violence" / "7gLKFV5voOg_1.avi"),
-        "EXAMPLE-07": str(_project_root / "violence" / "RIXaF_TkLlU_0.avi"),
-        "EXAMPLE-08": str(_project_root / "violence" / "JECBfnp2ZXc_2.avi"),
-        "EXAMPLE-09": str(_project_root / "violence" / "39BFeYnbu-I_3.avi"),
-        "EXAMPLE-10": str(_project_root / "violence" / "1MVS2QPWbHc_3.avi"),
+        "EXAMPLE-01": str(_project_root / "test" / "Wq0BuA8GM84_0.avi"),
+        "EXAMPLE-02": str(_project_root / "test" / "YDOJvzChqSg_0 (1).avi"),
+        "EXAMPLE-03": str(_project_root / "unrelated" / "archived-projects" / "violence" / "1Kbw1bUw_0.avi"),
     }
 
 EXAMPLE_SOURCES: Dict[str, str] = _load_example_sources()
@@ -1034,78 +1028,96 @@ def camera_worker(
 ):
     import torch
     from pipeline_capture import CaptureThread
-    from pipeline_ai import AIThread
     from pipeline_render import RenderThread
-
-    _imports = _get_imports()
-    ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
+    from inference_process import inference_worker
 
     print(f"[{camera_id}] Pipeline worker starting...")
 
-    frame_queue = deque(maxlen=5)
-    render_queue = deque(maxlen=5)
+    render_queue = deque(maxlen=8)
     ring_buffer = deque(maxlen=RING_BUFFER_LEN)
     effective_stop = stop_event or threading.Event()
 
-    # Lazy-load AI model
-    print(f"[{camera_id}] Initializing AI engine...")
-    pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
-    state.register_pipeline(pipeline)
-    print(f"[{camera_id}] AI engine ready.")
+    # ── Multiprocessing queues for inference subprocess ──
+    frame_queue_mp = mp.Queue(maxsize=3)
+    result_queue_mp = mp.Queue(maxsize=30)
+    mp_stop_event = mp.Event()
 
-    # Open capture
+    # ── Build config dict for inference subprocess ──
+    weapon_config_dict = {}
+    try:
+        if isinstance(config, dict) and "weapon" in config:
+            weapon_config_dict = config
+        elif hasattr(config, "__getitem__") and "weapon" in dict(config):
+            weapon_config_dict = dict(config)
+    except Exception:
+        pass
+
+    inf_config = {
+        "device": str(device),
+        "weights_path": str(model_weights),
+        "weapon_path": os.getenv("WEAPON_WEIGHT_PATH", config.get("weapon", {}).get("weight_path", "./weapon_yolo.pt")) if isinstance(config, dict) else "./weapon_yolo.pt",
+        "threshold": threshold,
+        "violence_stride": stride,
+        "weapon_interval": int(os.getenv("WEAPON_INFER_INTERVAL", "4")),
+        "person_interval": int(os.getenv("PERSON_INFER_INTERVAL", "3")),
+        "weapon_config": weapon_config_dict,
+        "person_conf_threshold": float(os.getenv("PERSON_OVERLAY_CONF", "0.45")),
+        "weapon_min_confidence": float(os.getenv("WEAPON_MIN_CONFIDENCE", "0.20")),
+    }
+
+    # ── Spawn inference subprocess ──
+    inf_process = mp.Process(
+        target=inference_worker,
+        args=(frame_queue_mp, result_queue_mp, mp_stop_event, inf_config),
+        daemon=True,
+        name=f"inference-{camera_id}",
+    )
+    inf_process.start()
+    print(f"[{camera_id}] Inference subprocess started (pid={inf_process.pid}).")
+
+    # ── Open capture ──
     capture = CaptureThread(
-        source=source, queue=frame_queue, ring_buffer=ring_buffer,
+        source=source, queue=deque(maxlen=5), ring_buffer=ring_buffer,
         stop_event=effective_stop,
     )
     if not capture.open():
         print(f"[{camera_id}] Failed to open source: {source}")
+        mp_stop_event.set()
+        inf_process.join(timeout=5)
         return
 
     width, height = capture.width, capture.height
     print(f"[{camera_id}] Source: {width}x{height} @ {capture.fps:.0f}fps")
 
-    # Person detector
-    try:
-        person_detector = PersonDetector(device=device.type)
-    except Exception as exc:
-        print(f"[{camera_id}] Person detection init failed: {exc}")
-        person_detector = None
-
     from frame_pipeline import OverlayCache
     overlay_cache = OverlayCache()
     overlay_cache.update(video_width=int(width), video_height=int(height))
 
-    # Start AI thread
-    ai_thread = AIThread(
-        frame_queue=frame_queue, result_cache=overlay_cache,
-        pipeline=pipeline, weapon_engine=weapon_engine,
-        person_detector=person_detector, stop_event=effective_stop,
-        violence_cls=VIOLENCE_CLS,
-    )
-    ai_t = threading.Thread(target=ai_thread.run, daemon=True, name=f"ai-{camera_id}")
-    ai_t.start()
-
-    # Start render thread
+    # ── Start render thread ──
     def _on_threat_callback(alert_payload, snapshot_jpeg, clip_path):
         state.broadcast_alert(alert_payload)
         if telegram_notifier is not None:
             telegram_notifier.enqueue_alert(alert_payload, snapshot_jpeg, clip_path)
 
     render_thread = RenderThread(
-        frame_queue=render_queue, result_cache=overlay_cache,
-        camera_id=camera_id, stop_event=effective_stop,
-        set_frame_fn=state.set_frame, annotate_fn=annotate_frame,
+        frame_queue=render_queue,
+        result_cache=overlay_cache,
+        result_queue_mp=result_queue_mp,
+        camera_id=camera_id,
+        stop_event=effective_stop,
+        set_frame_fn=state.set_frame,
+        annotate_fn=annotate_frame,
         set_detection_meta_fn=state.set_detection_meta,
         on_threat_fn=_on_threat_callback,
         decision_layer=state._decision_layer,
-        target_fps=TARGET_FPS, jpeg_quality=JPEG_QUALITY,
+        target_fps=TARGET_FPS,
+        jpeg_quality=JPEG_QUALITY,
     )
     render_t = threading.Thread(target=render_thread.run, daemon=True, name=f"render-{camera_id}")
     render_t.start()
 
-    # Main capture loop
-    print(f"[{camera_id}] Pipeline running.")
+    # ── Main capture loop ──
+    print(f"[{camera_id}] Pipeline running (multiprocessing mode).")
     state.running = True
     fps_counter = 0
     fps_timer = time.perf_counter()
@@ -1124,15 +1136,16 @@ def camera_worker(
                 continue
             else:
                 capture.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                pipeline.reset()
                 continue
 
-        # Push to both queues
+        # Push frame to render queue (for display)
+        render_queue.append(raw.copy())
+
+        # Push frame to inference subprocess queue (non-blocking, drop if full)
         try:
-            frame_queue.append(raw.copy())
-            render_queue.append(raw.copy())
-        except Exception:
-            pass
+            frame_queue_mp.put_nowait(raw.copy())
+        except queue.Full:
+            pass  # Drop frame — inference is behind, keep display responsive
 
         # Update FPS
         fps_counter += 1
@@ -1152,8 +1165,11 @@ def camera_worker(
                 video_height=snap.get("video_height", 0),
             )
 
+    # ── Cleanup ──
+    mp_stop_event.set()
     effective_stop.set()
     capture.release()
+    inf_process.join(timeout=5)
     print(f"[{camera_id}] Pipeline stopped.")
 
 
@@ -1210,7 +1226,13 @@ async def lifespan(app: FastAPI):
 
     telegram_notifier.start()
     threads = []
+    inf_processes = []
     state.running = True
+    # Set multiprocessing start method to 'spawn' for CUDA compatibility
+    try:
+        mp.set_start_method('spawn', force=True)
+    except RuntimeError:
+        pass  # Already set
     if CAPTURE_LOOP_ENABLED:
         import torch
         # Determine active cameras
@@ -1245,6 +1267,8 @@ async def lifespan(app: FastAPI):
     state.running = False
     for t in threads:
         t.join(timeout=5)
+    for p in inf_processes:
+        p.join(timeout=5)
     if telegram_notifier:
         telegram_notifier.stop()
     if go2rtc_bridge:
@@ -1630,16 +1654,9 @@ async def test_telegram_video(request: Request, clip_id: str = "EXAMPLE-02"):
 # ─────────────────────────────────────────────────────────────────────────────
 
 _DEMO_SOURCE_NAMES: dict[str, str] = {
-    "EXAMPLE-01": "Demo Clip 1",
-    "EXAMPLE-02": "Demo Clip 2",
-    "EXAMPLE-03": "Demo Clip 3",
-    "EXAMPLE-04": "Demo Clip 4",
-    "EXAMPLE-05": "Demo Clip 5",
-    "EXAMPLE-06": "Demo Clip 6",
-    "EXAMPLE-07": "Demo Clip 7",
-    "EXAMPLE-08": "Demo Clip 8",
-    "EXAMPLE-09": "Demo Clip 9",
-    "EXAMPLE-10": "Demo Clip 10",
+    "EXAMPLE-01": "Fight Sample 1",
+    "EXAMPLE-02": "Fight Sample 2",
+    "EXAMPLE-03": "Violence Sample 3",
 }
 
 _LIVE_SOURCE_NAMES: dict[str, str] = {
