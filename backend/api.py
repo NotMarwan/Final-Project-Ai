@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import json
 import os
@@ -19,7 +21,7 @@ import numpy as np
 # import torch deferred to functions
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import Response, StreamingResponse, FileResponse
 from pydantic import BaseModel, Field
 from openai import OpenAI
 
@@ -32,11 +34,9 @@ except ImportError:
 
 try:
     from .person_detector import PersonDetector
-    from .centroid_tracker import CentroidTracker
     from .visual_annotator import annotate as annotate_frame
 except ImportError:
     from person_detector import PersonDetector
-    from centroid_tracker import CentroidTracker
     from visual_annotator import annotate as annotate_frame
 
 try:
@@ -61,7 +61,6 @@ def _get_imports():
         from .security import AccessController, AuditLogger
         from .evidence import EvidenceLedger
         from .audio import AudioRiskAnalyzer
-        from .face_intel import FaceIntelEngine
         from .notifications import TelegramNotifier
         from .reporting import build_incident_pdf
         from .live_alert_decision import LiveAlertDecisionLayer
@@ -73,7 +72,6 @@ def _get_imports():
         from security import AccessController, AuditLogger
         from evidence import EvidenceLedger
         from audio import AudioRiskAnalyzer
-        from face_intel import FaceIntelEngine
         from notifications import TelegramNotifier
         from reporting import build_incident_pdf
         from live_alert_decision import LiveAlertDecisionLayer
@@ -273,8 +271,8 @@ def _finalize_config():
 JPEG_QUALITY_PRESETS = {"low": 50, "medium": 75, "high": 90}
 JPEG_QUALITY = JPEG_QUALITY_PRESETS.get(os.getenv("STREAM_QUALITY", "medium").lower(), 75)
 TARGET_FPS     = 20
-RING_BUFFER_LEN = 150  
-POST_ALERT_LEN  = 150  
+RING_BUFFER_LEN = 140   # ~7s pre-alert buffer at 20fps target
+POST_ALERT_LEN  = 100   # ~5s post-alert capture at 20fps target
 _FILE_SKIP_FRAMES = int(os.getenv("AI_SENTINEL_FILE_SKIP", "0"))
 
 
@@ -316,13 +314,12 @@ security_controller = None
 audit_logger = None
 evidence_ledger = None
 audio_analyzer = None
-face_engine = None
 go2rtc_bridge: Go2RTCBridge | None = None
 _webrtc_manager = None
 
 def _init_engines():
     global telegram_notifier, fusion_engine, weapon_engine, security_controller
-    global audit_logger, evidence_ledger, audio_analyzer, face_engine
+    global audit_logger, evidence_ledger, audio_analyzer
     
     if telegram_notifier is not None:
         print("[Engines] Already initialized.")
@@ -339,7 +336,6 @@ def _init_engines():
     audit_logger = imports['AuditLogger'].from_settings(config, BASE_DIR)
     evidence_ledger = imports['EvidenceLedger'].from_settings(config, BASE_DIR)
     audio_analyzer = imports['AudioRiskAnalyzer'].from_settings(config)
-    face_engine = imports['FaceIntelEngine'].from_settings(config, os.environ, BASE_DIR)
     global go2rtc_bridge
     go2rtc_bridge = Go2RTCBridge(config, os.environ)
     go2rtc_bridge.start()
@@ -378,23 +374,6 @@ class AudioAnalysisRequest(BaseModel):
     filename: Optional[str] = None
 
 
-class FacePersonUpdateRequest(BaseModel):
-    display_name: str
-    role: Optional[str] = None
-
-
-class FaceEnrollRequest(BaseModel):
-    image_base64: str
-    display_name: Optional[str] = None
-    role: Optional[str] = None
-
-
-class FacePolicyRequest(BaseModel):
-    identity_labeling_enabled: Optional[bool] = None
-    recognition_audit_enabled: Optional[bool] = None
-    recognition_audit_cooldown_sec: Optional[int] = Field(default=None, ge=1, le=3600)
-
-
 class AnalyzeRequest(BaseModel):
     category: str
     context: dict
@@ -423,9 +402,6 @@ class AppState:
         
         self._snapshot_lock = threading.Lock()
         self._snapshot_paths: Dict[str, str] = {}
-        
-        self._face_lock = threading.Lock()
-        self._face_summary: Dict[str, object] = {}
 
         # Camera statistics
         self._cam_stats_lock = threading.Lock()
@@ -489,13 +465,15 @@ class AppState:
                 except queue.Full:
                     pass
 
-    def broadcast_person_data(self, camera_id: str, person_count: int, track_ids: list[str], is_threat: bool):
+    def broadcast_person_data(self, camera_id: str, person_count: int, track_ids: list[str], is_threat: bool, video_width: int = 0, video_height: int = 0):
         payload = {
             "type": "person_detection",
             "cameraId": camera_id,
             "personCount": person_count,
             "trackIds": track_ids,
             "isThreat": is_threat,
+            "videoWidth": video_width,
+            "videoHeight": video_height,
         }
         data = json.dumps(payload)
         with self._aq_lock:
@@ -616,14 +594,6 @@ class AppState:
         with self._snapshot_lock:
             raw = self._snapshot_paths.get(alert_id)
         return Path(raw) if raw else None
-
-    def store_face_summary(self, summary: Dict[str, object]):
-        with self._face_lock:
-            self._face_summary = dict(summary)
-
-    def get_face_summary(self) -> Dict[str, object]:
-        with self._face_lock:
-            return dict(self._face_summary)
 
     def update_decision_layer(
         self,
@@ -793,7 +763,6 @@ def _generate_alert_payload(
     weapon_score: float,
     weapon_signal: dict,
     motion_score: float,
-    face_summary: dict,
     cam_id: str,
     now: float,
     t0: float,
@@ -854,7 +823,6 @@ def _generate_alert_payload(
         "weaponLabels": weapon_signal.get("labels", []),
         "weaponDetectorReady": bool(weapon_signal.get("ready", False)),
         "fusionReason": fusion["reason"],
-        "faceSummary": _public_face_summary(face_summary),
         "alertLatencyMs": round((time.perf_counter() - t0) * 1000, 1),
         "raw_probability": raw_probability,
         "calibrated_probability": calibrated_probability,
@@ -972,170 +940,6 @@ def _decision_layer_status_payload() -> Dict[str, object]:
     return payload
 
 
-def _public_face_summary(face_summary: Dict[str, object]) -> Dict[str, object]:
-    identity_enabled = bool(face_summary.get("identityLabelingEnabled", True))
-    recognized_raw = face_summary.get("recognized", [])
-    observations_raw = face_summary.get("observations", [])
-
-    alias_map: Dict[str, str] = {}
-
-    def _alias_for(person_key: str) -> str:
-        existing = alias_map.get(person_key)
-        if existing:
-            return existing
-        alias = f"K-{len(alias_map) + 1:03d}"
-        alias_map[person_key] = alias
-        return alias
-
-    recognized_public = []
-    if isinstance(recognized_raw, list):
-        for idx, item in enumerate(recognized_raw):
-            if not isinstance(item, dict):
-                continue
-            entry = dict(item)
-            if not identity_enabled:
-                person_key = str(item.get("personId", "")).strip() or f"KNOWN-{idx + 1}"
-                alias = _alias_for(person_key)
-                entry["personId"] = alias
-                entry["label"] = alias
-                entry["masked"] = True
-            recognized_public.append(entry)
-
-    observations_public = []
-    if isinstance(observations_raw, list):
-        for idx, obs in enumerate(observations_raw):
-            if not isinstance(obs, dict):
-                continue
-            entry = dict(obs)
-            if not identity_enabled and str(obs.get("kind", "")).strip().lower() == "known":
-                person_key = str(obs.get("id", "")).strip() or f"KNOWN-{idx + 1}"
-                alias = _alias_for(person_key)
-                entry["id"] = alias
-                entry["label"] = alias
-            observations_public.append(entry)
-
-    return {
-        "enabled": bool(face_summary.get("enabled", False)),
-        "identityLabelingEnabled": identity_enabled,
-        "frameIndex": int(face_summary.get("frameIndex", 0)),
-        "totalFaces": int(face_summary.get("totalFaces", 0)),
-        "recognized": recognized_public,
-        "recognizedCount": int(face_summary.get("recognizedCount", len(recognized_public))),
-        "unknownIds": face_summary.get("unknownIds", []),
-        "unknownCount": int(face_summary.get("unknownCount", 0)),
-        "unknownDetails": face_summary.get("unknownDetails", []),
-        "observations": observations_public,
-    }
-
-
-def _emit_face_audit_events(
-    *,
-    face_summary: Dict[str, object],
-    camera_id: str,
-    dedupe_cache: Dict[str, float],
-    alert_id: Optional[str] = None,
-) -> None:
-    if not face_engine.config.recognition_audit_enabled:
-        return
-
-    now = time.time()
-    cooldown = max(1, int(face_engine.config.recognition_audit_cooldown_sec))
-    identity_enabled = bool(face_summary.get("identityLabelingEnabled", True))
-    frame_index = int(face_summary.get("frameIndex", 0))
-
-    recognized = face_summary.get("recognized", [])
-    if isinstance(recognized, list):
-        for idx, person in enumerate(recognized):
-            if not isinstance(person, dict):
-                continue
-            person_key = str(person.get("personId", "")).strip() or f"known-{idx + 1}"
-            dedupe_key = f"known:{person_key}"
-            last_seen_at = dedupe_cache.get(dedupe_key, 0.0)
-            if now - last_seen_at < cooldown:
-                continue
-            dedupe_cache[dedupe_key] = now
-
-            details = {
-                "cameraId": camera_id,
-                "frameIndex": frame_index,
-                "confidence": float(person.get("confidence", 0.0)),
-                "identityLabelingEnabled": identity_enabled,
-            }
-            if identity_enabled:
-                details["personId"] = person_key
-                details["label"] = str(person.get("label", "")).strip()
-            else:
-                details["masked"] = True
-
-            audit_logger.record(
-                "face_known_seen",
-                "success",
-                role="system",
-                alert_id=alert_id,
-                details=details,
-            )
-
-    unknown_ids = face_summary.get("unknownIds", [])
-    if isinstance(unknown_ids, list):
-        for raw_unknown_id in unknown_ids:
-            unknown_id = str(raw_unknown_id).strip()
-            if not unknown_id:
-                continue
-            dedupe_key = f"unknown:{unknown_id}"
-            last_seen_at = dedupe_cache.get(dedupe_key, 0.0)
-            if now - last_seen_at < cooldown:
-                continue
-            dedupe_cache[dedupe_key] = now
-            audit_logger.record(
-                "face_unknown_seen",
-                "success",
-                role="system",
-                alert_id=alert_id,
-                details={
-                    "cameraId": camera_id,
-                    "frameIndex": frame_index,
-                    "unknownId": unknown_id,
-                },
-            )
-
-    prune_before = now - (cooldown * 4.0)
-    stale_keys = [k for k, ts in dedupe_cache.items() if ts < prune_before]
-    for key in stale_keys:
-        dedupe_cache.pop(key, None)
-
-
-
-import concurrent.futures
-
-def _run_ai_task(pipeline, face_engine, frame, previous_raw_frame,
-                 person_detector=None, centroid_tracker=None, overlay_cache=None):
-    clean_frame = pipeline.process_frame(frame)
-    face_summary = face_engine.analyze_frame(frame)
-    motion_score = _estimate_motion_score(previous_raw_frame, frame)
-
-    tracks = []
-    person_count = 0
-    if person_detector is not None and centroid_tracker is not None:
-        try:
-            detections = person_detector.detect(frame)
-            tracks = centroid_tracker.update(detections)
-            person_count = len(tracks)
-        except Exception as exc:
-            print(f"[System] Async person detection error: {exc}")
-
-    is_threat = bool(
-        getattr(pipeline, "_last_label", None) == VIOLENCE_CLS
-        and getattr(pipeline, "_last_conf", 0) > 0.3
-    )
-    if overlay_cache is not None:
-        overlay_cache.update(
-            tracks=tracks,
-            person_count=person_count,
-            is_threat=is_threat,
-            threat_confidence=getattr(pipeline, "_last_conf", 0.0) * 100,
-        )
-
-    return face_summary, motion_score
 
 def _is_live_source(source: Union[str, int]) -> bool:
     """Returns True if source is a live webcam (integer index), False if it's a file."""
@@ -1199,7 +1003,7 @@ def _read_cap_props(cap: cv2.VideoCapture) -> Tuple[float, int, int]:
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     return fps, w, h
 
-def _drain_to_latest(cap: cv2.VideoCapture, max_drain: int = 8) -> Tuple[bool, Optional[np.ndarray]]:
+def _drain_to_latest(cap: cv2.VideoCapture, max_drain: int = 30) -> Tuple[bool, Optional[np.ndarray]]:
     """Drain stale RTSP frames and return only the newest one.
 
     For live cameras the decoder buffer fills up between AI inference calls.
@@ -1229,367 +1033,128 @@ def camera_worker(
     raw_mode: bool = False,
 ):
     import torch
+    from pipeline_capture import CaptureThread
+    from pipeline_ai import AIThread
+    from pipeline_render import RenderThread
+
     _imports = _get_imports()
     ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
-    FaceIntelEngine = _imports['FaceIntelEngine']
 
-    print(f"[{camera_id}] Camera worker starting...")
+    print(f"[{camera_id}] Pipeline worker starting...")
 
-    # Reuse helpers defined above
-    _is_rtsp = lambda s: isinstance(s, str) and s.lower().startswith("rtsp://")
+    frame_queue = deque(maxlen=5)
+    render_queue = deque(maxlen=5)
+    ring_buffer = deque(maxlen=RING_BUFFER_LEN)
+    effective_stop = stop_event or threading.Event()
 
-    source_str = str(source)
-    if go2rtc_bridge and go2rtc_bridge.is_running and (source_str.startswith("rtsp://") or source_str.startswith("rtmp://")):
-        go2rtc_bridge.add_stream(camera_id, source_str)
+    # Lazy-load AI model
+    print(f"[{camera_id}] Initializing AI engine...")
+    pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
+    state.register_pipeline(pipeline)
+    print(f"[{camera_id}] AI engine ready.")
 
-    cap = _open_capture(source)
-    src_fps, width, height = _read_cap_props(cap)
+    # Open capture
+    capture = CaptureThread(
+        source=source, queue=frame_queue, ring_buffer=ring_buffer,
+        stop_event=effective_stop,
+    )
+    if not capture.open():
+        print(f"[{camera_id}] Failed to open source: {source}")
+        return
 
-    # Person detection + visual overlay setup (after cap is opened for width/height)
+    width, height = capture.width, capture.height
+    print(f"[{camera_id}] Source: {width}x{height} @ {capture.fps:.0f}fps")
+
+    # Person detector
     try:
         person_detector = PersonDetector(device=device.type)
-        centroid_tracker = CentroidTracker()
-        centroid_tracker.configure_for_frame(width, height)
     except Exception as exc:
         print(f"[{camera_id}] Person detection init failed: {exc}")
         person_detector = None
-        centroid_tracker = None
-    _fps_counter = 0
-    _fps_timer = time.perf_counter()
-    _current_fps = 0.0
 
     from frame_pipeline import OverlayCache
-    from metrics import pipeline_metrics as _pm
     overlay_cache = OverlayCache()
-    _ai_task_submit_time = 0.0
+    overlay_cache.update(video_width=int(width), video_height=int(height))
 
-    ring = deque(maxlen=RING_BUFFER_LEN)
-    active_post_queues: list[tuple[queue.Queue, int]] = []
-    last_alert_time = 0.0
-    previous_raw_frame: Optional[np.ndarray] = None
-    weapon_signal: Dict[str, object] = weapon_engine.latest_signal()
-    face_audit_dedupe: Dict[str, float] = {}
+    # Start AI thread
+    ai_thread = AIThread(
+        frame_queue=frame_queue, result_cache=overlay_cache,
+        pipeline=pipeline, weapon_engine=weapon_engine,
+        person_detector=person_detector, stop_event=effective_stop,
+        violence_cls=VIOLENCE_CLS,
+    )
+    ai_t = threading.Thread(target=ai_thread.run, daemon=True, name=f"ai-{camera_id}")
+    ai_t.start()
 
-    _live_reconnect_attempts = 0
-    _MAX_RECONNECT = 5
-    current_source = source
+    # Start render thread
+    def _on_threat_callback(alert_payload, snapshot_jpeg, clip_path):
+        state.broadcast_alert(alert_payload)
+        if telegram_notifier is not None:
+            telegram_notifier.enqueue_alert(alert_payload, snapshot_jpeg, clip_path)
 
-    # Background executor for face+motion AI inference
-    ai_executor = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix=f"ai-{camera_id}")
-    ai_future = None
+    render_thread = RenderThread(
+        frame_queue=render_queue, result_cache=overlay_cache,
+        camera_id=camera_id, stop_event=effective_stop,
+        set_frame_fn=state.set_frame, annotate_fn=annotate_frame,
+        set_detection_meta_fn=state.set_detection_meta,
+        on_threat_fn=_on_threat_callback,
+        decision_layer=state._decision_layer,
+        target_fps=TARGET_FPS, jpeg_quality=JPEG_QUALITY,
+    )
+    render_t = threading.Thread(target=render_thread.run, daemon=True, name=f"render-{camera_id}")
+    render_t.start()
 
-    # Lazy initialization — model loads on first frame, not at startup
-    pipeline = None
-    local_face_engine = None
-
+    # Main capture loop
+    print(f"[{camera_id}] Pipeline running.")
     state.running = True
+    fps_counter = 0
+    fps_timer = time.perf_counter()
 
-    while state.running and not (stop_event and stop_event.is_set()):
-        t0 = time.perf_counter()
-
-        # --- Frame acquisition -------------------------------------------------
-        if _is_rtsp(current_source) or _is_live_source(current_source):
-            ret, raw = _drain_to_latest(cap)
-        else:
-            ret, raw = cap.read()
-            if ret and _FILE_SKIP_FRAMES > 0:
-                for _ in range(_FILE_SKIP_FRAMES):
-                    skip_ret, _ = cap.read()
-                    if not skip_ret:
-                        break
-        # -----------------------------------------------------------------------
-
-        # Lazy-load AI model on first successful frame
-        if ret and pipeline is None:
-            print(f"[{camera_id}] AI Engine initializing on {device.type.upper()}...")
-            _imports = _get_imports()
-            ViolenceInferencePipeline = _imports['ViolenceInferencePipeline']
-            FaceIntelEngine = _imports['FaceIntelEngine']
-            pipeline = ViolenceInferencePipeline(model_weights, device, threshold, stride)
-            state.register_pipeline(pipeline)
-            local_face_engine = FaceIntelEngine.from_settings(config, os.environ, BASE_DIR)
-            print(f"[{camera_id}] AI Engine ready.")
+    while state.running and not effective_stop.is_set():
+        ret, raw = capture.read_frame()
 
         if not ret:
-            is_rtsp = isinstance(current_source, str) and current_source.lower().startswith("rtsp://")
-            if _is_live_source(current_source) or is_rtsp:
-                _live_reconnect_attempts += 1
-                print(f"[System] Live camera lost. Reconnect attempt {_live_reconnect_attempts}/{_MAX_RECONNECT}...")
-                cap.release()
-                time.sleep(2.0)
-                cap = _open_capture(current_source)
-                if cap.isOpened():
-                    src_fps, width, height = _read_cap_props(cap)
-                    _live_reconnect_attempts = 0
-                    print("[System] Live camera reconnected.")
-                elif _live_reconnect_attempts >= _MAX_RECONNECT:
-                    print("[System] Live camera unavailable. Waiting...")
+            is_live = isinstance(source, int) or (
+                isinstance(source, str) and source.lower().startswith(("rtsp://", "rtmp://"))
+            )
+            if is_live:
+                print(f"[{camera_id}] Connection lost. Reconnecting...")
+                if not capture.reconnect():
                     time.sleep(5.0)
-                    _live_reconnect_attempts = 0
+                continue
             else:
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                if pipeline is not None:
-                    pipeline.reset()
-            continue
+                capture.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                pipeline.reset()
+                continue
 
-        _live_reconnect_attempts = 0
+        # Push to both queues
+        try:
+            frame_queue.append(raw.copy())
+            render_queue.append(raw.copy())
+        except Exception:
+            pass
 
-        # Route frames to any active post-alert evidence queues
-        still_active = []
-        for entry in active_post_queues:
-            if entry[1] > 0:
-                try:
-                    entry[0].put_nowait(raw.copy())
-                except queue.Full:
-                    pass
-                entry[1] -= 1
-                still_active.append(entry)
-        active_post_queues = still_active
+        # Update FPS
+        fps_counter += 1
+        now = time.perf_counter()
+        if now - fps_timer >= 1.0:
+            current_fps = fps_counter / (now - fps_timer)
+            overlay_cache.update(fps=current_fps)
+            fps_counter = 0
+            fps_timer = now
 
-        # Weapon detection (synchronous — already async internally)
-        weapon_signal = weapon_engine.process_frame(raw)
-        weapon_score = float(weapon_signal.get("score", 0.0))
-        overlay_cache.update(weapon_score=weapon_score)
-        _pm.record_weapon(weapon_score)
-
-        # If the background AI task has finished, process its results
-        if ai_future is None or ai_future.done():
-            if ai_future is not None:
-                try:
-                    if _ai_task_submit_time > 0:
-                        _pm.record_inference((time.perf_counter() - _ai_task_submit_time) * 1000)
-                        _ai_task_submit_time = 0
-                    face_summary, motion_score = ai_future.result()
-                    state.store_face_summary(face_summary)
-                    cam_id = camera_id
-                    _emit_face_audit_events(
-                        face_summary=face_summary,
-                        camera_id=cam_id,
-                        dedupe_cache=face_audit_dedupe,
-                    )
-                    client_face_summary = _public_face_summary(face_summary)
-
-                    # Update the decision layer with the latest calibrated probability
-                    decision_sample_time = time.time()
-                    calibrated_prob = float(getattr(pipeline, "_last_calibrated_conf", 0.0))
-                    decision_result = state.update_decision_layer(calibrated_prob, sample_time=decision_sample_time)
-
-                    now = time.time()
-                    current_cooldown = state.get_cooldown()
-
-                    if pipeline._last_label == VIOLENCE_CLS and (now - last_alert_time > current_cooldown):
-                        last_alert_time = now
-                        alert_id = f"alert-{int(now * 1000)}"
-                        conf = pipeline._last_conf
-
-                        severity = "critical" if conf >= 0.85 else "high" if conf >= 0.65 else "medium"
-                        fusion = fusion_engine.assess(
-                            violence_confidence=conf,
-                            motion_score=motion_score,
-                            weapon_score=0.0,
-                            base_severity=severity,
-                        )
-                        severity = fusion["severity"]
-
-                        alert_payload = {
-                            "id": alert_id,
-                            "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
-                            "isoTime": datetime.now(timezone.utc).isoformat(),
-                            "confidence": round(conf * 100, 1),
-                            "type": "Violence",
-                            "severity": severity,
-                            "cameraId": camera_id,
-                            "location": str(CAMERA_SOURCES.get(camera_id, camera_id)),
-                            "fusionScore": fusion["score"],
-                            "fusionModel": fusion["model"],
-                            "motionScore": fusion["motionScore"],
-                            "weaponScore": fusion["weaponScore"],
-                            "fusionReason": fusion["reason"],
-                            "faceSummary": client_face_summary,
-                        }
-
-                        state.register_alert(alert_payload)
-                        state.broadcast_alert(alert_payload)
-                        audit_logger.record(
-                            "alert_generated",
-                            "success",
-                            role="system",
-                            alert_id=alert_id,
-                            details={
-                                "confidence": conf,
-                                "severity": severity,
-                                "cameraId": camera_id,
-                            },
-                        )
-                        _emit_face_audit_events(
-                            face_summary=face_summary,
-                            camera_id=camera_id,
-                            dedupe_cache=face_audit_dedupe,
-                            alert_id=alert_id,
-                        )
-
-                        pre_frames = list(ring)
-                        post_q = queue.Queue(maxsize=POST_ALERT_LEN + 32)
-                        active_post_queues.append([post_q, POST_ALERT_LEN])
-                        threading.Thread(
-                            target=_write_evidence_clip,
-                            args=(alert_id, pre_frames, post_q, src_fps, width, height),
-                            daemon=True
-                        ).start()
-
-                        if GROQ_ENABLED and pre_frames:
-                            threading.Thread(
-                                target=_call_vlm_forensics,
-                                args=(alert_id, pre_frames[-1].copy()),
-                                daemon=True
-                            ).start()
-
-                        if pre_frames:
-                            snapshot_bytes = _encode_snapshot(pre_frames[-1].copy())
-                            if snapshot_bytes:
-                                snapshot_path = THUMBNAILS_DIR / f"{alert_id}.jpg"
-                                snapshot_path.write_bytes(snapshot_bytes)
-                                state.store_snapshot_path(alert_id, str(snapshot_path))
-                            if camera_id in EXAMPLE_SOURCES:
-                                telegram_clip = EXAMPLE_SOURCES[camera_id]
-                                is_demo_clip = True
-                            else:
-                                telegram_clip = str(EVIDENCE_DIR / f"{alert_id}.mp4")
-                                is_demo_clip = False
-                            telegram_notifier.enqueue_alert(
-                                alert_payload,
-                                snapshot_bytes,
-                                clip_path=telegram_clip,
-                                is_demo_clip=is_demo_clip,
-                            )
-                except Exception as exc:
-                    print(f"[System] AI worker encountered an error: {exc}")
-
-            # Submit the next background AI task (face+motion) for the current raw frame
-            if pipeline is not None:
-                try:
-                    _ai_task_submit_time = time.perf_counter()
-                    ai_future = ai_executor.submit(
-                        _run_ai_task, pipeline, local_face_engine, raw.copy(),
-                        previous_raw_frame, person_detector, centroid_tracker, overlay_cache
-                    )
-                except Exception as e:
-                    print(f"[System] Failed to submit AI task: {e}")
-                    ai_future = None
-                    _ai_task_submit_time = 0
-
-        previous_raw_frame = raw.copy()
-
-        # ── Read latest detection results from async AI cache ──
-        ov = overlay_cache.snapshot()
-        tracks = ov["tracks"]
-        person_count = ov["person_count"]
-        is_threat_now = ov["is_threat"]
-        threat_conf = ov["threat_confidence"]
-        _pm.record_person(person_count)
-
-        # FPS counter
-        _fps_counter += 1
-        now_time = time.perf_counter()
-        if now_time - _fps_timer >= 1.0:
-            _current_fps = _fps_counter / (now_time - _fps_timer)
-            _fps_counter = 0
-            _fps_timer = now_time
-            _pm.record_stream(_current_fps)
-
-        # ── Annotate frame with visual overlays ──
-        if raw_mode:
-            annotated = raw  # Clean frame — overlays rendered by frontend
-        else:
-            try:
-                annotated = annotate_frame(
-                    frame=raw,
-                    tracks=tracks,
-                    person_count=person_count,
-                    is_threat=is_threat_now,
-                    threat_confidence=threat_conf,
-                    camera_id=camera_id,
-                    fps=_current_fps,
-                )
-            except Exception as exc:
-                print(f"[System] Annotation error: {exc}")
-                annotated = raw  # fall back to raw frame
-
-        # Broadcast person detection metadata (every 15 frames to reduce SSE noise)
-        if _fps_counter % 15 == 0:
-            track_ids = [getattr(t, "label", f"P-{i}") for i, t in enumerate(tracks)]
+            snap = overlay_cache.snapshot()
+            track_ids = [t.get("label", f"P-{i}") if isinstance(t, dict) else getattr(t, "label", f"P-{i}") for i, t in enumerate(snap["tracks"])]
             state.broadcast_person_data(
-                camera_id=camera_id,
-                person_count=person_count,
-                track_ids=track_ids,
-                is_threat=is_threat_now,
+                camera_id=camera_id, person_count=snap["person_count"],
+                track_ids=track_ids, is_threat=snap["is_threat"],
+                video_width=snap.get("video_width", 0),
+                video_height=snap.get("video_height", 0),
             )
 
-        # MJPEG streaming: encode the annotated frame
-        _enc_t0 = time.perf_counter()
-        ok, jpg_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
-        if ok:
-            _pm.record_encode((time.perf_counter() - _enc_t0) * 1000)
-            state.set_frame(camera_id, jpg_buf.tobytes())
-
-        # Emit detection metadata for frontend overlay rendering
-        state.set_detection_meta(camera_id, {
-            "cameraId": camera_id,
-            "timestamp": time.time(),
-            "tracks": [
-                {
-                    "id": getattr(t, "label", f"P-{i}"),
-                    "bbox": list(getattr(t, "bbox", [0, 0, 0, 0])),
-                    "confidence": round(float(getattr(t, "confidence", 0.0)), 3),
-                    "color": list(getattr(t, "color", [0, 255, 255])),
-                }
-                for i, t in enumerate(tracks)
-            ],
-            "personCount": person_count,
-            "isThreat": is_threat_now,
-            "threatConfidence": round(threat_conf, 1),
-            "weaponScore": round(float(weapon_signal.get("score", 0.0)), 3),
-            "fps": round(_current_fps, 1),
-        })
-
-        # Check for pending camera switch requests (initiated by dashboard)
-        pending = state.consume_pending_switch()
-        if pending:
-            new_source, new_cam_id = pending
-            cap.release()
-            ring.clear()
-            active_post_queues.clear()
-            face_audit_dedupe.clear()
-            if pipeline is not None:
-                pipeline.reset()
-            weapon_engine.reset()
-            centroid_tracker.reset()
-            if local_face_engine is not None:
-                local_face_engine.reset_session(reason=f"camera-switch:{new_cam_id}")
-            state.reset_decision_layer()
-            if device.type == "cuda":
-                torch.cuda.empty_cache()
-
-            cap = _open_capture(new_source)
-            if cap.isOpened():
-                src_fps, width, height = _read_cap_props(cap)
-                centroid_tracker.configure_for_frame(width, height)
-                print(f"[System] Stream focused on {new_cam_id}")
-            else:
-                print(f"[System] Warning: Failed to open {new_source}. Reverting to default.")
-                cap = _open_capture(CAMERA_SOURCES[DEFAULT_CAMERA_ID])
-                src_fps, width, height = _read_cap_props(cap)
-                state.request_camera_switch(CAMERA_SOURCES[DEFAULT_CAMERA_ID], DEFAULT_CAMERA_ID)
-                state.consume_pending_switch()
-
-        # Maintain target FPS
-        time.sleep(max(0, (1.0 / TARGET_FPS) - (time.perf_counter() - t0)))
-
-    # Cleanup on shutdown
-    ai_executor.shutdown(wait=True, cancel_futures=True)
-    cap.release()
-    if go2rtc_bridge and go2rtc_bridge.is_running:
-        go2rtc_bridge.remove_stream(camera_id)
+    effective_stop.set()
+    capture.release()
+    print(f"[{camera_id}] Pipeline stopped.")
 
 
 
@@ -1629,7 +1194,7 @@ async def lifespan(app: FastAPI):
     if not security_controller.config.api_key:
         print(
             "\n[SECURITY WARNING] ADMIN_API_KEY is empty — all admin-only API routes "
-            "(set_threshold, set_cooldown, telegram/test, face/policy, category/toggle) "
+            "(set_threshold, set_cooldown, telegram/test, category/toggle) "
             "are accessible without authentication. "
             "Set ADMIN_API_KEY in backend/.env before public demo or production use.\n"
         )
@@ -1801,11 +1366,26 @@ async def alerts():
 
 
 async def _detection_sse_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
+    import json
+    last_tracks_hash = ""
     while True:
-        meta = state.get_detection_meta(camera_id)
-        if meta:
-            import json
-            yield f"data: {json.dumps(meta)}\n\n".encode()
+        snap = state.get_detection_meta(camera_id)
+        if snap and snap.get("tracks") is not None:
+            payload = {
+                "tracks": snap.get("tracks", []),
+                "personCount": snap.get("person_count", 0),
+                "isThreat": snap.get("is_threat", False),
+                "threatConfidence": snap.get("threat_confidence", 0),
+                "fps": snap.get("fps", 0),
+                "weaponScore": snap.get("weapon_score", 0),
+                "videoWidth": snap.get("video_width", 0),
+                "videoHeight": snap.get("video_height", 0),
+            }
+            data_str = json.dumps(payload)
+            current_hash = hash(data_str)
+            if current_hash != last_tracks_hash:
+                last_tracks_hash = current_hash
+                yield f"data: {data_str}\n\n".encode()
         await asyncio.sleep(0.1)
 
 
@@ -2328,170 +1908,6 @@ async def audio_status():
     return audio_analyzer.status()
 
 
-@app.get("/face/status", summary="Face intelligence status")
-async def face_status():
-    return face_engine.status()
-
-
-@app.get("/face/policy", summary="Get face identity/audit policy")
-async def face_policy_get(request: Request):
-    security_controller.authorize(request, required_role="viewer")
-    status = face_engine.status()
-    policy = status.get("policy", {})
-    policy_fetched_at = datetime.now(timezone.utc).isoformat()
-    return {
-        "status": "success",
-        "policy": policy,
-        "policyFetchedAt": policy_fetched_at,
-    }
-
-
-@app.post("/face/policy", summary="Update face identity/audit policy")
-async def face_policy_update(body: FacePolicyRequest, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    updates = {}
-
-    if body.identity_labeling_enabled is not None:
-        updates["identityLabelingEnabled"] = face_engine.set_identity_labeling_enabled(body.identity_labeling_enabled)
-    if body.recognition_audit_enabled is not None:
-        updates["recognitionAuditEnabled"] = face_engine.set_recognition_audit_enabled(body.recognition_audit_enabled)
-    if body.recognition_audit_cooldown_sec is not None:
-        updates["recognitionAuditCooldownSec"] = face_engine.set_recognition_audit_cooldown_sec(body.recognition_audit_cooldown_sec)
-
-    if not updates:
-        raise HTTPException(status_code=400, detail="No policy field provided")
-
-    audit_logger.record(
-        "face_policy_update",
-        "success",
-        role=role,
-        details=updates,
-    )
-    return {
-        "status": "success",
-        "updates": updates,
-        "face": face_engine.status(),
-    }
-
-
-@app.post("/face/policy/reload", summary="Reload face policy overrides from disk")
-async def face_policy_reload(request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    status = face_engine.reload_policy_overrides()
-    policy = status.get("policy", {})
-    audit_logger.record(
-        "face_policy_reload",
-        "success",
-        role=role,
-        details={
-            "identityLabelingEnabled": policy.get("identityLabelingEnabled"),
-            "recognitionAuditEnabled": policy.get("recognitionAuditEnabled"),
-            "recognitionAuditCooldownSec": policy.get("recognitionAuditCooldownSec"),
-        },
-    )
-    return {
-        "status": "success",
-        "policy": policy,
-        "face": status,
-    }
-
-
-@app.get("/face/registry", summary="List known people registry")
-async def face_registry(request: Request, include_embeddings: bool = False):
-    security_controller.authorize(request, required_role="viewer")
-    return {"items": face_engine.list_known_people(include_embeddings=include_embeddings)}
-
-
-@app.get("/face/registry/{person_id}", summary="Get known person profile")
-async def face_registry_get(person_id: str, request: Request, include_embeddings: bool = False):
-    security_controller.authorize(request, required_role="viewer")
-    person = face_engine.get_known_person(person_id, include_embeddings=include_embeddings)
-    if not person:
-        raise HTTPException(status_code=404, detail="Known person not found")
-    return person
-
-
-@app.put("/face/registry/{person_id}", summary="Create or update known person")
-async def face_registry_upsert(person_id: str, body: FacePersonUpdateRequest, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    try:
-        person = face_engine.upsert_known_person(
-            person_id=person_id,
-            display_name=body.display_name,
-            role=body.role or "",
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-
-    audit_logger.record(
-        "face_registry_upsert",
-        "success",
-        role=role,
-        details={"personId": person.get("personId")},
-    )
-    return {"status": "success", "person": person}
-
-
-@app.delete("/face/registry/{person_id}", summary="Delete known person")
-async def face_registry_delete(person_id: str, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    deleted = face_engine.delete_known_person(person_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Known person not found")
-    audit_logger.record("face_registry_delete", "success", role=role, details={"personId": person_id})
-    return {"status": "success", "personId": person_id}
-
-
-@app.delete("/face/registry/{person_id}/embeddings", summary="Clear known person embeddings")
-async def face_registry_clear_embeddings(person_id: str, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    cleared = face_engine.clear_person_embeddings(person_id)
-    if not cleared:
-        raise HTTPException(status_code=404, detail="Known person not found")
-    audit_logger.record(
-        "face_registry_clear_embeddings",
-        "success",
-        role=role,
-        details={"personId": person_id},
-    )
-    return {"status": "success", "personId": person_id}
-
-
-@app.post("/face/registry/{person_id}/enroll", summary="Enroll known person from image base64")
-async def face_registry_enroll(person_id: str, body: FaceEnrollRequest, request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    try:
-        person = face_engine.enroll_person_from_base64(
-            person_id=person_id,
-            image_base64=body.image_base64,
-            display_name=body.display_name or "",
-            role=body.role or "",
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Enrollment failed: {exc}")
-
-    audit_logger.record(
-        "face_registry_enroll",
-        "success",
-        role=role,
-        details={
-            "personId": person.get("personId"),
-            "embeddingCount": person.get("embeddingCount", 0),
-        },
-    )
-    return {"status": "success", "person": person}
-
-
-@app.post("/face/session/reset", summary="Reset face unknown-id session")
-async def face_session_reset(request: Request):
-    role = security_controller.authorize(request, required_role="admin")
-    face_engine.reset_session(reason=f"manual-reset-by-{role}")
-    audit_logger.record("face_session_reset", "success", role=role)
-    return {"status": "success", "face": face_engine.status()}
-
-
 @app.get("/system/status", summary="Combined system status")
 async def system_status():
     return {
@@ -2516,7 +1932,6 @@ async def system_status():
         "security": security_controller.status(),
         "audit": audit_logger.status(),
         "audio": audio_analyzer.status(),
-        "face": face_engine.status(),
         "storage": {
             "evidence": str(EVIDENCE_DIR),
             "thumbnails": str(THUMBNAILS_DIR),
@@ -2576,3 +1991,15 @@ async def reset_decision_layer(request: Request):
 @app.get("/health", summary="Health check")
 async def health():
     return await system_status()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7. Application Entry Point
+# ─────────────────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    import uvicorn
+    host = os.getenv("HOST", config.get("server", {}).get("host", "0.0.0.0"))
+    port = int(os.getenv("PORT", config.get("server", {}).get("port", 8002)))
+    print(f"[System] Starting AI Sentinel on {host}:{port}...")
+    uvicorn.run(app, host=host, port=port)

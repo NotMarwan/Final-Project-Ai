@@ -119,7 +119,7 @@ THREAT_CATEGORIES = {
 }
 
 CALIBRATION_PROFILE = load_calibration_profile(base_dir=Path(__file__).resolve().parent)
-VIOLENCE_CLS = int(os.getenv("VIOLENCE_CLASS_INDEX", str(CALIBRATION_PROFILE.get("classIndex", 0))))
+VIOLENCE_CLS = int(os.getenv("VIOLENCE_CLASS_INDEX", str(CALIBRATION_PROFILE.get("classIndex", 1))))
 VIOLENCE_TEMP = max(0.05, float(os.getenv("VIOLENCE_LOGIT_TEMPERATURE", str(CALIBRATION_PROFILE.get("logitTemperature", 1.0)))))
 VIOLENCE_LOGIT_BIAS = float(os.getenv("VIOLENCE_LOGIT_BIAS", str(CALIBRATION_PROFILE.get("logitBias", 0.0))))
 CONF_EMA_ALPHA = float(os.getenv("VIOLENCE_CONFIDENCE_EMA_ALPHA", str(CALIBRATION_PROFILE.get("emaAlpha", 0.45))))
@@ -230,8 +230,8 @@ class ViolenceInferencePipeline:
             print("[AI] Falling back to Legacy SlowFast model.")
             self.model = ViolenceDetector(num_classes=2).to(device)
             try:
-                print("[AI] Loading legacy weights...")
-                state = torch.load("best_model.pt", map_location=device, weights_only=True)
+                print(f"[AI] Loading legacy weights from {weights_path}...")
+                state = torch.load(weights_path, map_location=device, weights_only=True)
                 print("[AI] Legacy weights loaded into memory.")
                 # Unwrap the model state dict if it's a full checkpoint
                 if "model_state_dict" in state:
