@@ -184,11 +184,17 @@ export default function DashboardPage() {
     setPrivacyMode(val)
   }, [])
 
+  const cleanupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const stopDemoSource = useCallback(async (id: DemoSourceId) => {
     try {
       await fetch(`${API_BASE}/demo_stop/${id}`, { method: "DELETE" })
     } catch { /* ignore — backend may already have stopped */ }
     activeExampleRef.current = null
+    if (cleanupTimerRef.current) {
+      clearTimeout(cleanupTimerRef.current)
+      cleanupTimerRef.current = null
+    }
   }, [])
 
   const handleDemoSelect = useCallback(async (id: DemoSourceId) => {
@@ -206,6 +212,18 @@ export default function DashboardPage() {
   useEffect(() => {
     if (activeTab !== "demo-clips" && activeExampleRef.current) {
       void stopDemoSource(activeExampleRef.current)
+      // Hardened: re-check after 500ms in case the first stop raced with a detection
+      cleanupTimerRef.current = setTimeout(() => {
+        if (activeExampleRef.current) {
+          void stopDemoSource(activeExampleRef.current)
+        }
+      }, 500)
+    }
+    return () => {
+      if (cleanupTimerRef.current) {
+        clearTimeout(cleanupTimerRef.current)
+        cleanupTimerRef.current = null
+      }
     }
   }, [activeTab, stopDemoSource])
 
@@ -214,6 +232,9 @@ export default function DashboardPage() {
     return () => {
       if (activeExampleRef.current) {
         void stopDemoSource(activeExampleRef.current)
+      }
+      if (cleanupTimerRef.current) {
+        clearTimeout(cleanupTimerRef.current)
       }
     }
   }, [stopDemoSource])
