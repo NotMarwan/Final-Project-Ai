@@ -95,7 +95,7 @@ weapon:
   weight_path: "./weapon_hadi_yolo.pt"
   labels: ["pistol", "rifle", "shotgun", "knife", "sword", "revolver"]
   interval: 20
-  min_confidence: 0.35
+  min_confidence: 0.20
   ema_alpha: 0.45
   input_size: 640
   preload_on_startup: false

@@ -245,7 +245,7 @@ def _load_example_sources() -> Dict[str, str]:
     return {
         "EXAMPLE-01": str(_project_root / "test" / "Wq0BuA8GM84_0.avi"),
         "EXAMPLE-02": str(_project_root / "test" / "YDOJvzChqSg_0 (1).avi"),
-        "EXAMPLE-03": str(_project_root / "unrelated" / "archived-projects" / "violence" / "1Kbw1bUw_0.avi"),
+        "EXAMPLE-03": str(_project_root / "unrelated" / "archived-projects" / "violence" / "FXC43fACfPc_0.avi"),
     }
 
 EXAMPLE_SOURCES: Dict[str, str] = _load_example_sources()
