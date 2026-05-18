@@ -1,125 +1,42 @@
 "use client"
 
-import React, { useState, useCallback, useEffect, useRef } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Play, Clock, Camera, Trash2, Loader2, X } from "lucide-react"
+import { Play, Clock, Camera, Download, X, Film, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
-import { IncidentReplay } from "./incident-replay"
-import type { ThreatBox } from "@/lib/detection-types"
-
-function buildReplayThreatBoxes(alert: LiveAlert): ThreatBox[] {
-  const boxes: ThreatBox[] = []
-  if (alert.weaponBbox) {
-    boxes.push({
-      id: "weapon-replay",
-      type: "weapon",
-      weaponType: alert.weaponLabels?.[0]?.toLowerCase().includes("knife") ? "knife" : "gun",
-      bbox: alert.weaponBbox,
-      confidence: alert.weaponScore ?? alert.confidence,
-      color: [220, 38, 38],
-      label: alert.weaponLabels?.[0]?.toUpperCase() ?? "WEAPON",
-    })
-  }
-  if (alert.violenceBbox && boxes.length === 0) {
-    boxes.push({
-      id: "violence-replay",
-      type: "violence",
-      bbox: alert.violenceBbox,
-      confidence: alert.confidence,
-      color: [239, 68, 68],
-      label: "VIOLENCE",
-    })
-  }
-  return boxes
-}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
 
-function getClipUrl(alert: LiveAlert): string {
-  return alert.clipUrl ?? `${API_BASE}/clips/${alert.id}`
+interface FolderClip {
+  alertId: string
+  clipUrl: string
+  timestamp: string | null
+  cameraId: string | null
+  type: string
+  confidence: number | null
+  severity: string | null
+  size: number
+  mtime: number
 }
 
-const DEMO_CAMERA_IDS = new Set(["EXAMPLE-01", "EXAMPLE-02", "EXAMPLE-03"])
-const isDemoAlert = (alert: LiveAlert) => DEMO_CAMERA_IDS.has(alert.cameraId)
-
-function DemoClipReplay({ alert }: { alert: LiveAlert }) {
-  const [phase, setPhase] = useState<"loading" | "playing" | "stopped">("loading")
-  const [streamKey, setStreamKey] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    const run = async () => {
-      setPhase("loading")
-      try {
-        await fetch(`${API_BASE}/demo_start/${alert.cameraId}`, { method: "POST" })
-      } catch { /* backend may already be running */ }
-      if (cancelled) return
-      setStreamKey(k => k + 1)
-      setPhase("playing")
-      timerRef.current = setTimeout(() => {
-        if (cancelled) return
-        setPhase("stopped")
-        fetch(`${API_BASE}/demo_stop/${alert.cameraId}`, { method: "DELETE" }).catch(() => {})
-      }, 4000)
+function parseTimeFromId(alertId: string): string {
+  try {
+    const ms = parseInt(alertId.split("-")[1] ?? "0", 10)
+    if (ms > 0) {
+      return new Date(ms).toLocaleTimeString("en-GB", {
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+      })
     }
+  } catch { /* ignore */ }
+  return "—"
+}
 
-    void run()
-    return () => {
-      cancelled = true
-      if (timerRef.current) clearTimeout(timerRef.current)
-      fetch(`${API_BASE}/demo_stop/${alert.cameraId}`, { method: "DELETE" }).catch(() => {})
-    }
-  }, [alert.cameraId])
-
-  const handleReplay = async () => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    setPhase("loading")
-    try {
-      await fetch(`${API_BASE}/demo_start/${alert.cameraId}`, { method: "POST" })
-    } catch { /* ignore */ }
-    setStreamKey(k => k + 1)
-    setPhase("playing")
-    timerRef.current = setTimeout(() => {
-      setPhase("stopped")
-      fetch(`${API_BASE}/demo_stop/${alert.cameraId}`, { method: "DELETE" }).catch(() => {})
-    }, 4000)
-  }
-
-  return (
-    <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-xl border border-white/10">
-      {phase === "loading" && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black">
-          <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
-          <p className="font-mono text-xs text-amber-400">Starting demo replay…</p>
-        </div>
-      )}
-      {phase === "playing" && (
-        <img
-          key={streamKey}
-          src={`${API_BASE}/video_feed?camera_id=${alert.cameraId}&k=${streamKey}`}
-          className="h-full w-full object-contain"
-          alt="Demo replay"
-        />
-      )}
-      {phase === "stopped" && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/80">
-          <p className="font-mono text-xs text-muted-foreground">Replay ended</p>
-          <Button size="sm" onClick={() => void handleReplay()}>Replay</Button>
-        </div>
-      )}
-      <div className="absolute top-2 left-2 z-20">
-        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold uppercase tracking-wider">
-          Demo replay
-        </Badge>
-      </div>
-    </div>
-  )
+function formatSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 interface ClipSidebarProps {
@@ -129,24 +46,37 @@ interface ClipSidebarProps {
   onDeleteClip?: (alertId: string) => void
 }
 
-export function ClipSidebar({ 
-  alerts, 
-  selectedAlertId, 
-  onSelectAlert,
-  onDeleteClip 
-}: ClipSidebarProps) {
-  const [modalAlert, setModalAlert] = useState<LiveAlert | null>(null)
+export function ClipSidebar({ alerts, selectedAlertId, onSelectAlert }: ClipSidebarProps) {
+  const [clips, setClips] = useState<FolderClip[]>([])
+  const [modalClip, setModalClip] = useState<FolderClip | null>(null)
+  const [videoError, setVideoError] = useState(false)
 
-  // All alerts are potential clips — URL is derived from alert.id if not present
-  const clips = alerts
+  const alertMap = React.useMemo(() => {
+    const m = new Map<string, LiveAlert>()
+    for (const a of alerts) m.set(a.id, a)
+    return m
+  }, [alerts])
 
-  const handlePlayClip = useCallback((alert: LiveAlert) => {
-    setModalAlert(alert)
-    onSelectAlert(alert)
-  }, [onSelectAlert])
+  const fetchClips = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/clips/list`)
+      if (!res.ok) return
+      const data = await res.json()
+      setClips(data.clips as FolderClip[])
+    } catch { /* ignore network errors */ }
+  }, [])
 
-  const formatTime = (timestamp: string) => {
-    return timestamp
+  useEffect(() => {
+    void fetchClips()
+    const id = setInterval(() => void fetchClips(), 5000)
+    return () => clearInterval(id)
+  }, [fetchClips])
+
+  const openClip = (clip: FolderClip) => {
+    setModalClip(clip)
+    setVideoError(false)
+    const alert = alertMap.get(clip.alertId)
+    if (alert) onSelectAlert(alert)
   }
 
   return (
@@ -154,11 +84,18 @@ export function ClipSidebar({
       {/* Header */}
       <div className="p-3 border-b border-border">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Play className="h-4 w-4" />
-          Clip Review
+          <Film className="h-4 w-4 text-primary" />
+          Evidence Clips
           <Badge variant="secondary" className="ml-auto">
             {clips.length}
           </Badge>
+          <button
+            onClick={() => void fetchClips()}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
         </h3>
       </div>
 
@@ -166,99 +103,128 @@ export function ClipSidebar({
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-2">
           {clips.length === 0 ? (
-            <div className="text-center text-muted-foreground text-sm py-8">
-              No video clips available yet.
+            <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+              <Film className="h-8 w-8 text-muted-foreground/20" />
+              <p className="text-sm text-muted-foreground">No evidence clips yet</p>
+              <p className="text-xs text-muted-foreground/60">Clips appear here when incidents are detected</p>
             </div>
           ) : (
-            clips.map((alert: any) => (
-              <Card
-                key={alert.id}
-                className={`p-2 cursor-pointer transition-colors hover:bg-accent ${
-                  selectedAlertId === alert.id ? "border-primary bg-accent" : ""
-                }`}
-                onClick={() => handlePlayClip(alert)}
-              >
-                <div className="flex items-start gap-2">
-                  {/* Thumbnail placeholder */}
-                  <div className="w-16 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                    <Play className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 mb-1">
-                      <Camera className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {alert.cameraId}
-                      </span>
-                      <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatTime(alert.timestamp)}
-                      </span>
+            clips.map((clip) => {
+              const alert = alertMap.get(clip.alertId)
+              const displayType = (clip.type !== "unknown" ? clip.type : alert?.type) ?? "Incident"
+              const displayCamera = clip.cameraId ?? alert?.cameraId ?? "—"
+              const displayTime = clip.timestamp ?? parseTimeFromId(clip.alertId)
+              const confidence = clip.confidence ?? alert?.confidence
+
+              return (
+                <Card
+                  key={clip.alertId}
+                  className={cn(
+                    "p-2 cursor-pointer transition-colors hover:bg-accent",
+                    selectedAlertId === clip.alertId ? "border-primary bg-accent" : "",
+                  )}
+                  onClick={() => openClip(clip)}
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="w-16 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                      <Play className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <p className="text-xs font-medium truncate">
-                      {alert.type} Detected
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge 
-                        variant="secondary" 
-                        className={cn(
-                          "text-[9px] px-1.5 py-0 font-mono",
-                          alert.severity === "critical" ? "bg-danger/20 text-danger" : "bg-primary/20 text-primary"
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Camera className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground truncate">{displayCamera}</span>
+                        <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0">
+                          <Clock className="h-3 w-3" />
+                          {displayTime}
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium truncate">{displayType} Detected</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {confidence != null && (
+                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0 font-mono bg-danger/20 text-danger">
+                            {Math.round(confidence)}%
+                          </Badge>
                         )}
-                      >
-                        {Math.round(alert.confidence)}%
-                      </Badge>
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 uppercase tracking-tighter opacity-70">
-                        {alert.threatType ?? "violence"}
-                      </Badge>
-                      {onDeleteClip && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 ml-auto"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onDeleteClip(alert.id)
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 uppercase tracking-tighter opacity-70">
+                          {formatSize(clip.size)}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              )
+            })
           )}
         </div>
       </ScrollArea>
 
-      {/* Fullscreen clip modal */}
-      {modalAlert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-2xl">
+      {/* Video modal */}
+      {modalClip && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-3xl flex flex-col gap-2">
             <button
-              onClick={() => setModalAlert(null)}
-              className="absolute -top-10 right-0 text-white/70 hover:text-white text-sm font-medium flex items-center gap-1"
+              onClick={() => setModalClip(null)}
+              className="absolute -top-9 right-0 text-white/70 hover:text-white text-sm font-medium flex items-center gap-1"
             >
               <X className="h-4 w-4" /> Close
             </button>
-            {isDemoAlert(modalAlert) ? (
-              <DemoClipReplay key={modalAlert.id} alert={modalAlert} />
-            ) : (
-              <IncidentReplay
-                clipUrl={getClipUrl(modalAlert)}
-                threatType={modalAlert.threatType === "weapon" ? "weapon" : "violence"}
-                confidence={Math.round(modalAlert.confidence)}
-                location={modalAlert.location}
-                timestamp={modalAlert.timestamp}
-                autoPlay
-                className="w-full"
-                threatBoxes={buildReplayThreatBoxes(modalAlert)}
-                alertVideoWidth={modalAlert.alertVideoWidth}
-                alertVideoHeight={modalAlert.alertVideoHeight}
-              />
-            )}
+
+            {/* Clip meta */}
+            <div className="flex items-center gap-2 px-1">
+              <Badge variant="destructive" className="text-[10px] uppercase font-bold tracking-wider">
+                Evidence
+              </Badge>
+              <span className="text-white/70 text-xs font-mono">
+                {alertMap.get(modalClip.alertId)?.cameraId ?? modalClip.cameraId ?? "Unknown camera"}
+              </span>
+              <span className="ml-auto text-white/40 text-xs font-mono">
+                {parseTimeFromId(modalClip.alertId)}
+                {" · "}
+                {formatSize(modalClip.size)}
+              </span>
+            </div>
+
+            {/* Video */}
+            <div className="relative bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+              {!videoError ? (
+                <video
+                  key={modalClip.alertId}
+                  src={`${API_BASE}${modalClip.clipUrl}`}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full max-h-[72vh] object-contain bg-black"
+                  onError={() => setVideoError(true)}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 py-20">
+                  <Film className="h-12 w-12 text-muted-foreground/30" />
+                  <p className="text-sm text-muted-foreground">
+                    Browser cannot play this format inline.
+                  </p>
+                  <a
+                    href={`${API_BASE}${modalClip.clipUrl}`}
+                    download={`${modalClip.alertId}.mp4`}
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Clip
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Download link */}
+            <div className="flex justify-end px-1">
+              <a
+                href={`${API_BASE}${modalClip.clipUrl}`}
+                download={`${modalClip.alertId}.mp4`}
+                className="inline-flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition-colors"
+              >
+                <Download className="h-3 w-3" />
+                Save clip
+              </a>
+            </div>
           </div>
         </div>
       )}

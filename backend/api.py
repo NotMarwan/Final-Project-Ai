@@ -1559,13 +1559,13 @@ async def get_clip(alert_id: str):
 
 @app.get("/api/clips/list", summary="List available incident clips")
 async def list_clips():
-    """List all available incident clips."""
+    """List all evidence clips in EVIDENCE_DIR, newest first."""
     clips = []
-    
+
     if EVIDENCE_DIR.exists():
-        for clip_path in EVIDENCE_DIR.glob("*.mp4"):
+        paths = sorted(EVIDENCE_DIR.glob("*.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
+        for clip_path in paths:
             alert_id = clip_path.stem
-            # Get alert details if available
             alert = state.get_alert(alert_id)
             clips.append({
                 "alertId": alert_id,
@@ -1573,9 +1573,12 @@ async def list_clips():
                 "timestamp": alert.get("timestamp") if alert else None,
                 "cameraId": alert.get("cameraId") if alert else None,
                 "type": alert.get("type") if alert else "unknown",
+                "confidence": alert.get("confidence") if alert else None,
+                "severity": alert.get("severity") if alert else None,
                 "size": clip_path.stat().st_size,
+                "mtime": clip_path.stat().st_mtime,
             })
-    
+
     return {"clips": clips, "count": len(clips)}
 
 
