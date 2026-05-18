@@ -157,14 +157,15 @@ class RenderThread:
         if ok:
             self.set_frame_fn(self.camera_id, jpg_buf.tobytes())
 
-        # Push detection metadata to SSE every 5 frames (throttled)
+        # Push detection metadata frequently enough for responsive browser overlays.
         if self.set_detection_meta_fn is not None:
             self._meta_push_counter += 1
-            if self._meta_push_counter % 5 == 0:
+            if self._meta_push_counter % 2 == 0:
                 try:
                     meta = dict(snap)
-                    # Build multi-threat data using fusion engine
-                    if self._fusion_engine is not None and snap.get("is_threat", False):
+                    # Build multi-threat data whenever live signals are present so
+                    # the frontend can render watch-state framing before an alert.
+                    if self._fusion_engine is not None:
                         try:
                             fusion_result = self._fusion_engine.assess_multi_threat(
                                 violence_confidence=snap.get("violence_conf", 0) / 100.0 if snap.get("violence_conf", 0) > 1 else snap.get("violence_conf", 0),
@@ -192,7 +193,7 @@ class RenderThread:
             if decision["confirmed_alert"] and now - self._last_alert_time > self._decision_layer.cooldown_seconds:
                 self._last_alert_time = now
                 try:
-                    _, snapshot_buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    _, snapshot_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 85])
                     snapshot_jpeg = snapshot_buf.tobytes() if snapshot_buf is not None else None
                 except Exception:
                     snapshot_jpeg = None
@@ -201,6 +202,9 @@ class RenderThread:
                 import uuid
                 alert_id = f"alert-{int(now * 1000)}-{uuid.uuid4().hex[:6]}"
                 severity = "critical" if snap.get("threat_confidence", 0) >= 85 else "high" if snap.get("threat_confidence", 0) >= 65 else "medium"
+                is_weapon_threat = snap.get("weapon_score", 0) >= 0.30 and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0)
+                alert_type = "weapon" if is_weapon_threat else "violence"
+                alert_label = "Weapon" if is_weapon_threat else "Violence"
                 alert_payload = {
                     "id": alert_id,
                     "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
@@ -210,8 +214,8 @@ class RenderThread:
                     "threatConfidence": round(snap.get("threat_confidence", 0), 1),
                     "rawModelConfidence": round(snap.get("violence_conf", 0), 4),
                     "calibratedConfidence": round(snap.get("threat_confidence", 0) / 100.0, 4),
-                    "threatType": "Violence" if snap.get("is_threat", False) else "Normal",
-                    "type": "Violence",
+                    "threatType": alert_type,
+                    "type": alert_label,
                     "severity": severity,
                     "cameraId": self.camera_id,
                     "location": self.camera_id,
@@ -220,13 +224,17 @@ class RenderThread:
                     "weaponDetectorReady": True,
                     "fusionReason": "violence" if snap.get("violence_conf", 0) > snap.get("weapon_score", 0) else "weapon" if snap.get("weapon_score", 0) > 0.3 else "none",
                     "motionScore": round(snap.get("motion_score", 0), 2),
-                    "weaponScore": round(snap.get("weapon_score", 0), 2),
+                    "weaponScore": round(snap.get("weapon_score", 0) * 100, 1),
                     "personCount": snap.get("person_count", 0),
                     "weaponLabels": snap.get("weapon_labels", []),
                     "alertLatencyMs": 0,
                     "alertState": decision.get("alert_state", "CONFIRMED_VIOLENCE"),
                     "confirmedAlert": decision.get("confirmed_alert", True),
                     "confirmRule": decision.get("confirm_rule", ""),
+                    "weaponBbox": list(snap["weapon_bbox"]) if snap.get("weapon_bbox") else None,
+                    "violenceBbox": list(snap["violence_bbox"]) if snap.get("violence_bbox") else None,
+                    "alertVideoWidth": int(snap.get("video_width", 640)),
+                    "alertVideoHeight": int(snap.get("video_height", 480)),
                 }
                 if self.on_threat_fn is not None:
                     self.on_threat_fn(alert_payload, snapshot_jpeg, None)
@@ -249,7 +257,7 @@ class RenderThread:
         elif self._decision_layer is None and current_threat and not self._last_threat_state:
             # Fallback: no decision layer, use simple edge detection
             try:
-                _, snapshot_buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                _, snapshot_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 85])
                 snapshot_jpeg = snapshot_buf.tobytes() if snapshot_buf is not None else None
             except Exception:
                 snapshot_jpeg = None
@@ -258,6 +266,9 @@ class RenderThread:
             import uuid
             alert_id = f"alert-{int(now * 1000)}-{uuid.uuid4().hex[:6]}"
             severity = "critical" if snap.get("threat_confidence", 0) >= 85 else "high" if snap.get("threat_confidence", 0) >= 65 else "medium"
+            is_weapon_threat = snap.get("weapon_score", 0) >= 0.30 and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0)
+            alert_type = "weapon" if is_weapon_threat else "violence"
+            alert_label = "Weapon" if is_weapon_threat else "Violence"
             alert_payload = {
                 "id": alert_id,
                 "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
@@ -267,8 +278,8 @@ class RenderThread:
                 "threatConfidence": round(snap.get("threat_confidence", 0), 1),
                 "rawModelConfidence": round(snap.get("violence_conf", 0), 4),
                 "calibratedConfidence": round(snap.get("threat_confidence", 0) / 100.0, 4),
-                "threatType": "Violence" if snap.get("is_threat", False) else "Normal",
-                "type": "Violence",
+                "threatType": alert_type,
+                "type": alert_label,
                 "severity": severity,
                 "cameraId": self.camera_id,
                 "location": self.camera_id,
@@ -277,13 +288,17 @@ class RenderThread:
                 "weaponDetectorReady": True,
                 "fusionReason": "violence" if snap.get("violence_conf", 0) > snap.get("weapon_score", 0) else "weapon" if snap.get("weapon_score", 0) > 0.3 else "none",
                 "motionScore": round(snap.get("motion_score", 0), 2),
-                "weaponScore": round(snap.get("weapon_score", 0), 2),
+                "weaponScore": round(snap.get("weapon_score", 0) * 100, 1),
                 "personCount": snap.get("person_count", 0),
                 "weaponLabels": snap.get("weapon_labels", []),
                 "alertLatencyMs": 0,
                 "alertState": "CONFIRMED_VIOLENCE",
                 "confirmedAlert": True,
                 "confirmRule": "fallback_edge",
+                "weaponBbox": list(snap["weapon_bbox"]) if snap.get("weapon_bbox") else None,
+                "violenceBbox": list(snap["violence_bbox"]) if snap.get("violence_bbox") else None,
+                "alertVideoWidth": int(snap.get("video_width", 640)),
+                "alertVideoHeight": int(snap.get("video_height", 480)),
             }
             if self.on_threat_fn is not None:
                 self.on_threat_fn(alert_payload, snapshot_jpeg, None)

@@ -15,6 +15,7 @@ import { useDetectionStream } from "@/hooks/use-detection-stream"
 import { OverlaySettingsPanel } from "@/components/overlay-settings"
 import { MultiThreatBanner } from "@/components/multi-threat-banner"
 import { ConfidenceBars } from "@/components/confidence-bars"
+import { hasWeaponVisualSignal, normalizeScoreToPercent } from "@/lib/live-visual-state"
 
 export interface FaceObservation {
   id: string
@@ -56,7 +57,7 @@ export interface LiveAlert {
   modelConfidence?: number
   rawModelConfidence?: number
   threatConfidence?: number
-  type:       "Violence"
+  type:       "Violence" | "Weapon"
   severity:   "critical" | "high" | "medium"
   cameraId:   string
   location:   string
@@ -75,6 +76,10 @@ export interface LiveAlert {
   threatType?: "violence" | "weapon"
   alertLatencyMs?: number
   personCount?: number
+  weaponBbox?: [number, number, number, number]
+  violenceBbox?: [number, number, number, number]
+  alertVideoWidth?: number
+  alertVideoHeight?: number
 }
 
 interface VideoPlayerProps {
@@ -129,6 +134,7 @@ function formatASTFromISO(isoString: string): string {
 export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, activeAlert, privacyMode, personCount = 0, overlaySettings }: VideoPlayerProps) {
   const [isPlaying,     setIsPlaying]     = useState(true)
   const [streamError,   setStreamError]   = useState(false)
+  const [fallenBackToDemo, setFallenBackToDemo] = useState(false)
   const [streamKey,     setStreamKey]     = useState(0)
   const [demoLoading,   setDemoLoading]   = useState(false)
   const [demoStreamError, setDemoStreamError] = useState(false)
@@ -145,7 +151,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   const [showOverlays, setShowOverlays] = useState(() => overlaySettings?.showBoxes ?? true)
   const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const videoContainerRef = useRef<HTMLDivElement>(null)
-  const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 })
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
 
   const [isMounted, setIsMounted] = useState(false)
   const [liveClock, setLiveClock] = useState("--:--:--")
@@ -165,13 +171,22 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   const { data: detectionData } = useDetectionStream(propCameraId)
 
   const multiThreat = detectionData?.multiThreat
-  const hasViolence = multiThreat?.hasViolence ?? showViolence
-  const hasWeapon = multiThreat?.hasWeapon ?? (detectionData?.weaponScore ?? 0) > 50
-  const isMultiThreat = multiThreat?.isMultiThreat ?? (hasViolence && hasWeapon)
-  const violenceScore = multiThreat?.violenceScore ?? (visibleAlert?.confidence ?? 0)
-  const weaponScore = multiThreat?.weaponScore ?? (visibleAlert?.weaponScore ?? 0)
+  const liveThreatActive = detectionData?.isThreat ?? false
+  const hasWeapon = hasWeaponVisualSignal(detectionData?.weaponScore, multiThreat)
+  const inferredViolenceThreat = liveThreatActive && !hasWeapon
+  const alertIndicatesViolence = Boolean(
+    visibleAlert && (
+      visibleAlert.threatType === "violence"
+      || visibleAlert.type === "Violence"
+    )
+  )
+  const hasViolence = Boolean(multiThreat?.hasViolence || inferredViolenceThreat || (showViolence && alertIndicatesViolence))
+  const isMultiThreat = Boolean(multiThreat?.isMultiThreat || (hasViolence && hasWeapon))
+  const violenceScore = multiThreat?.violenceScore ?? (visibleAlert?.confidence ?? (inferredViolenceThreat ? detectionData?.threatConfidence ?? 0 : 0))
+  const weaponScore = multiThreat?.weaponScore ?? normalizeScoreToPercent(detectionData?.weaponScore ?? visibleAlert?.weaponScore ?? 0)
   const threatSeverity = multiThreat?.severity ?? visibleAlert?.severity ?? "medium"
   const threatWeaponType = multiThreat?.threatBoxes?.find(b => b.type === "weapon")?.weaponType
+  const showThreatState = showViolence || liveThreatActive || hasWeapon || hasViolence
 
   useEffect(() => {
     if (activeAlert === null) return
@@ -192,6 +207,11 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   useEffect(() => {
     const el = videoContainerRef.current
     if (!el) return
+    // Seed immediately so canvas doesn't start at 0x0 before ResizeObserver fires
+    const domRect = el.getBoundingClientRect()
+    if (domRect.width > 0 && domRect.height > 0) {
+      setContainerSize({ width: domRect.width, height: domRect.height })
+    }
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
@@ -202,13 +222,14 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
     return () => observer.disconnect()
   }, [])
 
-  const threatConfidence = visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
+  const threatConfidence = multiThreat?.fusedScore ?? detectionData?.threatConfidence ?? visibleAlert?.threatConfidence ?? visibleAlert?.confidence ?? 0
   // faceSummary available from visibleAlert for future use
 
 
 
   // When switching to a demo clip, show loading overlay for DEMO_LOADING_MS to let backend worker start
   useEffect(() => {
+    setFallenBackToDemo(false)
     if (!isDemo) { setDemoLoading(false); return }
     setDemoLoading(true)
     setStreamError(false)
@@ -241,6 +262,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
   }, [propCameraId])
 
   const streamSrc = isPlaying ? `${API_BASE}/video_feed?camera_id=${propCameraId}&k=${streamKey}` : undefined
+  const fallbackDemoSrc = fallenBackToDemo ? `${API_BASE}/video_feed?camera_id=EXAMPLE-01&k=${streamKey}` : undefined
   // For demo clips: use MJPEG stream (same as live cameras) — AVI files cannot be played natively in Chrome.
   // Backend analysis is unaffected; only the visual playback source changes.
   const demoMjpegSrc = isDemo && !demoLoading ? `${API_BASE}/video_feed?camera_id=${propCameraId}&k=${streamKey}` : undefined
@@ -251,15 +273,15 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
 
 
       {/* ── Status Banner ── */}
-      <div className={cn("flex items-center gap-2 border-b px-4 py-2.5 transition-all duration-700 relative overflow-hidden", showViolence ? "border-danger/40 bg-danger/10" : "border-border/60 bg-card/60")}>
+      <div className={cn("flex items-center gap-2 border-b px-4 py-2.5 transition-all duration-700 relative overflow-hidden", showThreatState ? "border-danger/40 bg-danger/10" : "border-border/60 bg-card/60")}>
         {/* Animated shimmer for status bar */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 transition-opacity duration-700", showViolence ? "opacity-0" : "opacity-100")}>
+          <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-0 transition-opacity duration-700", showThreatState ? "opacity-0" : "opacity-100")}>
             <div className="absolute inset-0 animate-shimmer" />
           </div>
         </div>
 
-        {showViolence ? (
+        {showThreatState ? (
           <div className="flex items-center gap-3 relative z-10">
             <div className="relative">
               <span className="absolute inset-0 bg-danger/30 rounded-full blur-md animate-ambient-pulse" />
@@ -302,7 +324,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
       </div>
 
       {/* ── Video Area ── */}
-      <div ref={videoContainerRef} className={cn("relative flex-1 overflow-hidden bg-black transition-all duration-500", showViolence ? "animate-shake" : "")}>
+      <div ref={videoContainerRef} className={cn("relative flex-1 overflow-hidden bg-black transition-all duration-500", showThreatState ? "animate-shake" : "")}>
         {/* Dot grid atmospheric background */}
         <div className="absolute inset-0 bg-dot-grid opacity-30 pointer-events-none z-0" />
 
@@ -324,8 +346,34 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           </div>
         )}
 
+        {/* Fallback demo stream when live camera returns 503 */}
+        {fallenBackToDemo && fallbackDemoSrc && (
+          <>
+            <img
+              key={`fallback-${streamKey}`}
+              src={fallbackDemoSrc}
+              className="h-full w-full object-contain"
+              onError={() => {}}
+            />
+            {containerSize.width > 0 && (
+              <CanvasOverlay
+                data={detectionData}
+                videoWidth={detectionData?.videoWidth ?? 1280}
+                videoHeight={detectionData?.videoHeight ?? 720}
+                containerWidth={containerSize.width}
+                containerHeight={containerSize.height}
+                showBoxes={showOverlays}
+                showLabels={showOverlays}
+                opacity={overlaySettings?.opacity ?? 85}
+                boxThickness={overlaySettings?.boxThickness ?? 2}
+                labelStyle={overlaySettings?.labelStyle ?? "chip"}
+              />
+            )}
+          </>
+        )}
+
         {/* Live camera offline state */}
-        {streamError && !isDemo && (
+        {streamError && !isDemo && !fallenBackToDemo && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90">
             <WifiOff className="h-12 w-12 text-muted-foreground/50" />
             {CAMERAS.find(c => c.id === propCameraId)?.isLive ? (
@@ -359,18 +407,20 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
               className="h-full w-full object-contain"
               onError={() => setDemoStreamError(true)}
             />
-            <CanvasOverlay
-              data={detectionData}
-              videoWidth={detectionData?.videoWidth ?? 1280}
-              videoHeight={detectionData?.videoHeight ?? 720}
-              containerWidth={containerSize.width}
-              containerHeight={containerSize.height}
-              showBoxes={showOverlays}
-              showLabels={showOverlays}
-              opacity={overlaySettings?.opacity ?? 85}
-              boxThickness={overlaySettings?.boxThickness ?? 2}
-              labelStyle={overlaySettings?.labelStyle ?? "chip"}
-            />
+            {containerSize.width > 0 && (
+              <CanvasOverlay
+                data={detectionData}
+                videoWidth={detectionData?.videoWidth ?? 1280}
+                videoHeight={detectionData?.videoHeight ?? 720}
+                containerWidth={containerSize.width}
+                containerHeight={containerSize.height}
+                showBoxes={showOverlays}
+                showLabels={showOverlays}
+                opacity={overlaySettings?.opacity ?? 85}
+                boxThickness={overlaySettings?.boxThickness ?? 2}
+                labelStyle={overlaySettings?.labelStyle ?? "chip"}
+              />
+            )}
           </>
         )}
 
@@ -378,7 +428,13 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         {!isDemo && !streamError && !isLiveDemoMode && (
           <>
             <div className="absolute inset-0">
-              <img key={streamKey} src={streamSrc} className={`h-full w-full object-contain ${webrtcReady ? "invisible" : "visible"}`} onError={() => setStreamError(true)} />
+              <img key={streamKey} src={streamSrc} className={`h-full w-full object-contain ${webrtcReady ? "invisible" : "visible"}`} onError={() => {
+                setStreamError(true)
+                if (!isDemo) {
+                  fetch(`${API_BASE}/demo_start/EXAMPLE-01`, { method: "POST" }).catch(() => {})
+                  setFallenBackToDemo(true)
+                }
+              }} />
               {webrtcUrl && !webrtcFailed && (
                 <WebRTCPlayer
                   streamUrl={webrtcUrl}
@@ -389,18 +445,20 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
                 />
               )}
             </div>
-            <CanvasOverlay
-              data={detectionData}
-              videoWidth={detectionData?.videoWidth ?? 1280}
-              videoHeight={detectionData?.videoHeight ?? 720}
-              containerWidth={containerSize.width}
-              containerHeight={containerSize.height}
-              showBoxes={showOverlays}
-              showLabels={showOverlays}
-              opacity={overlaySettings?.opacity ?? 85}
-              boxThickness={overlaySettings?.boxThickness ?? 2}
-              labelStyle={overlaySettings?.labelStyle ?? "chip"}
-            />
+            {containerSize.width > 0 && (
+              <CanvasOverlay
+                data={detectionData}
+                videoWidth={detectionData?.videoWidth ?? 1280}
+                videoHeight={detectionData?.videoHeight ?? 720}
+                containerWidth={containerSize.width}
+                containerHeight={containerSize.height}
+                showBoxes={showOverlays}
+                showLabels={showOverlays}
+                opacity={overlaySettings?.opacity ?? 85}
+                boxThickness={overlaySettings?.boxThickness ?? 2}
+                labelStyle={overlaySettings?.labelStyle ?? "chip"}
+              />
+            )}
           </>
         )}
 
@@ -418,10 +476,10 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         {(hasViolence || hasWeapon) && <div className="pointer-events-none absolute inset-0 z-10 border-[3px] border-danger animate-pulse-danger" />}
 
         {/* Scan line overlay */}
-        <div className={cn("pointer-events-none absolute inset-0 z-10 transition-opacity duration-700", showViolence ? "opacity-60" : "opacity-20")} style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px)" }} />
+        <div className={cn("pointer-events-none absolute inset-0 z-10 transition-opacity duration-700", showThreatState ? "opacity-60" : "opacity-20")} style={{ background: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px)" }} />
 
         {/* Animated scan line */}
-        {!showViolence && (
+        {!showThreatState && (
           <div className="pointer-events-none absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent z-10 animate-scan-video opacity-40" />
         )}
 
@@ -447,7 +505,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         />
 
         {/* Tactical HUD corners - normal state */}
-        {!showViolence && (
+        {!showThreatState && (
           <>
             <div className="hud-corner hud-corner-tl" />
             <div className="hud-corner hud-corner-tr" />
@@ -456,7 +514,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           </>
         )}
         {/* Tactical HUD corners - threat state */}
-        {showViolence && (
+        {showThreatState && (
           <div className="hud-corner-threat">
             <div className="hud-corner hud-corner-tl border-danger/80" />
             <div className="hud-corner hud-corner-tr border-danger/80" />
@@ -465,13 +523,13 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
           </div>
         )}
 
-        {showViolence && visibleAlert && <div className="pointer-events-none absolute left-3 top-3 z-20 animate-alert-enter"><Badge className="h-5 border-danger/40 bg-danger/20 text-danger glow-danger">{visibleAlert.severity}</Badge></div>}
+        {showThreatState && visibleAlert && <div className="pointer-events-none absolute left-3 top-3 z-20 animate-alert-enter"><Badge className="h-5 border-danger/40 bg-danger/20 text-danger glow-danger">{visibleAlert.severity}</Badge></div>}
         {isLiveDemoMode && <div className="pointer-events-none absolute left-3 top-3 z-20"><Badge className="h-5 border-primary/40 bg-primary/20 text-primary">LIVE DEMO</Badge></div>}
 
         {/* Animated REC indicator */}
         <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5">
-          <span className={cn("h-2.5 w-2.5 rounded-full", showViolence ? "bg-danger animate-ambient-pulse" : "bg-danger animate-pulse")} />
-          <span className={cn("font-mono text-[10px] font-bold tracking-widest", showViolence ? "text-danger animate-threat-flash" : "text-danger/70")}>REC</span>
+          <span className={cn("h-2.5 w-2.5 rounded-full", showThreatState ? "bg-danger animate-ambient-pulse" : "bg-danger animate-pulse")} />
+          <span className={cn("font-mono text-[10px] font-bold tracking-widest", showThreatState ? "text-danger animate-threat-flash" : "text-danger/70")}>REC</span>
         </div>
 
         {/* ── CSS HUD Overlays (crisp, rendered by browser) ── */}
@@ -519,7 +577,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
       </div>
 
       {/* ── Threat Timeline ── */}
-      <ThreatTimeline activeAlert={visibleAlert} showViolence={showViolence} />
+      <ThreatTimeline activeAlert={visibleAlert} showViolence={showThreatState} />
 
       {/* ── Controls Bar ── */}
       <div className="flex items-center justify-between border-t border-border bg-card px-4 py-2">

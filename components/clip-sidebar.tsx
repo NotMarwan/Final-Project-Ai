@@ -5,10 +5,37 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Play, Clock, Camera, Trash2, Loader2 } from "lucide-react"
+import { Play, Clock, Camera, Trash2, Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
 import { IncidentReplay } from "./incident-replay"
+import type { ThreatBox } from "@/lib/detection-types"
+
+function buildReplayThreatBoxes(alert: LiveAlert): ThreatBox[] {
+  const boxes: ThreatBox[] = []
+  if (alert.weaponBbox) {
+    boxes.push({
+      id: "weapon-replay",
+      type: "weapon",
+      weaponType: alert.weaponLabels?.[0]?.toLowerCase().includes("knife") ? "knife" : "gun",
+      bbox: alert.weaponBbox,
+      confidence: alert.weaponScore ?? alert.confidence,
+      color: [220, 38, 38],
+      label: alert.weaponLabels?.[0]?.toUpperCase() ?? "WEAPON",
+    })
+  }
+  if (alert.violenceBbox && boxes.length === 0) {
+    boxes.push({
+      id: "violence-replay",
+      type: "violence",
+      bbox: alert.violenceBbox,
+      confidence: alert.confidence,
+      color: [239, 68, 68],
+      label: "VIOLENCE",
+    })
+  }
+  return boxes
+}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8002"
 
@@ -108,13 +135,13 @@ export function ClipSidebar({
   onSelectAlert,
   onDeleteClip 
 }: ClipSidebarProps) {
-  const [activeAlert, setActiveAlert] = useState<LiveAlert | null>(null)
+  const [modalAlert, setModalAlert] = useState<LiveAlert | null>(null)
 
   // All alerts are potential clips — URL is derived from alert.id if not present
   const clips = alerts
 
   const handlePlayClip = useCallback((alert: LiveAlert) => {
-    setActiveAlert(alert)
+    setModalAlert(alert)
     onSelectAlert(alert)
   }, [onSelectAlert])
 
@@ -134,26 +161,6 @@ export function ClipSidebar({
           </Badge>
         </h3>
       </div>
-
-      {/* Active clip player — plays only when user clicks a clip card */}
-      {activeAlert && (
-        <div className="p-3 border-b border-border bg-black/40">
-          {isDemoAlert(activeAlert) ? (
-            <DemoClipReplay key={activeAlert.id} alert={activeAlert} />
-          ) : (
-            <IncidentReplay
-              clipUrl={getClipUrl(activeAlert)}
-              threatType={activeAlert.threatType === "weapon" ? "weapon" : "violence"}
-              confidence={Math.round(activeAlert.confidence)}
-              location={activeAlert.location}
-              timestamp={activeAlert.timestamp}
-              className="w-full aspect-video shadow-xl"
-              autoPlay={false}
-              maxDuration={4}
-            />
-          )}
-        </div>
-      )}
 
       {/* Clip list */}
       <ScrollArea className="flex-1">
@@ -225,6 +232,36 @@ export function ClipSidebar({
           )}
         </div>
       </ScrollArea>
+
+      {/* Fullscreen clip modal */}
+      {modalAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-2xl">
+            <button
+              onClick={() => setModalAlert(null)}
+              className="absolute -top-10 right-0 text-white/70 hover:text-white text-sm font-medium flex items-center gap-1"
+            >
+              <X className="h-4 w-4" /> Close
+            </button>
+            {isDemoAlert(modalAlert) ? (
+              <DemoClipReplay key={modalAlert.id} alert={modalAlert} />
+            ) : (
+              <IncidentReplay
+                clipUrl={getClipUrl(modalAlert)}
+                threatType={modalAlert.threatType === "weapon" ? "weapon" : "violence"}
+                confidence={Math.round(modalAlert.confidence)}
+                location={modalAlert.location}
+                timestamp={modalAlert.timestamp}
+                autoPlay
+                className="w-full"
+                threatBoxes={buildReplayThreatBoxes(modalAlert)}
+                alertVideoWidth={modalAlert.alertVideoWidth}
+                alertVideoHeight={modalAlert.alertVideoHeight}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

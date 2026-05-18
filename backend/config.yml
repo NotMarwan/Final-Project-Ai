@@ -93,9 +93,9 @@ weapon:
   enabled: true
   backend: yolo
   weight_path: "./weapon_hadi_yolo.pt"
-  labels: ["pistol", "knife"]
-  interval: 8
-  min_confidence: 0.20
+  labels: ["pistol", "rifle", "shotgun", "knife", "sword", "revolver"]
+  interval: 20
+  min_confidence: 0.35
   ema_alpha: 0.45
   input_size: 640
   preload_on_startup: false

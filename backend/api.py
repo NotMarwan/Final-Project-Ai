@@ -266,7 +266,7 @@ JPEG_QUALITY_PRESETS = {"low": 50, "medium": 75, "high": 90}
 JPEG_QUALITY = JPEG_QUALITY_PRESETS.get(os.getenv("STREAM_QUALITY", "medium").lower(), 75)
 TARGET_FPS     = 20
 RING_BUFFER_LEN = 140   # ~7s pre-alert buffer at 20fps target
-POST_ALERT_LEN  = 100   # ~5s post-alert capture at 20fps target
+POST_ALERT_LEN  = 160   # ~8s post-alert capture at 20fps (20s at 8fps real)
 _FILE_SKIP_FRAMES = int(os.getenv("AI_SENTINEL_FILE_SKIP", "0"))
 
 
@@ -1027,9 +1027,14 @@ def camera_worker(
     raw_mode: bool = False,
 ):
     import torch
-    from pipeline_capture import CaptureThread
-    from pipeline_render import RenderThread
-    from inference_process import inference_worker
+    try:
+        from .pipeline_capture import CaptureThread
+        from .pipeline_render import RenderThread
+        from .inference_process import inference_worker
+    except ImportError:
+        from pipeline_capture import CaptureThread
+        from pipeline_render import RenderThread
+        from inference_process import inference_worker
 
     print(f"[{camera_id}] Pipeline worker starting...")
 
@@ -1089,7 +1094,10 @@ def camera_worker(
     width, height = capture.width, capture.height
     print(f"[{camera_id}] Source: {width}x{height} @ {capture.fps:.0f}fps")
 
-    from frame_pipeline import OverlayCache
+    try:
+        from .frame_pipeline import OverlayCache
+    except ImportError:
+        from frame_pipeline import OverlayCache
     overlay_cache = OverlayCache()
     overlay_cache.update(video_width=int(width), video_height=int(height))
 
@@ -1414,22 +1422,27 @@ async def alerts():
     return StreamingResponse(_sse_generator(state.subscribe()), media_type="text/event-stream")
 
 
+def _build_detection_payload(snap: dict) -> dict:
+    return {
+        "tracks": snap.get("tracks", []),
+        "personCount": snap.get("person_count", 0),
+        "isThreat": snap.get("is_threat", False),
+        "threatConfidence": snap.get("threat_confidence", 0),
+        "fps": snap.get("fps", 0),
+        "weaponScore": snap.get("weapon_score", 0),
+        "videoWidth": snap.get("video_width", 0),
+        "videoHeight": snap.get("video_height", 0),
+        "multiThreat": snap.get("multiThreat"),
+    }
+
+
 async def _detection_sse_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
     import json
     last_tracks_hash = ""
     while True:
         snap = state.get_detection_meta(camera_id)
         if snap and snap.get("tracks") is not None:
-            payload = {
-                "tracks": snap.get("tracks", []),
-                "personCount": snap.get("person_count", 0),
-                "isThreat": snap.get("is_threat", False),
-                "threatConfidence": snap.get("threat_confidence", 0),
-                "fps": snap.get("fps", 0),
-                "weaponScore": snap.get("weapon_score", 0),
-                "videoWidth": snap.get("video_width", 0),
-                "videoHeight": snap.get("video_height", 0),
-            }
+            payload = _build_detection_payload(snap)
             data_str = json.dumps(payload)
             current_hash = hash(data_str)
             if current_hash != last_tracks_hash:
@@ -1511,7 +1524,6 @@ async def get_clip(alert_id: str):
     return FileResponse(
         path=str(clip_path),
         media_type="video/mp4",
-        filename=f"clip_{alert_id}.mp4",
     )
 
 

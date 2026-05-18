@@ -17,6 +17,15 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import type { ThreatBox } from "@/lib/detection-types"
+import { getContainedVideoRect, projectOverlayBox } from "@/lib/live-visual-state"
+
+function formatSeconds(s: number): string {
+  if (!isFinite(s) || isNaN(s) || s < 0) return "0:00"
+  const m = Math.floor(s / 60)
+  const sec = Math.floor(s % 60)
+  return `${m}:${sec.toString().padStart(2, "0")}`
+}
 
 interface IncidentReplayProps {
   clipUrl?: string
@@ -29,6 +38,9 @@ interface IncidentReplayProps {
   className?: string
   autoPlay?: boolean
   maxDuration?: number
+  threatBoxes?: ThreatBox[]
+  alertVideoWidth?: number
+  alertVideoHeight?: number
 }
 
 export function IncidentReplay({
@@ -41,12 +53,19 @@ export function IncidentReplay({
   className,
   autoPlay = true,
   maxDuration,
+  threatBoxes,
+  alertVideoWidth,
+  alertVideoHeight,
 }: IncidentReplayProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [replaySize, setReplaySize] = useState({ width: 0, height: 0 })
   const [isPlaying, setIsPlaying] = useState(autoPlay)
   const [isMuted, setIsMuted] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [videoDuration, setVideoDuration] = useState(0)
   const [isLooping] = useState(true)
   const [clipStatus, setClipStatus] = useState<"idle" | "loading" | "ready" | "error">("idle")
   const [retryCount, setRetryCount] = useState(0)
@@ -64,6 +83,7 @@ export function IncidentReplay({
     const handleTimeUpdate = () => {
       const p = (video.currentTime / video.duration) * 100
       setProgress(p || 0)
+      setCurrentTime(video.currentTime)
       if (maxDuration !== undefined && video.currentTime >= maxDuration) {
         video.pause()
         setIsPlaying(false)
@@ -96,11 +116,27 @@ export function IncidentReplay({
 
   const handleVideoLoaded = () => {
     setClipStatus("ready")
+    if (videoRef.current) setVideoDuration(videoRef.current.duration || 0)
     if (autoPlay && videoRef.current) {
       videoRef.current.play().catch(e => console.warn("[IncidentReplay] Autoplay failed:", e))
       setIsPlaying(true)
     }
   }
+
+  // Track container dimensions for bbox overlay
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    if (r.width > 0) setReplaySize({ width: r.width, height: r.height })
+    const obs = new ResizeObserver(entries => {
+      for (const e of entries) {
+        setReplaySize({ width: e.contentRect.width, height: e.contentRect.height })
+      }
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   const handleVideoError = () => {
     setClipStatus("error")
@@ -137,7 +173,7 @@ export function IncidentReplay({
   }
 
   return (
-    <div className={cn(
+    <div ref={containerRef} className={cn(
       "relative flex flex-col bg-black overflow-hidden rounded-2xl border border-white/10 shadow-2xl",
       "aspect-[9/16] max-h-[700px] w-full max-w-[400px]",
       className
@@ -156,6 +192,29 @@ export function IncidentReplay({
         onError={handleVideoError}
         onClick={togglePlay}
       />
+
+      {/* Detection bbox overlay (snapshot of alert moment) */}
+      {threatBoxes && threatBoxes.length > 0 && replaySize.width > 0 && clipStatus === "ready" && (() => {
+        const vw = alertVideoWidth ?? 640
+        const vh = alertVideoHeight ?? 480
+        const rect = getContainedVideoRect(replaySize.width, replaySize.height, vw, vh)
+        return threatBoxes.map((box) => {
+          const [sx1, sy1, sx2, sy2] = projectOverlayBox(box.bbox, rect, vw, vh)
+          const [r, g, b] = box.color
+          const color = `rgb(${r},${g},${b})`
+          return (
+            <div
+              key={box.id}
+              className="absolute pointer-events-none z-20"
+              style={{ left: sx1, top: sy1, width: sx2 - sx1, height: sy2 - sy1, border: `2px solid ${color}`, boxShadow: `0 0 6px ${color}` }}
+            >
+              <span className="absolute -top-5 left-0 text-[10px] font-bold font-mono px-1 py-0.5 rounded" style={{ background: color, color: "white" }}>
+                {box.label}
+              </span>
+            </div>
+          )
+        })
+      })()}
 
       {/* Clip generating / retry overlay */}
       {(clipStatus === "loading" || (clipStatus === "error" && retryCount >= MAX_AUTO_RETRIES)) && (
@@ -253,7 +312,7 @@ export function IncidentReplay({
                 {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
               </Button>
               <div className="text-white/60 text-[10px] font-mono">
-                00:0{Math.floor((videoRef.current?.currentTime || 0) % 10)} / 00:05
+                {formatSeconds(currentTime)} / {formatSeconds(videoDuration)}
               </div>
             </div>
 

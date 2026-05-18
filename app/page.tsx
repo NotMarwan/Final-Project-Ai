@@ -10,12 +10,14 @@ import { GeoDashboard } from "@/components/geo-dashboard"
 import { ClipSidebar } from "@/components/clip-sidebar"
 import { TelegramStatusCard } from "@/components/telegram-status"
 import type { DetectionCategory } from "@/lib/detection-types"
+import { buildDemoStopPlan } from "@/lib/live-visual-state"
 import { cn } from "@/lib/utils"
 import { Play, Activity, Wifi, WifiOff, Server, Bell, Clock, Zap } from "lucide-react"
 import { CommandPalette } from "@/components/command-palette"
 import { AlertToast } from "@/components/alert-toast"
 import { OverlaySettingsPanel, loadSettings, type OverlaySettings } from "@/components/overlay-settings"
 import { AlertHistory } from "@/components/alert-history"
+import { DemoHint } from "@/components/demo-hint"
 
 type Tab = "monitor" | "demo-clips" | "incidents" | "intelligence" | "operations" | "system"
 
@@ -51,7 +53,10 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState<LiveAlert[]>([])
   const [selectedAlert, setSelectedAlert] = useState<LiveAlert | null>(null)
   const [privacyMode, setPrivacyMode] = useState(false)
-  const [sseConnected, setSseConnected] = useState(false)
+  type SseStatus = "online" | "reconnecting" | "offline"
+  const [sseStatus, setSseStatus] = useState<SseStatus>("offline")
+  const sseGraceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const sseConnected = sseStatus === "online"
   const [personCount, setPersonCount] = useState(0)
   const [overlaySettings, setOverlaySettings] = useState<OverlaySettings>(() => loadSettings())
   const [selectedCategories, setSelectedCategories] = useState<DetectionCategory[]>([])
@@ -72,7 +77,8 @@ export default function DashboardPage() {
 
     es.onopen = () => {
       console.log("✅ Connected to Python AI Engine")
-      setSseConnected(true)
+      if (sseGraceTimerRef.current) clearTimeout(sseGraceTimerRef.current)
+      setSseStatus("online")
     }
 
     es.onmessage = (event) => {
@@ -106,8 +112,10 @@ export default function DashboardPage() {
 
     es.onerror = () => {
       console.error("❌ SSE Error")
-      setSseConnected(false)
+      setSseStatus("reconnecting")
       es.close()
+      // 2s grace before showing OFFLINE — short blips stay amber, not red
+      sseGraceTimerRef.current = setTimeout(() => setSseStatus("offline"), 2000)
       // محاولة إعادة الاتصال بعد 3 ثواني
       reconnectTimerRef.current = setTimeout(connectSSE, 3000)
     }
@@ -122,9 +130,8 @@ export default function DashboardPage() {
         esRef.current.close()
         esRef.current = null
       }
-      if (reconnectTimerRef.current) {
-        clearTimeout(reconnectTimerRef.current)
-      }
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
+      if (sseGraceTimerRef.current) clearTimeout(sseGraceTimerRef.current)
     }
   }, [connectSSE])
 
@@ -147,12 +154,12 @@ export default function DashboardPage() {
     return () => window.removeEventListener("keydown", handler)
   }, [commandPaletteOpen])
 
-  // Trigger toast when new alert arrives while on non-monitor/incidents tab
+  // Trigger toast when new alert arrives unless the operator is already on incidents
   const prevAlertCountRef = useRef(0)
   useEffect(() => {
     if (alerts.length > prevAlertCountRef.current) {
       const latest = alerts[0]
-      if (latest && activeTab !== "monitor" && activeTab !== "incidents") {
+      if (latest && activeTab !== "incidents") {
         setToastAlert(latest)
       }
     }
@@ -190,11 +197,6 @@ export default function DashboardPage() {
     try {
       await fetch(`${API_BASE}/demo_stop/${id}`, { method: "DELETE" })
     } catch { /* ignore — backend may already have stopped */ }
-    activeExampleRef.current = null
-    if (cleanupTimerRef.current) {
-      clearTimeout(cleanupTimerRef.current)
-      cleanupTimerRef.current = null
-    }
   }, [])
 
   const handleDemoSelect = useCallback(async (id: DemoSourceId) => {
@@ -210,13 +212,15 @@ export default function DashboardPage() {
 
   // Stop example worker when leaving Demo Clips tab
   useEffect(() => {
-    if (activeTab !== "demo-clips" && activeExampleRef.current) {
-      void stopDemoSource(activeExampleRef.current)
-      // Hardened: re-check after 500ms in case the first stop raced with a detection
+    const stopPlan = activeTab !== "demo-clips"
+      ? buildDemoStopPlan(activeExampleRef.current)
+      : null
+
+    if (stopPlan) {
+      activeExampleRef.current = null
+      void stopDemoSource(stopPlan.immediateStopId)
       cleanupTimerRef.current = setTimeout(() => {
-        if (activeExampleRef.current) {
-          void stopDemoSource(activeExampleRef.current)
-        }
+        void stopDemoSource(stopPlan.retryStopId)
       }, 500)
     }
     return () => {
@@ -235,6 +239,7 @@ export default function DashboardPage() {
       }
       if (cleanupTimerRef.current) {
         clearTimeout(cleanupTimerRef.current)
+        cleanupTimerRef.current = null
       }
     }
   }, [stopDemoSource])
@@ -365,6 +370,7 @@ export default function DashboardPage() {
               </div>
             </aside>
             <main className="flex-1 flex flex-col overflow-hidden bg-black">
+              <DemoHint />
               {/* Live source switcher — live cameras only */}
               <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card/80 px-3 py-2">
                 <span className="font-mono text-[10px] font-bold text-red-400 mr-1 tracking-widest uppercase">LIVE CAMERAS</span>
@@ -540,16 +546,30 @@ export default function DashboardPage() {
                   <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
                   <div className="relative flex items-center justify-between mb-2">
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">SSE Link</span>
-                    {sseConnected ? (
+                    {sseStatus === "online" ? (
                       <Wifi className="h-3.5 w-3.5 text-success" />
+                    ) : sseStatus === "reconnecting" ? (
+                      <Wifi className="h-3.5 w-3.5 text-amber-400" />
                     ) : (
                       <WifiOff className="h-3.5 w-3.5 text-danger" />
                     )}
                   </div>
                   <div className="relative flex items-center gap-2">
-                    <span className={cn("h-2 w-2 rounded-full", sseConnected ? "bg-success animate-ambient-pulse" : "bg-danger")} />
-                    <span className={cn("text-xs font-bold", sseConnected ? "text-success" : "text-danger")}>
-                      {sseConnected ? "ONLINE" : "OFFLINE"}
+                    <span className={cn(
+                      "h-2 w-2 rounded-full",
+                      sseStatus === "online" ? "bg-success animate-ambient-pulse"
+                      : sseStatus === "reconnecting" ? "bg-amber-400 animate-pulse"
+                      : "bg-danger"
+                    )} />
+                    <span className={cn(
+                      "text-xs font-bold",
+                      sseStatus === "online" ? "text-success"
+                      : sseStatus === "reconnecting" ? "text-amber-400"
+                      : "text-danger"
+                    )}>
+                      {sseStatus === "online" ? "ONLINE"
+                      : sseStatus === "reconnecting" ? "RECONNECTING…"
+                      : "OFFLINE"}
                     </span>
                   </div>
                   <p className="relative text-[9px] text-muted-foreground/60 font-mono mt-1 truncate">{SSE_URL}</p>
@@ -595,10 +615,14 @@ export default function DashboardPage() {
                     <div>
                       <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
                         <span>SSE Stability</span>
-                        <span className={sseConnected ? "text-success" : "text-danger"}>{sseConnected ? "100%" : "0%"}</span>
+                        <span className={sseStatus === "online" ? "text-success" : sseStatus === "reconnecting" ? "text-amber-400" : "text-danger"}>
+                          {sseStatus === "online" ? "100%" : sseStatus === "reconnecting" ? "~%" : "0%"}
+                        </span>
                       </div>
                       <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                        <div className={cn("h-full rounded-full transition-all duration-500", sseConnected ? "bg-success" : "bg-danger")} style={{ width: sseConnected ? "100%" : "0%" }} />
+                        <div className={cn("h-full rounded-full transition-all duration-500",
+                          sseStatus === "online" ? "bg-success" : sseStatus === "reconnecting" ? "bg-amber-400" : "bg-danger"
+                        )} style={{ width: sseStatus === "online" ? "100%" : sseStatus === "reconnecting" ? "60%" : "0%" }} />
                       </div>
                     </div>
                   </div>

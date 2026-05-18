@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { ShieldAlert, X, ArrowRight } from "lucide-react"
+import { isToastSuppressedForTab } from "@/lib/live-visual-state"
 import { cn } from "@/lib/utils"
 import type { LiveAlert } from "@/components/video-player"
 
@@ -16,18 +17,6 @@ export function AlertToast({ alert, activeTab, onNavigate, onDismiss }: AlertToa
   const [visible, setVisible] = useState(false)
   const [dismissing, setDismissing] = useState(false)
 
-  useEffect(() => {
-    if (!alert) return
-    // Only show toast if user is not on monitor/incidents tabs
-    if (activeTab === "monitor" || activeTab === "incidents") return
-    setDismissing(false)
-    setVisible(true)
-    const id = setTimeout(() => {
-      handleDismiss()
-    }, 6000)
-    return () => clearTimeout(id)
-  }, [alert?.id, activeTab])
-
   const handleDismiss = useCallback(() => {
     setDismissing(true)
     setTimeout(() => {
@@ -35,6 +24,26 @@ export function AlertToast({ alert, activeTab, onNavigate, onDismiss }: AlertToa
       onDismiss()
     }, 300)
   }, [onDismiss])
+
+  useEffect(() => {
+    if (isToastSuppressedForTab(activeTab)) {
+      if (alert || visible || dismissing) {
+        setVisible(false)
+        setDismissing(false)
+        if (alert) {
+          onDismiss()
+        }
+      }
+      return
+    }
+    if (!alert) return
+    setDismissing(false)
+    setVisible(true)
+    const id = setTimeout(() => {
+      handleDismiss()
+    }, 6000)
+    return () => clearTimeout(id)
+  }, [activeTab, alert, dismissing, handleDismiss, onDismiss, visible])
 
   const handleNavigate = useCallback(() => {
     setDismissing(true)
@@ -71,7 +80,7 @@ export function AlertToast({ alert, activeTab, onNavigate, onDismiss }: AlertToa
               <span className={cn("absolute inset-0 rounded-full blur-md animate-ambient-pulse", isCritical ? "bg-danger/40" : "bg-warning/40")} />
               <ShieldAlert className={cn("h-4 w-4 relative z-10", isCritical ? "text-danger" : "text-warning")} />
             </div>
-            <span className={cn("text-xs font-bold uppercase tracking-wider", isCritical ? "text-danger" : "text-warning")}>
+            <span className={cn("text-sm font-bold uppercase tracking-wider", isCritical ? "text-danger" : "text-warning")}>
               {alert.severity} Alert
             </span>
           </div>
@@ -85,10 +94,10 @@ export function AlertToast({ alert, activeTab, onNavigate, onDismiss }: AlertToa
 
         {/* Body */}
         <div className="flex items-center gap-2 mb-1">
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-base font-semibold text-foreground">
             {alert.type} detected on {alert.cameraId}
           </p>
-          <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold border ${
+          <span className={`rounded px-2 py-0.5 text-xs font-bold border ${
             alert.cameraId.startsWith("EXAMPLE-")
               ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
               : "bg-red-500/20 text-red-400 border-red-500/30"
@@ -96,8 +105,8 @@ export function AlertToast({ alert, activeTab, onNavigate, onDismiss }: AlertToa
             {alert.cameraId.startsWith("EXAMPLE-") ? "DEMO" : "LIVE"}
           </span>
         </div>
-        <p className="text-[10px] text-muted-foreground mb-3">
-          Confidence: {(alert.confidence * 100).toFixed(0)}% • {alert.location}
+        <p className="text-xs text-muted-foreground mb-3">
+          Confidence: {Math.round(alert.confidence)}% • {alert.location}
         </p>
 
         {/* Actions */}
