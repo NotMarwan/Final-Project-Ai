@@ -650,9 +650,19 @@ def _write_evidence_clip(alert_id: str, pre_frames: list, post_queue: queue.Queu
     out_path = EVIDENCE_DIR / f"{alert_id}.mp4"
     state.mark_evidence(alert_id, "writing")
     try:
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        writer = cv2.VideoWriter(str(out_path), fourcc, fps, (width, height))
-        
+        # Try H.264 (browser-compatible) first, fall back to MPEG-4 Part 2
+        writer = None
+        for _codec in ("avc1", "mp4v"):
+            _fourcc = cv2.VideoWriter_fourcc(*_codec)
+            _w = cv2.VideoWriter(str(out_path), _fourcc, fps, (width, height))
+            if _w.isOpened():
+                writer = _w
+                print(f"[Evidence] Using codec '{_codec}' for {alert_id}")
+                break
+            _w.release()
+        if writer is None:
+            raise RuntimeError("No working video codec found (tried avc1, mp4v)")
+
         for frame in pre_frames:
             writer.write(frame)
             
@@ -1094,6 +1104,12 @@ def camera_worker(
     width, height = capture.width, capture.height
     print(f"[{camera_id}] Source: {width}x{height} @ {capture.fps:.0f}fps")
 
+    # Throttle file source reads to native FPS (live cameras self-rate via hardware)
+    _is_file_source = not (isinstance(source, int) or
+                           (isinstance(source, str) and
+                            source.lower().startswith(("rtsp://", "rtmp://"))))
+    _frame_delay = (1.0 / max(1.0, capture.fps)) if _is_file_source else 0.0
+
     try:
         from .frame_pipeline import OverlayCache
     except ImportError:
@@ -1118,12 +1134,14 @@ def camera_worker(
     active_post_queues: list = []
 
     def _on_evidence_trigger(alert_id: str, width: int, height: int, fps: float):
+        # Use source native FPS for accurate clip timing; fall back to render-measured
+        effective_fps = capture.fps if capture.fps > 0 else fps
         pre_frames = list(ring_buffer)
         post_q: queue.Queue = queue.Queue(maxsize=POST_ALERT_LEN + 20)
         active_post_queues.append(post_q)
         def _writer():
             try:
-                _write_evidence_clip(alert_id, pre_frames, post_q, fps, int(width), int(height))
+                _write_evidence_clip(alert_id, pre_frames, post_q, effective_fps, int(width), int(height))
             finally:
                 try:
                     active_post_queues.remove(post_q)
@@ -1191,6 +1209,9 @@ def camera_worker(
         # Push frame to render queue (for display)
         render_queue.append(raw.copy())
 
+        # Populate pre-alert ring buffer for evidence clips
+        ring_buffer.append(raw)
+
         # Feed any active evidence clip writers
         if active_post_queues:
             frame_copy = raw.copy()
@@ -1223,6 +1244,10 @@ def camera_worker(
                 video_width=snap.get("video_width", 0),
                 video_height=snap.get("video_height", 0),
             )
+
+        # Throttle file sources to native FPS so video plays at real speed
+        if _frame_delay > 0:
+            time.sleep(_frame_delay)
 
     # ── Cleanup ──
     mp_stop_event.set()
