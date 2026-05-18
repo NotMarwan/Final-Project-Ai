@@ -264,7 +264,7 @@ def _finalize_config():
 
 JPEG_QUALITY_PRESETS = {"low": 50, "medium": 75, "high": 90}
 JPEG_QUALITY = JPEG_QUALITY_PRESETS.get(os.getenv("STREAM_QUALITY", "medium").lower(), 75)
-TARGET_FPS     = 20
+TARGET_FPS     = 25
 RING_BUFFER_LEN = 140   # ~7s pre-alert buffer at 20fps target
 POST_ALERT_LEN  = 160   # ~8s post-alert capture at 20fps (20s at 8fps real)
 _FILE_SKIP_FRAMES = int(os.getenv("AI_SENTINEL_FILE_SKIP", "0"))
@@ -1038,7 +1038,7 @@ def camera_worker(
 
     print(f"[{camera_id}] Pipeline worker starting...")
 
-    render_queue = deque(maxlen=8)
+    render_queue = deque(maxlen=12)
     ring_buffer = deque(maxlen=RING_BUFFER_LEN)
     effective_stop = stop_event or threading.Event()
 
@@ -1348,11 +1348,15 @@ app.add_middleware(
 
 async def _mjpeg_generator(camera_id: str) -> AsyncGenerator[bytes, None]:
     boundary = b"--frame\r\n"
+    last_id: int = 0
     while True:
         jpg = state.get_frame(camera_id)
-        if jpg:
+        if jpg and id(jpg) != last_id:
+            last_id = id(jpg)
             yield boundary + b"Content-Type: image/jpeg\r\n\r\n" + jpg + b"\r\n"
-        await asyncio.sleep(1 / TARGET_FPS)
+            await asyncio.sleep(0)      # yield event loop control immediately after send
+        else:
+            await asyncio.sleep(0.005)  # 5ms poll — below Windows timer coarseness cap
 
 async def _sse_generator(q: queue.Queue) -> AsyncGenerator[bytes, None]:
     try:

@@ -146,11 +146,18 @@ class RenderThread:
         else:
             annotated = frame
 
-        # JPEG encode
+        # Pre-encode downscale for large frames (display only — inference received full-res)
+        _stream_frame = annotated
+        _fh, _fw = annotated.shape[:2]
+        if _fw > 854:
+            _scale = 854.0 / _fw
+            _stream_frame = cv2.resize(annotated, (854, int(_fh * _scale)), interpolation=cv2.INTER_LINEAR)
+
+        # JPEG encode at quality 65 (faster + smaller; Telegram snapshots stay at 85)
         t_enc = time.perf_counter()
         ok, jpg_buf = cv2.imencode(
-            ".jpg", annotated,
-            [cv2.IMWRITE_JPEG_QUALITY, self.jpeg_quality],
+            ".jpg", _stream_frame,
+            [cv2.IMWRITE_JPEG_QUALITY, 65],
         )
         self.encode_latency_ms = (time.perf_counter() - t_enc) * 1000
 
