@@ -193,7 +193,18 @@ class RenderThread:
             if decision["confirmed_alert"] and now - self._last_alert_time > self._decision_layer.cooldown_seconds:
                 self._last_alert_time = now
                 try:
-                    _, snapshot_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    _snap_frame = annotated.copy()
+                    _weapon_bbox = snap.get("weapon_bbox")
+                    if _weapon_bbox:
+                        try:
+                            _x1, _y1, _x2, _y2 = [int(c) for c in _weapon_bbox]
+                            cv2.rectangle(_snap_frame, (_x1, _y1), (_x2, _y2), (0, 0, 255), 2)
+                            _wlabel = (snap.get("weapon_labels") or ["WEAPON"])[0].upper()
+                            cv2.putText(_snap_frame, _wlabel, (_x1, max(10, _y1 - 6)),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2)
+                        except Exception:
+                            pass
+                    _, snapshot_buf = cv2.imencode(".jpg", _snap_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
                     snapshot_jpeg = snapshot_buf.tobytes() if snapshot_buf is not None else None
                 except Exception:
                     snapshot_jpeg = None
@@ -257,7 +268,18 @@ class RenderThread:
         elif self._decision_layer is None and current_threat and not self._last_threat_state:
             # Fallback: no decision layer, use simple edge detection
             try:
-                _, snapshot_buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                _snap_frame = annotated.copy()
+                _weapon_bbox = snap.get("weapon_bbox")
+                if _weapon_bbox:
+                    try:
+                        _x1, _y1, _x2, _y2 = [int(c) for c in _weapon_bbox]
+                        cv2.rectangle(_snap_frame, (_x1, _y1), (_x2, _y2), (0, 0, 255), 2)
+                        _wlabel = (snap.get("weapon_labels") or ["WEAPON"])[0].upper()
+                        cv2.putText(_snap_frame, _wlabel, (_x1, max(10, _y1 - 6)),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2)
+                    except Exception:
+                        pass
+                _, snapshot_buf = cv2.imencode(".jpg", _snap_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
                 snapshot_jpeg = snapshot_buf.tobytes() if snapshot_buf is not None else None
             except Exception:
                 snapshot_jpeg = None

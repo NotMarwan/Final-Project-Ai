@@ -428,7 +428,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
         {!isDemo && !streamError && !isLiveDemoMode && (
           <>
             <div className="absolute inset-0">
-              <img key={streamKey} src={streamSrc} className={`h-full w-full object-contain ${webrtcReady ? "invisible" : "visible"}`} onError={() => {
+              <img key={streamKey} src={streamSrc} className={`h-full w-full object-cover ${webrtcReady ? "invisible" : "visible"}`} onError={() => {
                 setStreamError(true)
                 if (!isDemo) {
                   fetch(`${API_BASE}/demo_start/EXAMPLE-01`, { method: "POST" }).catch(() => {})
@@ -457,6 +457,7 @@ export const VideoPlayer = memo(function VideoPlayer({ cameraId: propCameraId, a
                 opacity={overlaySettings?.opacity ?? 85}
                 boxThickness={overlaySettings?.boxThickness ?? 2}
                 labelStyle={overlaySettings?.labelStyle ?? "chip"}
+                fitMode="cover"
               />
             )}
           </>

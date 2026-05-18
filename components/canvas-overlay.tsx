@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useCallback } from "react"
 import type { MultiThreatData, ThreatBox } from "@/lib/detection-types"
+import { getContainedVideoRect, getCoveredVideoRect, projectOverlayBox } from "@/lib/live-visual-state"
 
 export interface TrackOverlay {
   id: string
@@ -33,6 +34,7 @@ interface CanvasOverlayProps {
   opacity?: number
   boxThickness?: number
   labelStyle?: "chip" | "plain"
+  fitMode?: "contain" | "cover"
 }
 
 const THREAT_VISUAL = {
@@ -123,12 +125,13 @@ export function CanvasOverlay({
   opacity = 100,
   boxThickness = 2,
   labelStyle = "chip",
+  fitMode = "contain",
 }: CanvasOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animFrameRef = useRef<number>(0)
-
-  const scaleX = containerWidth / videoWidth
-  const scaleY = containerHeight / videoHeight
+  const videoRect = fitMode === "cover"
+    ? getCoveredVideoRect(containerWidth, containerHeight, videoWidth, videoHeight)
+    : getContainedVideoRect(containerWidth, containerHeight, videoWidth, videoHeight)
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -136,7 +139,20 @@ export function CanvasOverlay({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const dpr = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1
+    const cssWidth = Math.max(1, Math.round(containerWidth))
+    const cssHeight = Math.max(1, Math.round(containerHeight))
+
+    if (canvas.width !== Math.round(cssWidth * dpr) || canvas.height !== Math.round(cssHeight * dpr)) {
+      canvas.width = Math.round(cssWidth * dpr)
+      canvas.height = Math.round(cssHeight * dpr)
+      canvas.style.width = `${cssWidth}px`
+      canvas.style.height = `${cssHeight}px`
+    }
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.clearRect(0, 0, cssWidth, cssHeight)
+
     if (!data || !showBoxes) return
 
     ctx.lineWidth = boxThickness
@@ -147,11 +163,7 @@ export function CanvasOverlay({
     ctx.globalAlpha = opacity / 100
 
     data.tracks.forEach((track) => {
-      const [x1, y1, x2, y2] = track.bbox
-      const sx1 = x1 * scaleX
-      const sy1 = y1 * scaleY
-      const sx2 = x2 * scaleX
-      const sy2 = y2 * scaleY
+      const [sx1, sy1, sx2, sy2] = projectOverlayBox(track.bbox, videoRect, videoWidth, videoHeight)
       const w = sx2 - sx1
       const h = sy2 - sy1
       const [r, g, b] = track.color
@@ -206,7 +218,7 @@ export function CanvasOverlay({
       const pulse = 0.3 + 0.2 * Math.sin(Date.now() / 250)
       ctx.strokeStyle = `rgba(255, 0, 0, ${pulse})`
       ctx.lineWidth = 4
-      ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4)
+      ctx.strokeRect(videoRect.x + 2, videoRect.y + 2, Math.max(0, videoRect.width - 4), Math.max(0, videoRect.height - 4))
     }
 
     // Draw threat boxes (multi-threat)
@@ -215,11 +227,7 @@ export function CanvasOverlay({
 
       data.multiThreat.threatBoxes.forEach((box) => {
         const vis = getThreatVisualConfig(box)
-        const [x1, y1, x2, y2] = box.bbox
-        const sx1 = x1 * scaleX
-        const sy1 = y1 * scaleY
-        const sx2 = x2 * scaleX
-        const sy2 = y2 * scaleY
+        const [sx1, sy1, sx2, sy2] = projectOverlayBox(box.bbox, videoRect, videoWidth, videoHeight)
         const w = sx2 - sx1
         const h = sy2 - sy1
         const [r, g, b] = vis.color
@@ -269,8 +277,9 @@ export function CanvasOverlay({
         ctx.setLineDash([4, 4])
 
         data.multiThreat.threatBoxes.forEach((box, i) => {
-          const cx = ((box.bbox[0] + box.bbox[2]) / 2) * scaleX
-          const cy = ((box.bbox[1] + box.bbox[3]) / 2) * scaleY
+          const [sx1, sy1, sx2, sy2] = projectOverlayBox(box.bbox, videoRect, videoWidth, videoHeight)
+          const cx = (sx1 + sx2) / 2
+          const cy = (sy1 + sy2) / 2
           if (i === 0) ctx.moveTo(cx, cy)
           else ctx.lineTo(cx, cy)
         })
@@ -283,11 +292,11 @@ export function CanvasOverlay({
       const mtPulse = 0.3 + 0.2 * Math.sin(time / 250)
       ctx.strokeStyle = "rgba(239, 68, 68, " + mtPulse + ")"
       ctx.lineWidth = 4
-      ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4)
+      ctx.strokeRect(videoRect.x + 2, videoRect.y + 2, Math.max(0, videoRect.width - 4), Math.max(0, videoRect.height - 4))
     }
 
     ctx.globalAlpha = 1
-  }, [data, scaleX, scaleY, showBoxes, showLabels, boxThickness, labelStyle, opacity])
+  }, [boxThickness, containerHeight, containerWidth, data, labelStyle, opacity, showBoxes, showLabels, videoHeight, videoRect, videoWidth])
 
   useEffect(() => {
     const animate = () => {
@@ -301,8 +310,6 @@ export function CanvasOverlay({
   return (
     <canvas
       ref={canvasRef}
-      width={containerWidth}
-      height={containerHeight}
       className="absolute inset-0 z-10 pointer-events-none"
       style={{ imageRendering: "crisp-edges" }}
     />

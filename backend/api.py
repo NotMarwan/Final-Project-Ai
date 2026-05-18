@@ -1115,6 +1115,22 @@ def camera_worker(
         if telegram_notifier is not None:
             telegram_notifier.enqueue_alert(alert_payload, snapshot_jpeg, clip_path)
 
+    active_post_queues: list = []
+
+    def _on_evidence_trigger(alert_id: str, width: int, height: int, fps: float):
+        pre_frames = list(ring_buffer)
+        post_q: queue.Queue = queue.Queue(maxsize=POST_ALERT_LEN + 20)
+        active_post_queues.append(post_q)
+        def _writer():
+            try:
+                _write_evidence_clip(alert_id, pre_frames, post_q, fps, int(width), int(height))
+            finally:
+                try:
+                    active_post_queues.remove(post_q)
+                except ValueError:
+                    pass
+        threading.Thread(target=_writer, daemon=True, name=f"clip-{alert_id}").start()
+
     render_thread = RenderThread(
         frame_queue=render_queue,
         result_cache=overlay_cache,
@@ -1125,6 +1141,7 @@ def camera_worker(
         annotate_fn=annotate_frame,
         set_detection_meta_fn=state.set_detection_meta,
         on_threat_fn=_on_threat_callback,
+        on_evidence_trigger_fn=_on_evidence_trigger,
         decision_layer=state._decision_layer,
         fusion_engine=fusion_engine,
         target_fps=TARGET_FPS,
@@ -1173,6 +1190,15 @@ def camera_worker(
 
         # Push frame to render queue (for display)
         render_queue.append(raw.copy())
+
+        # Feed any active evidence clip writers
+        if active_post_queues:
+            frame_copy = raw.copy()
+            for pq in list(active_post_queues):
+                try:
+                    pq.put_nowait(frame_copy)
+                except queue.Full:
+                    pass
 
         # Push frame to inference subprocess queue (non-blocking, drop if full)
         try:
