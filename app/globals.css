@@ -427,7 +427,18 @@ input[type='range']:focus-visible::-moz-range-thumb {
   .animate-pulse-danger,
   .animate-ping,
   .animate-pulse,
-  .animate-spin {
-    animation: none;
+  .animate-spin,
+  .animate-threat-flash,
+  .animate-glitch,
+  .animate-shield-pulse,
+  .animate-scan-video,
+  .animate-corner-expand,
+  .animate-slide-from-right,
+  .animate-timeline-pulse,
+  .animate-clock-tick,
+  .animate-alert-enter,
+  .animate-shimmer,
+  .animate-ambient-pulse {
+    animation: none !important;
   }
 }

@@ -129,7 +129,7 @@ function AlertItem({
         <div className="flex items-center gap-1 justify-end">
           <span className="text-[9px] text-muted-foreground/50 uppercase">Conf</span>
           <span className={cn("font-mono font-bold", alert.severity === "critical" ? "text-danger" : "text-warning")}>
-            {(alert.confidence * 100).toFixed(0)}%
+            {Math.round(alert.confidence)}%
           </span>
         </div>
       </div>

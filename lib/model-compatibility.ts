@@ -26,10 +26,12 @@ const WEAPON_TYPE_KEYWORDS: Record<string, string[]> = {
 }
 
 function classifyWeapon(labels: string[]): "gun" | "knife" | "explosive" | "unknown" {
-  const lower = labels.map(l => l.toLowerCase())
-  for (const [type, keywords] of Object.entries(WEAPON_TYPE_KEYWORDS)) {
-    if (lower.some(l => keywords.some(k => l.includes(k)))) {
-      return type as "gun" | "knife" | "explosive"
+  for (const label of labels) {
+    const lower = label.toLowerCase()
+    for (const [type, keywords] of Object.entries(WEAPON_TYPE_KEYWORDS)) {
+      if (keywords.some(k => lower.includes(k))) {
+        return type as "gun" | "knife" | "explosive"
+      }
     }
   }
   return "unknown"

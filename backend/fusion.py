@@ -4,6 +4,11 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 SEVERITY_ORDER = {"medium": 0, "high": 1, "critical": 2}
+WEAPON_TYPE_KEYWORDS = {
+    "knife": ("knife", "blade", "sword", "dagger"),
+    "gun": ("gun", "pistol", "rifle", "revolver", "shotgun"),
+    "explosive": ("bomb", "grenade", "explosive", "dynamite"),
+}
 
 
 def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
@@ -20,6 +25,20 @@ def _coerce_float(value: Any, default: float = 0.0) -> float:
 def _normalize_severity(value: Any, default: str = "high") -> str:
     text = str(value or default).strip().lower()
     return text if text in SEVERITY_ORDER else default
+
+
+def _classify_weapon_type(labels: list | None) -> str:
+    if not labels:
+        return "unknown"
+
+    for raw_label in labels:
+        normalized = str(raw_label or "").strip().lower()
+        if not normalized:
+            continue
+        for weapon_type, keywords in WEAPON_TYPE_KEYWORDS.items():
+            if any(keyword in normalized for keyword in keywords):
+                return weapon_type
+    return "unknown"
 
 
 @dataclass(frozen=True)
@@ -139,6 +158,7 @@ class ThreatFusionEngine:
         violence = _clamp(violence_confidence)
         weapon = _clamp(weapon_score)
         weapon_threshold = self.config.weapon_threshold
+        visual_weapon_threshold = min(weapon_threshold, 0.45)
 
         threat_boxes = []
 
@@ -152,14 +172,8 @@ class ThreatFusionEngine:
                 "label": "VIOLENCE",
             })
 
-        if weapon >= weapon_threshold and weapon_bbox:
-            w_type = "unknown"
-            if weapon_labels:
-                labels_lower = [l.lower() for l in weapon_labels]
-                if any(k in l for l in labels_lower for k in ["gun", "pistol", "rifle", "revolver", "shotgun"]):
-                    w_type = "gun"
-                elif any(k in l for l in labels_lower for k in ["knife", "blade", "sword"]):
-                    w_type = "knife"
+        if weapon >= visual_weapon_threshold and weapon_bbox:
+            w_type = _classify_weapon_type(weapon_labels)
 
             color_map = {
                 "gun": [220, 38, 38],
@@ -178,7 +192,7 @@ class ThreatFusionEngine:
             })
 
         has_violence = violence >= 0.5
-        has_weapon = weapon >= weapon_threshold
+        has_weapon = weapon >= visual_weapon_threshold
         is_multi_threat = has_violence and has_weapon
 
         return {

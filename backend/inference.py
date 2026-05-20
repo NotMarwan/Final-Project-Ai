@@ -125,26 +125,24 @@ VIOLENCE_LOGIT_BIAS = float(os.getenv("VIOLENCE_LOGIT_BIAS", str(CALIBRATION_PRO
 CONF_EMA_ALPHA = float(os.getenv("VIOLENCE_CONFIDENCE_EMA_ALPHA", str(CALIBRATION_PROFILE.get("emaAlpha", 0.45))))
 HYSTERESIS_MARGIN = float(os.getenv("VIOLENCE_HYSTERESIS_MARGIN", str(CALIBRATION_PROFILE.get("hysteresisMargin", 0.08))))
 
-# Cache for resized frames to avoid redundant resizing
-_frame_cache = {}
-_frame_cache_lock = threading.Lock()
+# Cache for resized frames — keyed by (frame_id, size) for O(1) lookup
+_FRAME_CACHE_LIMIT = 50
+_frame_cache_keys: deque = deque()
+_frame_cache: dict = {}
+
 
 def cached_resize(frame: np.ndarray, size: int) -> np.ndarray:
-    """Resize frame with caching based on frame hash."""
-    frame_hash = hash(frame.tobytes())
-    cache_key = (frame_hash, size)
-    
-    with _frame_cache_lock:
-        if cache_key in _frame_cache:
-            return _frame_cache[cache_key]
-    
+    """Resize frame with lightweight caching using frame object identity."""
+    cache_key = (id(frame), size)
+    cached = _frame_cache.get(cache_key)
+    if cached is not None:
+        return cached
     resized = cv2.resize(frame, (size, size), interpolation=cv2.INTER_LINEAR)
-    
-    with _frame_cache_lock:
-        if len(_frame_cache) > 300:  # Limit cache size
-            _frame_cache.clear()
-        _frame_cache[cache_key] = resized
-    
+    _frame_cache[cache_key] = resized
+    _frame_cache_keys.append(cache_key)
+    if len(_frame_cache_keys) > _FRAME_CACHE_LIMIT:
+        old_key = _frame_cache_keys.popleft()
+        _frame_cache.pop(old_key, None)
     return resized
 
 def ensure_bgr(frame: np.ndarray) -> np.ndarray:

@@ -220,7 +220,7 @@ class RenderThread:
                 import uuid
                 alert_id = f"alert-{int(now * 1000)}-{uuid.uuid4().hex[:6]}"
                 severity = "critical" if snap.get("threat_confidence", 0) >= 85 else "high" if snap.get("threat_confidence", 0) >= 65 else "medium"
-                is_weapon_threat = snap.get("weapon_score", 0) >= 0.30 and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0)
+                is_weapon_threat = (snap.get("weapon_score", 0) >= 0.50 and snap.get("weapon_bbox") is not None and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0))
                 alert_type = "weapon" if is_weapon_threat else "violence"
                 alert_label = "Weapon" if is_weapon_threat else "Violence"
                 alert_payload = {
@@ -295,7 +295,7 @@ class RenderThread:
             import uuid
             alert_id = f"alert-{int(now * 1000)}-{uuid.uuid4().hex[:6]}"
             severity = "critical" if snap.get("threat_confidence", 0) >= 85 else "high" if snap.get("threat_confidence", 0) >= 65 else "medium"
-            is_weapon_threat = snap.get("weapon_score", 0) >= 0.30 and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0)
+            is_weapon_threat = (snap.get("weapon_score", 0) >= 0.55 and snap.get("weapon_bbox") is not None and snap.get("weapon_score", 0) >= snap.get("violence_conf", 0))
             alert_type = "weapon" if is_weapon_threat else "violence"
             alert_label = "Weapon" if is_weapon_threat else "Violence"
             alert_payload = {

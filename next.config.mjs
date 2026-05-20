@@ -12,7 +12,7 @@ const nextConfig = {
     unoptimized: true,
   },
   async rewrites() {
-    const backend = 'http://localhost:8000'
+    const backend = 'http://localhost:8002'
     return [
       { source: '/video_feed', destination: backend + '/video_feed' },
       { source: '/alerts', destination: backend + '/alerts' },

@@ -13,17 +13,21 @@ WORKDIR /app
 
 COPY backend/requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cu121
+RUN pip3 install --no-cache-dir onnxruntime-gpu
 
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
 COPY public/ ./public/
+COPY package.json package-lock.json ./
+RUN npm install --production
 
-RUN mkdir -p reports evidence thumbnails
+RUN mkdir -p reports evidence thumbnails backend/models
 
 ENV PYTHONUNBUFFERED=1
 ENV AI_SENTINEL_ENABLE_CAPTURE_LOOP=true
-ENV STREAM_QUALITY=high
+ENV AI_SENTINEL_DEVICE=cuda
 
-EXPOSE 8000
+EXPOSE 3000 8002
 
-CMD ["python3", "backend/api.py"]
+CMD ["bash", "-c", "cd backend && python api.py & cd .. && npm run start"]

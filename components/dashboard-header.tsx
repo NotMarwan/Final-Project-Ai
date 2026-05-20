@@ -63,10 +63,10 @@ export function DashboardHeader({
         <div>
           <h1 className="text-lg md:text-xl font-black tracking-wider text-foreground relative">
             <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-transparent">
-              SENTINELEYE
+              HawkEye
             </span>
           </h1>
-          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-medium">
+          <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-muted-foreground font-medium">
             Intelligent Surveillance Platform
           </p>
         </div>

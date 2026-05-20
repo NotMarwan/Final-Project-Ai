@@ -1,0 +1,46 @@
+name: Face Policy Tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "backend/**"
+      - "components/incident-panel.tsx"
+      - "components/dashboard-header.tsx"
+      - "app/page.tsx"
+      - "package.json"
+      - ".github/workflows/face-policy-tests.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "components/incident-panel.tsx"
+      - "components/dashboard-header.tsx"
+      - "app/page.tsx"
+      - "package.json"
+      - ".github/workflows/face-policy-tests.yml"
+
+jobs:
+  face-policy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn opencv-python numpy pyyaml python-dotenv reportlab arabic-reshaper python-bidi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Face Policy Tests
+        run: npm run test:face-policy

@@ -72,13 +72,13 @@ class LiveAlertDecisionLayer:
         """
         # Load from environment variables with defaults
         self.watch_threshold = watch_threshold if watch_threshold is not None \
-            else float(os.getenv("AI_SENTINEL_WATCH_THRESHOLD", "0.35"))
+            else float(os.getenv("AI_SENTINEL_WATCH_THRESHOLD", "0.45"))
         
         self.confirm_threshold = confirm_threshold if confirm_threshold is not None \
-            else float(os.getenv("AI_SENTINEL_CONFIRM_THRESHOLD", "0.50"))
+            else float(os.getenv("AI_SENTINEL_CONFIRM_THRESHOLD", "0.65"))
         
         self.confirm_n = confirm_n if confirm_n is not None \
-            else int(os.getenv("AI_SENTINEL_CONFIRM_N", "1"))
+            else int(os.getenv("AI_SENTINEL_CONFIRM_N", "2"))
         
         self.confirm_m = confirm_m if confirm_m is not None \
             else int(os.getenv("AI_SENTINEL_CONFIRM_M", "3"))

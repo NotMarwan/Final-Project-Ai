@@ -243,9 +243,9 @@ if DEFAULT_CAMERA_ID not in CAMERA_SOURCES and CAMERA_SOURCES:
 def _load_example_sources() -> Dict[str, str]:
     _project_root = BASE_DIR.parent
     return {
-        "EXAMPLE-01": str(_project_root / "test" / "Wq0BuA8GM84_0.avi"),
-        "EXAMPLE-02": str(_project_root / "test" / "YDOJvzChqSg_0 (1).avi"),
-        "EXAMPLE-03": str(_project_root / "unrelated" / "archived-projects" / "violence" / "FXC43fACfPc_0.avi"),
+        "EXAMPLE-01": str(_project_root / "demo_assets" / "videos" / "Wq0BuA8GM84_0.avi"),
+        "EXAMPLE-02": str(_project_root / "demo_assets" / "videos" / "YDOJvzChqSg_0 (1).avi"),
+        "EXAMPLE-03": str(_project_root / "demo_assets" / "videos" / "FXC43fACfPc_0.avi"),
     }
 
 EXAMPLE_SOURCES: Dict[str, str] = _load_example_sources()
@@ -257,10 +257,16 @@ STRIDE = 0
 
 def _finalize_config():
     global THRESHOLD, STRIDE
-    if THRESHOLD != 0.0:
-        return
-    THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
-    STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
+    if THRESHOLD == 0.0:
+        THRESHOLD = float(os.getenv("THRESHOLD", str(CALIBRATION_PROFILE.get("threshold", config['model']['confidence_threshold']))))
+        STRIDE = int(os.getenv("STRIDE", str(config['model']['stride'])))
+
+    # AppState is created at import time, before THRESHOLD is finalized. Sync the
+    # runtime value here so /health, demo clips, and any later worker launches all
+    # see the same threshold as the live startup workers.
+    app_state = globals().get("state")
+    if app_state is not None:
+        app_state.set_threshold(THRESHOLD)
 
 JPEG_QUALITY_PRESETS = {"low": 50, "medium": 75, "high": 90}
 JPEG_QUALITY = JPEG_QUALITY_PRESETS.get(os.getenv("STREAM_QUALITY", "medium").lower(), 75)
@@ -1078,6 +1084,7 @@ def camera_worker(
         "weapon_config": weapon_config_dict,
         "person_conf_threshold": float(os.getenv("PERSON_OVERLAY_CONF", "0.45")),
         "weapon_min_confidence": float(os.getenv("WEAPON_MIN_CONFIDENCE", "0.20")),
+        "person_overlay_enabled": os.getenv("PERSON_OVERLAY_ENABLED", "true").strip().lower() in {"1", "true", "yes", "on"},
     }
 
     # ── Spawn inference subprocess ──

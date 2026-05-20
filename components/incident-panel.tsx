@@ -55,6 +55,7 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   // شريط الكولداون (Alert Timeout)
   const [cooldown,      setCooldown]      = useState<number>(60)
   const [cooldownBusy,  setCooldownBusy]  = useState(false)
+  const [dispatchConfirmOpen, setDispatchConfirmOpen] = useState(false)
 
   const toastCounter        = useRef(0)
   const debounceTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -81,8 +82,13 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   // ── Action handlers ────────────────────────────────────────────────────────
 
   const handleDispatch = useCallback(() => {
+    setDispatchConfirmOpen(true)
+  }, [])
+
+  const confirmDispatch = useCallback(() => {
     if (!alert) return
-    addToast(`🚨 Security team dispatched to ${alert.cameraId}!`, "success")
+    setDispatchConfirmOpen(false)
+    addToast(`Security team dispatched to ${alert.cameraId}!`, "success")
   }, [alert, addToast])
 
   const handleFalseAlarm = useCallback(() => {
@@ -446,6 +452,41 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
       </div>
 
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
+
+      {dispatchConfirmOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setDispatchConfirmOpen(false)} role="dialog" aria-modal="true" aria-labelledby="dispatch-confirm-title">
+          <div className="mx-4 w-full max-w-sm rounded-xl border border-danger/40 bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-danger/20">
+                <ShieldAlert className="h-5 w-5 text-danger" />
+              </div>
+              <div>
+                <h3 id="dispatch-confirm-title" className="text-sm font-bold text-foreground">Confirm Emergency Dispatch</h3>
+                <p className="text-xs text-muted-foreground">This will notify the security team</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-6">
+              Dispatch security team to <span className="font-mono font-bold text-foreground">{alert?.cameraId}</span> at <span className="font-mono font-bold text-foreground">{alert?.location}</span>?
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 h-10"
+                onClick={() => setDispatchConfirmOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 h-10 bg-danger text-danger-foreground hover:bg-danger/90 font-bold"
+                onClick={confirmDispatch}
+              >
+                <ShieldAlert className="h-4 w-4" />
+                Confirm Dispatch
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

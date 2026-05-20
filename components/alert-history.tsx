@@ -5,7 +5,7 @@ import {
   Search, Clock, AlertTriangle,
   ChevronDown, ChevronUp, MapPin,
   X, CalendarDays, BarChart3,
-  CheckCircle2, AlertCircle, XCircle
+  CheckCircle2, AlertCircle, XCircle, Crosshair
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -108,7 +108,7 @@ function AlertRow({
             <span className="font-mono text-[10px] text-muted-foreground">{formatRelativeTime(alert.timestamp)}</span>
             {alert.weaponScore !== undefined && alert.weaponScore > 0.3 && (
               <Badge variant="destructive" className="h-4 text-[9px] px-1.5 gap-0.5">
-                <span>🔫</span> Weapon
+                <Crosshair className="h-2.5 w-2.5" /> Weapon
               </Badge>
             )}
           </div>
@@ -125,7 +125,7 @@ function AlertRow({
 
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] text-muted-foreground">
-              Conf: <span className="font-mono text-primary font-semibold">{(alert.confidence * 100).toFixed(1)}%</span>
+              Conf: <span className="font-mono text-primary font-semibold">{alert.confidence.toFixed(1)}%</span>
             </span>
             {alert.threatConfidence !== undefined && (
               <span className="text-[10px] text-muted-foreground">

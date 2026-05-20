@@ -63,6 +63,66 @@ def estimate_motion_score(
         return 0.0
 
 
+def _normalize_bbox(raw_bbox) -> Optional[list[float]]:
+    if raw_bbox and isinstance(raw_bbox, (list, tuple)) and len(raw_bbox) == 4:
+        try:
+            return [float(v) for v in raw_bbox]
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def read_weapon_signal(weapon_engine, frame: np.ndarray) -> tuple[float, list[str], Optional[list[float]]]:
+    """Read the latest weapon signal without zeroing it between inference ticks."""
+    if weapon_engine is None:
+        return 0.0, [], None
+
+    signal = None
+    try:
+        signal = weapon_engine.process_frame(frame)
+    except Exception:
+        signal = None
+
+    if not signal:
+        try:
+            signal = weapon_engine.latest_signal()
+        except Exception:
+            signal = None
+
+    if not signal:
+        return 0.0, [], None
+
+    return (
+        float(signal.get("score", 0.0)),
+        list(signal.get("labels", [])),
+        _normalize_bbox(signal.get("bbox")),
+    )
+
+
+def read_violence_signal(violence_pipeline, frame: np.ndarray) -> tuple[float, int]:
+    """Trigger violence inference and return the latest completed async result."""
+    if violence_pipeline is None or not getattr(violence_pipeline, "enabled", False):
+        return 0.0, 0
+
+    try:
+        violence_pipeline.process_frame(frame)
+    except Exception:
+        return 0.0, 0
+
+    state_lock = getattr(violence_pipeline, "_state_lock", None)
+    if state_lock is None:
+        return (
+            float(getattr(violence_pipeline, "_last_conf", 0.0)),
+            int(getattr(violence_pipeline, "_last_label", 0)),
+        )
+
+    with state_lock:
+        return (
+            float(getattr(violence_pipeline, "_last_conf", 0.0)),
+            int(getattr(violence_pipeline, "_last_label", 0)),
+        )
+
+
 def inference_worker(
     frame_queue: mp.Queue,
     result_queue: mp.Queue,
@@ -86,11 +146,10 @@ def inference_worker(
         sys.path.insert(0, backend_dir)
 
     device_str = config.get("device", "cuda")
-    device = torch.device(device_str if torch.cuda.is_available() and device_str == "cuda" else "cpu")
+    device = torch.device(device_str if torch.cuda.is_available() and device_str.startswith("cuda") else "cpu")
     weights_path = config.get("weights_path", "best_model.pt")
     weapon_path = config.get("weapon_path", "weapon_yolo.pt")
     violence_stride = config.get("violence_stride", 8)
-    weapon_interval = config.get("weapon_interval", 4)
     person_interval = config.get("person_interval", 3)
     weapon_config_dict = config.get("weapon_config", {})
     person_conf = config.get("person_conf_threshold", 0.45)
@@ -130,12 +189,15 @@ def inference_worker(
 
     # ── Load Person Detector ──
     person_detector = None
-    try:
-        from person_detector import PersonDetector
-        person_detector = PersonDetector(conf_threshold=person_conf, device=device.type)
-        print(f"[InferenceProc] Person detector initialized.")
-    except Exception as exc:
-        print(f"[InferenceProc] Person detector FAILED: {exc}")
+    if config.get("person_overlay_enabled", True):
+        try:
+            from person_detector import PersonDetector
+            person_detector = PersonDetector(conf_threshold=person_conf, device=device.type)
+            print(f"[InferenceProc] Person detector initialized.")
+        except Exception as exc:
+            print(f"[InferenceProc] Person detector FAILED: {exc}")
+    else:
+        print(f"[InferenceProc] Person detector disabled via config.")
 
     # ── CUDA stream for overlapping weapon + person ──
     weapon_stream = None
@@ -152,6 +214,8 @@ def inference_worker(
     _first_frame = True
     cached = default_result()
     violence_cls = VIOLENCE_CLS if violence_pipeline is not None else 1
+    last_tracks: list[dict] = []
+    last_person_count = 0
 
     print(f"[InferenceProc] Entering main loop.")
 
@@ -182,34 +246,21 @@ def inference_worker(
         violence_conf = 0.0
         violence_is_violence = 0
         if violence_pipeline is not None and violence_pipeline.enabled:
-            with violence_pipeline._state_lock:
-                violence_pipeline._last_conf = 0.0
-                violence_pipeline._last_label = 0
-            violence_pipeline.process_frame(frame)
-            with violence_pipeline._state_lock:
-                violence_conf = float(violence_pipeline._last_conf)
-                violence_is_violence = int(violence_pipeline._last_label)
+            violence_conf, violence_is_violence = read_violence_signal(violence_pipeline, frame)
 
         # ── 3. Weapon detection (interval) ──
-        weapon_score = 0.0
-        weapon_labels = []
-        weapon_bbox = None
-        if weapon_engine is not None and frame_idx % weapon_interval == 0:
-            weapon_signal = weapon_engine.process_frame(frame)
-            weapon_score = float(weapon_signal.get("score", 0.0))
-            weapon_labels = list(weapon_signal.get("labels", []))
-            weapon_bbox_raw = weapon_signal.get("bbox")
-            if weapon_bbox_raw and isinstance(weapon_bbox_raw, (list, tuple)) and len(weapon_bbox_raw) == 4:
-                weapon_bbox = [float(v) for v in weapon_bbox_raw]
+        weapon_score, weapon_labels, weapon_bbox = read_weapon_signal(weapon_engine, frame)
 
         # ── 4. Person detection (interval) ──
-        tracks = []
-        person_count = 0
+        tracks = [dict(track) for track in last_tracks]
+        person_count = int(last_person_count)
         if person_detector is not None and person_detector.enabled and frame_idx % person_interval == 0:
             try:
                 detections = person_detector.detect(frame)
                 person_count = len(detections) if detections else 0
                 tracks = detections if detections else []
+                last_person_count = person_count
+                last_tracks = [dict(track) for track in tracks]
             except Exception as exc:
                 print(f"[InferenceProc] Person detection error: {exc}")
 
@@ -220,7 +271,7 @@ def inference_worker(
             and violence_is_violence == violence_cls
             and violence_conf > 0.25
         )
-        weapon_is_threat = bool(weapon_score >= 0.30)
+        weapon_is_threat = bool(weapon_score >= 0.40)
         is_threat = violence_is_threat or weapon_is_threat
         fused_threat_conf = max(violence_conf, weapon_score) * 100
 
@@ -241,7 +292,7 @@ def inference_worker(
             "violence_conf": violence_conf,
             "weapon_score": weapon_score,
             "weapon_labels": weapon_labels,
-            "weapon_bbox": weapon_bbox if weapon_is_threat else None,
+            "weapon_bbox": weapon_bbox,
             "violence_bbox": violence_bbox if violence_is_threat else None,
             "person_count": person_count,
             "tracks": tracks,

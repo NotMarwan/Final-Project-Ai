@@ -1,0 +1,31 @@
+Create a 16-slide graduation project presentation for AI-Sentinel based on the attached design brief (CLAUDE_DESIGN_PRESENTATION_BRIEF.md).
+
+THEME: Dark background (#0a0a0f), cyan accent (#00d4ff), red danger accent (#ef4444). Cybersecurity / AI surveillance aesthetic. No business or finance slides.
+
+PROJECT: AI-Sentinel — Real-Time Intelligent Surveillance System for Violence and Weapon Detection
+University: Jazan University | Course: CNET 575 | Date: 20/05/2026
+Supervisor: Dr. Abdoh Jabbari | Group: 15892 / 15893
+Students: Marwan Masri (202209160), Abdulaziz Alhazmi (202201267), Saleh Hardi (202202478), Mohannad Moafa (202200292), Wael Alfaifi (202203821)
+
+SLIDES (16 total):
+1. Title — project name, team, university, supervisor, date
+2. Agenda — 14-item numbered list
+3. Problem Statement — 1B+ cameras, operator fatigue, false alarms, no chain of custody
+4. Proposed Solution — pipeline: X3D-M violence + YOLOv8 weapon + fusion + decision layer + evidence + dashboard
+5. Objectives — 9-item checklist, all marked complete
+6. System Architecture — two-panel diagram: Next.js frontend (port 3000) / FastAPI backend (port 8002), 9 Python modules, SSE+REST connection
+7. AI Detection Pipeline — X3D-M (32-frame window, spatiotemporal, RWF-2000 fine-tuned) + YOLOv8 (6 classes: pistol, rifle, shotgun, knife, sword, revolver), fusion weights: violence 65% + motion 20% + weapon 15%
+8. Key Features — 9-card grid: live MJPEG feed, SSE alerts, Telegram, Evidence DVR, SHA-256 chain of custody, forensic PDF (Groq VLM), 6-tab dashboard, Docker+GPU, Android+Desktop
+9. Tech Stack — full table: Python 3.10, FastAPI, PyTorch+CUDA 12.1, X3D-M, YOLOv8, OpenCV, Next.js+React 19, Tailwind+shadcn/ui, Capacitor 8, Electron, Docker; stats: 5000 lines Python, 3000 lines TS, 50+ endpoints
+10. Decision Layer V2 — state machine diagram: NORMAL→WATCH→CONFIRMED→COOLDOWN; thresholds: watch=0.45, confirm=0.65, N-of-M=2-of-3, cooldown=3s; result: 5 false positives→0 (100% elimination)
+11. Testing — 35 test files, 146+ cases, 100% pass; key: test_decision_layer (33 tests), test_weapon_accuracy (17 tests), test_intrusion_api_contract (17 tests); 12 manual test cases all passed
+12. Evaluation Results — Violence (UBI-Fights): Acc 84.25%, Recall 85.50%, ROC-AUC 0.916, AP 0.919 | Weapon (200-sample): Acc 92.50%, Recall 93.20%, ROC-AUC 0.954, AP 0.948 | Latency P95: 45.52ms (supports 25fps) | Benchmark: AI-Sentinel highest recall 85.0% vs SlowFast 83.5%, LRCN 79.0%, UCF 78.2%
+13. Screenshots & Demo Flow — pipeline diagram at top; show screenshots: screenshot_dashboard.png, screenshot_cctv_knife.jpg, screenshot_weapon_detected.jpg, weapon_cctv_case1.jpg, weapon_cctv_case2.jpg, weapon_cctv_case3.jpg (all from thesis_phase2/figures/)
+14. Challenges & Solutions — 7 rows: false positives→Decision Layer V2, bbox misalignment→object-contain geometry, SSE port mismatch→proxy fix, blurry overlay→DPR-aware canvas, wrong weapon label→first-match-wins, evidence tampering→SHA-256 hash chain
+15. Limitations & Future Work — 6 limitations (GPU dependency, dataset subset, face matching not deep embeddings, 3 stub detectors, single-server, no low-light eval); future: ArcFace, audio integration, edge devices, full RWF-2000 validation
+16. Conclusion & Q&A — 8 stat boxes: ROC-AUC 0.916, ROC-AUC 0.954, Recall 85% (best), 100% FP elimination, P95 45.52ms, 146+ tests, 50+ endpoints, 9/9 objectives; closing quote; "Thank You / Q&A"
+
+Include speaker notes on every slide as written in the brief.
+Place confusion matrix + ROC curve thumbnails on slide 12.
+The state machine on slide 10 must be a visual diagram, not plain text.
+Do not invent any metric — all numbers are listed above exactly as they appear in the thesis.
