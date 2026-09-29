@@ -1,0 +1,193 @@
+ M .claude/settings.local.json
+ D backend-sse.err.log
+ D backend-sse.out.log
+ D backend-test.err.log
+ D backend-test.out.log
+ M backend/api.py
+ M bench/README.md
+ M bench/common.py
+ M docs/ISSUES.md
+ M docs/PLAN.md
+ M docs/RUNBOOK.md
+ M next.config.mjs
+ M postcss.config.mjs
+ M scripts/docs_contract.py
+ M tests/docs_contract/test_docs_contract.py
+?? .gate-strength.json
+?? .github/workflows/face-policy-tests.yml
+?? "3.GP_Phase-2-Final Examiners Assessment Form.pdf"
+?? "AI-Sentinel Presentation v2.html"
+?? "AI-Sentinel Presentation v2.pdf"
+?? "AI-Sentinel Speaker Notes (Arabic).pdf"
+?? "GP Book Preparation-20260519T233309Z-3-001.zip"
+?? "GP Book Preparation/"
+?? THAMANYAH_Presentation.html
+?? android/
+?? archive/misc_unsorted/
+?? arsenal/
+?? "backend/C\357\200\272Tempsentinel_backend.log"
+?? backend/_pipeline_ai_deprecated.py
+?? backend/archive/
+?? backend/augmentations.py
+?? backend/cam1.avi
+?? backend/cam1.mp4
+?? backend/cam2.avi
+?? backend/cam2.mp4
+?? backend/cam3.avi
+?? backend/cam3.mp4
+?? backend/check_model_sha.py
+?? backend/cloudflared-windows-amd64.exe
+?? backend/dataset_manager.py
+?? backend/go2rtc_bridge.py
+?? backend/openrouter_reporting.py
+?? backend/rapport.pdf
+?? backend/tests/__init__.py
+?? backend/tests/test_authenticated_routes.py
+?? backend/tests/test_decision_layer.py
+?? backend/tests/test_device_utils.py
+?? backend/tests/test_eye_level.py
+?? backend/tests/test_inference_cache.py
+?? backend/tests/test_inference_lifecycle.py
+?? backend/tests/test_inference_process.py
+?? backend/tests/test_onnx_switch.py
+?? backend/tests/test_pipeline_integration.py
+?? backend/tools/thesis_evaluation.py
+?? backend/train_pipeline.py
+?? backend/uvicorn_rt.log
+?? backend/uvicorn_stderr.log
+?? backend/uvicorn_stdout.log
+?? backend/weapon_model_data.yaml
+?? banner-full.html
+?? banner-methodology-circle.html
+?? banner-methodology-square.html
+?? banner-methodology.html
+?? bench/results/.coverage-sprint3
+?? bench/results/sprint2-gpu-480p/
+?? bench/results/sprint2-restored-480p/
+?? bench/results/sprint3-cpu-baseline/
+?? bench/results/sprint3-decision-coverage.json
+?? bench/results/sprint3-gpu-candidate/
+?? bench/results/sprint3-gpu-repeat/
+?? bench/test_trace_chunks.py
+?? capacitor-app/
+?? capacitor.config.ts
+?? components/command-palette.tsx
+?? design_extract/
+?? desktop/assets/
+?? desktop/launcher.ps1
+?? desktop/package-lock.json
+?? desktop/package.json
+?? frontend.zip
+?? frontend_dev.log
+?? frontend_dev_err.log
+?? methodology-idea1-horizontal.html
+?? methodology-idea2-circular.html
+?? methodology-idea3-vertical.html
+?? "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1) (1).docx"
+?? "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1).docx"
+?? "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1).png"
+?? notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip.png
+?? notebooks/Graduation_Poster_Template.docx
+?? notebooks/colab_train_weapon_yolo.ipynb
+?? notebooks/colab_train_weapon_yolo_pro.ipynb
+?? notebooks/colab_train_weapon_yolo_v3.ipynb
+?? notebooks/colab_train_weapon_yolo_v4.ipynb
+?? notebooks/colab_train_weapon_yolo_v5.ipynb
+?? notebooks/colab_verify_live_alert_decision_layer.ipynb
+?? notebooks/graduation_poster_template.pdf
+?? public/weapon-detections/
+?? rebuild-apk.bat
+?? releases/
+?? run-tunnel.ps1
+?? samples/
+?? scratch/
+?? scripts/analyze_saif.py
+?? scripts/benchmark_pipeline.py
+?? scripts/build_raw_artifacts.py
+?? scripts/convert_kilo_agents.py
+?? scripts/create_desktop_shortcut.ps1
+?? scripts/debug_conv.py
+?? scripts/debug_conv2.py
+?? scripts/debug_conv3.py
+?? scripts/deploy.sh
+?? scripts/export_onnx.py
+?? scripts/extract_saif_full.py
+?? scripts/extract_saif_i18n.py
+?? scripts/fetch_saif.py
+?? scripts/fix_icon.py
+?? scripts/generate_icon.py
+?? scripts/grep_bundle.py
+?? scripts/icon_output/
+?? scripts/introspect_gate.py
+?? scripts/prep_raw.py
+?? scripts/prepare_weapon_dataset.py
+?? scripts/render_saif_md.py
+?? scripts/select_onnx_runtime.py
+?? scripts/setup-go2rtc.ps1
+?? scripts/stop-cloud.sh
+?? scripts/test_integration.py
+?? scripts/test_weapon_detector.py
+?? scripts/test_yolo_weapon.py
+?? sentinel-live.png
+?? sentinel-status.png
+?? sentinel-system.png
+?? smoke-home.html
+?? speaker-notes-ar.html
+?? start-tunnel.ps1
+?? team_explainer/
+?? thesis_phase2.zip
+?? thesis_phase2/
+?? thesis_results/PHASE2_BOOK_CONTENT.md
+?? thesis_results/PHASE2_TABLE_OF_CONTENTS.md
+?? thesis_results/PHASE2_TABLE_OF_CONTENTS.tex
+?? thesis_results/README.md
+?? "thesis_results/Rollup SDP-6-Electrical2026.pptx"
+?? "thesis_results/WhatsApp Image 2026-05-17 at 2.44.30 PM.jpeg"
+?? thesis_results/appendix.aux
+?? thesis_results/appendix.tex
+?? thesis_results/architecture_diagram.md
+?? thesis_results/banner_assets/
+?? thesis_results/banner_hawkeye.html
+?? thesis_results/banner_hawkeye.pptx
+?? thesis_results/build_banner.py
+?? thesis_results/chapter1_introduction.aux
+?? thesis_results/chapter1_introduction.tex
+?? thesis_results/chapter2_literature.aux
+?? thesis_results/chapter2_literature.tex
+?? thesis_results/chapter3_system_design.aux
+?? thesis_results/chapter3_system_design.tex
+?? thesis_results/chapter4_implementation.aux
+?? thesis_results/chapter4_implementation.tex
+?? thesis_results/chapter5_evaluation.aux
+?? thesis_results/chapter6_discussion.aux
+?? thesis_results/chapter6_discussion.tex
+?? thesis_results/chapter7_conclusion.aux
+?? thesis_results/chapter7_conclusion.tex
+?? thesis_results/comparison_chart.png
+?? thesis_results/comparison_table.json
+?? thesis_results/compile.bat
+?? thesis_results/compile_log_1.txt
+?? thesis_results/compile_log_2.txt
+?? thesis_results/compile_log_3.txt
+?? thesis_results/confusion_matrix.png
+?? thesis_results/dataflow_diagram.md
+?? thesis_results/false_alarm_analysis.json
+?? thesis_results/front_matter.tex
+?? thesis_results/latency_distribution.png
+?? thesis_results/metrics_bar_chart.png
+?? thesis_results/precision_recall_curve.png
+?? thesis_results/roc_curve.png
+?? thesis_results/state_machine_diagram.md
+?? thesis_results/thesis.aux
+?? thesis_results/thesis.bib
+?? thesis_results/thesis.lof
+?? thesis_results/thesis.log
+?? thesis_results/thesis.lot
+?? thesis_results/thesis.out
+?? thesis_results/thesis.pdf
+?? thesis_results/thesis.tex
+?? thesis_results/thesis.toc
+?? thesis_results/thesis_figures/
+?? thesis_results/thesis_report.json
+?? torchaudio-2.3.0+cu118-cp312-cp312-win_amd64.whl
+?? torchvision-0.18.0+cu118-cp312-cp312-win_amd64.whl

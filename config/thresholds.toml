@@ -1,0 +1,48 @@
+# Existing operating values, consolidated for reproducibility. These are not
+# calibrated probabilities or validated accuracy/latency operating points.
+# G-05: this file is the ONLY source of decision/weapon policy values.
+schema_version = 1
+violence_threshold = 0.45
+weapon_threshold = 0.55
+weapon_display_threshold = 0.45
+watch_threshold = 0.45
+confirm_threshold = 0.65
+confirm_n = 2
+confirm_m = 3
+min_decision_interval_seconds = 0.50
+cooldown_seconds = 3.0
+# Expire votes across interrupted sources; an operational bound, not calibration.
+history_max_age_seconds = 10.0
+severity_medium_threshold = 0.40
+severity_high_threshold = 0.65
+severity_critical_threshold = 0.85
+fusion_violence_weight = 0.65
+fusion_weapon_weight = 0.15
+fusion_weapon_boost = 0.12
+fusion_strong_weapon_threshold = 0.75
+fusion_strong_weapon_floor = 0.92
+fusion_strong_violence_threshold = 0.85
+fusion_strong_violence_floor = 0.88
+# R5 confidence-weighted N-of-M + anchor gate (SC-5 additive keys, WT-20).
+# Defaults below reproduce the classic "confirm_n of last confirm_m" rule exactly.
+confirm_weight_sum = 2.0
+confirm_weight_gain = 0.0
+cascade_gate_threshold = 0.0
+# Weapon path knobs (SC-5 additive keys; consumed by S-03 via load_decision_config).
+weapon_min_confidence = 0.20
+weapon_independent_alert_threshold = 0.65
+weapon_score_ema_alpha = 0.45
+weapon_infer_interval = 8
+weapon_min_interval_ms = 2500
+weapon_realtime_threshold_ms = 500
+weapon_score_decay_half_life_ms = 5000
+weapon_signal_ttl_ms = 10000
+weapon_input_size = 640
+
+# Coarse weapon taxonomy (string policy; read via load_weapon_taxonomy()).
+# Alert severity must key on the coarse group, never on raw subtypes.
+[taxonomy_weapon]
+firearm = ["pistol", "revolver", "rifle", "shotgun"]
+edged = ["knife", "sword"]
+fallback_group = "other-weapon"
+filter_labels = ["pistol", "rifle", "shotgun", "knife", "sword", "revolver"]

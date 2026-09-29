@@ -1,0 +1,11 @@
+{
+  "metric": "Python process CPU share of total machine capacity",
+  "mean_percent": 0.13,
+  "p50_percent": 0.13,
+  "p95_percent": 0.25,
+  "sample_count": 54,
+  "measured_seconds": 56.59,
+  "logical_processors": 12,
+  "method": "External psutil process-tree CPU-time deltas normalized by elapsed time and logical processors; sampling began during the matched round-2 replay.",
+  "workload_valid": true
+}

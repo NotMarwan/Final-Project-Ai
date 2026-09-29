@@ -1,0 +1,8 @@
+{
+  "ready": true,
+  "started_monotonic": 8778.9089128,
+  "required_models": [
+    "violence",
+    "weapon"
+  ]
+}

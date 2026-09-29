@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "candidate": "combined_fp16_warmup",
+  "device": "cuda:0",
+  "model_class": "ViolenceDetector",
+  "weights_sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+  "threshold": 0.45,
+  "violence_class_index": 1,
+  "probability_tolerance": 0.01,
+  "videos": [
+    {
+      "path": "demo_assets/videos/FXC43fACfPc_0.avi",
+      "sha256": "81dd72ec460e1102f63d9550dfa18b3e0d457804dc8757d8cb9a66eabedecc67",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 9.342283010482788e-05,
+      "threshold_decision_mismatches": 0
+    },
+    {
+      "path": "demo_assets/videos/Wq0BuA8GM84_0.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 0.00032263994216918945,
+      "threshold_decision_mismatches": 0
+    },
+    {
+      "path": "demo_assets/videos/YDOJvzChqSg_0 (1).avi",
+      "sha256": "5f3b56d5d23aa969e20697bc93e3d0ed40ae3a2774391dd97f69432a5c50f028",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 0.0006088018417358398,
+      "threshold_decision_mismatches": 0
+    }
+  ],
+  "windows_compared": 45,
+  "max_input_absolute_delta": 0.0,
+  "max_probability_absolute_delta": 0.0006088018417358398,
+  "p95_probability_absolute_delta": 0.0004051,
+  "threshold_decision_mismatches": 0,
+  "preprocess_latency_ms": {
+    "legacy": {
+      "count": 45,
+      "p50_ms": 53.1549,
+      "p95_ms": 102.2152
+    },
+    "parallel_4_worker": {
+      "count": 45,
+      "p50_ms": 30.9336,
+      "p95_ms": 52.4506
+    }
+  },
+  "inference_latency_ms": {
+    "reference_fp32": {
+      "count": 45,
+      "p50_ms": 54.0899,
+      "p95_ms": 86.0384
+    },
+    "candidate": {
+      "count": 45,
+      "p50_ms": 34.9182,
+      "p95_ms": 61.5448
+    }
+  },
+  "candidate_warmup_ms": 1664.5088,
+  "model_load_ms": 3568.74,
+  "method": "All full 32-frame windows sampled every 8 frames from every AVI in demo_assets/videos. Candidate outputs are compared with separate legacy FP32 model outputs; every AVI reports its own max probability delta and threshold-decision mismatch count."
+}

@@ -1,0 +1,3935 @@
+{
+  "schema_version": 1,
+  "kind": "living-blueprint-index",
+  "non_authoritative": true,
+  "authority_note": "Scoped campaign artifact. docs/CURRENT.md (status) and docs/DESIGN.md (design system) remain the only status/design authorities; docs/PLAN.md holds pending work and docs/ISSUES.md holds defects. This index extends those documents and must not become a competing status or design document.",
+  "baseline": {
+    "commit": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+    "branch": "final-demo-transfer"
+  },
+  "id_namespaces": {
+    "F": "F-01..F-49 runtime/backend features (docs/blueprint/runtime-map.md section 2)",
+    "U": "U-01..U-10 UI screens/sections (docs/blueprint/design-map.md section 1; renumbered from the map original F-01..F-10)",
+    "SC": "SC-1..SC-10 shared contracts (docs/blueprint/ownership-map.md section 0)",
+    "S": "S-01..S-22 ownership slices (docs/blueprint/ownership-map.md section 1)",
+    "B": "B-1..B-10 baseline integrity findings (docs/blueprint/runtime-map.md section 0)",
+    "N": "N-1..N-16 negative findings (docs/blueprint/runtime-map.md section 2.1)",
+    "R": "R-1..R-8 silent-failure/health risks (docs/blueprint/runtime-map.md section 6.1); note docs/PLAN.md uses a separate two-digit R-01..R-08 rebuild-decision namespace outside this registry"
+  },
+  "status_semantics": {
+    "implemented-active": "implementation is present and connected in the reviewed candidate source; this is not runtime acceptance, accuracy, or readiness evidence",
+    "partial": "implementation is present with a known contract, dependency, or coverage gap",
+    "disconnected": "code exists but has no live caller / cannot be reached from the committed tree",
+    "proposed": "declared or decided only; not implemented",
+    "unverified": "the stated runtime or product behavior has not been established by suitable evidence",
+    "findings": "for kind=finding, status preserves the state of the affected surface at the pinned baseline; candidate fixes are described in feature entries and canonical docs",
+    "slices": "for kind=slice, status summarizes source integration only; it does not imply that every linked feature, dependency, or acceptance gate passed"
+  },
+  "known_limitations": [
+    "Source fingerprints are pinned after semantic review of the affected contracts, lifecycle, score provenance, access control and reporting behavior. Matching hashes indicate source consistency only; the strict drift gate remains enabled.",
+    "Semantic reassessment on 2026-09-29 compared the changed entries listed in the integration review with candidate source and focused test references. Baseline finding statuses remain historical. No implemented-active status establishes runtime acceptance, model accuracy, live-camera readiness, or a passed gate.",
+    "The candidate makes optional imports explicit (SC-10), adds admin protection for POST /api/analyze and a credential-session route (F-45/R-8), wires basic detection queue telemetry (F-36/S-08), and adds evidence-ledger statistics (F-61/S-13). Each retains the specific coverage and live-operation limits recorded on its entry.",
+    "Incident face detection/capture (S-15/F-56/F-57) is distinct from identity recognition (F-30), which remains disconnected. Legacy FaceIntelEngine persistence tests exercise an internal library and do not establish a product identity route.",
+    "The startup calibration gate now binds calibration to the model checkpoint and rejects missing or changed checkpoints and conflicting calibration environment values. Focused policy tests cover this guard; calibration quality, ECE, and a usable production artifact remain unverified."
+  ],
+  "inputs": [
+    {
+      "path": "docs/blueprint/runtime-map.md",
+      "produced_by": "WT-01 / codex/sentinel-01-runtime-map",
+      "sha256": "c063c97ffde0a7aea78bd854e7c9677994857b320a1bdb1c34f2f1817e71b67d"
+    },
+    {
+      "path": "docs/blueprint/runtime-map-verification.md",
+      "produced_by": "WT-01 / codex/sentinel-01-runtime-map",
+      "sha256": "6b9c89cbe0b08b0da1284df99d28d3933536d7ea36a776a59bf62e5af08b0dda"
+    },
+    {
+      "path": "docs/blueprint/ownership-map.md",
+      "produced_by": "WT-01 / codex/sentinel-01-runtime-map",
+      "sha256": "f44459089d721324ded101988242192957de0bd02d8fe12abdaab12c8f8deb36"
+    },
+    {
+      "path": "docs/blueprint/design-map.md",
+      "produced_by": "WT-02 / codex/sentinel-02-design-map",
+      "sha256": "ebb1d600c94220757e985a1c583329b57d060b3a5c4697151b9d71af3bbcc5c1"
+    },
+    {
+      "path": "docs/blueprint/ui-contract.md",
+      "produced_by": "WT-02 / codex/sentinel-02-design-map",
+      "sha256": "40df9c35d558e174f500d258e84e21173c3f16d6c52dea671608856d6d643d55"
+    }
+  ],
+  "generated_outputs": [
+    "docs/blueprint/INDEX.md"
+  ],
+  "entries": [
+    {
+      "id": "SC-1",
+      "title": "FastAPI route table + AppState",
+      "kind": "contract",
+      "status": "partial",
+      "source_refs": [
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_authenticated_routes.py",
+        "backend/tests/test_inference_lifecycle.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Shared API state and lifecycle remain one integration surface. Authorization fails closed before initialization; source transitions clear stale inference and finalize pending incident capture."
+      ],
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "SC-10",
+      "title": "Missing-module policy for go2rtc_bridge / openrouter_reporting",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py",
+        "bench/runtime.py"
+      ],
+      "tests": [
+        "backend/tests/test_authenticated_routes.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Missing optional integrations are represented as DISABLED and return an explicit unavailable response; tests cover absent and test-double-present modules. The actual go2rtc and OpenRouter integrations remain absent or unverified.",
+        "Consumers: every backend slice"
+      ],
+      "assessed": {
+        "bench/runtime.py": "1f67055c0a825e2a76ddf170069ed172fc970f90676cfa61d7d3cf59f63004ee"
+      }
+    },
+    {
+      "id": "SC-2",
+      "title": "Inference result schema",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference_process.py"
+      ],
+      "tests": [
+        "backend/tests/test_decision_hardening.py",
+        "backend/tests/test_inference_lifecycle.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Fresh model observations carry their own raw score, calibration status and source. Cached values cannot cast another vote; generation mismatches are rejected."
+      ],
+      "assessed": {
+        "backend/inference_process.py": "298bfd516b111541e60ebb7406431057cbc84a70f0ec077cc0f1271ec051167a"
+      }
+    },
+    {
+      "id": "SC-3",
+      "title": "Detection SSE payload",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py",
+        "lib/pipeline-telemetry.ts",
+        "lib/detection-envelope.ts"
+      ],
+      "tests": [
+        "backend/tests/test_transport_identity.py",
+        "tests/detection-envelope.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Authenticated detection streams preserve observation identity and independent modality freshness. Reconnect lifecycle is contract-tested; live-camera transport performance remains unmeasured."
+      ],
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3",
+        "lib/pipeline-telemetry.ts": "87af4da0812e238da49ea5d95984765fab784ad84f714e84fe1b976dfa65afa9",
+        "lib/detection-envelope.ts": "5477dc4a07f5b6c199a72ec95b67281d7b81e707e830d4d2dde18de2e3e50497"
+      }
+    },
+    {
+      "id": "SC-4",
+      "title": "Alert SSE payload",
+      "kind": "contract",
+      "status": "partial",
+      "source_refs": [
+        "backend/pipeline_render.py",
+        "lib/sentinel-selectors.ts"
+      ],
+      "tests": [
+        "backend/tests/test_decision_hardening.py",
+        "lib/__tests__/sentinel-selectors.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Alert payload and frontend validation preserve selected-producer provenance and distinguish raw score, decision score and calibrated probability. Explicit unconfirmed alerts are rejected; missing calibration remains null/unverified."
+      ],
+      "assessed": {
+        "backend/pipeline_render.py": "a15192afcec58960eb7b9616a31a64423250e3ada5910a0444d19d87e9d9dfb1",
+        "lib/sentinel-selectors.ts": "11dc34ffa03fd0bc5ce4fa7af355269e66fe821c3ec0404ea499675bb2adda5b"
+      }
+    },
+    {
+      "id": "SC-5",
+      "title": "Decision policy schema",
+      "kind": "contract",
+      "status": "partial",
+      "source_refs": [
+        "config/thresholds.toml",
+        "backend/decision_config.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Compatibility consideration: schema_version 1; a key addition is a cross-slice change (G-05)",
+        "Consumers: API, workers, fusion, decision layer, UI labels"
+      ],
+      "assessed": {
+        "config/thresholds.toml": "8183b140153c52c2b8fb4a729c1a670255e2be28d50ead93dc8b3908ded73d96",
+        "backend/decision_config.py": "70563d137aceda76a6e19e197d17fceb233df1d0bc5cdc0c4bc1c9bae4923f4e"
+      }
+    },
+    {
+      "id": "SC-6",
+      "title": "Timestamp semantics",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Compatibility consideration: renames require all three layers",
+        "Consumers: capture, IPC, decision, evidence, UI"
+      ]
+    },
+    {
+      "id": "SC-7",
+      "title": "Observation identity",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Compatibility consideration: every producer change must keep IDs monotone and unique per completion",
+        "Consumers: decision layer, telemetry, frontend traces"
+      ]
+    },
+    {
+      "id": "SC-8",
+      "title": "Evidence storage layout",
+      "kind": "contract",
+      "status": "partial",
+      "source_refs": [
+        "EVIDENCE_DIR/{alert_id}.mp4"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Compatibility consideration: path/name changes break `/api/clips/list`, `/clips/{id}`, `/download_evidence/{id}` and `_validate_alert_id`",
+        "Consumers: evidence writer, clip API, PDF report, bench"
+      ]
+    },
+    {
+      "id": "SC-9",
+      "title": "Generated-docs contract",
+      "kind": "contract",
+      "status": "implemented-active",
+      "source_refs": [
+        "scripts/docs_contract.py",
+        "docs/authority.json"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#0"
+      ],
+      "limitations": [
+        "Compatibility consideration: adding a document to the registry is an orchestrator decision, never a local workaround",
+        "Consumers: any slice adding a docs//*.md"
+      ],
+      "assessed": {
+        "scripts/docs_contract.py": "18fb960a4b0905de84f46483d4e7982f43d859f62cb043844d037046a7828857",
+        "docs/authority.json": "9367e42ae19e54e5174e208ebe32ccade864ece75933cb9e2200557f41d4b21b"
+      }
+    },
+    {
+      "id": "B-1",
+      "title": "The committed API layer cannot be imported",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/api.py",
+        "backend/api.py",
+        "git -C \"Final Project AI Sentinel\" status --porcelain backend/go2rtc_bridge.py backend/openrouter_reporting.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-02",
+        "docs/blueprint/runtime-map-verification.md#V-03",
+        "docs/blueprint/runtime-map-verification.md#V-04"
+      ],
+      "limitations": [
+        "**The committed API layer cannot be imported.** `backend/api.py` imports `go2rtc_bridge` (module scope, no guard) and `openrouter_reporting`; neither file is tracked by git at this commit. Both exist only as untracked files in the operator's dirty checkout."
+      ],
+      "links": {
+        "features": [
+          "F-26",
+          "F-37"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "B-10",
+      "title": "The committed test suite is not a usable baseline: 5 tests assert behaviour the current code no longer has,",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-21",
+        "docs/blueprint/runtime-map-verification.md#V-22"
+      ],
+      "limitations": [
+        "**The committed test suite is not a usable baseline**: 5 tests assert behaviour the current code no longer has, `backend/tests/test_face_policy.py` installs a fake `torch` into `sys.modules` and poisons later tests in the same session, `test_weapon_accuracy.py` silently skips itself (wrong checkpoint path), and `test_face_policy.py` targets `/face/*` routes that exist nowhere in git."
+      ],
+      "links": {
+        "features": [
+          "F-30"
+        ]
+      }
+    },
+    {
+      "id": "B-2",
+      "title": "The canonical start command therefore fails in a clean checkout: ModuleNotFoundError: No module named",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/api.py:50: ModuleNotFoundError"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-04"
+      ],
+      "limitations": [
+        "The canonical start command therefore fails in a clean checkout: `ModuleNotFoundError: No module named 'go2rtc_bridge'` at `backend/api.py:50`."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "B-3",
+      "title": "The only harness that *can* import the app stubs those modules: bench/runtime.py:229-284",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "unverified",
+      "source_refs": [
+        "bench/runtime.py",
+        "bench/results/perf-after-2026-09-26/benchmark-overrides.json"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-05"
+      ],
+      "limitations": [
+        "The only harness that *can* import the app stubs those modules: `bench/runtime.py:229-284 install_benchmark_adapters()` injects `DisabledGo2RTCBridge` / `DisabledDeepSeekReportService` when `find_spec` fails, and records them in `benchmark-overrides.json`. Every recorded HTTP/throughput measurement ran with these adapters, not with the real services."
+      ],
+      "links": {
+        "features": [
+          "F-47"
+        ]
+      },
+      "assessed": {
+        "bench/runtime.py": "1f67055c0a825e2a76ddf170069ed172fc970f90676cfa61d7d3cf59f63004ee",
+        "bench/results/perf-after-2026-09-26/benchmark-overrides.json": "6f45881094efea9de4c685667dd6295c5b1894ffb075407f10c51eda08a8ae56"
+      }
+    },
+    {
+      "id": "B-4",
+      "title": "Other untracked runtime modules the operator's checkout has and the commit does not:",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "disconnected",
+      "source_refs": [
+        "git -C \"Final Project AI Sentinel\" status --porcelain -uall backend/"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0"
+      ],
+      "limitations": [
+        "Other untracked runtime modules the operator's checkout has and the commit does not: `backend/_pipeline_ai_deprecated.py`, `backend/augmentations.py`, `backend/check_model_sha.py`, `backend/dataset_manager.py`, `backend/train_pipeline.py`, `backend/weapon_model_data.yaml`, `backend/tests/__init__.py`, and 9 untracked test files (`test_decision_layer.py`, `test_inference_process.py`, `test_pipeline_integration.py`, `test_onnx_switch.py`, `test_device_utils.py`, `test_authenticated_routes.py`, `test_eye_level.py`, `test_inference_cache.py`, `test_inference_lifecycle.py`)."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "B-5",
+      "title": "The registered runtime evidence was measured at a different revision and honestly reports both backend drift",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "unverified",
+      "source_refs": [
+        "bench/results/sprint2-verified-480p/report.json"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-12"
+      ],
+      "limitations": [
+        "The registered runtime evidence was measured at a **different revision** and honestly reports both backend drift and missing baseline files. Baseline report revision `6fb3bcac8be7adbc30086978b28b5fb26f541c16`; it records 43 backend files including untracked ones."
+      ],
+      "links": {
+        "features": [
+          "F-47"
+        ]
+      },
+      "assessed": {
+        "bench/results/sprint2-verified-480p/report.json": "546d628f51bbbf9283f04a349d8bede57d7c01822c29187e4a30e477df0122af"
+      }
+    },
+    {
+      "id": "B-6",
+      "title": "npm run docs:check already fails at this commit (2 stale generated docs) and therefore npm run prebuild →",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "unverified",
+      "source_refs": [
+        "node scripts/docs-contract.mjs --check",
+        "Stale generated document: docs/SOURCE-MANIFEST.json",
+        "…docs/CURRENT.md"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0",
+        "docs/blueprint/runtime-map-verification.md#V-16"
+      ],
+      "limitations": [
+        "**`npm run docs:check` already fails at this commit** (2 stale generated docs) and therefore `npm run prebuild` → `next build` fails too. Cause: the generated docs were produced against the operator's checkout where the baseline-referenced untracked modules existed."
+      ],
+      "links": {
+        "features": [
+          "F-46"
+        ]
+      }
+    },
+    {
+      "id": "B-7",
+      "title": "backend/api.py in the operator's checkout is *modified* relative to this commit (+263/−45, incl",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "unverified",
+      "source_refs": [
+        "git -C \"Final Project AI Sentinel\" diff --stat -- backend/api.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0"
+      ],
+      "limitations": [
+        "`backend/api.py` in the operator's checkout is *modified* relative to this commit (+263/−45, incl. a new 159-line block after `_drain_to_latest` and a `/security/session` route at dirty-copy line 2357). Downstream work must pin to the commit, not that copy."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "B-8",
+      "title": "Duplicate/backup trees are tracked: backend/احتياطي/{api,inference}.py,",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0"
+      ],
+      "limitations": [
+        "Duplicate/backup trees are tracked: `backend/احتياطي/{api,inference}.py`, `components/احتياطي/{dashboard-header,incident-panel,video-player}.tsx`; plus a saved web page `backend/Repository search results.html` + its 58 tracked `_files/*` assets, and `components/files{, (1)}.zip`."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "B-9",
+      "title": "docs/PLAN.md contains double-encoded mojibake (â‰¥ instead of ≥, 9 occurrences)",
+      "kind": "finding",
+      "category": "baseline-integrity",
+      "status": "partial",
+      "source_refs": [
+        "docs/PLAN.md"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#0"
+      ],
+      "limitations": [
+        "`docs/PLAN.md` contains double-encoded mojibake (`â‰¥` instead of `≥`, 9 occurrences). Content is readable but the gate table's symbols are corrupted."
+      ],
+      "links": {
+        "features": []
+      },
+      "assessed": {
+        "docs/PLAN.md": "ebd64db735e258862cefe7efb18a64a0ff49acfe6b202148d6648c0a7cf8c085"
+      }
+    },
+    {
+      "id": "N-1",
+      "title": "Dead helpers in the API module (defined, never called anywhere in repo): _open_capture, _read_cap_props,",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/api.py:1002,1013,1045,1086,1090,1138,1144,835,645"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "Dead helpers in the API module (defined, never called anywhere in repo): `_open_capture`, `_read_cap_props`, `_drain_to_latest`, `_estimate_motion_score`, `_weapon_signal_from_report`, `_encode_snapshot`, `_is_rtsp_source`, `_call_vlm_forensics`, `AppState.update_decision_layer`."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-10",
+      "title": "backend/tests/test_inference_optimization.py, test_multi_angle_benchmarks.py, test_intrusion_api_contract.py",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`backend/tests/test_inference_optimization.py`, `test_multi_angle_benchmarks.py`, `test_intrusion_api_contract.py` are mock-based (`unittest.mock`, MagicMock engines) → they pin wiring shapes, not model behaviour."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-11",
+      "title": "docs/PLAN.md symbol corruption (B-9) and backend/.env.example documents CORS_ORIGINS, which no code reads",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/*.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`docs/PLAN.md` symbol corruption (B-9) and `backend/.env.example` documents `CORS_ORIGINS`, which no code reads (`api.py:1487` uses `config['server']['cors_origins']`)."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-12",
+      "title": "Backend test suite has no single documented invocation: from backend/ 8 files fail to import (No module named",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "Backend test suite has no single documented invocation: from `backend/` 8 files fail to import (`No module named 'backend'`); from repo root they collect (283 tests) but 22 API tests then error on B-1."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-13",
+      "title": "5 tracked tests assert superseded behaviour and cannot pass against the current implementation:",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "5 tracked tests assert superseded behaviour and cannot pass against the current implementation: `test_weapon_category.py::test_weapon_engine_cooldown_skipping` (wall-clock vs monotonic gating), both `test_multi_angle_benchmarks.py` bulk tests (`tools.benchmark_threat_latency` unresolvable — `backend/tools/` has no `__init__.py`), both `test_latency.py` tests (`_sample_times` missing on ad-hoc pipeline construction), `test_demo_clips.py::test_all_three_avi_files_exist` (resolves `test/*.avi` while the code uses `demo_assets/videos/`)."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-14",
+      "title": "backend/tests/test_face_policy.py:18-39 injects a fake torch module into sys.modules at import time and",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`backend/tests/test_face_policy.py:18-39` injects a fake `torch` module into `sys.modules` at import time and restores it only from its own teardown; because its import path fails first (B-1) the fake survives and poisons later tests in the same pytest session (16 outcomes in V-21 R-4; each file passes in isolation)."
+      ],
+      "links": {
+        "features": [
+          "F-30"
+        ]
+      }
+    },
+    {
+      "id": "N-15",
+      "title": "test_weapon_accuracy.py skips itself entirely: it resolves the weapon checkpoint at repo-root best.pt, not",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`test_weapon_accuracy.py` skips itself entirely: it resolves the weapon checkpoint at repo-root `best.pt`, not `backend/weapon_hadi_yolo.pt` / `backend/models/weapon_yolo.onnx` (18 skips)."
+      ],
+      "links": {
+        "features": [
+          "F-09"
+        ]
+      }
+    },
+    {
+      "id": "N-16",
+      "title": "backend/tools/ has no init.py (namespace package) while backend/datasets/ and backend/training/ do —",
+      "kind": "finding",
+      "category": "negative",
+      "status": "partial",
+      "source_refs": [
+        "ls backend/tools/__init__.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`backend/tools/` has no `__init__.py` (namespace package) while `backend/datasets/` and `backend/training/` do — inconsistent package layout that breaks attribute-style imports."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-2",
+      "title": "AppState.broadcast_person_data (person detection event) has no caller → the person_detection SSE branch in",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`AppState.broadcast_person_data` (person detection event) has no caller → the `person_detection` SSE branch in the frontend store only fires for legacy producers."
+      ],
+      "links": {
+        "features": [
+          "F-17"
+        ]
+      }
+    },
+    {
+      "id": "N-3",
+      "title": "pipeline_metrics is read but never recorded → /system/metrics returns zeros",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/metrics.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`pipeline_metrics` is read but never recorded → `/system/metrics` returns zeros forever."
+      ],
+      "links": {
+        "features": [
+          "F-36"
+        ]
+      },
+      "assessed": {
+        "backend/metrics.py": "954595cd9089ceea69c2ac40327a26c180333210683e3e9002f9b35d6f24b7e3"
+      }
+    },
+    {
+      "id": "N-4",
+      "title": "temporal_frames.TemporalWindow and FrameRingBuffer are unused duplicates of logic inlined",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`temporal_frames.TemporalWindow` and `FrameRingBuffer` are unused duplicates of logic inlined elsewhere."
+      ],
+      "links": {
+        "features": [
+          "F-08"
+        ]
+      }
+    },
+    {
+      "id": "N-5",
+      "title": "CaptureThread.push_frame/_drain_to_latest unused",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`CaptureThread.push_frame`/`_drain_to_latest` unused; the worker reads via `read_frame()` and manages queues itself."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-6",
+      "title": "inference_process.read_violence_signal / read_weapon_signal are test-only helpers",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/tests/test_live_visual_pipeline.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "`inference_process.read_violence_signal` / `read_weapon_signal` are test-only helpers; the worker inlines the logic."
+      ],
+      "links": {
+        "features": []
+      },
+      "assessed": {
+        "backend/tests/test_live_visual_pipeline.py": "5b31c4a994fa464e68317e7138a91eff86b67d6db94d45db02d5a777b5674f33"
+      }
+    },
+    {
+      "id": "N-7",
+      "title": "Two tracked backup trees (احتياطي/) duplicate live backend and frontend files",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "Two tracked backup trees (`احتياطي/`) duplicate live backend and frontend files; `frontend/` is a 1-file README; `archive/` holds 3 READMEs."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-8",
+      "title": "Repo hygiene: tracked backend/Repository search results.html + 58 _files/* browser-save assets,",
+      "kind": "finding",
+      "category": "negative",
+      "status": "disconnected",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "Repo hygiene: tracked `backend/Repository search results.html` + 58 `_files/*` browser-save assets, `components/files.zip`, `components/files (1).zip`, `docs/AI_Sentinel_Phase2_Midterm_Deck.pptx`, `backend/best_model.pt` (149 MB), `backend/weapon_hadi_yolo.pt`, 3 demo AVIs."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "N-9",
+      "title": "Frontend \"test\" tests/api-auth.test.mjs asserts on source text (6 readFile+regex asserts) rather than",
+      "kind": "finding",
+      "category": "negative",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2.1"
+      ],
+      "limitations": [
+        "Frontend \"test\" `tests/api-auth.test.mjs` asserts on source text (6 `readFile`+regex asserts) rather than behaviour; the other 10 `.mjs` suites are behavioural. No npm script runs any `.mjs` test."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-1",
+      "title": "broadcast_alert/broadcast_person_data swallow queue.Full with no counter (api.py:465-476, 483-495)",
+      "kind": "finding",
+      "category": "risk",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "`broadcast_alert`/`broadcast_person_data` swallow `queue.Full` with no counter (`api.py:465-476`, `483-495`); dropped alerts are invisible and the evidence trigger still fires."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-2",
+      "title": "camera_worker drops frames when frame_queue_mp is full via except queue.Full: pass (api.py:1351) — documented",
+      "kind": "finding",
+      "category": "risk",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "`camera_worker` drops frames when `frame_queue_mp` is full via `except queue.Full: pass` (`api.py:1351`) — documented as explicit backpressure, but no drop counter is exposed in health."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-3",
+      "title": "Alert severity and the frontend validator are two independent enumerations with no test or config validation",
+      "kind": "finding",
+      "category": "risk",
+      "status": "partial",
+      "source_refs": [
+        "/set_threshold"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "Alert `severity` and the frontend validator are two independent enumerations with no test or config validation linking them: the backend can emit `severity: \"none\"` (`DecisionConfig.severity_for` → `\"none\"` below `severity_medium_threshold` = 0.40) while `parseAlertEnvelope` accepts only `{critical, high, medium}` and silently returns `null`. With the committed config the decision layer only emits a vote at `watch_threshold` = 0.45 > 0.40, so this is currently unreachable in the live path — but a policy change (`/set_threshold` allows 0.10) or a weapon-only observation makes it reachable, and the drop is invisible server-side."
+      ],
+      "links": {
+        "features": [
+          "F-15",
+          "F-42"
+        ]
+      }
+    },
+    {
+      "id": "R-4",
+      "title": "evidence.py:26-33 returns \"N/A\" instead of raising when an asset is missing at ledger",
+      "kind": "finding",
+      "category": "risk",
+      "status": "unverified",
+      "source_refs": [
+        "\"N/A\""
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "`evidence.py:26-33` returns `\"N/A\"` instead of raising when an asset is missing at ledger time."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-5",
+      "title": "detection_categories.analyze_context mutates the shared global weapon_engine",
+      "kind": "finding",
+      "category": "risk",
+      "status": "partial",
+      "source_refs": [
+        "backend/detection_categories.py",
+        "/api/analyze"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "`detection_categories.analyze_context` mutates the shared global `weapon_engine` (`backend/detection_categories.py:330-336` via `/api/analyze`) — a non-camera call can inject an observation into the live weapon signal that feeds decisions."
+      ],
+      "links": {
+        "features": [
+          "F-09",
+          "F-29"
+        ]
+      },
+      "assessed": {
+        "backend/detection_categories.py": "c6158058a431e3c256bd01dd30f51ed847400986b29d49c597a50b679418dc29"
+      }
+    },
+    {
+      "id": "R-6",
+      "title": "_estimate_motion_score, _encode_snapshot, _weapon_signal_from_report, _call_vlm_forensics, _open_capture are",
+      "kind": "finding",
+      "category": "risk",
+      "status": "unverified",
+      "source_refs": [],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "`_estimate_motion_score`, `_encode_snapshot`, `_weapon_signal_from_report`, `_call_vlm_forensics`, `_open_capture` are dead but still imported/compiled surface: `_call_vlm_forensics` references `GROQ_*` globals that no longer change behaviour."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-7",
+      "title": "No health endpoint reports per-queue depth, drop counts, ledger size, or disk headroom",
+      "kind": "finding",
+      "category": "risk",
+      "status": "unverified",
+      "source_refs": [
+        "/system/metrics"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "No health endpoint reports per-queue depth, drop counts, ledger size, or disk headroom; `/system/metrics` is inert (N-3). G-14/G-15 monitoring therefore has no server-side signal."
+      ],
+      "links": {
+        "features": []
+      }
+    },
+    {
+      "id": "R-8",
+      "title": "25 of 42 routes never call security_controller.authorize(), including the mutating POST /demo_start/{id},",
+      "kind": "finding",
+      "category": "risk",
+      "status": "partial",
+      "source_refs": [
+        "POST /demo_start/{id}",
+        "DELETE /demo_stop/{id}",
+        "POST /api/analyze",
+        "PATCH /api/webrtc/{cam}/whep",
+        "/video_feed",
+        "/detections"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#6.1"
+      ],
+      "limitations": [
+        "**25 of 42 routes never call `security_controller.authorize()`**, including the mutating `POST /demo_start/{id}`, `DELETE /demo_stop/{id}`, `POST /api/analyze`, `PATCH /api/webrtc/{cam}/whep`, and every read/stream route (`/video_feed`, `/detections`, `/alerts`, `/clips/{id}`, `/api/clips/list`, `/system/status`, `/audit/*`). With `ADMIN_API_KEY` unset all mutations return 503 (`security.py:52-55`), so demo mode is \"open read, closed write\" — but a configured key does not protect those endpoints either."
+      ],
+      "links": {
+        "features": [
+          "F-33"
+        ]
+      }
+    },
+    {
+      "id": "F-01",
+      "title": "Runtime policy bootstrap (single threshold source)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/decision_config.py:19-94",
+        "config/thresholds.toml"
+      ],
+      "tests": [
+        "backend/tests/test_api_runtime_config.py",
+        "test_decision_observations.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "GET/POST /decision/config → {policy, persistence:\"runtime\"}",
+      "links": {
+        "slices": [
+          "S-05"
+        ],
+        "contracts": [
+          "SC-5"
+        ]
+      },
+      "assessed": {
+        "backend/decision_config.py": "70563d137aceda76a6e19e197d17fceb233df1d0bc5cdc0c4bc1c9bae4923f4e",
+        "config/thresholds.toml": "8183b140153c52c2b8fb4a729c1a670255e2be28d50ead93dc8b3908ded73d96"
+      }
+    },
+    {
+      "id": "F-02",
+      "title": "YAML/env application config",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/api.py:116-118",
+        "backend/api.py:286-338"
+      ],
+      "tests": [
+        "test_api_runtime_config.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial (several keys dead, see §4.3)"
+      ],
+      "contract": null,
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-03",
+      "title": "Camera source resolution",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:160-255"
+      ],
+      "tests": [
+        "test_demo_clips.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "GET /cameras/status → list of {cameraId, source, status, …}",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-04",
+      "title": "Bounded capture thread",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/pipeline_capture.py:19-142"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (`push_frame`, `_drain_to_latest` unused)"
+      ],
+      "contract": null,
+      "links": {
+        "slices": [
+          "S-01"
+        ]
+      },
+      "assessed": {
+        "backend/pipeline_capture.py": "6b7d26595f3f093d309ccc5691c3bc09874adb028add8ad5c7f44c582354a3df"
+      }
+    },
+    {
+      "id": "F-05",
+      "title": "Frame downscale + IPC envelope",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1276-1296",
+        "temporal_frames.py:53-59"
+      ],
+      "tests": [
+        "test_resize_pixel_contract.py",
+        "test_api_sprint.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "FramePacket fields (D-4)",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-06",
+      "title": "Per-camera inference process (CUDA isolation)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1244-1250",
+        "inference_process.py:169"
+      ],
+      "tests": [
+        "test_inference_optimization.py",
+        "test_latency.py",
+        "backend/tests/test_inference_lifecycle.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-09"
+      ],
+      "limitations": [
+        "Worker replacement is bounded, reaps the previous child, resets IPC/cache state, and rejects previous-generation results. Tests inject failures; a live-camera soak remains unmeasured."
+      ],
+      "contract": "frames in / results out (D-4, D-5)",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-07",
+      "title": "Violence inference (SlowFast ViolenceDetector / X3D fallback)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference.py:242-556"
+      ],
+      "tests": [
+        "test_inspect_model_checkpoint.py",
+        "test_runtime_observation_contract.py",
+        "test_resize_pixel_contract.py",
+        "backend/tests/test_calibration_policy.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Raw class selection and temperature/bias calibration share the same checkpoint-bound instance profile, including class-zero artifacts. Model quality and held-out calibration remain unverified."
+      ],
+      "contract": "_last_conf, _last_raw_conf, _last_calibrated_conf, window_status",
+      "links": {
+        "slices": [
+          "S-02"
+        ]
+      },
+      "assessed": {
+        "backend/inference.py": "e687faeb285a1af3175aa6cb91bae9e88bc65464df1b2762f76ec8d8bd8dc8fa"
+      }
+    },
+    {
+      "id": "F-08",
+      "title": "Temporal window validity (±10 % span, gap bound)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference.py:511-545",
+        "temporal_frames.py:25-46"
+      ],
+      "tests": [
+        "test_decision_observations.py",
+        "test_eof_discontinuity.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (`TemporalWindow` class itself unused)"
+      ],
+      "contract": "window{framesCollected,framesRequired,spanSeconds,valid,clockSource}",
+      "links": {
+        "slices": [
+          "S-02"
+        ]
+      },
+      "assessed": {
+        "backend/inference.py": "e687faeb285a1af3175aa6cb91bae9e88bc65464df1b2762f76ec8d8bd8dc8fa"
+      }
+    },
+    {
+      "id": "F-09",
+      "title": "Weapon inference engine",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/weapon.py:63-615"
+      ],
+      "tests": [
+        "test_weapon_category.py",
+        "test_weapon_observation_contract.py",
+        "test_weapon_accuracy.py",
+        "test_weapon_smoke_tool.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (interval 8 default vs config 20 vs measured 4 — env-driven)",
+        "OPEN ITEM (WT-15 diagnostic, verbatim): \"weapon observations unaccounted under paced replay with healthy engine status — cadence/validity gate suspected, unmeasured mechanism\". Nuance: WT-16 measured weapon windows completing and WT-18's FP runs produced weapon detections, so this is likely harness/cadence-specific rather than a production-wide weapon outage — but it is RESOLVED (WT-29 measured on the assembled candidate): 18 completed observations were recorded; the mechanism is cold-start + cadence accounting (observations complete once the engine is warm and the per-interval / min_interval_ms validity gate is satisfied) — a harness/cadence artifact, not a production-wide weapon outage."
+      ],
+      "contract": "latest_signal() dict (score, labels, bbox, observation_id, observation_age_ms, isRealtime, …)",
+      "links": {
+        "slices": [
+          "S-03"
+        ]
+      },
+      "assessed": {
+        "backend/weapon.py": "17275d0bd3be31aa3809d4ef5cf41437cf68df38c6ba4eb5aee6c68cf41ea577"
+      }
+    },
+    {
+      "id": "F-10",
+      "title": "Person detection/tracking overlay",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/person_detector.py:20-253"
+      ],
+      "tests": [
+        "test_yolo_onnx_contract.py",
+        "test_live_visual_pipeline.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial (ByteTrack path unmeasured; ONNX path measured)",
+        "OPEN ITEM (WT-15 diagnostic, verbatim): \"weapon observations unaccounted under paced replay with healthy engine status — cadence/validity gate suspected, unmeasured mechanism\". Nuance: WT-16 measured weapon windows completing and WT-18's FP runs produced weapon detections, so this is likely harness/cadence-specific rather than a production-wide weapon outage — but it is RESOLVED (WT-29 measured on the assembled candidate): 18 completed observations were recorded; the mechanism is cold-start + cadence accounting (observations complete once the engine is warm and the per-interval / min_interval_ms validity gate is satisfied) — a harness/cadence artifact, not a production-wide weapon outage."
+      ],
+      "contract": "tracks[{id,bbox,confidence,color}], personCount",
+      "links": {
+        "slices": [
+          "S-04"
+        ]
+      },
+      "assessed": {
+        "backend/person_detector.py": "5645127e781576aa435c1764568a16cc3eac5f63f3e24f7a7aa0927fe4d7e154"
+      }
+    },
+    {
+      "id": "F-11",
+      "title": "Motion score (context only)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference_process.py:52-84",
+        "fusion.py:96-118"
+      ],
+      "tests": [
+        "test_motion_score.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "motion_score; fusion.motionScore; motion_weight forced 0",
+      "links": {
+        "slices": [
+          "S-01"
+        ],
+        "contracts": [
+          "SC-2"
+        ]
+      },
+      "assessed": {
+        "backend/inference_process.py": "298bfd516b111541e60ebb7406431057cbc84a70f0ec077cc0f1271ec051167a"
+      }
+    },
+    {
+      "id": "F-12",
+      "title": "Result queue + observation identity",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference_process.py:359-455",
+        "pipeline_render.py:78-99"
+      ],
+      "tests": [
+        "test_decision_observations.py",
+        "test_eof_discontinuity.py",
+        "backend/tests/test_inference_lifecycle.py",
+        "backend/tests/test_decision_observations.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Worker output is correlated by generation and observation identity; a restarted worker or looping source cannot refresh an old decision."
+      ],
+      "contract": "inference_sequence, *_observation_id, observation_valid",
+      "links": {
+        "slices": [
+          "S-01"
+        ],
+        "contracts": [
+          "SC-2"
+        ],
+        "ui": [
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/inference_process.py": "298bfd516b111541e60ebb7406431057cbc84a70f0ec077cc0f1271ec051167a"
+      }
+    },
+    {
+      "id": "F-13",
+      "title": "Display/render + MJPEG encode",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/pipeline_render.py:121-184",
+        "api.py:1492-1498"
+      ],
+      "tests": [
+        "test_api_sprint.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "MJPEG multipart/x-mixed-replace; JPEG downscale to 854 wide",
+      "links": {
+        "contracts": [
+          "SC-4"
+        ],
+        "ui": [
+          "U-03"
+        ]
+      },
+      "assessed": {
+        "backend/pipeline_render.py": "a15192afcec58960eb7b9616a31a64423250e3ada5910a0444d19d87e9d9dfb1"
+      }
+    },
+    {
+      "id": "F-14",
+      "title": "Per-camera decision layer (N-of-M + cooldown)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/live_alert_decision.py:23-223",
+        "api.py:424-431, 645-676"
+      ],
+      "tests": [
+        "test_decision_observations.py",
+        "test_api_sprint.py",
+        "test_runtime_contracts.py",
+        "backend/tests/test_decision_hardening.py",
+        "backend/tests/test_decision_observations.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-10"
+      ],
+      "limitations": [
+        "Confirmation receives distinct fresh observations only. A cached other-modality maximum cannot create votes; raw/calibrated metadata follow the selected producer."
+      ],
+      "contract": "response dict (alert_state, confirmed_alert, confirm_rule, rolling_history, cooldown_remaining_seconds, ignored_reason, …)",
+      "links": {
+        "slices": [
+          "S-05"
+        ]
+      },
+      "assessed": {
+        "backend/live_alert_decision.py": "2bf954e88b6cd17c9f70f6f1c0e3c43f265ad8d2819ffb80b08dc3226102f658"
+      }
+    },
+    {
+      "id": "F-15",
+      "title": "Fusion / severity",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/fusion.py:23-145"
+      ],
+      "tests": [
+        "test_threat_dispatch.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (YAML weights ignored)"
+      ],
+      "contract": "{score, severity, violenceScore, motionScore, weaponScore, weaponEnabled, reason, calibrationStatus}; multiThreat{...threatBoxes}",
+      "links": {
+        "slices": [
+          "S-06"
+        ]
+      },
+      "assessed": {
+        "backend/fusion.py": "aa5169614060fe3148513021f248c4935bff41298b6c11953d85ba6fe3398d21"
+      }
+    },
+    {
+      "id": "F-16",
+      "title": "Alert emission (snapshot + local report + fan-out)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/pipeline_render.py:186-250",
+        "api.py:1248-1264"
+      ],
+      "tests": [
+        "test_threat_dispatch.py",
+        "backend/tests/test_decision_hardening.py",
+        "backend/tests/test_report_publication_api.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Emitted alert type and score metadata follow the selected producer. Unknown raw scores remain null; local deterministic report provenance is explicit."
+      ],
+      "contract": "alert dict §1.4; thumbnail THUMBNAILS_DIR/{id}.jpg",
+      "links": {
+        "contracts": [
+          "SC-4"
+        ]
+      },
+      "assessed": {
+        "backend/pipeline_render.py": "a15192afcec58960eb7b9616a31a64423250e3ada5910a0444d19d87e9d9dfb1"
+      }
+    },
+    {
+      "id": "F-17",
+      "title": "Alert SSE + person-count event",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:459-497",
+        "backend/api.py:1500-1518",
+        "backend/api.py:1589-1591"
+      ],
+      "tests": [
+        "test_decision_observations.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Person-change publication is wired through _publish_person_update and rate-limited to at most once per second. This corrects the historical no-caller finding; count accuracy remains unmeasured."
+      ],
+      "contract": "SSE JSON alert dict; {\"type\":\"person_detection\",\"cameraId\",\"personCount\",\"trackIds\",\"isThreat\",\"videoWidth\",\"videoHeight\"}",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-01",
+          "U-02",
+          "U-04",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-18",
+      "title": "Detection metadata SSE",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1594-1643"
+      ],
+      "tests": [
+        "test_api_sprint.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "§1.5",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-02",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-19",
+      "title": "MJPEG stream",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1553-1558"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "MJPEG",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-02"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-20",
+      "title": "Demo clip analysis on demand",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1646-1692",
+        "backend/api.py:247-260"
+      ],
+      "tests": [
+        "test_demo_clips.py",
+        "test_eof_discontinuity.py",
+        "backend/tests/test_authenticated_routes.py",
+        "backend/tests/test_demo_clips.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Admin authorization is required to start or stop clip analysis; supplied examples are LFS-tracked AVIs. File replay does not establish live-camera behavior."
+      ],
+      "contract": "worker stop-event registry state.is_demo_worker_running",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-03"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-21",
+      "title": "Evidence clip writer",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:703-822",
+        "evidence_video.py:287-400"
+      ],
+      "tests": [
+        "test_api_sprint.py",
+        "test_evidence_video.py",
+        "tests/test_capture_queue.py",
+        "backend/tests/test_evidence_video.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-11"
+      ],
+      "limitations": [
+        "Captured dimensions and sampled-frame hashes match. End-of-source capture is marked partial with reason/deadline; epoch finalization rejects later frames atomically."
+      ],
+      "contract": "EVIDENCE_DIR/{alert_id}.mp4; encoder ffmpeg/libx264, -pix_fmt yuv420p, -movflags +faststart, probe-verified H.264",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-22",
+      "title": "Evidence ledger (chain of custody)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/evidence.py:61-178"
+      ],
+      "tests": [
+        "test_evidence_ledger_concurrency.py",
+        "test_api_sprint.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (single-process only)"
+      ],
+      "contract": "GET /evidence_chain/{id} → record with prevHash/currentHash, clipSha256, snapshotSha256, reportSha256, reportTextSha256",
+      "links": {
+        "slices": [
+          "S-07"
+        ],
+        "ui": [
+          "U-04",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/evidence.py": "c8595a5bea469a8b6420f5293958fcd86aa42671ca1ec34b0648ffd71a5444c5"
+      }
+    },
+    {
+      "id": "F-23",
+      "title": "Clip listing & streaming",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1694-1736"
+      ],
+      "tests": [
+        "test_api_sprint.py",
+        "backend/tests/test_evidence_video.py",
+        "backend/tests/test_authenticated_routes.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Viewer authorization is checked before listing or reading clips. Temporary .part.mp4 files are excluded and artifact hashes are verified before serving."
+      ],
+      "contract": "{clips:[{alertId,clipUrl,timestamp,cameraId,type,confidence,severity,size,mtime}],count}",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-04",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-24",
+      "title": "Verified evidence download and restart recovery",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:2123-2140"
+      ],
+      "tests": [
+        "test_api_sprint.py",
+        "backend/tests/test_evidence_video.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Evidence downloads require viewer authorization and a matching ledger receipt; restart can recover published evidence from the ledger."
+      ],
+      "contract": "202 writing, 500 error, else MP4",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-04"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-25",
+      "title": "PDF incident report",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/reporting.py:113-…",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_report_publication_api.py",
+        "backend/tests/test_authenticated_routes.py",
+        "tests/test_reporting_pdf.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "PDF generation is an admin POST, serialized with publication and ledger receipt. GET only serves an existing verified artifact. Local facts require explicit provenance and untrusted text is escaped."
+      ],
+      "contract": "PDF at REPORTS_DIR/{id}.pdf; also appends ledger entry",
+      "links": {
+        "slices": [
+          "S-14"
+        ],
+        "ui": [
+          "U-04"
+        ]
+      }
+    },
+    {
+      "id": "F-26",
+      "title": "DeepSeek/OpenRouter report service",
+      "kind": "runtime",
+      "status": "unverified",
+      "source_refs": [
+        "backend/api.py",
+        "backend/tests/test_authenticated_routes.py",
+        "components/ai-report.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_authenticated_routes.py",
+        "tests/local-report.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "The optional OpenRouter module is absent in this checkout; the API reports DISABLED and refuses remote generation. Focused tests use a fake module and do not verify an external service or credentials; the local deterministic report remains available."
+      ],
+      "contract": "{…} from service; cached under REPORTS_DIR",
+      "links": {
+        "ui": [
+          "U-05"
+        ]
+      }
+    },
+    {
+      "id": "F-27",
+      "title": "Groq VLM forensic text",
+      "kind": "runtime",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/api.py:835-896"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "**disconnected (no caller anywhere)**"
+      ],
+      "contract": "would broadcast {\"type\":\"VLM_Report\"}",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-28",
+      "title": "Offline Arabic facts-only report",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/local_forensics.py:1-24",
+        "api.py:2090-2106"
+      ],
+      "tests": [
+        "tests/local-report.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "plain-text Arabic; explicitly states no image analysis",
+      "links": {
+        "slices": [
+          "S-14"
+        ],
+        "ui": [
+          "U-05",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "backend/local_forensics.py": "82b23ab378d334d4e3ec3cc2676b9f9dfb1bfae93a1496ebcd56f33aadb9b2bb"
+      }
+    },
+    {
+      "id": "F-29",
+      "title": "Category capability API",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/detection_categories.py:210-400",
+        "api.py:1738-1810"
+      ],
+      "tests": [
+        "test_categories.py",
+        "test_api_categories.py",
+        "test_intrusion_category.py",
+        "test_intrusion_api_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial (**violence labelled \"Connected to active X3D temporal engine\" while the measured runtime loads SlowFast** `detection_categories.py:240-243`; `/api/analyze` with `weapon` calls the shared `weapon_engine.process_frame`, injecting an extra live observation)"
+      ],
+      "contract": "capability dict {id,label,enabled,status ∈ {active,experimental,unsupported},threshold,reason,requiresContext,requiredInputs}",
+      "links": {
+        "slices": [
+          "S-17"
+        ]
+      },
+      "assessed": {
+        "backend/detection_categories.py": "c6158058a431e3c256bd01dd30f51ed847400986b29d49c597a50b679418dc29"
+      }
+    },
+    {
+      "id": "F-30",
+      "title": "Face identity recognition",
+      "kind": "runtime",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/face_intel.py:39-926"
+      ],
+      "tests": [
+        "backend/tests/test_face_policy.py",
+        "backend/tests/test_face_policy_persistence.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-22"
+      ],
+      "limitations": [
+        "Identity recognition and the retired `/face/policy` and registry routes remain intentionally disconnected. `backend/tests/test_face_policy.py` asserts those routes stay absent; `test_face_policy_persistence.py` covers an internal library only and does not establish a product identity API. Incident face detection/capture is tracked separately under F-56/F-57."
+      ],
+      "contract": "none at this revision",
+      "links": {
+        "slices": [
+          "S-15"
+        ]
+      },
+      "assessed": {
+        "backend/face_intel.py": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598"
+      }
+    },
+    {
+      "id": "F-31",
+      "title": "Audio risk analysis",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/audio.py:33-156",
+        "api.py:2168-2183"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial (no UI caller; `audio.enabled: false`)"
+      ],
+      "contract": "{enabled,detected,score,…}",
+      "links": {
+        "slices": [
+          "S-16"
+        ]
+      },
+      "assessed": {
+        "backend/audio.py": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b"
+      }
+    },
+    {
+      "id": "F-32",
+      "title": "Telegram notifications",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/notifications.py:46-467",
+        "api.py:1813-1888"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial (untested; `min_severity: high`)"
+      ],
+      "contract": "status(); queue maxsize=128",
+      "links": {
+        "slices": [
+          "S-18"
+        ],
+        "ui": [
+          "U-06",
+          "U-07"
+        ]
+      },
+      "assessed": {
+        "backend/notifications.py": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087"
+      }
+    },
+    {
+      "id": "F-33",
+      "title": "API-key auth",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/security.py:27-66"
+      ],
+      "tests": [
+        "test_security_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-20"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "header X-API-Key; 401/503 semantics; client role headers ignored",
+      "links": {
+        "slices": [
+          "S-19"
+        ],
+        "ui": [
+          "U-07"
+        ]
+      },
+      "assessed": {
+        "backend/security.py": "f6ca102ea925b9c4d5db4ec4d1912e0788aaeca2c5f7e1202ec8c3fcf0608d5f"
+      }
+    },
+    {
+      "id": "F-34",
+      "title": "Audit log",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/security.py:88-150",
+        "api.py:2148-2156"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (no frontend consumer)"
+      ],
+      "contract": "GET /audit/status, GET /audit/recent?limit=",
+      "links": {
+        "slices": [
+          "S-19"
+        ]
+      },
+      "assessed": {
+        "backend/security.py": "f6ca102ea925b9c4d5db4ec4d1912e0788aaeca2c5f7e1202ec8c3fcf0608d5f"
+      }
+    },
+    {
+      "id": "F-35",
+      "title": "Runtime policy mutation API",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:2074-2122",
+        "backend/api.py:2234-2264"
+      ],
+      "tests": [
+        "test_api_sprint.py",
+        "test_api_runtime_config.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "validated DecisionConfig round-trip; ThresholdRequest(th 0.10–0.95), CooldownRequest(0–120)",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-04"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-36",
+      "title": "System status/metrics",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/api.py",
+        "backend/metrics.py"
+      ],
+      "tests": [
+        "test_api_runtime_config.py",
+        "backend/tests/test_metrics_telemetry.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-18"
+      ],
+      "limitations": [
+        "Basic detection and frame/result queue telemetry is now recorded and exposed. Evidence-queue, ledger, disk-headroom, camera-time coverage, and live-load signals are not established; no live readiness or telemetry-acceptance claim follows."
+      ],
+      "contract": "status includes decisionLayer, weapon, security, audit, audio, storage",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-06",
+          "U-07"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-37",
+      "title": "WebRTC transport",
+      "kind": "runtime",
+      "status": "disconnected",
+      "source_refs": [
+        "backend/api.py:1520-1575",
+        "webrtc_streamer.py:1-99"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "disconnected in practice (`webrtc.enabled: false`; bridge module absent)"
+      ],
+      "contract": "metadata/WHEP proxy; 503 when bridge down",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-02"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-38",
+      "title": "Camera health surface",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:531-548",
+        "backend/api.py:1577-1587",
+        "backend/api.py:1059-1080"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "{status ∈ STARTING/OK/DEGRADED/FAILED/STOPPED/UNAVAILABLE, reason}",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ],
+        "ui": [
+          "U-07"
+        ]
+      },
+      "assessed": {
+        "backend/api.py": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3"
+      }
+    },
+    {
+      "id": "F-39",
+      "title": "File-loop boundary reset",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/api.py:1163-1202, 1304-1332",
+        "inference_process.py:248-290"
+      ],
+      "tests": [
+        "test_eof_discontinuity.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "drops queues/ring/decision state; acks within 2 s else DEGRADED",
+      "links": {
+        "contracts": [
+          "SC-1",
+          "SC-3"
+        ]
+      }
+    },
+    {
+      "id": "F-40",
+      "title": "Calibration profile ingestion",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/calibration_utils.py",
+        "backend/inference.py",
+        "backend/inference_process.py"
+      ],
+      "tests": [
+        "backend/tests/test_calibration_policy.py",
+        "backend/tests/test_decision_observations.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "The profile is bound to the selected checkpoint SHA-256; missing/changed checkpoints and conflicting temperature, bias, or class-index environment values are rejected, with a per-instance transform profile. Focused guard tests exist, but calibration quality, ECE, and a usable production calibration artifact remain unverified."
+      ],
+      "contract": "feeds classIndex, logitTemperature, logitBias, emaAlpha, hysteresisMargin",
+      "links": {
+        "slices": [
+          "S-05"
+        ]
+      },
+      "assessed": {
+        "backend/calibration_utils.py": "62e5fcdb9af6760f4d66d6e91fb7e6a01617d53bacc8231b1191e6d65e26cb7f"
+      }
+    },
+    {
+      "id": "F-41",
+      "title": "Frontend shell / dashboard",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "app/page.tsx:1-…",
+        "components/shell/*",
+        "components/sections/*",
+        "components/overview/*"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py",
+        "components/overview/overview-time.test.mjs",
+        "components/shell/locale.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "The dashboard builds with Next.js 16.3.6 and passes offline browser flows. API origin, credentials, assets and live services still require operator configuration."
+      ],
+      "contract": "reads /alerts, /detections, /system/status, /api/clips/list, /api/categories, /reports/*, /set_threshold, /set_cooldown, /download_*, /evidence_chain/*",
+      "links": {
+        "slices": [
+          "S-10"
+        ],
+        "ui": [
+          "U-08"
+        ]
+      }
+    },
+    {
+      "id": "F-42",
+      "title": "Frontend alert store + envelope validation",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "lib/sentinel-store.tsx:53-140",
+        "lib/sentinel-selectors.ts:44-100"
+      ],
+      "tests": [
+        "tests/detection-envelope.test.mjs",
+        "lib/__tests__/sentinel-selectors.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "Severity none is mapped to a display tier. Explicit unconfirmed alerts are rejected and raw score/source/calibration metadata are preserved; unavailable or invalid calibration is null/unverified."
+      ],
+      "contract": "accepts type ∈ {Violence, Weapon, Weapon Detection}; accepts severity `none` and normalizes it to `medium`, accepts display tiers {critical, high, medium}, and rejects malformed fields",
+      "links": {
+        "slices": [
+          "S-12"
+        ],
+        "contracts": [
+          "SC-4"
+        ],
+        "ui": [
+          "U-01",
+          "U-02",
+          "U-03",
+          "U-04",
+          "U-05",
+          "U-06",
+          "U-08",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "lib/sentinel-store.tsx": "525a739fa516bb13f7e08180bdd7dd62887189dda9f4d616afb700d14e616891",
+        "lib/sentinel-selectors.ts": "11dc34ffa03fd0bc5ce4fa7af355269e66fe821c3ec0404ea499675bb2adda5b"
+      }
+    },
+    {
+      "id": "F-43",
+      "title": "Frontend telemetry / overlay freshness",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "hooks/use-detection-stream.ts:13-107",
+        "lib/pipeline-telemetry.ts:1-…",
+        "lib/detection-envelope.ts:104-…",
+        "components/canvas-overlay.tsx"
+      ],
+      "tests": [
+        "tests/pipeline-telemetry.test.mjs",
+        "tests/visual-state.test.mjs",
+        "tests/detection-envelope.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "5 s transport staleness, per-modality completion IDs, DecisionState ∈ {NORMAL,WATCH,CONFIRMED,COOLDOWN}",
+      "links": {
+        "slices": [
+          "S-08"
+        ],
+        "contracts": [
+          "SC-3"
+        ],
+        "ui": [
+          "U-01",
+          "U-02",
+          "U-03",
+          "U-10"
+        ]
+      },
+      "assessed": {
+        "hooks/use-detection-stream.ts": "c454461f96c0264a038a75fca1e84ba1f858c74ccca672afa09264868afd0d9b",
+        "components/canvas-overlay.tsx": "c646c55ae13ee8725f5ce249f3ba237da4aa6af9c34bdc15b6a73b2ae5e77571"
+      }
+    },
+    {
+      "id": "F-44",
+      "title": "Frontend clip/evidence UX",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/clip-sidebar.tsx:44-130",
+        "components/incident-replay.tsx:54",
+        "components/incident-panel.tsx"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active"
+      ],
+      "contract": "/api/clips/list, /clips/{id}, /download_evidence/{id}, /download_report/{id}, /evidence_chain/{id}",
+      "links": {
+        "slices": [
+          "S-11"
+        ],
+        "ui": [
+          "U-04"
+        ]
+      },
+      "assessed": {
+        "components/clip-sidebar.tsx": "926dfcf13d8c37beea8dee5324f16eae70ba9f1daea7fec777f585f2439e1644",
+        "components/incident-replay.tsx": "dedebaf230d8a41c2de842bedc7968bffba6c1b081fc2f77267fc50392378bd7",
+        "components/incident-panel.tsx": "7e5fb17f45e6bb2fb77d317a76402cb574d105431e0b8ea36bf31cbbee9e8634"
+      }
+    },
+    {
+      "id": "F-45",
+      "title": "Frontend API-access credential flow",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "hooks/use-api-access.ts:29",
+        "components/api-access.tsx:23",
+        "lib/api-auth.ts:9-51"
+      ],
+      "tests": [
+        "tests/api-auth.test.mjs",
+        "backend/tests/test_authenticated_routes.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-06"
+      ],
+      "limitations": [
+        "The session route is registered and behavior-tested; configured credentials map to admin and keyless demo mode to viewer. Offline browser flows pass; authenticated live deployment remains separate."
+      ],
+      "contract": "sends X-API-Key to the API origin only",
+      "links": {
+        "slices": [
+          "S-19"
+        ],
+        "ui": [
+          "U-07",
+          "U-08"
+        ]
+      },
+      "assessed": {
+        "hooks/use-api-access.ts": "7704154e13813efe58a93dbbd7b58d1509766f3783fd159640476aac798ee8ef",
+        "components/api-access.tsx": "82fa4c3e97132069bef5558ca1b4a8e45613753fe106a09cddeb457ec902e720",
+        "lib/api-auth.ts": "63fcba7f5e1d1062a5caa73b847b58aa4432c791efc449fbe19b613791a22319"
+      }
+    },
+    {
+      "id": "F-46",
+      "title": "Docs contract generator/checker",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "scripts/docs-contract.mjs:1-19",
+        "scripts/docs_contract.py:1-157"
+      ],
+      "tests": [
+        "tests/docs_contract/test_docs_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-16"
+      ],
+      "limitations": [
+        "Semantic reassessment, generated snapshots and strict docs checks pass. Source consistency does not establish runtime acceptance."
+      ],
+      "contract": "regenerates docs/{SOURCE-MANIFEST.json,design-tokens.json,DESIGN.md,design-preview.html,CURRENT.md}; fails on unregistered docs//*.md",
+      "links": {
+        "slices": [
+          "S-22"
+        ],
+        "contracts": [
+          "SC-9"
+        ]
+      },
+      "assessed": {
+        "scripts/docs-contract.mjs": "8a633d0faff008fd8718a5eb39fd755e7f28c59f03c456ad4a71fa612a555add",
+        "scripts/docs_contract.py": "18fb960a4b0905de84f46483d4e7982f43d859f62cb043844d037046a7828857"
+      }
+    },
+    {
+      "id": "F-47",
+      "title": "Bench harness (measurement)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "bench/runtime.py:169-487",
+        "bench/run.py",
+        "bench/calibrate.py",
+        "bench/probe.py",
+        "bench/security_scan.py",
+        "bench/common.py"
+      ],
+      "tests": [
+        "bench/test_*.py"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2",
+        "docs/blueprint/runtime-map-verification.md#V-21"
+      ],
+      "limitations": [
+        "Final CUDA replay at e1a5636 has all 62 backend hashes matching, active person/weapon/violence inference and 30 FPS median (p05 25). Prior paired CPU/CUDA reports are historical; no current live/accuracy/cold-start gate is closed."
+      ],
+      "contract": "writes bench/results/<run>/report.json",
+      "links": {
+        "slices": [
+          "S-05",
+          "S-20"
+        ],
+        "contracts": [
+          "SC-10"
+        ]
+      },
+      "assessed": {
+        "bench/runtime.py": "1f67055c0a825e2a76ddf170069ed172fc970f90676cfa61d7d3cf59f63004ee",
+        "bench/run.py": "a24dbf779f1c4d9246961f0d14e810722a05d567a0dff983f7b5774215c2efd1",
+        "bench/calibrate.py": "f7aa9d7caa5e762a62ecce694ec55380e923337a0c1fb19a9c303ee701e1e04e",
+        "bench/probe.py": "cc4fcd83b8177c78c2a4cd9a4b686cbcc748d256d15c6ed9707f4457615eb73c",
+        "bench/security_scan.py": "7f7353d322b2c896c15e25c7927a9dd3636891854a9af264ffc58927de60bbc9",
+        "bench/common.py": "0b21ee9460a82b3d326336c77471eede5f3906e753a70729eb2d2280ba619e2d"
+      }
+    },
+    {
+      "id": "F-48",
+      "title": "Training / dataset tooling",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/train_finetune.py",
+        "train_calibration.py",
+        "backend/training/",
+        "backend/datasets/",
+        "backend/tools/*"
+      ],
+      "tests": [
+        "test_dataset_loader.py",
+        "test_manifest_dataset.py",
+        "test_rwf2000_manifest.py",
+        "test_train_*"
+      ],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "implemented-active (offline; not runtime)"
+      ],
+      "contract": "n/a",
+      "links": {
+        "slices": [
+          "S-21"
+        ]
+      },
+      "assessed": {
+        "backend/train_finetune.py": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb"
+      }
+    },
+    {
+      "id": "F-49",
+      "title": "Colab/remote bridge",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/colab_bridge_server.py:1-147",
+        "start-colab-bridge.ps1",
+        "start-remote.ps1"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/runtime-map.md#2"
+      ],
+      "limitations": [
+        "partial"
+      ],
+      "contract": "local tooling only",
+      "links": {
+        "slices": [
+          "S-19"
+        ]
+      },
+      "assessed": {
+        "backend/colab_bridge_server.py": "86f8810cba31780d3d3cead6f389c45228de8aa96881427d57e6e414e412e2e9"
+      }
+    },
+    {
+      "id": "S-01",
+      "title": "Worker architecture / IPC",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference_process.py",
+        "backend/frame_pipeline.py",
+        "backend/pipeline_capture.py",
+        "backend/temporal_frames.py"
+      ],
+      "tests": [
+        "backend/tests/test_inference_optimization.py",
+        "test_motion_score.py",
+        "test_resize_pixel_contract.py",
+        "test_eof_discontinuity.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: queue sizes (3/30/360/600), spawn start method, reset handshake timing"
+      ],
+      "links": {
+        "features": [
+          "F-04",
+          "F-11",
+          "F-12"
+        ]
+      },
+      "assessed": {
+        "backend/inference_process.py": "298bfd516b111541e60ebb7406431057cbc84a70f0ec077cc0f1271ec051167a",
+        "backend/frame_pipeline.py": "4fc89b802c03d8bac9cbcb1ec1b130283c3caea6bdd350510b589b80a1e966a0",
+        "backend/pipeline_capture.py": "6b7d26595f3f093d309ccc5691c3bc09874adb028add8ad5c7f44c582354a3df",
+        "backend/temporal_frames.py": "ab8b6a7dd4795485688b1c857d19b621fcf8b61a9299fa99c361cfb560821f0a"
+      }
+    },
+    {
+      "id": "S-02",
+      "title": "Violence path",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/inference.py",
+        "backend/models/multi_angle_x3d.py"
+      ],
+      "tests": [
+        "test_runtime_observation_contract.py",
+        "test_angle_invariance.py",
+        "test_inspect_model_checkpoint.py",
+        "test_multi_angle_benchmarks.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: window/stride semantics (F-08), SlowFast-vs-X3D identity, EMA/hysteresis interaction with thresholds"
+      ],
+      "links": {
+        "features": [
+          "F-07",
+          "F-08"
+        ]
+      },
+      "assessed": {
+        "backend/inference.py": "e687faeb285a1af3175aa6cb91bae9e88bc65464df1b2762f76ec8d8bd8dc8fa",
+        "backend/models/multi_angle_x3d.py": "9f95d7bdfad21f4b08ba46aae77a8ccd5ece7f4cad7a372912673789af8b998a"
+      }
+    },
+    {
+      "id": "S-03",
+      "title": "Weapon path",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/weapon.py",
+        "backend/yolo_onnx.py"
+      ],
+      "tests": [
+        "test_weapon_observation_contract.py",
+        "test_weapon_category.py",
+        "test_weapon_accuracy.py",
+        "test_weapon_smoke_tool.py",
+        "test_yolo_onnx_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: class-index vs name mapping (6 classes), label filter defaults, decay/TTL semantics"
+      ],
+      "links": {
+        "features": [
+          "F-09"
+        ]
+      },
+      "assessed": {
+        "backend/weapon.py": "17275d0bd3be31aa3809d4ef5cf41437cf68df38c6ba4eb5aee6c68cf41ea577",
+        "backend/yolo_onnx.py": "25fa35e4c1aa346eed12e1a85f1b3b684e9cc4d681a424938b4b4f8de838b149"
+      }
+    },
+    {
+      "id": "S-04",
+      "title": "Tracking / counting",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/person_detector.py"
+      ],
+      "tests": [
+        "test_live_visual_pipeline.py",
+        "test_yolo_onnx_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: ByteTrack path is unmeasured; person_count currently = len(tracks)"
+      ],
+      "links": {
+        "features": [
+          "F-10"
+        ]
+      },
+      "assessed": {
+        "backend/person_detector.py": "5645127e781576aa435c1764568a16cc3eac5f63f3e24f7a7aa0927fe4d7e154"
+      }
+    },
+    {
+      "id": "S-05",
+      "title": "Decision / calibration",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/live_alert_decision.py",
+        "backend/decision_config.py",
+        "config/thresholds.toml",
+        "backend/calibration_utils.py",
+        "backend/train_calibration.py",
+        "bench/calibrate.py"
+      ],
+      "tests": [
+        "test_decision_observations.py",
+        "test_runtime_contracts.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: SC-5 freeze; keep one threshold authority (G-05); calibration artifact absence (F-40)"
+      ],
+      "links": {
+        "features": [
+          "F-01",
+          "F-14",
+          "F-40",
+          "F-47"
+        ]
+      },
+      "assessed": {
+        "backend/live_alert_decision.py": "2bf954e88b6cd17c9f70f6f1c0e3c43f265ad8d2819ffb80b08dc3226102f658",
+        "backend/decision_config.py": "70563d137aceda76a6e19e197d17fceb233df1d0bc5cdc0c4bc1c9bae4923f4e",
+        "config/thresholds.toml": "8183b140153c52c2b8fb4a729c1a670255e2be28d50ead93dc8b3908ded73d96",
+        "backend/calibration_utils.py": "62e5fcdb9af6760f4d66d6e91fb7e6a01617d53bacc8231b1191e6d65e26cb7f",
+        "backend/train_calibration.py": "87bb661f72a0ada25a8a8e1101be470649582739bb6988cb2baee3dc1a932647",
+        "bench/calibrate.py": "f7aa9d7caa5e762a62ecce694ec55380e923337a0c1fb19a9c303ee701e1e04e"
+      }
+    },
+    {
+      "id": "S-06",
+      "title": "Fusion / severity",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/fusion.py"
+      ],
+      "tests": [
+        "test_threat_dispatch.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: fusion weights only in TOML; motion must stay context-only"
+      ],
+      "links": {
+        "features": [
+          "F-15"
+        ]
+      },
+      "assessed": {
+        "backend/fusion.py": "aa5169614060fe3148513021f248c4935bff41298b6c11953d85ba6fe3398d21"
+      }
+    },
+    {
+      "id": "S-07",
+      "title": "Evidence",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/evidence.py",
+        "backend/evidence_video.py"
+      ],
+      "tests": [
+        "test_evidence_video.py",
+        "test_evidence_ledger_concurrency.py",
+        "test_api_sprint.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: atomic publish + probe verification; single-process ledger; \"N/A\" hash substitution (R-4)"
+      ],
+      "links": {
+        "features": [
+          "F-22"
+        ]
+      },
+      "assessed": {
+        "backend/evidence.py": "c8595a5bea469a8b6420f5293958fcd86aa42671ca1ec34b0648ffd71a5444c5",
+        "backend/evidence_video.py": "7e4211c391690ba799d9ac0c90ebd7ad23c1a99e92c2e37f4fb1360795c87672"
+      }
+    },
+    {
+      "id": "S-08",
+      "title": "Telemetry / observability",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/metrics.py",
+        "backend/api.py",
+        "lib/pipeline-telemetry.ts",
+        "components/pipeline-telemetry.tsx",
+        "hooks/use-detection-stream.ts"
+      ],
+      "tests": [
+        "backend/tests/test_metrics_telemetry.py",
+        "tests/pipeline-telemetry.test.mjs",
+        "tests/visual-state.test.mjs",
+        "tests/detection-envelope.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Basic detection and frame/result queue depths/drops are now surfaced. Evidence-queue, ledger, disk-headroom, camera-time coverage, and live-load observability remain gaps; telemetry tests do not prove live readiness."
+      ],
+      "links": {
+        "features": [
+          "F-43"
+        ]
+      },
+      "assessed": {
+        "backend/metrics.py": "954595cd9089ceea69c2ac40327a26c180333210683e3e9002f9b35d6f24b7e3",
+        "lib/pipeline-telemetry.ts": "87af4da0812e238da49ea5d95984765fab784ad84f714e84fe1b976dfa65afa9",
+        "components/pipeline-telemetry.tsx": "4064b861b21af201841ad1af5b06ed4997ac1381b009b19088a0cb7f60c53073",
+        "hooks/use-detection-stream.ts": "c454461f96c0264a038a75fca1e84ba1f858c74ccca672afa09264868afd0d9b"
+      }
+    },
+    {
+      "id": "S-09",
+      "title": "Transport",
+      "kind": "slice",
+      "status": "unverified",
+      "source_refs": [
+        "backend/webrtc_streamer.py",
+        "components/webrtc-player.tsx",
+        "components/video-player.tsx"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: MJPEG/SSE are retained pending measurement; WebRTC is disabled/unavailable"
+      ],
+      "links": {
+        "features": []
+      },
+      "assessed": {
+        "backend/webrtc_streamer.py": "3afc6cdcc01fcfcca39a4aeb4d85d8bd25d769c753814355ec01981e41dc611f",
+        "components/webrtc-player.tsx": "91e63c0ee3e097bc043dcfcb019ae32a7765f183ca57e3c53df30dbf338ecd4f",
+        "components/video-player.tsx": "d4047d5a7b1a6436973cd625f40b1bc6d78a2928eebf0bf8264a8b5d7c7039b2"
+      }
+    },
+    {
+      "id": "S-10",
+      "title": "UI shell & dashboard",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "app/",
+        "components/shell/",
+        "components/sections/",
+        "components/overview/",
+        "styles/"
+      ],
+      "tests": [
+        "components/overview/overview-time.test.mjs",
+        "components/shell/locale.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: app/globals.css is the design-token source consumed by the docs generator (SC-9)"
+      ],
+      "links": {
+        "features": [
+          "F-41"
+        ]
+      }
+    },
+    {
+      "id": "S-11",
+      "title": "Incidents UI (alerts/clips)",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/alert-feed.tsx",
+        "components/alert-history.tsx",
+        "components/alert-toast.tsx",
+        "components/clip-sidebar.tsx",
+        "components/clip-player.tsx",
+        "components/incident-replay.tsx",
+        "components/incident-panel.tsx",
+        "components/ai-report.tsx"
+      ],
+      "tests": [
+        "hooks/__tests__/alert-feed.test.mjs",
+        "tests/local-report.test.mjs",
+        "backend/tests/test_authenticated_routes.py",
+        "backend/tests/test_report_publication_api.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "The credential-session API exists and operational evidence routes require viewer authorization. PDF generation and triage require admin permission; offline fixture controls are local only."
+      ],
+      "links": {
+        "features": [
+          "F-44"
+        ]
+      },
+      "assessed": {
+        "components/alert-feed.tsx": "d99c81da9f2f01d775a77b51cdfccddaa2a2741c4da351b21f8aa951a37b159f",
+        "components/alert-history.tsx": "31e5a0cddbf1e14d8915cf4f00f423851ced700c1cc6fcf194508db6fb4102c4",
+        "components/alert-toast.tsx": "9c616ffbae31f835ef6111bf22734b7f67311c464ce280e1031f074bf05e9516",
+        "components/clip-sidebar.tsx": "926dfcf13d8c37beea8dee5324f16eae70ba9f1daea7fec777f585f2439e1644",
+        "components/clip-player.tsx": "b10a0ad8e8d2159dfcb4687cc7a9daa6d92528a9f4e887cafb4758d318968df8",
+        "components/incident-replay.tsx": "dedebaf230d8a41c2de842bedc7968bffba6c1b081fc2f77267fc50392378bd7",
+        "components/incident-panel.tsx": "7e5fb17f45e6bb2fb77d317a76402cb574d105431e0b8ea36bf31cbbee9e8634",
+        "components/ai-report.tsx": "2abe0d5a89dfc67747216cacb1d6f84a503aaaa3ef94eb701c81ec815208d498"
+      }
+    },
+    {
+      "id": "S-12",
+      "title": "Store / selectors / filtering",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "lib/sentinel-store.tsx",
+        "lib/sentinel-selectors.ts",
+        "lib/dashboard-data.ts",
+        "lib/ui-fixtures.ts",
+        "lib/live-visual-state.ts"
+      ],
+      "tests": [
+        "lib/__tests__/sentinel-selectors.test.mjs",
+        "lib/__tests__/ui-fixtures.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: type files live under components/ (awkward direction) — coordinate with S-09 before moving"
+      ],
+      "links": {
+        "features": [
+          "F-42"
+        ]
+      },
+      "assessed": {
+        "lib/sentinel-store.tsx": "525a739fa516bb13f7e08180bdd7dd62887189dda9f4d616afb700d14e616891",
+        "lib/sentinel-selectors.ts": "11dc34ffa03fd0bc5ce4fa7af355269e66fe821c3ec0404ea499675bb2adda5b",
+        "lib/dashboard-data.ts": "59683f4bbc60b52b7264ff22dbebff9f95097d50783614542a93b0c75e5fabeb",
+        "lib/ui-fixtures.ts": "a8fddf3999d659de40de1bd57753bd97de40226656a129923061e9993b37db57",
+        "lib/live-visual-state.ts": "fa7e3fa186e2d56c470f7670ebd8267d8d13a468866a8e045dbe6a2738ee38cc"
+      }
+    },
+    {
+      "id": "S-13",
+      "title": "Stats / overview analytics",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/overview/overview-charts.tsx",
+        "components/overview/hero-incident-instrument.tsx",
+        "lib/detection-types.ts",
+        "backend/stats_service.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "components/overview/overview-time.test.mjs",
+        "backend/tests/test_stats_service.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "The server route aggregates evidence-ledger records by evidence-write timestamp and camera, not a complete alert history. Alert type and latency are explicitly unavailable; tests define semantics but do not establish live-data completeness or model quality."
+      ],
+      "links": {
+        "features": [
+          "F-61"
+        ]
+      },
+      "assessed": {
+        "components/overview/overview-charts.tsx": "89b3b2636b9fcec7478f874f506fb85ad90f66aa4aced75029613bfd6341c28c",
+        "components/overview/hero-incident-instrument.tsx": "57386025381f9ab7cf89a1d797b4430bd2df77e01c59be80026e741bc8094c36",
+        "lib/detection-types.ts": "276dba716ead3c121bcdd12e88e93a949cf1f8e6ba48db22ffcd7a27de5e6aff"
+      }
+    },
+    {
+      "id": "S-14",
+      "title": "Reporting (offline + PDF + remote text)",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/reporting.py",
+        "backend/local_forensics.py",
+        "backend/openrouter_reporting.py"
+      ],
+      "known_absent": [
+        "backend/openrouter_reporting.py"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py",
+        "tests/local-report.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Offline reporting and PDF publication are present. The remote OpenRouter module is absent and explicitly DISABLED (F-26); unit tests do not verify external credentials/service behavior. The offline report must retain facts-only claim discipline."
+      ],
+      "links": {
+        "features": [
+          "F-25",
+          "F-28"
+        ]
+      },
+      "assessed": {
+        "backend/reporting.py": "617333332d2bc369ea9f096c0e7328637f5011033243240c19bc9b3e1cd7a279",
+        "backend/local_forensics.py": "82b23ab378d334d4e3ec3cc2676b9f9dfb1bfae93a1496ebcd56f33aadb9b2bb"
+      }
+    },
+    {
+      "id": "S-15",
+      "title": "Incident face detection and capture",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/face_detect.py",
+        "backend/face_capture.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_face_detect.py",
+        "backend/tests/test_face_capture.py",
+        "backend/tests/test_face_policy.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "The optional YuNet detector supports incident face capture and uncertain association only; identity recognition (F-30) remains intentionally disconnected. Asset availability and detection accuracy are not established by unit tests."
+      ],
+      "links": {
+        "features": [
+          "F-56",
+          "F-57"
+        ]
+      },
+      "assessed": {
+        "backend/face_intel.py": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598"
+      }
+    },
+    {
+      "id": "S-16",
+      "title": "Audio",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/audio.py"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: no UI caller; audio.enabled: false"
+      ],
+      "links": {
+        "features": [
+          "F-31"
+        ]
+      },
+      "assessed": {
+        "backend/audio.py": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b"
+      }
+    },
+    {
+      "id": "S-17",
+      "title": "Categories / multi-detection",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/detection_categories.py"
+      ],
+      "tests": [
+        "test_categories.py",
+        "test_api_categories.py",
+        "test_intrusion_category.py",
+        "test_intrusion_api_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: must stop mutating the shared weapon_engine (R-5); fix the \"X3D\" label claim (F-29)"
+      ],
+      "links": {
+        "features": [
+          "F-29"
+        ]
+      },
+      "assessed": {
+        "backend/detection_categories.py": "c6158058a431e3c256bd01dd30f51ed847400986b29d49c597a50b679418dc29"
+      }
+    },
+    {
+      "id": "S-18",
+      "title": "Notifications (Telegram)",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/notifications.py",
+        "components/telegram-status.tsx"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: untested; queue-full drops invisible"
+      ],
+      "links": {
+        "features": [
+          "F-32"
+        ]
+      },
+      "assessed": {
+        "backend/notifications.py": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087",
+        "components/telegram-status.tsx": "be6a741989a65b3c8a4e0235e01ca3148f2e5a7855277b7fa8aa023301f3af9c"
+      }
+    },
+    {
+      "id": "S-19",
+      "title": "Security / auth / audit",
+      "kind": "slice",
+      "status": "partial",
+      "source_refs": [
+        "backend/security.py",
+        "lib/api-auth.ts",
+        "hooks/use-api-access.ts",
+        "components/api-access.tsx",
+        "components/shell/access-notice.tsx",
+        "backend/colab_bridge_server.py"
+      ],
+      "tests": [
+        "test_security_contract.py",
+        "lib/__tests__/api-auth.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: every mutating route must authorize before mutation; ADMIN_API_KEY empty ⇒ 503 for all mutations (demo-mode semantics)"
+      ],
+      "links": {
+        "features": [
+          "F-33",
+          "F-34",
+          "F-45",
+          "F-49"
+        ]
+      },
+      "assessed": {
+        "backend/security.py": "f6ca102ea925b9c4d5db4ec4d1912e0788aaeca2c5f7e1202ec8c3fcf0608d5f",
+        "lib/api-auth.ts": "63fcba7f5e1d1062a5caa73b847b58aa4432c791efc449fbe19b613791a22319",
+        "hooks/use-api-access.ts": "7704154e13813efe58a93dbbd7b58d1509766f3783fd159640476aac798ee8ef",
+        "components/api-access.tsx": "82fa4c3e97132069bef5558ca1b4a8e45613753fe106a09cddeb457ec902e720",
+        "components/shell/access-notice.tsx": "1a0ff535d90a2ee1928d77571c99197dd43539817bcac1baf6982e1e3f75b295",
+        "backend/colab_bridge_server.py": "86f8810cba31780d3d3cead6f389c45228de8aa96881427d57e6e414e412e2e9"
+      }
+    },
+    {
+      "id": "S-20",
+      "title": "Bench / measurement harness",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "bench/**"
+      ],
+      "tests": [
+        "bench/test_*.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Only this slice writes bench/results and reports pin a revision plus file hashes. The valid paired file replay is pinned to 1218a6cb with 16/36 backend hashes matching this candidate; results do not establish exact-source acceptance, accuracy, camera readiness, or deployment performance."
+      ],
+      "links": {
+        "features": [
+          "F-47"
+        ]
+      }
+    },
+    {
+      "id": "S-21",
+      "title": "Training / dataset tooling",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/train_finetune.py",
+        "backend/training/",
+        "backend/datasets/",
+        "backend/tools/",
+        "backend/export_models.py",
+        "backend/prepare_colab_bundle.py",
+        "backend/render_colab_notebook.py",
+        "notebooks/"
+      ],
+      "tests": [
+        "test_dataset_loader.py",
+        "test_manifest_dataset.py",
+        "test_video_loader.py",
+        "test_video_input_contract.py",
+        "test_train_*"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Primary risk to manage: provenance for shipped weights is UNKNOWN (F-48)"
+      ],
+      "links": {
+        "features": [
+          "F-48"
+        ]
+      },
+      "assessed": {
+        "backend/train_finetune.py": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb",
+        "backend/export_models.py": "a2862f89d997698baa2838a9b99a9693b224eb55f6cb990ccaf5d1ce67d08127",
+        "backend/prepare_colab_bundle.py": "94ef4b7aae67da5937f716943484c097493757239c22bbfb0bbc4e14b2c4578e",
+        "backend/render_colab_notebook.py": "9ae058233256d9dd688b4bc64b5880d619d60f64b3b64f6a40a9a263839448e0"
+      }
+    },
+    {
+      "id": "S-22",
+      "title": "Docs contract / repo hygiene",
+      "kind": "slice",
+      "status": "implemented-active",
+      "source_refs": [
+        "scripts/docs_contract.py",
+        "scripts/docs-contract.mjs",
+        "tests/docs_contract/",
+        "docs/authority.json",
+        ".kilo/**",
+        ".roo/**",
+        ".opencode/**"
+      ],
+      "tests": [
+        "tests/docs_contract/test_docs_contract.py"
+      ],
+      "evidence": [
+        "docs/blueprint/ownership-map.md#1"
+      ],
+      "limitations": [
+        "Semantic reassessment, generated snapshots and strict docs checks pass. Source consistency does not establish runtime acceptance."
+      ],
+      "links": {
+        "features": [
+          "F-46"
+        ]
+      },
+      "assessed": {
+        "scripts/docs_contract.py": "18fb960a4b0905de84f46483d4e7982f43d859f62cb043844d037046a7828857",
+        "scripts/docs-contract.mjs": "8a633d0faff008fd8718a5eb39fd755e7f28c59f03c456ad4a71fa612a555add",
+        "docs/authority.json": "9367e42ae19e54e5174e208ebe32ccade864ece75933cb9e2200557f41d4b21b"
+      }
+    },
+    {
+      "id": "U-01",
+      "title": "Overview",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "app/page.tsx:94",
+        "components/overview/overview.tsx",
+        "components/overview/overview-charts.tsx",
+        "components/overview/hero-incident-instrument.tsx"
+      ],
+      "tests": [
+        "components/overview/overview-time.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Active-cameras stat and camera health are hardcoded honest \"unavailable\" (design-map G-3).",
+        "Overview now fetches evidence-ledger statistics and labels a session-buffer fallback (F-61/S-13). Persisted evidence records do not represent all alerts and have no historical incident drill-through; active-camera count remains unavailable."
+      ],
+      "links": {
+        "features": [
+          "F-17",
+          "F-42",
+          "F-43"
+        ],
+        "contracts": [
+          "SC-4"
+        ]
+      },
+      "assessed": {
+        "app/page.tsx": "b5df93b8f835f82cae70d73534b116b10bc77342afe10969309d22118b957c7b",
+        "components/overview/overview.tsx": "e055ba2a5472d83f6eb5f21dc0e2f54ff7eb2af49a11fe8169a0e09638051f88",
+        "components/overview/overview-charts.tsx": "89b3b2636b9fcec7478f874f506fb85ad90f66aa4aced75029613bfd6341c28c",
+        "components/overview/hero-incident-instrument.tsx": "57386025381f9ab7cf89a1d797b4430bd2df77e01c59be80026e741bc8094c36"
+      }
+    },
+    {
+      "id": "U-02",
+      "title": "Live Monitor",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "components/sections/ui-monitor-section.tsx",
+        "components/video-player.tsx",
+        "components/canvas-overlay.tsx",
+        "hooks/use-detection-stream.ts",
+        "app/page.tsx:96"
+      ],
+      "tests": [
+        "tests/visual-state.test.mjs",
+        "tests/pipeline-telemetry.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "WebRTC path disabled/unavailable at baseline (F-37 disconnected); MJPEG fallback retained.",
+        "No live camera exists in the campaign environment; live badges unverified."
+      ],
+      "links": {
+        "features": [
+          "F-17",
+          "F-18",
+          "F-19",
+          "F-37",
+          "F-42",
+          "F-43"
+        ],
+        "contracts": [
+          "SC-3",
+          "SC-7"
+        ]
+      },
+      "assessed": {
+        "components/sections/ui-monitor-section.tsx": "7d82bf5527b6a9e98da41a0e872f378337dc9276a198ebfaa68141848033ac4b",
+        "components/video-player.tsx": "d4047d5a7b1a6436973cd625f40b1bc6d78a2928eebf0bf8264a8b5d7c7039b2",
+        "components/canvas-overlay.tsx": "c646c55ae13ee8725f5ce249f3ba237da4aa6af9c34bdc15b6a73b2ae5e77571",
+        "hooks/use-detection-stream.ts": "c454461f96c0264a038a75fca1e84ba1f858c74ccca672afa09264868afd0d9b",
+        "app/page.tsx": "b5df93b8f835f82cae70d73534b116b10bc77342afe10969309d22118b957c7b"
+      }
+    },
+    {
+      "id": "U-03",
+      "title": "Demo Clips",
+      "kind": "ui",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/sections/ui-monitor-section.tsx",
+        "lib/live-visual-state.ts:243",
+        "app/page.tsx:75"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py",
+        "tests/visual-state.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Replay evidence only; header copy states results are not live observation.",
+        "Clip files are LFS-tracked AVIs (F-20)."
+      ],
+      "links": {
+        "features": [
+          "F-13",
+          "F-20",
+          "F-42",
+          "F-43"
+        ],
+        "contracts": [
+          "SC-3"
+        ]
+      },
+      "assessed": {
+        "components/sections/ui-monitor-section.tsx": "7d82bf5527b6a9e98da41a0e872f378337dc9276a198ebfaa68141848033ac4b",
+        "lib/live-visual-state.ts": "fa7e3fa186e2d56c470f7670ebd8267d8d13a468866a8e045dbe6a2738ee38cc",
+        "app/page.tsx": "b5df93b8f835f82cae70d73534b116b10bc77342afe10969309d22118b957c7b"
+      }
+    },
+    {
+      "id": "U-04",
+      "title": "Incidents & Evidence",
+      "kind": "ui",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/sections/incidents-section.tsx",
+        "components/incident-panel.tsx",
+        "components/incident-replay.tsx",
+        "components/clip-sidebar.tsx",
+        "components/alert-feed.tsx"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py",
+        "tests/local-report.test.mjs",
+        "hooks/__tests__/alert-feed.test.mjs",
+        "backend/tests/test_authenticated_routes.py",
+        "backend/tests/test_report_publication_api.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Incident evidence fetches use credentials. Viewer controls cannot mutate triage or generate PDF reports; cached verified reports remain readable. Production live-evidence playback remains an acceptance task."
+      ],
+      "links": {
+        "features": [
+          "F-17",
+          "F-22",
+          "F-23",
+          "F-24",
+          "F-25",
+          "F-35",
+          "F-42",
+          "F-44"
+        ],
+        "contracts": [
+          "SC-4",
+          "SC-8"
+        ]
+      },
+      "assessed": {
+        "components/sections/incidents-section.tsx": "5d69fdba675d84e3cef33c051d2146546573c3efd8f2d5f9f54c2a76e704af01",
+        "components/incident-panel.tsx": "7e5fb17f45e6bb2fb77d317a76402cb574d105431e0b8ea36bf31cbbee9e8634",
+        "components/incident-replay.tsx": "dedebaf230d8a41c2de842bedc7968bffba6c1b081fc2f77267fc50392378bd7",
+        "components/clip-sidebar.tsx": "926dfcf13d8c37beea8dee5324f16eae70ba9f1daea7fec777f585f2439e1644",
+        "components/alert-feed.tsx": "d99c81da9f2f01d775a77b51cdfccddaa2a2741c4da351b21f8aa951a37b159f"
+      }
+    },
+    {
+      "id": "U-05",
+      "title": "Intelligence",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "components/sections/ui-intel-ops-section.tsx",
+        "components/ai-report.tsx"
+      ],
+      "tests": [
+        "tests/local-report.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Remote OpenRouter generation is explicitly DISABLED when its optional module is absent (F-26); local deterministic reporting remains available.",
+        "No dedicated reports screen exists (design-map G-2)."
+      ],
+      "links": {
+        "features": [
+          "F-26",
+          "F-28",
+          "F-42"
+        ],
+        "contracts": []
+      },
+      "assessed": {
+        "components/sections/ui-intel-ops-section.tsx": "77654f3dd56655310799715803cb3bb1537dad7f2fc9b8ac3f48ec39707bbd9b",
+        "components/ai-report.tsx": "2abe0d5a89dfc67747216cacb1d6f84a503aaaa3ef94eb701c81ec815208d498"
+      }
+    },
+    {
+      "id": "U-06",
+      "title": "Operations",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "components/sections/ui-intel-ops-section.tsx",
+        "components/telegram-status.tsx",
+        "components/geo-dashboard.tsx"
+      ],
+      "tests": [
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "GeoDashboard is illustrative client-side geometry (design-map G-7); no server-side geolocation.",
+        "Telegram path untested (F-32 partial)."
+      ],
+      "links": {
+        "features": [
+          "F-32",
+          "F-36",
+          "F-42"
+        ],
+        "contracts": []
+      },
+      "assessed": {
+        "components/sections/ui-intel-ops-section.tsx": "77654f3dd56655310799715803cb3bb1537dad7f2fc9b8ac3f48ec39707bbd9b",
+        "components/telegram-status.tsx": "be6a741989a65b3c8a4e0235e01ca3148f2e5a7855277b7fa8aa023301f3af9c",
+        "components/geo-dashboard.tsx": "af606073898312d8c650523e39a4f856256491292e27fa94d965178ad7bb9c5a"
+      }
+    },
+    {
+      "id": "U-07",
+      "title": "System",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "components/sections/ui-intel-ops-section.tsx",
+        "components/api-access.tsx",
+        "hooks/use-api-access.ts",
+        "lib/api-auth.ts"
+      ],
+      "tests": [
+        "tests/api-auth.test.mjs",
+        "lib/__tests__/api-auth.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Camera-health card hardcoded honest \"unavailable\"; no camera-presence endpoint consumed.",
+        "The `/security/session` route now returns a tested viewer/admin role (F-45); camera presence remains unavailable and final post-upgrade browser validation is pending."
+      ],
+      "links": {
+        "features": [
+          "F-32",
+          "F-33",
+          "F-36",
+          "F-38",
+          "F-45"
+        ],
+        "contracts": [
+          "SC-9"
+        ]
+      },
+      "assessed": {
+        "components/sections/ui-intel-ops-section.tsx": "77654f3dd56655310799715803cb3bb1537dad7f2fc9b8ac3f48ec39707bbd9b",
+        "components/api-access.tsx": "82fa4c3e97132069bef5558ca1b4a8e45613753fe106a09cddeb457ec902e720",
+        "hooks/use-api-access.ts": "7704154e13813efe58a93dbbd7b58d1509766f3783fd159640476aac798ee8ef",
+        "lib/api-auth.ts": "63fcba7f5e1d1062a5caa73b847b58aa4432c791efc449fbe19b613791a22319"
+      }
+    },
+    {
+      "id": "U-08",
+      "title": "App shell & global chrome",
+      "kind": "ui",
+      "status": "implemented-active",
+      "source_refs": [
+        "components/shell/app-shell.tsx",
+        "components/dashboard-header.tsx",
+        "components/shell/command-palette.tsx",
+        "components/shell/access-notice.tsx",
+        "components/alert-toast.tsx",
+        "app/page.tsx"
+      ],
+      "tests": [
+        "components/shell/locale.test.mjs",
+        "tests/e2e/test_operator_flows.py"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Single-page shell: no per-screen URLs/deep-linking (design-map G-1)."
+      ],
+      "links": {
+        "features": [
+          "F-41",
+          "F-42",
+          "F-45"
+        ],
+        "contracts": [
+          "SC-4"
+        ]
+      },
+      "assessed": {
+        "components/shell/app-shell.tsx": "0f7adb7ee7ab901cbbc97877e3a00a00a6ab41eb7b8cf505eb30aa32f5cbe66e",
+        "components/dashboard-header.tsx": "2ab690aebd0fbd3af705f8ce5e7f6fbe934d939e1785c9f2bf9caac8ececd2a4",
+        "components/shell/command-palette.tsx": "44e267aee448f92082c1dee44d4af6c1569a375f72a1b83b72ef1feb4a48dcb4",
+        "components/shell/access-notice.tsx": "1a0ff535d90a2ee1928d77571c99197dd43539817bcac1baf6982e1e3f75b295",
+        "components/alert-toast.tsx": "9c616ffbae31f835ef6111bf22734b7f67311c464ce280e1031f074bf05e9516",
+        "app/page.tsx": "b5df93b8f835f82cae70d73534b116b10bc77342afe10969309d22118b957c7b"
+      }
+    },
+    {
+      "id": "U-09",
+      "title": "Design system: tokens, typography, RTL, a11y, responsive",
+      "kind": "ui",
+      "status": "unverified",
+      "source_refs": [
+        "app/globals.css",
+        "app/layout.tsx",
+        "components/ui/button.tsx"
+      ],
+      "tests": [],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Token snapshot is not an accessibility certification (docs/DESIGN.md rule).",
+        "WCAG AA for 10px tertiary text unverified in browser (design-map G-5)."
+      ],
+      "links": {
+        "features": [],
+        "contracts": [
+          "SC-9"
+        ]
+      },
+      "assessed": {
+        "app/globals.css": "b96902542d6b40a252c9c3774b58d3213864626050e3f610dfe3238bf6ad1131",
+        "app/layout.tsx": "192136d6aa9eca6d3bde5f55bc289b2e03cfc255b590f4480525e80cef791271",
+        "components/ui/button.tsx": "7cb96ee534dedef7eb138952dc02fda0cb2caf2e02f2d3c08afab7f978d58dc3"
+      }
+    },
+    {
+      "id": "U-10",
+      "title": "Shared UI data contracts",
+      "kind": "ui",
+      "status": "partial",
+      "source_refs": [
+        "lib/pipeline-telemetry.ts",
+        "lib/sentinel-selectors.ts",
+        "lib/sentinel-store.tsx",
+        "lib/local-report.ts",
+        "lib/detection-envelope.ts"
+      ],
+      "tests": [
+        "tests/detection-envelope.test.mjs",
+        "tests/pipeline-telemetry.test.mjs",
+        "lib/__tests__/sentinel-selectors.test.mjs"
+      ],
+      "evidence": [
+        "docs/blueprint/design-map.md#1"
+      ],
+      "limitations": [
+        "Severity `none` is accepted and normalized to a display tier; envelope and selector tests cover it. UI contract tests do not replace backend authorization or live SSE integration tests."
+      ],
+      "links": {
+        "features": [
+          "F-12",
+          "F-17",
+          "F-18",
+          "F-22",
+          "F-23",
+          "F-28",
+          "F-42",
+          "F-43"
+        ],
+        "contracts": [
+          "SC-2",
+          "SC-3",
+          "SC-4"
+        ]
+      },
+      "assessed": {
+        "lib/pipeline-telemetry.ts": "87af4da0812e238da49ea5d95984765fab784ad84f714e84fe1b976dfa65afa9",
+        "lib/sentinel-selectors.ts": "11dc34ffa03fd0bc5ce4fa7af355269e66fe821c3ec0404ea499675bb2adda5b",
+        "lib/sentinel-store.tsx": "525a739fa516bb13f7e08180bdd7dd62887189dda9f4d616afb700d14e616891",
+        "lib/local-report.ts": "d5d908c10c9f6127fdb1e1a6a648640b06610a33d369f1ad7e4a2560e4c9caac",
+        "lib/detection-envelope.ts": "5477dc4a07f5b6c199a72ec95b67281d7b81e707e830d4d2dde18de2e3e50497"
+      }
+    },
+    {
+      "id": "F-50",
+      "title": "Incident capture (post-alert, bounded drop-oldest queue)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/capture_queue.py",
+        "backend/pipeline_render.py",
+        "backend/api.py",
+        "config/best_frame.toml"
+      ],
+      "tests": [
+        "tests/test_capture_queue.py",
+        "tests/test_alert_path_capture.py"
+      ],
+      "evidence": [
+        "docs/campaign/tracking-counting-capture.md",
+        "docs/campaign/experiments/2203-capture-queue-alert-path.md"
+      ],
+      "limitations": [
+        "Single trigger site: RenderThread._emit_alert (verified in the assembled api.py/pipeline_render.py)",
+        "tracking-eval run CONTENDED under the corrected RESOURCE-LOCK protocol; clean re-run owed"
+      ]
+    },
+    {
+      "id": "F-51",
+      "title": "Best-frame selection records",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/best_frame.py",
+        "backend/frame_reference.py",
+        "config/best_frame.toml"
+      ],
+      "tests": [
+        "tests/test_best_frame.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/2203-capture-queue-alert-path.md"
+      ],
+      "limitations": [
+        "SC-8 best_frames layout under EVIDENCE_DIR"
+      ]
+    },
+    {
+      "id": "F-52",
+      "title": "Enhancement scheduler + GPU budget (post-alert, bounded)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/enhance.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_enhance.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/23-enhancement-honesty.md",
+        "docs/campaign/experiments/23-03-async-and-gpu-budget.md"
+      ],
+      "limitations": [
+        "api.py seam is integrator-authored (WT-23 handoff defers it; no branch shipped it)",
+        "trigger = evidence finalization, one whole-frame crop (subject-level face/person crops remain a follow-up)"
+      ]
+    },
+    {
+      "id": "F-53",
+      "title": "SC-8 derivative records + labeling",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/enhance.py",
+        "backend/evidence.py"
+      ],
+      "tests": [
+        "backend/tests/test_enhance.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/23-enhancement-honesty.md"
+      ],
+      "limitations": [
+        "append_derivative reuses the shared S-07 chain primitive (no duplicated chain)"
+      ]
+    },
+    {
+      "id": "F-54",
+      "title": "Distortion/utility harness (PSNR/SSIM/LPIPS/identity/utility)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/enhance_harness.py"
+      ],
+      "tests": [
+        "backend/tests/test_enhance_tier1.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/23-02-harness-gate.md"
+      ],
+      "limitations": [
+        "LPIPS trunk provenance recorded per measurement; thresholds provisional (single fixture)"
+      ]
+    },
+    {
+      "id": "F-55",
+      "title": "Conditional tier-1 Real-ESRGAN behind the harness",
+      "kind": "runtime",
+      "status": "partial",
+      "source_refs": [
+        "backend/enhance_tier1.py"
+      ],
+      "tests": [
+        "backend/tests/test_enhance_tier1.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/23-04-tier1-realesrgan-gated.md"
+      ],
+      "limitations": [
+        "gated/refused where harness bounds fail; weights untracked (declared external asset)",
+        "6 skips in the scoped suite are the gated tier-1 paths"
+      ]
+    },
+    {
+      "id": "F-56",
+      "title": "Face detection (YuNet) for incidents",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/face_detect.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_face_capture.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/21-wiring-audit.md",
+        "docs/campaign/experiments/21-01-yunet-latency.md"
+      ],
+      "limitations": [
+        "no identity recognition (F-30 face_intel stays unwired by campaign policy)",
+        "YuNet asset is a declared external asset"
+      ]
+    },
+    {
+      "id": "F-57",
+      "title": "Face association + crop capture (uncertain association, explicit status)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/face_capture.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_face_capture.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/21-01-yunet-latency.md",
+        "docs/campaign/experiments/21-03-failure-states.md"
+      ],
+      "limitations": [
+        "off-alert-path capture; build failures surface as DISABLED (never 500 on health)"
+      ]
+    },
+    {
+      "id": "F-58",
+      "title": "Incident triage state machine + /alerts/{id}/triage API",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/alert_triage.py",
+        "backend/api.py",
+        "lib/sentinel-selectors.ts"
+      ],
+      "tests": [
+        "backend/tests/test_alert_triage.py",
+        "backend/tests/test_alert_triage_api.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/25-ui-state-audit.md",
+        "docs/campaign/engineering/25-blueprint-delta.md"
+      ],
+      "limitations": [
+        "process-scoped state; visible rejected envelopes; severity single source"
+      ]
+    },
+    {
+      "id": "F-59",
+      "title": "Startup calibration gate (G-06)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/calibration_utils.py",
+        "backend/api.py",
+        "backend/inference.py",
+        "backend/inference_process.py",
+        "config/thresholds.toml"
+      ],
+      "tests": [
+        "backend/tests/test_calibration_policy.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/20-threshold-policy.md"
+      ],
+      "limitations": [
+        "The guard binds the artifact to the model checkpoint SHA-256 and rejects missing/changed checkpoints or conflicting transform/class environment values; per-instance transforms use the same explicit model profile. Focused policy tests pass, but calibration quality, ECE, and a usable production artifact remain unverified; the exact development override is documented in RUNBOOK."
+      ]
+    },
+    {
+      "id": "F-60",
+      "title": "Decision false-positive screen (negatives-only sweep)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "bench/calibrate.py"
+      ],
+      "tests": [
+        "backend/tests/test_policy_sweep_tool.py"
+      ],
+      "evidence": [
+        "docs/campaign/experiments/20-threshold-policy.md"
+      ],
+      "limitations": [
+        "measured on KTH aux negatives only; the six-class suite is declared uncovered"
+      ]
+    },
+    {
+      "id": "F-61",
+      "title": "Statistics overview route (GET /stats/overview)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/stats_service.py",
+        "backend/api.py"
+      ],
+      "tests": [
+        "backend/tests/test_stats_service.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/26-stats-semantics.md",
+        "docs/campaign/engineering/26-blueprint-delta.md"
+      ],
+      "limitations": [
+        "Counts are evidence-ledger records filtered by evidence-write timestamp (UTC) and exact camera scope, not alerts that occurred in the window. Alert type and latency are unavailable; unit tests establish these semantics, not live completeness or model accuracy."
+      ],
+      "links": {
+        "slices": [
+          "S-13"
+        ]
+      }
+    },
+    {
+      "id": "F-62",
+      "title": "Frame/crop reference schema (sentinel.crop_ref/v1)",
+      "kind": "runtime",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/frame_reference.py",
+        "backend/capture_queue.py"
+      ],
+      "tests": [
+        "tests/test_best_frame.py"
+      ],
+      "evidence": [
+        "docs/campaign/tracking-counting-capture.md"
+      ],
+      "limitations": [
+        "Schema consumed by WT-23 enhancement and WT-21 incident face capture; small-face recall and camera-domain accuracy remain unverified."
+      ]
+    },
+    {
+      "id": "N-17",
+      "title": "Monotonic clock quantization (15.625 ms) labelled, not hidden",
+      "kind": "finding",
+      "status": "implemented-active",
+      "source_refs": [
+        "backend/metrics.py"
+      ],
+      "tests": [
+        "backend/tests/test_metrics_telemetry.py"
+      ],
+      "evidence": [
+        "docs/campaign/engineering/13-telemetry-audit.md"
+      ],
+      "limitations": [
+        "hardware/OS clock characteristic measured on this host; cross-boundary ages are computed on the declared captureClockBase only"
+      ]
+    }
+  ]
+}

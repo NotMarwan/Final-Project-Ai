@@ -1,0 +1,31 @@
+{
+  "mode": "compare",
+  "a": "docs/campaign/experiments/artifacts/exp1904-winscores-baseline.json",
+  "b": "docs/campaign/experiments/artifacts/exp1904-winscores-branch.json",
+  "a_code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "b_code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "n_probes_a": null,
+  "n_probes_b": null,
+  "observation_ids_a": [],
+  "observation_ids_b": [],
+  "observation_ids_match": true,
+  "n_windows_a": 12,
+  "n_windows_b": 12,
+  "probe_summary": {},
+  "window_summary": {
+    "raw_conf": {
+      "max_abs_delta": 0.0,
+      "n": 12
+    },
+    "calibrated_conf": {
+      "max_abs_delta": 0.0,
+      "n": 12
+    },
+    "smoothed_conf": {
+      "max_abs_delta": 0.0,
+      "n": 12
+    }
+  },
+  "max_abs_delta": 0.0,
+  "parity_at_1e-4": true
+}

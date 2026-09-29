@@ -1,0 +1,16 @@
+{
+  "rights_check": {
+    "page": "https://www.csc.kth.se/cvap/actions/",
+    "quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+    "checked_fragments": [
+      "publicly available for non-commercial use",
+      "schuldt, laptev and caputo",
+      "if you use this database in your publications"
+    ],
+    "verified_on": "2026-09-29"
+  },
+  "entries": 36,
+  "failures": [],
+  "media_root": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures",
+  "acquired_on": "2026-09-29"
+}

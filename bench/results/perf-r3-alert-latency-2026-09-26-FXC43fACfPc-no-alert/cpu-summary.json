@@ -1,0 +1,13 @@
+{
+  "metric": "Python process-tree CPU share of total machine capacity",
+  "mean_percent": 9.87,
+  "p50_percent": 9.947983,
+  "p95_percent": 14.149495,
+  "sample_count": 40,
+  "measured_seconds": 52.03,
+  "logical_processors": 12,
+  "measurement_window": "Measured portion after the 25-second warmup",
+  "method": "Python benchmark runner and recursive child process CPU-time deltas normalized by elapsed time and logical processor count.",
+  "workload_valid": true,
+  "runtime_exit_code": 0
+}

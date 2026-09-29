@@ -1,0 +1,75 @@
+[AI] Inspecting local violence checkpoint for cuda...
+[AI] Building local SlowFast architecture (pretrained=False)...
+[AI] SlowFast weights matched; transferring model to cuda...
+[AI] SlowFast model loaded successfully.
+[AI] Latency: 621.1ms | Conf: 0.07
+{
+  "measurement": "G-13 startup stages, cold vs warm (models resident across media reset)",
+  "lock_state": {
+    "lock_dir_exists": true,
+    "lock_provenance_required": true
+  },
+  "models": {
+    "best_model.pt": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\best_model.pt",
+      "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+      "matches_contract": true
+    },
+    "person_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\person_yolo.onnx",
+      "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "matches_contract": true
+    },
+    "weapon_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\weapon_yolo.onnx",
+      "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "matches_contract": true
+    }
+  },
+  "environment": {
+    "python": "3.12.5",
+    "torch": "2.3.0+cu118",
+    "cuda_available": true,
+    "onnxruntime": "1.18.0",
+    "onnxruntime_providers": [
+      "TensorrtExecutionProvider",
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "platform": "win32"
+  },
+  "capture_clock_base": "perf-qpc",
+  "spawn_to_ready_s": 12.227989899998647,
+  "reset_handshake_s": 0.0027566999997361563,
+  "reset_ack_received": true,
+  "cold": {
+    "tag": "cold-spawn",
+    "feed_to_first_result_s": 0.034727500002190936,
+    "feed_to_first_completed_observation_s": 1.7013379000054556,
+    "seen_counters": {
+      "violenceCompletedCount": 1,
+      "weaponCompletedCount": 0
+    },
+    "first_result_startup_fields": {
+      "startupModelLoadMs": 11968.999999997322,
+      "startupFirstFrameMs": 11983.99999999674,
+      "startupFirstResultMs": null,
+      "startupFirstObservationMs": null
+    }
+  },
+  "warm": {
+    "tag": "warm-resident",
+    "feed_to_first_result_s": 0.03448809999827063,
+    "feed_to_first_completed_observation_s": 0.03449140000157058,
+    "seen_counters": {
+      "violenceCompletedCount": 2,
+      "weaponCompletedCount": 0
+    },
+    "first_result_startup_fields": {
+      "startupModelLoadMs": 11968.999999997322,
+      "startupFirstFrameMs": 11983.99999999674,
+      "startupFirstResultMs": 11983.99999999674,
+      "startupFirstObservationMs": 13639.999999999418
+    }
+  }
+}

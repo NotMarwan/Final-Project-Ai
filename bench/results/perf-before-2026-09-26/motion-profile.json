@@ -1,0 +1,27 @@
+{
+  "source": "demo_assets/videos/Wq0BuA8GM84_0.avi",
+  "frames": 300,
+  "method": "Paired wall-clock timings on the same 300 decoded source frames; frame decode excluded.",
+  "before": {
+    "operation": "Convert and resize both previous and current BGR frames on each call.",
+    "p50_ms": 0.8797,
+    "p95_ms": 1.2297,
+    "mean_ms": 0.9588
+  },
+  "cached_previous_thumbnail": {
+    "operation": "Convert and resize current frame once, reusing its 64x64 grayscale thumbnail on the next call.",
+    "p50_ms": 0.5246,
+    "p95_ms": 0.8169,
+    "mean_ms": 0.5344
+  },
+  "p50_reduction_percent": 40.4,
+  "cprofile_before": {
+    "estimate_motion_score_calls": 500,
+    "total_seconds": 0.409,
+    "cv2_resize_calls": 1000,
+    "cv2_resize_cumulative_seconds": 0.336,
+    "cv2_cvtcolor_calls": 1000,
+    "cv2_cvtcolor_cumulative_seconds": 0.050
+  },
+  "limitations": "This isolates motion-score preprocessing. It is not a full model or end-to-end latency measurement."
+}

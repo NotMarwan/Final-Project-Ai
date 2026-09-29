@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+downloads/
+results/**/trace-*.json
+results/**/runtime.log
+results/**/client.json
+results/**/audit.jsonl
+results/**/cpu-samples.jsonl
+results/**/evidence-ledger.jsonl
+results/**/evidence_dir/
+results/**/thumbnails_dir/
+results/**/reports_dir/
+results/*.txt
+results/*.xml
+results/contact-sheet.jpg

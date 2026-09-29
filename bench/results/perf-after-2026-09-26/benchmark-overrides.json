@@ -1,0 +1,7 @@
+{
+  "disabled_optional_modules": [
+    "go2rtc_bridge",
+    "openrouter_reporting"
+  ],
+  "reason": "These optional services are outside the local replay capture-to-alert workload."
+}

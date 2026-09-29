@@ -1,0 +1,175 @@
+{
+  "fixture_id": "kth-handwaving-person03",
+  "source_sha256": "dac7f3ed8ba5044f381f47105a3a43943ecc17cea30f761bc60b8ad44890ae27",
+  "run_id": "wt18-kth-waving-01",
+  "source_mode": "file-media",
+  "windows": [],
+  "detections": [
+    {
+      "time_s": 0.4,
+      "class": "pistol",
+      "score": 0.4654613137245178,
+      "bbox": [
+        55.148277282714844,
+        18.79279327392578,
+        65.93470001220703,
+        32.81963348388672
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 0.4,
+      "class": "pistol",
+      "score": 0.45122116804122925,
+      "bbox": [
+        97.35014343261719,
+        20.15453338623047,
+        107.06288146972656,
+        31.98760223388672
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 1.2,
+      "class": "pistol",
+      "score": 0.3943195939064026,
+      "bbox": [
+        51.92955017089844,
+        25.10132598876953,
+        59.4234619140625,
+        31.644706726074222
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 1.2,
+      "class": "pistol",
+      "score": 0.2387356162071228,
+      "bbox": [
+        105.74327087402344,
+        23.44799041748047,
+        112.67715454101562,
+        30.973182678222656
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 3.2,
+      "class": "pistol",
+      "score": 0.2008810043334961,
+      "bbox": [
+        57.642333984375,
+        41.5675048828125,
+        64.68144226074219,
+        47.07814025878906
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 4.0,
+      "class": "pistol",
+      "score": 0.252515971660614,
+      "bbox": [
+        57.17058563232422,
+        30.85791015625,
+        68.55292510986328,
+        39.334503173828125
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 4.8,
+      "class": "pistol",
+      "score": 0.5731010437011719,
+      "bbox": [
+        56.92657470703125,
+        17.69725799560547,
+        64.57659149169922,
+        30.974647521972653
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 5.2,
+      "class": "pistol",
+      "score": 0.20957767963409424,
+      "bbox": [
+        92.51698303222656,
+        48.320831298828125,
+        97.93547058105469,
+        53.14738464355469
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 6.0,
+      "class": "pistol",
+      "score": 0.562843918800354,
+      "bbox": [
+        57.52980041503906,
+        14.534797668457031,
+        65.21176147460938,
+        30.840065002441403
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 6.8,
+      "class": "pistol",
+      "score": 0.30411767959594727,
+      "bbox": [
+        55.887054443359375,
+        26.394256591796875,
+        112.09153747558594,
+        48.94804382324219
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 8.4,
+      "class": "pistol",
+      "score": 0.6814972162246704,
+      "bbox": [
+        54.76233673095703,
+        19.928054809570312,
+        61.78028106689453,
+        31.73439025878906
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 11.2,
+      "class": "pistol",
+      "score": 0.21779990196228027,
+      "bbox": [
+        52.48421859741211,
+        26.339027404785156,
+        63.31672286987305,
+        36.241477966308594
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    }
+  ],
+  "alerts": [
+    {
+      "alert_id": "kth-handwaving-person03:person03_handwaving_d1_uncomp:210:10",
+      "time_s": 8.4,
+      "score": 0.6814972162246704,
+      "class": "pistol"
+    }
+  ],
+  "tracks": [],
+  "model_sha256": null
+}

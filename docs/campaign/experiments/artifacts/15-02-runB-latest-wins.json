@@ -1,0 +1,189 @@
+{
+  "note": "EXP-15.02 run B",
+  "queue_policy": "latest-wins",
+  "capture_clock_base": "perf-qpc",
+  "lock_state": {
+    "lock_dir_exists": true,
+    "lock_provenance_required": true
+  },
+  "models": {
+    "best_model.pt": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\best_model.pt",
+      "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+      "matches_contract": true
+    },
+    "person_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\person_yolo.onnx",
+      "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "matches_contract": true
+    },
+    "weapon_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\weapon_yolo.onnx",
+      "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "matches_contract": true
+    }
+  },
+  "environment": {
+    "python": "3.12.5",
+    "torch": "2.3.0+cu118",
+    "cuda_available": true,
+    "onnxruntime": "1.18.0",
+    "onnxruntime_providers": [
+      "TensorrtExecutionProvider",
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "platform": "win32"
+  },
+  "workload": {
+    "source_mode": "synthetic-file-media",
+    "frames_captured": 2700,
+    "frames_enqueued": 2700,
+    "producer_dropped": 0,
+    "producer_drop_streak_max": 0,
+    "duration_s": 90.0,
+    "fps_target": 30.0,
+    "frame_shape": [
+      720,
+      1280,
+      3
+    ],
+    "inference_view_max_side": 640,
+    "violence_stride": 8
+  },
+  "results_received": 2700,
+  "startup": {
+    "spawn_to_ready_s": 20.172106099998928,
+    "startupModelLoadMs": {
+      "n": 2700,
+      "p05": 19905.9999999954,
+      "median": 19905.9999999954,
+      "p95": 19905.9999999954,
+      "min": 19905.9999999954,
+      "max": 19905.9999999954,
+      "mean": 19905.9999999954
+    },
+    "startupFirstFrameMs": {
+      "n": 2700,
+      "p05": 19936.99999999808,
+      "median": 19936.99999999808,
+      "p95": 19936.99999999808,
+      "min": 19936.99999999808,
+      "max": 19936.99999999808,
+      "mean": 19936.99999999808
+    },
+    "startupFirstResultMs": {
+      "n": 2699,
+      "p05": 19936.99999999808,
+      "median": 19936.99999999808,
+      "p95": 19936.99999999808,
+      "min": 19936.99999999808,
+      "max": 19936.99999999808,
+      "mean": 19936.99999999808
+    },
+    "startupFirstObservationMs": {
+      "n": 2627,
+      "p05": 22358.99999999674,
+      "median": 22358.99999999674,
+      "p95": 22358.99999999674,
+      "min": 22358.99999999674,
+      "max": 22358.99999999674,
+      "mean": 22358.99999999674
+    }
+  },
+  "distributions": {
+    "frameAgeMs": {
+      "n": 2700,
+      "p05": 0.8501000047544949,
+      "median": 1.149800002167467,
+      "p95": 1.9534000020939857,
+      "min": 0.7939999995869584,
+      "max": 21.47010000044247,
+      "mean": 1.254299259254131
+    },
+    "stageCaptureToQueueMs": {
+      "n": 2700,
+      "p05": 0.25550000282237306,
+      "median": 0.2773000014713034,
+      "p95": 0.490999998874031,
+      "min": 0.21019999985583127,
+      "max": 12.32719999825349,
+      "mean": 0.3168979259067715
+    },
+    "stageEnqueueToDequeueMs": {
+      "n": 2700,
+      "p05": 0.582200002099853,
+      "median": 0.8718500030227005,
+      "p95": 1.5086999992490746,
+      "min": 0.5403000031947158,
+      "max": 21.198399997956585,
+      "mean": 0.9374013333473596
+    },
+    "stagePreprocessMs": {
+      "n": 2700,
+      "p05": 0.47900000208755955,
+      "median": 0.4935000033583492,
+      "p95": 1.032899999700021,
+      "min": 0.4664000007323921,
+      "max": 3.6528999989968725,
+      "mean": 0.5999122962438613
+    },
+    "stageInferenceWaitMs": {
+      "n": 2700,
+      "p05": 0.07380000170087442,
+      "median": 0.10029999975813553,
+      "p95": 0.3918000002158806,
+      "min": 0.05769999552285299,
+      "max": 1.8872000000556,
+      "mean": 0.15372674065777878
+    },
+    "stageSerializeMs": {
+      "n": 2699,
+      "p05": 0.006300004315562546,
+      "median": 0.00790000194683671,
+      "p95": 0.012999997125007212,
+      "min": 0.005599998985417187,
+      "max": 0.5047000013291836,
+      "mean": 0.009087217473305062
+    },
+    "backlogFrames": {
+      "n": 2700,
+      "p05": 0,
+      "median": 0.0,
+      "p95": 0,
+      "min": 0,
+      "max": 0,
+      "mean": 0.0
+    },
+    "violence_observation_age_ms": {
+      "n": 2627,
+      "p05": 14.999999999417923,
+      "median": 125.0,
+      "p95": 250.0,
+      "min": 0.0,
+      "max": 296.9999999986612,
+      "mean": 133.3867529501634
+    },
+    "weapon_observation_age_ms": {
+      "n": 0
+    }
+  },
+  "counters_final": {
+    "frameQueueDroppedDerived": 0,
+    "frameQueueDiscardedByPolicy": 0,
+    "frameQueueDiscardedAtReset": 0,
+    "resultQueueDropped": 0,
+    "violenceCompletedCount": 329,
+    "weaponCompletedCount": 0,
+    "personCompletedCount": 884
+  },
+  "window_contract": {
+    "results_with_full_window": 2668,
+    "results_with_valid_window": 2668,
+    "invalid_full_window_rate": 0.0
+  },
+  "process": {
+    "workerPid": 6960,
+    "processRunId": "6ba547d66a4c409b8e42729f7e79c6a2"
+  }
+}

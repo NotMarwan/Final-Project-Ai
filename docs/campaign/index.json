@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "non_authoritative": true,
+  "note": "Alternate registry for scoped campaign documents. A document listed here is accepted by npm run docs:check without the frontmatter marker, but stays non-authoritative either way. Prefer the frontmatter marker in the document itself.",
+  "documents": []
+}

@@ -1,0 +1,46 @@
+{
+ "fixture": "C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-12-fixtures/kth/person01_boxing_d1_uncomp.avi",
+ "paced_fps": 25.0,
+ "requested_seconds": 90.0,
+ "ticks": 2250,
+ "wall_seconds": 90.0,
+ "completed_observations_max_id": 18,
+ "completed_observation_ids_seen": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18
+ ],
+ "first_completed_observation_after_s": 46.125,
+ "valid_ticks": 1097,
+ "changed_ticks": 19,
+ "reasons": {
+  "": 1130,
+  "ok": 1120
+ },
+ "final_signal": {
+  "observation_id": 18,
+  "reason": "ok",
+  "observation_valid": true,
+  "score": 0.3013,
+  "skippedFrames": 263,
+  "minIntervalMs": 2500,
+  "inferenceRunning": false,
+  "failed": false,
+  "ready": true
+ }
+}

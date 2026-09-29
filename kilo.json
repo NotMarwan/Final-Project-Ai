@@ -1,0 +1,29 @@
+{
+  "$schema": "https://kilo.ai/schema/kilo.json",
+  "version": "1.0.0",
+  "project": "AI Sentinel",
+  "description": "AI Sentinel. Current authority: AGENTS.md and docs/CURRENT.md.",
+  "agentsPath": ".kilo/agent",
+  "commandsPath": ".kilo/command",
+  "skillsPath": ".kilo/skill",
+  "mcpServers": {},
+  "permissions": {
+    "allowNetwork": true,
+    "allowFileRead": true,
+    "allowFileWrite": true,
+    "allowCodeExecution": true,
+    "allowShell": true
+  },
+  "ui": {
+    "theme": "dark",
+    "showAgentPanel": true
+  },
+  "agents": [
+    {
+      "name": "backend-reviewer-2",
+      "description": "Backend API & architecture deep-dive specialist (second reviewer)",
+      "enabled": true
+    }
+  ],
+  "defaultAgent": "explore"
+}

@@ -1,0 +1,25 @@
+[System] Profile found at C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\config\camera_profiles.yml. Active cameras: 0
+[System] Profile has no active cameras. Falling back to environment/default sources.
+[System] No camera_profiles.yml found. Using environment/default sources.
+IMPORT_OK
+go2rtc_bridge_module: None
+openrouter_module: False
+{
+ "go2rtcBridge": {
+  "module": "go2rtc_bridge",
+  "state": "DISABLED",
+  "running": false,
+  "reason": "ModuleNotFoundError: No module named 'go2rtc_bridge'"
+ },
+ "openrouterReporting": {
+  "module": "openrouter_reporting",
+  "state": "DISABLED",
+  "reason": "ModuleNotFoundError: No module named 'openrouter_reporting'"
+ },
+ "go2rtcSidecar": {
+  "module": "go2rtc_sidecar",
+  "state": "DISABLED",
+  "running": false,
+  "reason": "sidecar not initialized (webrtc.enabled is false by default: no measured WebRTC latency row yet)"
+ }
+}

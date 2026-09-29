@@ -1,56 +1,47 @@
 "use client"
 
-import { Shield, Camera, AlertTriangle, Wifi, WifiOff, Eye, EyeOff } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
+import { Eye, EyeOff, Moon, Search, Sun } from "lucide-react"
+import type { ConnectionStatus } from "@/lib/sentinel-store"
 
-interface DashboardHeaderProps {
+function UtcClock() {
+  const [time, setTime] = useState("--:--:--")
+  useEffect(() => {
+    const update = () => setTime(new Date().toISOString().slice(11, 19))
+    update()
+    const timer = setInterval(update, 1000)
+    return () => clearInterval(timer)
+  }, [])
+  return <span className="instrument-num" dir="ltr"><bdi>{time}</bdi> <small>UTC</small></span>
+}
+
+export function DashboardHeader({
+  connectionStatus, threat, privacyMode, onPrivacyToggle, onOpenPalette, fixtureMode, sectionLabel,
+}: {
+  connectionStatus: ConnectionStatus
+  threat: "critical" | "high" | "calm"
   privacyMode: boolean
-  onPrivacyToggle: (value: boolean) => void
-  sseConnected: boolean
-  totalAlerts: number
-}
-
-export function DashboardHeader({ privacyMode, onPrivacyToggle, sseConnected, totalAlerts }: DashboardHeaderProps) {
-  return (
-    <header className="glass flex items-center justify-between px-6 py-3">
-      <div className="flex items-center gap-3">
-        <Shield className="h-7 w-7 text-primary" />
-        <div>
-          <h1 className="text-lg font-bold tracking-tight text-foreground">SentinelEye</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Intelligent Surveillance</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-4">
-          <StatusIndicator icon={sseConnected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />} label={sseConnected ? "System Online" : "Reconnecting..."} variant={sseConnected ? "success" : "danger"} />
-          <StatusIndicator icon={<Camera className="h-3.5 w-3.5" />} label="Active Cameras" value="1" variant="info" />
-          <StatusIndicator icon={<AlertTriangle className="h-3.5 w-3.5" />} label="Alerts This Session" value={String(totalAlerts)} variant={totalAlerts > 0 ? "danger" : "info"} />
-        </div>
-        <div className="h-6 w-px bg-border" />
-        <div className="flex items-center gap-2">
-          {privacyMode ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-          <span className="text-xs text-muted-foreground">Privacy</span>
-          <Switch checked={privacyMode} onCheckedChange={onPrivacyToggle} />
-        </div>
-      </div>
-    </header>
-  )
-}
-
-function StatusIndicator({ icon, label, value, variant }: { icon: React.ReactNode, label: string, value?: string, variant: "success" | "info" | "danger" }) {
-  const dotColor = { success: "bg-success", info: "bg-primary", danger: "bg-danger" }
-  const textColor = { success: "text-success", info: "text-primary", danger: "text-danger" }
-  return (
-    <div className="flex items-center gap-2">
-      <span className="relative flex h-2 w-2 flex-shrink-0">
-        <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", dotColor[variant], variant === "danger" ? "animate-ping" : "animate-none")} />
-        <span className={cn("relative inline-flex h-2 w-2 rounded-full", dotColor[variant])} />
-      </span>
-      <span className={cn("text-xs font-medium", textColor[variant])}>{icon}</span>
-      <span className="text-xs text-muted-foreground">{label}</span>
-      {value !== undefined && <Badge variant="secondary" className="h-5 bg-secondary px-1.5 font-mono text-[10px] text-secondary-foreground">{value}</Badge>}
+  onPrivacyToggle: () => void
+  onOpenPalette: () => void
+  fixtureMode: boolean
+  sectionLabel: string
+}) {
+  const { resolvedTheme, setTheme } = useTheme()
+  const connectionText = connectionStatus === "online" ? "قناة التنبيهات متصلة" : connectionStatus === "reconnecting" ? "إعادة الاتصال" : "قناة التنبيهات غير متصلة"
+  const threatText = threat === "critical" ? "تنبيه حرج حديث" : threat === "high" ? "تنبيه مرتفع حديث" : "لا تنبيهات حرجة حديثة"
+  return <header className="command-topbar">
+    <div className="topbar-location"><span className="topbar-kicker">مركز العمليات /</span><strong>{sectionLabel}</strong></div>
+    <div className="topbar-status">
+      <span className={`connection-indicator status-${connectionStatus}`}><i />{connectionText}</span>
+      <span className={`threat-chip threat-${threat}`}>{threatText}</span>
+      {fixtureMode && <span className="fixture-flag">معاينة</span>}
     </div>
-  )
+    <div className="topbar-actions">
+      <UtcClock />
+      <button className="icon-action" onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")} title="تبديل المظهر" aria-label="تبديل المظهر"><Sun size={17} className="theme-sun" /><Moon size={17} className="theme-moon" /></button>
+      <button className={`icon-action ${privacyMode ? "is-active" : ""}`} onClick={onPrivacyToggle} title="وضع الخصوصية" aria-label="وضع الخصوصية" aria-pressed={privacyMode}>{privacyMode ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+      <button className="palette-trigger" onClick={onOpenPalette} aria-label="فتح لوحة الأوامر"><Search size={15} /><span>بحث وأوامر</span><kbd dir="ltr">⌘ / Ctrl K</kbd></button>
+    </div>
+  </header>
 }

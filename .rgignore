@@ -1,0 +1,21 @@
+
+# Historical artifacts are not active project authority.
+archive/
+backups/
+design_extract/
+thesis_phase2/
+thesis_results/
+team_explainer/
+GP Book Preparation/
+frontend/
+reports/
+releases/
+desktop/dist/
+arsenal/
+*.zip
+*.pdf
+*.pptx
+
+# Root HTML files are presentation exports, not app source.
+/*.html
+*.log

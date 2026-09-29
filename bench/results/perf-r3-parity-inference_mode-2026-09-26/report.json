@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "candidate": "inference_mode",
+  "device": "cuda:0",
+  "model_class": "ViolenceDetector",
+  "weights_sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+  "threshold": 0.45,
+  "violence_class_index": 1,
+  "probability_tolerance": 0.01,
+  "videos": [
+    {
+      "path": "demo_assets/videos/FXC43fACfPc_0.avi",
+      "sha256": "81dd72ec460e1102f63d9550dfa18b3e0d457804dc8757d8cb9a66eabedecc67",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 0.0,
+      "threshold_decision_mismatches": 0
+    },
+    {
+      "path": "demo_assets/videos/Wq0BuA8GM84_0.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 0.0,
+      "threshold_decision_mismatches": 0
+    },
+    {
+      "path": "demo_assets/videos/YDOJvzChqSg_0 (1).avi",
+      "sha256": "5f3b56d5d23aa969e20697bc93e3d0ed40ae3a2774391dd97f69432a5c50f028",
+      "frames": 150,
+      "windows": 15,
+      "max_probability_absolute_delta": 0.0,
+      "threshold_decision_mismatches": 0
+    }
+  ],
+  "windows_compared": 45,
+  "max_input_absolute_delta": 0.0,
+  "max_probability_absolute_delta": 0.0,
+  "p95_probability_absolute_delta": 0.0,
+  "threshold_decision_mismatches": 0,
+  "preprocess_latency_ms": {
+    "legacy": {
+      "count": 45,
+      "p50_ms": 57.224,
+      "p95_ms": 95.5598
+    },
+    "parallel_4_worker": {
+      "count": 45,
+      "p50_ms": 32.2489,
+      "p95_ms": 43.2067
+    }
+  },
+  "inference_latency_ms": {
+    "reference_fp32": {
+      "count": 45,
+      "p50_ms": 44.9791,
+      "p95_ms": 52.886
+    },
+    "candidate": {
+      "count": 45,
+      "p50_ms": 44.7664,
+      "p95_ms": 52.7039
+    }
+  },
+  "candidate_warmup_ms": null,
+  "model_load_ms": 3517.79,
+  "method": "All full 32-frame windows sampled every 8 frames from every AVI in demo_assets/videos. Candidate outputs are compared with separate legacy FP32 model outputs; every AVI reports its own max probability delta and threshold-decision mismatch count."
+}

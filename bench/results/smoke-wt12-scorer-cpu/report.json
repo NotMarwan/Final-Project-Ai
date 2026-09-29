@@ -1,0 +1,134 @@
+{
+  "run_id": "smoke-wt12-scorer-cpu",
+  "generated_utc": "2026-09-28T23:29:31+00:00",
+  "measured": false,
+  "measurement_note": "UNMEASURED smoke run (--no-lock or CPU device); never a baseline",
+  "code": {
+    "revision": "08896755769beb9a9d689a4446725ac48c89fa77",
+    "branch": "codex/sentinel-12-eval-data"
+  },
+  "models": {
+    "violence": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12\\backend\\best_model.pt",
+      "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+      "provenance": "worktree"
+    },
+    "weapon": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12\\backend\\models\\weapon_yolo.onnx",
+      "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "provenance": "worktree"
+    },
+    "person": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12\\backend\\models\\person_yolo.onnx",
+      "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "provenance": "worktree",
+      "runtime_backend": "onnx"
+    }
+  },
+  "preprocessing": {
+    "violence": "backend.inference.preprocess_slowfast_window (SlowFast slow=stride-4 subsample)",
+    "window_frames": 32,
+    "stride_frames": 8,
+    "weapon_person_sampling": "every 5 frames"
+  },
+  "decision_config": {
+    "schema_version": 1,
+    "violence_threshold": 0.45,
+    "weapon_threshold": 0.55,
+    "weapon_display_threshold": 0.45,
+    "watch_threshold": 0.45,
+    "confirm_threshold": 0.65,
+    "confirm_n": 2,
+    "confirm_m": 3,
+    "min_decision_interval_seconds": 0.5,
+    "cooldown_seconds": 3.0,
+    "history_max_age_seconds": 10.0,
+    "severity_medium_threshold": 0.4,
+    "severity_high_threshold": 0.65,
+    "severity_critical_threshold": 0.85,
+    "fusion_violence_weight": 0.65,
+    "fusion_weapon_weight": 0.15,
+    "fusion_weapon_boost": 0.12,
+    "fusion_strong_weapon_threshold": 0.75,
+    "fusion_strong_weapon_floor": 0.92,
+    "fusion_strong_violence_threshold": 0.85,
+    "fusion_strong_violence_floor": 0.88
+  },
+  "decision_replay": "backend.live_alert_decision.LiveAlertDecisionLayer over RAW window scores (no EMA smoothing); alert time = confirming window end",
+  "dataset": {
+    "manifest": "docs/campaign/eval/12-fixture-manifest.json",
+    "manifest_sha256": "c2916b5fe07702f75efba9749697073d7554cf06cab255fc6453039d0bc3f94d",
+    "splits": [
+      "calibration",
+      "test",
+      "train",
+      "val"
+    ],
+    "fixtures": [
+      "kth-walking-person02"
+    ]
+  },
+  "environment": {
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "torch": "2.3.0+cu118",
+      "torchvision": "0.18.0+cu118",
+      "ultralytics": "8.2.0",
+      "onnxruntime": null,
+      "onnxruntime-gpu": "1.18.0",
+      "opencv-python": "4.10.0.84",
+      "numpy": "1.26.4",
+      "fastapi": "0.115.0",
+      "pytest": "9.0.3",
+      "httpx": "0.27.0",
+      "psutil": "7.2.2"
+    },
+    "revision": "08896755769beb9a9d689a4446725ac48c89fa77",
+    "branch": "codex/sentinel-12-eval-data",
+    "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB, 591.86",
+    "source_hashes": {
+      "backend\\api.py": "a0c6773ec598c0f90e9f2cb895646072f10e4c96de7a69644140c34f052b4601",
+      "backend\\audio.py": "d691d18b1681b023687436e3c24943c080844ee2f3eb6d889b0eb49537c5d811",
+      "backend\\calibration_utils.py": "4e5849b4b60ae8eec0a2d417481675143fb1afc2f56e79cbf973174747eb8963",
+      "backend\\colab_bridge_server.py": "212b29a4febdb648e9980854ad617d4290e84a6f57761f244e5ba0f48c7c0458",
+      "backend\\decision_config.py": "4b1fa836d1af88e749a40c61e275cf37642a670a7ca8b51d7d6694ef5113a580",
+      "backend\\detection_categories.py": "f3cce9d549255fdaf4627ea32d82afba280145bbb5bb855b5515861dd4a2fb9a",
+      "backend\\device_config.py": "aa1d023f7260d855b62cbfa6d343dda0fcbd3eb07691388b24b1c32adb2869ca",
+      "backend\\device_utils.py": "e4108babc57a1c191e2db7d061d09120533be9ff1e2b0d3e626323f63db8c450",
+      "backend\\evidence.py": "03626d3cc86dedfaf56c14a0d750ef533df8389b48991d8a10ba5d55f7d45399",
+      "backend\\evidence_video.py": "383b9aa265008b05567a4b58b64197cceb785524b7d91dcfe5aac9da8ddc5436",
+      "backend\\export_models.py": "c89ea21e7be3d7e75d73ce8fecb2f7fd0d296b47c024eba4b6f7e35c608455fd",
+      "backend\\face_intel.py": "55e7c449084e6f7ac8c0a118218bface9a49212732dc536d74530bc2baadfd9d",
+      "backend\\frame_pipeline.py": "74aa42834dc33d019f7e7b7ea953078401cce2f48c354c8698917dcda673d569",
+      "backend\\fusion.py": "1fe6d0f0453aae2b616ca81c7ef47e430ce9e6d0a2a86aa616777d00ec2c5e90",
+      "backend\\inference.py": "93829074c5891cc49968de5a03b974b1a666e06c66c949c21a8f765f1aeef0ff",
+      "backend\\inference_process.py": "cc0e567408f65b74bbe0170a8d5deb4a75991a20547c5bcb54d9dfab4b10f48b",
+      "backend\\live_alert_decision.py": "5b0f322b27b039faa332409b5d45200534896417a8626d93d0622d0f31045e88",
+      "backend\\local_forensics.py": "725b11d5654d353029374775b07cc0075c49f74119b5f26233db7df439d66846",
+      "backend\\metrics.py": "f5dbae46a761955dd1cc228f03d02ca35900cd3c4c26c92211ca63a91c70d4e0",
+      "backend\\notifications.py": "2ac6397ae382578c9d5864e0d73599eda066606addf0775d9f612e1fb8ae560b",
+      "backend\\optimization.py": "6ae67afeeb698495cf3a1bb3b19f010bc84cecbc02d3a1439785921f3a5775ad",
+      "backend\\person_detector.py": "844a817027a6cd6dd9b640921f7e88418cc8fdfa7bdce49321867faca7877346",
+      "backend\\pipeline_ai.py": "22d6f08fd7428e1d23ac131e77442803cbb4ec01055fe768af86bc8c2b1fffb9",
+      "backend\\pipeline_capture.py": "745c84229f4ade80802e9e31881f29b8104d15bd98bd457b9997dd49c8e1924a",
+      "backend\\pipeline_render.py": "a95cdbefb5f39a7913b069e4e56a06583939c1f13e86e850e0f3b6752d7d1416",
+      "backend\\prepare_colab_bundle.py": "b4eccaddadb2ed6c18297a83f099e84cc5efb7493d7535ca5b6573069d1e755d",
+      "backend\\render_colab_notebook.py": "097c240e81e3acf220c7831820fc4b2ffc1697f744bc41455d512524ef46f81a",
+      "backend\\reporting.py": "71da8d4eeaab85597cf67b1318b85845a91a9393195ea96d5f474d9a0a4816b3",
+      "backend\\security.py": "d8e3c04eb8195c44f0f17e4d9d43b220468d13b7825e9f7907cbcf444194bcb4",
+      "backend\\temporal_frames.py": "62fd80ec99b5719362c8511043b1ca8391efb78504140a175dba305f7bb364f2",
+      "backend\\train_calibration.py": "391db7136ea0744fe12c18f44307696461d7b24e848575b46c4bf9fc3154e663",
+      "backend\\train_finetune.py": "98a5391339b6af3acafc9191345109e0ffca44994481285c1738e71e46f5fc5a",
+      "backend\\visual_annotator.py": "1add9b4a7314c10ca1a625fbfffd349870a03e58d26f0ac4b989a65e1d96edda",
+      "backend\\weapon.py": "bc6f56c7e887f6b6947d711bee334e29e8b3d5d05ab35b01849a89f20466231c",
+      "backend\\webrtc_streamer.py": "2906ea9d1d2c8e8184d9868e68e1734be6db21a1fb0824b6e840d62a786254ed",
+      "backend\\yolo_onnx.py": "cd6683e6645fb58eadf7453de2ee7cdd5d2a8b9e64163de410f607a1119b09c5"
+    }
+  },
+  "source_mode": "file-media",
+  "adapter_state": "offline scoring: no API harness; go2rtc_bridge/openrouter_reporting absent and not loaded (SC-10)",
+  "device": "cpu",
+  "wall_seconds": 67.359,
+  "outputs_dir": "bench\\results\\smoke-wt12-scorer-cpu\\outputs"
+}

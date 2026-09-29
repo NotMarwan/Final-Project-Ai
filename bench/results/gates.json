@@ -1,0 +1,84 @@
+{
+  "phase": "parallel implementation; live acceptance pending",
+  "phase_complete": false,
+  "camera_available": false,
+  "gates": {
+    "G-01": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "File replay render median 30.0 fps; live source unavailable. Slow tail remains reported separately; no live gate."
+    },
+    "G-02": {
+      "passed": false,
+      "status": "not_demonstrated",
+      "reason": "No complete verified benign fixture suite."
+    },
+    "G-03": {
+      "passed": false,
+      "status": "not_demonstrated",
+      "reason": "No verified close-range positive suite."
+    },
+    "G-04": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Actual capture timestamps exist, but no independently verified live event onset/glass measurement."
+    },
+    "G-05": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Validated decision defaults consolidated into config/thresholds.toml and propagated. Legacy preprocessing/EMA/weapon config parameters remain; exhaustive decision-literal audit pending."
+    },
+    "G-06": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Deterministic calibration candidate tool tested; independent labeled input and validated runtime artifact absent."
+    },
+    "G-07": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Capture/media timestamp validity and gaps tested. Live-camera integrity remains unmeasured; file-media windows are explicitly identified."
+    },
+    "G-08": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Synthetic H.264/yuv420p fast-start fixture completely decoded and played to completion in Chromium; actual live evidence duration pending."
+    },
+    "G-09": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Offline Arabic facts-only report and UI implemented. Full network-disabled concurrent demo and local Arabic VLM evaluation pending."
+    },
+    "G-10": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Active worker failures/invalidwindows exposed; legacy peripheral paths still require fault-injection audit."
+    },
+    "G-11": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Production decision contracts tested; line coverage percentage not measured."
+    },
+    "G-12": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Canonical documentation enforcement implemented. Historical credential rotation and full packaging/untracked artifact review remain."
+    },
+    "G-13": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "First file-display time 13.58s; live frame with active detection not measured."
+    },
+    "G-14": {
+      "passed": false,
+      "status": "not_demonstrated",
+      "reason": "No60-minute isolated soak."
+    },
+    "G-15": {
+      "passed": false,
+      "status": "partial_evidence",
+      "reason": "Three unchanged controls measured (100 requests each); only meaningful under a valid active-detection workload. All mutating routes and live load remain unproven."
+    }
+  },
+  "updated_on": "2026-09-12",
+  "latest_runtime_report": "bench/results/sprint2-verified-480p/report.json"
+}

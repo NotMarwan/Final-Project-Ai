@@ -1,0 +1,25 @@
+{
+  "report": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-29\\docs\\campaign\\evaluation\\artifacts\\29-eval-report.json",
+  "fixtures": 36,
+  "slices": [
+    "all",
+    "low_resolution",
+    "out_of_cctv_domain",
+    "staged_single_person",
+    "static_camera"
+  ],
+  "unavailable_metrics": [
+    {
+      "metric": "time_to_detection_s",
+      "reason": "no evaluated fixture carries an independently labeled onset; clip-level publisher labels cannot time the alert"
+    },
+    {
+      "metric": "counting",
+      "reason": "no evaluated fixture carries labels.counts"
+    },
+    {
+      "metric": "ap50_by_class",
+      "reason": "no box-level ground truth in fixtures"
+    }
+  ]
+}

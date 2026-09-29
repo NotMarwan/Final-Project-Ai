@@ -1,0 +1,189 @@
+{
+  "note": "EXP-15.01 baseline + EXP-15.02 run A",
+  "queue_policy": "drop-newest",
+  "capture_clock_base": "perf-qpc",
+  "lock_state": {
+    "lock_dir_exists": true,
+    "lock_provenance_required": true
+  },
+  "models": {
+    "best_model.pt": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\best_model.pt",
+      "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+      "matches_contract": true
+    },
+    "person_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\person_yolo.onnx",
+      "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "matches_contract": true
+    },
+    "weapon_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-15\\backend\\models\\weapon_yolo.onnx",
+      "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "matches_contract": true
+    }
+  },
+  "environment": {
+    "python": "3.12.5",
+    "torch": "2.3.0+cu118",
+    "cuda_available": true,
+    "onnxruntime": "1.18.0",
+    "onnxruntime_providers": [
+      "TensorrtExecutionProvider",
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "platform": "win32"
+  },
+  "workload": {
+    "source_mode": "synthetic-file-media",
+    "frames_captured": 2700,
+    "frames_enqueued": 2694,
+    "producer_dropped": 6,
+    "producer_drop_streak_max": 4,
+    "duration_s": 90.0,
+    "fps_target": 30.0,
+    "frame_shape": [
+      720,
+      1280,
+      3
+    ],
+    "inference_view_max_side": 640,
+    "violence_stride": 8
+  },
+  "results_received": 2694,
+  "startup": {
+    "spawn_to_ready_s": 24.656361199995445,
+    "startupModelLoadMs": {
+      "n": 2694,
+      "p05": 24390.999999995984,
+      "median": 24390.999999995984,
+      "p95": 24390.999999995984,
+      "min": 24390.999999995984,
+      "max": 24390.999999995984,
+      "mean": 24390.999999995984
+    },
+    "startupFirstFrameMs": {
+      "n": 2694,
+      "p05": 24406.999999999243,
+      "median": 24406.999999999243,
+      "p95": 24406.999999999243,
+      "min": 24406.999999999243,
+      "max": 24406.999999999243,
+      "mean": 24406.999999999243
+    },
+    "startupFirstResultMs": {
+      "n": 2693,
+      "p05": 24406.999999999243,
+      "median": 24406.999999999243,
+      "p95": 24406.999999999243,
+      "min": 24406.999999999243,
+      "max": 24406.999999999243,
+      "mean": 24406.999999999243
+    },
+    "startupFirstObservationMs": {
+      "n": 2602,
+      "p05": 27671.99999999866,
+      "median": 27671.99999999866,
+      "p95": 27671.99999999866,
+      "min": 27671.99999999866,
+      "max": 27671.99999999866,
+      "mean": 27671.99999999866
+    }
+  },
+  "distributions": {
+    "frameAgeMs": {
+      "n": 2694,
+      "p05": 0.8732999995118007,
+      "median": 1.2627999967662618,
+      "p95": 1.7145000019809231,
+      "min": 0.7795999990776181,
+      "max": 273.09429999877466,
+      "mean": 1.7903304751834945
+    },
+    "stageCaptureToQueueMs": {
+      "n": 2694,
+      "p05": 0.2565000031609088,
+      "median": 0.2911000046879053,
+      "p95": 0.4279000058886595,
+      "min": 0.228599994443357,
+      "max": 41.645500001322944,
+      "mean": 0.33718422428063
+    },
+    "stageEnqueueToDequeueMs": {
+      "n": 2694,
+      "p05": 0.5997999978717417,
+      "median": 0.9742000038386323,
+      "p95": 1.3278999977046624,
+      "min": 0.5323000004864298,
+      "max": 235.84629999822937,
+      "mean": 1.4531462509028645
+    },
+    "stagePreprocessMs": {
+      "n": 2694,
+      "p05": 0.4813000050489791,
+      "median": 0.49420000141253695,
+      "p95": 0.7464000009349547,
+      "min": 0.46719999954802915,
+      "max": 47.161599999526516,
+      "mean": 0.5866465849684834
+    },
+    "stageInferenceWaitMs": {
+      "n": 2694,
+      "p05": 0.08059999527176842,
+      "median": 0.10494999878574163,
+      "p95": 0.3949000019929372,
+      "min": 0.06350000330712646,
+      "max": 31.28889999788953,
+      "mean": 0.16924606530954173
+    },
+    "stageSerializeMs": {
+      "n": 2693,
+      "p05": 0.006499998562503606,
+      "median": 0.008100003469735384,
+      "p95": 0.011599993740674108,
+      "min": 0.005599998985417187,
+      "max": 0.4864000002271496,
+      "mean": 0.008952506551954956
+    },
+    "backlogFrames": {
+      "n": 2694,
+      "p05": 0,
+      "median": 0.0,
+      "p95": 0,
+      "min": 0,
+      "max": 3,
+      "mean": 0.0066815144766146995
+    },
+    "violence_observation_age_ms": {
+      "n": 2602,
+      "p05": 15.999999995983671,
+      "median": 125.0,
+      "p95": 250.0,
+      "min": 0.0,
+      "max": 281.9999999992433,
+      "mean": 132.218677939832
+    },
+    "weapon_observation_age_ms": {
+      "n": 0
+    }
+  },
+  "counters_final": {
+    "frameQueueDroppedDerived": 6,
+    "frameQueueDiscardedByPolicy": 0,
+    "frameQueueDiscardedAtReset": 0,
+    "resultQueueDropped": 0,
+    "violenceCompletedCount": 326,
+    "weaponCompletedCount": 0,
+    "personCompletedCount": 890
+  },
+  "window_contract": {
+    "results_with_full_window": 2662,
+    "results_with_valid_window": 2640,
+    "invalid_full_window_rate": 0.008264462809917356
+  },
+  "process": {
+    "workerPid": 33380,
+    "processRunId": "bd1cbf392e7441b4a595eb4d07b28d66"
+  }
+}

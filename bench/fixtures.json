@@ -1,0 +1,19 @@
+{
+  "fixtures": [],
+  "download_failures": [
+    {
+      "source": "https://www.csc.kth.se/cvap/actions/walking.zip",
+      "error": "URLError",
+      "message": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    {
+      "source": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+      "error": "URLError",
+      "message": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    }
+  ],
+  "limitations": [
+    "No hugging, handshakes, phone-use or close-range positive weapon/violence clips.",
+    "Do not use this auxiliary set to claim G-02/G-03 or fit in-domain calibration."
+  ]
+}

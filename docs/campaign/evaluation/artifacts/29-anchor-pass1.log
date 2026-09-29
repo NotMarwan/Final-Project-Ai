@@ -1,0 +1,12 @@
+[AI] Inspecting local violence checkpoint for cuda:0...
+[AI] Building local SlowFast architecture (pretrained=False)...
+[AI] SlowFast weights matched; transferring model to cuda:0...
+[AI] SlowFast model loaded successfully.
+C:\Users\PCD\Downloads\Final Project AI Sentinel\venv\Lib\site-packages\torch\nn\modules\conv.py:605: UserWarning: Plan failed with a cudnnException: CUDNN_BACKEND_EXECUTION_PLAN_DESCRIPTOR: cudnnFinalize Descriptor Failed cudnn_status: CUDNN_STATUS_NOT_SUPPORTED (Triggered internally at ..\aten\src\ATen\native\cudnn\Conv_v8.cpp:919.)
+  return F.conv3d(
+{
+  "fixtures_scored": 36,
+  "device": "cuda:0",
+  "measured": true,
+  "output_dir": "bench\\results\\campaign-baseline-2026-09-29-anchor-pass1\\outputs"
+}

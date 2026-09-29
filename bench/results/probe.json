@@ -1,0 +1,1017 @@
+{
+  "environment": {
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "torch": "2.3.0+cu118",
+      "torchvision": "0.18.0+cu118",
+      "ultralytics": "8.2.0",
+      "onnxruntime": "1.18.0",
+      "onnxruntime-gpu": null,
+      "opencv-python": "4.10.0.84",
+      "numpy": "1.26.4",
+      "fastapi": "0.115.0",
+      "pytest": "9.0.3",
+      "httpx": "0.27.0",
+      "psutil": "7.2.2"
+    },
+    "revision": "8ebb993bd5cb755d3472a6ca7cacc592c6a687a5",
+    "branch": "final-demo-transfer",
+    "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB, 591.86",
+    "source_hashes": {
+      "backend\\_pipeline_ai_deprecated.py": "9dc9148d0445ef0126b3809e1b31794c99523bf8c3591acd11b2d68f1fa0eeda",
+      "backend\\api.py": "c63f0c9709f8cb965d9e42911662d0ed54e31fe6e8d548d62bf3578ad0a71ba4",
+      "backend\\audio.py": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b",
+      "backend\\augmentations.py": "2352531d6a8a3b064ec19a8e59aa95c09f8bab026d1c295ba29bf1b7f86a79d6",
+      "backend\\calibration_utils.py": "4e5849b4b60ae8eec0a2d417481675143fb1afc2f56e79cbf973174747eb8963",
+      "backend\\check_model_sha.py": "32ee8de9279d8b7c1c15e68edc589b0b7cf2edbd5e4b8b06fd554e961ed2dd16",
+      "backend\\colab_bridge_server.py": "212b29a4febdb648e9980854ad617d4290e84a6f57761f244e5ba0f48c7c0458",
+      "backend\\dataset_manager.py": "f8404633264e5f99cb6b33825b485509d04e70dab9a31a090c8762f01f00bf73",
+      "backend\\detection_categories.py": "f3cce9d549255fdaf4627ea32d82afba280145bbb5bb855b5515861dd4a2fb9a",
+      "backend\\device_config.py": "4b7a344413c88a70c2bf9608c669201e8794a4a1d59d5caca1b2f71ac6f4571d",
+      "backend\\device_utils.py": "7c4b21f337fbaa0d8cdeeec47e27f4f41b7eb1eca65fc291ac610e9b2bfe1557",
+      "backend\\evidence.py": "20f38109de8d8e031218c10161f10c346aaa8a72aac12f101b2949bf6b3ae6b7",
+      "backend\\export_models.py": "a2862f89d997698baa2838a9b99a9693b224eb55f6cb990ccaf5d1ce67d08127",
+      "backend\\face_intel.py": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598",
+      "backend\\frame_pipeline.py": "91e45649591e0b357b7e4e9b814d37ffbcb7a5bf4f5fdad761bc029549b8f51b",
+      "backend\\fusion.py": "6986f9c4a935c213ffc1741f0ac9ff3c56168265ac6f063c168032e5e85ca4a2",
+      "backend\\go2rtc_bridge.py": "40475c91839ad8a1bba16f360609ba5bce138395e3149b4c937b450058f0e652",
+      "backend\\inference.py": "6f4df21fa431d8c7f7f8eb133671182e53eb2b2b8d7bf708b98f9c1c7de6cce7",
+      "backend\\inference_process.py": "19957640d868d6e5e50e70497b06435aa6ba94a0628d54fedea0ed9be4cf9c53",
+      "backend\\live_alert_decision.py": "27d5b371159cc846ef8904de43027c5afbd829c4106fb1247c7bb73775cf5eaf",
+      "backend\\metrics.py": "ad59db16e480b412402e4b508b4deebf81af2e46b8d60952e3fdda0fcb0af304",
+      "backend\\notifications.py": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087",
+      "backend\\openrouter_reporting.py": "5c66f686b7f81b0b44900deb55c64c239055783c7a0b90a48bcb5a7d29d4500c",
+      "backend\\optimization.py": "87970c3142e1f79dce761bcc08753e9040773c13858c64ae7630418672b1240a",
+      "backend\\person_detector.py": "576f7fa6fe1b17dcbf9237dba9d760b5e604f092e53cd60e4e00fd407efce736",
+      "backend\\pipeline_ai.py": "39fc06fbd16267924bb386652c921b26eff224d6e0626c484f0f10d06d42fac7",
+      "backend\\pipeline_capture.py": "cf2965319adf31e5f0b315a93bdad2e00adba11c63dfdc683f542f61736e3a39",
+      "backend\\pipeline_render.py": "a621df271937fab2d3b9594a904383ce199d6c8de4ed7f5e96cb7b942b9780b2",
+      "backend\\prepare_colab_bundle.py": "b4eccaddadb2ed6c18297a83f099e84cc5efb7493d7535ca5b6573069d1e755d",
+      "backend\\render_colab_notebook.py": "097c240e81e3acf220c7831820fc4b2ffc1697f744bc41455d512524ef46f81a",
+      "backend\\reporting.py": "b4c7ef3c1d27a03d0febb74b9aa05a406f59f4f40d4a2431ca1e995595e7237d",
+      "backend\\security.py": "afaf595746a56888894cd6115d57273053e8a4410b60d4dd8d3d18f4fe1e7a72",
+      "backend\\train_calibration.py": "391db7136ea0744fe12c18f44307696461d7b24e848575b46c4bf9fc3154e663",
+      "backend\\train_finetune.py": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb",
+      "backend\\train_pipeline.py": "620e283c0e0c0a428ba91d1042a33a80af69901a7a447f7fe4db3cc8bbd02ef6",
+      "backend\\visual_annotator.py": "07061d7f275c9c9fad607b4bd1fee44566a7959c9d1742a6f347158c2cda1669",
+      "backend\\weapon.py": "1bdb5d0c12c7c3e3b16b19d79f572d0fcfda60a85d2476b5a4825da988ee0c68",
+      "backend\\webrtc_streamer.py": "a10afa55f4427d553cdf3ab63677cc5fcd9a09d759848b6d1fa07af45fad7d00"
+    }
+  },
+  "detection_environment": {
+    "WEIGHTS_PATH": "best_model.pt",
+    "THRESHOLD": "0.51",
+    "STRIDE": "16",
+    "WEAPON_MIN_INTERVAL_MS": "500",
+    "WEAPON_INFER_INTERVAL": "4",
+    "VIOLENCE_CLASS_INDEX": "1",
+    "PERSON_OVERLAY_ENABLED": "false",
+    "AI_SENTINEL_ALERT_COOLDOWN_SECONDS": "5"
+  },
+  "source_audit": {
+    "silent_handlers": [
+      {
+        "file": "backend\\api.py",
+        "line": 1073,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1325,
+        "exception": "RuntimeError"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1406,
+        "exception": "asyncio.CancelledError"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1234,
+        "exception": "queue.Full"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1370,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 2071,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1135,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 465,
+        "exception": "queue.Full"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 483,
+        "exception": "queue.Full"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1155,
+        "exception": "ValueError"
+      },
+      {
+        "file": "backend\\api.py",
+        "line": 1228,
+        "exception": "queue.Full"
+      },
+      {
+        "file": "backend\\pipeline_render.py",
+        "line": 190,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\pipeline_render.py",
+        "line": 187,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\pipeline_render.py",
+        "line": 212,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\pipeline_render.py",
+        "line": 287,
+        "exception": "Exception"
+      },
+      {
+        "file": "backend\\pipeline_capture.py",
+        "line": 115,
+        "exception": "IndexError"
+      }
+    ],
+    "mutating_routes": [
+      {
+        "function": "webrtc_whep_offer",
+        "line": 1423,
+        "method": "POST",
+        "route": "/api/webrtc/{cam_id}/whep",
+        "async": true
+      },
+      {
+        "function": "webrtc_whep_ice",
+        "line": 1435,
+        "method": "PATCH",
+        "route": "/api/webrtc/{cam_id}/whep",
+        "async": true
+      },
+      {
+        "function": "webrtc_offer",
+        "line": 1454,
+        "method": "POST",
+        "route": "/webrtc/offer/{camera_id}",
+        "async": true
+      },
+      {
+        "function": "demo_start",
+        "line": 1528,
+        "method": "POST",
+        "route": "/demo_start/{clip_id}",
+        "async": true
+      },
+      {
+        "function": "demo_stop",
+        "line": 1553,
+        "method": "DELETE",
+        "route": "/demo_stop/{clip_id}",
+        "async": true
+      },
+      {
+        "function": "analyze_category",
+        "line": 1632,
+        "method": "POST",
+        "route": "/api/analyze",
+        "async": true
+      },
+      {
+        "function": "toggle_category",
+        "line": 1663,
+        "method": "POST",
+        "route": "/api/categories/{category_id}/toggle",
+        "async": true
+      },
+      {
+        "function": "test_telegram_notification",
+        "line": 1700,
+        "method": "POST",
+        "route": "/notifications/telegram/test",
+        "async": true
+      },
+      {
+        "function": "test_telegram_video",
+        "line": 1722,
+        "method": "POST",
+        "route": "/notifications/telegram/test_video",
+        "async": true
+      },
+      {
+        "function": "deepseek_test",
+        "line": 1842,
+        "method": "POST",
+        "route": "/reports/deepseek/test",
+        "async": true
+      },
+      {
+        "function": "deepseek_generate",
+        "line": 1863,
+        "method": "POST",
+        "route": "/reports/deepseek/{alert_id}",
+        "async": true
+      },
+      {
+        "function": "switch_camera",
+        "line": 1950,
+        "method": "POST",
+        "route": "/switch_camera",
+        "async": true
+      },
+      {
+        "function": "set_threshold",
+        "line": 1954,
+        "method": "POST",
+        "route": "/set_threshold",
+        "async": true
+      },
+      {
+        "function": "set_cooldown",
+        "line": 1961,
+        "method": "POST",
+        "route": "/set_cooldown",
+        "async": true
+      },
+      {
+        "function": "analyze_audio",
+        "line": 2013,
+        "method": "POST",
+        "route": "/audio/analyze",
+        "async": true
+      },
+      {
+        "function": "reset_decision_layer",
+        "line": 2079,
+        "method": "POST",
+        "route": "/decision_layer/reset",
+        "async": true
+      }
+    ],
+    "legacy_tests": [
+      {
+        "file": "test_angle_invariance.py",
+        "test_functions": [
+          "test_model_handles_eye_level_angle",
+          "test_model_angle_augmentation_training"
+        ]
+      },
+      {
+        "file": "test_api_categories.py",
+        "test_functions": [
+          "test_api_refuses_to_enable_weapon_when_engine_unavailable",
+          "test_api_allows_weapon_toggle_when_engine_available"
+        ]
+      },
+      {
+        "file": "test_api_runtime_config.py",
+        "test_functions": [
+          "test_finalize_config_syncs_state_threshold"
+        ]
+      },
+      {
+        "file": "test_categories.py",
+        "test_functions": [
+          "test_category_enum_values",
+          "test_category_detector_initialization",
+          "test_enable_weapon_category",
+          "test_category_scoring",
+          "test_category_config_replace",
+          "test_category_capabilities",
+          "test_unsupported_category_analysis"
+        ]
+      },
+      {
+        "file": "test_dataset_loader.py",
+        "test_functions": [
+          "test_dataset_config_loading",
+          "test_rwc2000_dataset",
+          "test_ufc_dataset",
+          "test_multi_dataset_sampling",
+          "test_video_clip_generation"
+        ]
+      },
+      {
+        "file": "test_decision_layer.py",
+        "test_functions": [
+          "test_default_configuration_matches_v2_safe_demo_policy",
+          "test_initial_state_is_normal",
+          "test_initial_is_not_confirmed",
+          "test_initial_is_not_cooldown",
+          "test_status_returns_dict",
+          "test_low_probability_stays_normal",
+          "test_probability_at_watch_threshold_boundary",
+          "test_probability_below_watch_threshold_is_normal",
+          "test_above_watch_threshold_enters_watch",
+          "test_watch_does_not_confirm_with_one_sample",
+          "test_two_samples_above_confirm_threshold_triggers_confirmed",
+          "test_samples_below_confirm_threshold_do_not_confirm",
+          "test_mixed_samples_only_confirm_if_enough_above_threshold",
+          "test_rolling_history_count_increases",
+          "test_cooldown_activates_after_confirmation",
+          "test_cooldown_remaining_is_positive",
+          "test_is_cooldown_returns_true_during_cooldown",
+          "test_reset_returns_state_to_normal",
+          "test_reset_clears_confirmed_flag",
+          "test_reset_clears_rolling_history",
+          "test_reset_clears_cooldown",
+          "test_sample_too_soon_is_rejected",
+          "test_sample_after_min_interval_is_accepted",
+          "test_rejected_sample_does_not_advance_confirmation",
+          "test_valid_standard_id",
+          "test_valid_test_id",
+          "test_path_traversal_dots",
+          "test_path_traversal_with_extension",
+          "test_null_byte",
+          "test_slash_in_id",
+          "test_backslash_in_id",
+          "test_empty_string",
+          "test_dot_only",
+          "test_double_dot"
+        ]
+      },
+      {
+        "file": "test_demo_clips.py",
+        "test_functions": [
+          "test_exactly_three_example_sources_defined",
+          "test_no_stale_example_04_through_10",
+          "test_demo_source_names_descriptive",
+          "test_all_three_avi_files_exist"
+        ]
+      },
+      {
+        "file": "test_device_utils.py",
+        "test_functions": [
+          "test_get_device_returns_torch_device",
+          "test_get_device_returns_valid_type",
+          "test_device_name_returns_string",
+          "test_is_gpu_returns_bool",
+          "test_get_onnx_providers_returns_list"
+        ]
+      },
+      {
+        "file": "test_eye_level.py",
+        "test_functions": [
+          "test_eye_level_augmentation_preserves_shape",
+          "test_eye_level_normalization_logic"
+        ]
+      },
+      {
+        "file": "test_face_policy.py",
+        "test_functions": [
+          "test_public_face_summary_masks_known_identity_when_policy_off",
+          "test_face_policy_endpoint_updates_runtime_policy",
+          "test_face_policy_endpoint_rejects_empty_payload",
+          "test_face_policy_get_endpoint_returns_current_policy",
+          "test_face_policy_reload_endpoint_applies_disk_overrides",
+          "test_public_face_summary_alias_is_consistent_per_person",
+          "test_emit_face_audit_events_respects_cooldown_window"
+        ]
+      },
+      {
+        "file": "test_face_policy_persistence.py",
+        "test_functions": [
+          "test_policy_overrides_are_saved_and_reloaded"
+        ]
+      },
+      {
+        "file": "test_gpu_activation.py",
+        "test_functions": [
+          "test_pytorch_is_cuda_version",
+          "test_rtx_3060_detected",
+          "test_device_utils_returns_cuda",
+          "test_device_config_returns_cuda",
+          "test_vram_sufficient",
+          "test_cuda_tensor_operations"
+        ]
+      },
+      {
+        "file": "test_inference_cache.py",
+        "test_functions": [
+          "test_cached_resize_cache_stays_bounded"
+        ]
+      },
+      {
+        "file": "test_inference_process.py",
+        "test_functions": [
+          "test_read_violence_signal_uses_latest_completed_async_result"
+        ]
+      },
+      {
+        "file": "test_inspect_model_checkpoint.py",
+        "test_functions": [
+          "test_inspect_checkpoint_safe_load",
+          "test_inspect_checkpoint_missing_file",
+          "test_test_compatibility_mock"
+        ]
+      },
+      {
+        "file": "test_intrusion_api_contract.py",
+        "test_functions": [
+          "test_api_categories_returns_camelcase_contract",
+          "test_api_analyze_accepts_camelcase",
+          "test_api_analyze_accepts_snakecase",
+          "test_malformed_person_boxes_returns_400",
+          "test_malformed_restricted_zones_returns_400",
+          "test_invalid_bbox_length_returns_400",
+          "test_non_numeric_bbox_returns_400",
+          "test_bbox_x2_lt_x1_returns_400",
+          "test_bbox_y2_lt_y1_returns_400",
+          "test_non_numeric_box_coords_returns_400",
+          "test_box_x2_lt_x1_returns_400",
+          "test_box_y2_lt_y1_returns_400",
+          "test_intrusion_threshold_out_of_range_low_returns_400",
+          "test_intrusion_threshold_out_of_range_high_returns_400",
+          "test_intrusion_threshold_zero_accepted",
+          "test_snake_case_threshold_accepted",
+          "test_missing_zone_id_returns_400",
+          "test_missing_zone_name_allowed"
+        ]
+      },
+      {
+        "file": "test_intrusion_category.py",
+        "test_functions": [
+          "test_intrusion_capability_missing_inputs",
+          "test_intrusion_capability_ready",
+          "test_intrusion_logic_overlap",
+          "test_intrusion_camera_id_filtering",
+          "test_intrusion_disabled_config"
+        ]
+      },
+      {
+        "file": "test_latency.py",
+        "test_functions": [
+          "test_inference_latency_under_500ms",
+          "test_stride_processing_does_not_block"
+        ]
+      },
+      {
+        "file": "test_live_visual_pipeline.py",
+        "test_functions": [
+          "test_read_weapon_signal_uses_cached_bbox_and_score_for_visual_continuity",
+          "test_detection_payload_keeps_multi_threat_boxes_for_frontend_overlay",
+          "test_multi_threat_prefers_top_ranked_knife_label_over_lower_ranked_gun_labels"
+        ]
+      },
+      {
+        "file": "test_manifest_dataset.py",
+        "test_functions": [
+          "test_manifest_dataset_basic",
+          "test_manifest_dataset_split",
+          "test_manifest_dataset_x3d_profile"
+        ]
+      },
+      {
+        "file": "test_multi_angle_benchmarks.py",
+        "test_functions": [
+          "test_bulk_benchmark_scanning",
+          "test_bulk_benchmark_error_handling"
+        ]
+      },
+      {
+        "file": "test_pipeline_integration.py",
+        "test_functions": [
+          "test_overlay_cache_thread_safety",
+          "test_motion_estimation",
+          "test_capture_queue_bound"
+        ]
+      },
+      {
+        "file": "test_rwf2000_manifest.py",
+        "test_functions": [
+          "test_default_build",
+          "test_ratio_split",
+          "test_determinism",
+          "test_non_violence_label_mapping",
+          "test_variant_normal_labels"
+        ]
+      },
+      {
+        "file": "test_threat_dispatch.py",
+        "test_functions": [
+          "test_weapon_only_triggers_alert",
+          "test_violence_triggers_alert"
+        ]
+      },
+      {
+        "file": "test_threat_latency_benchmark.py",
+        "test_functions": [
+          "test_benchmark_stats_calculation",
+          "test_benchmark_threat_detection"
+        ]
+      },
+      {
+        "file": "test_train_config.py",
+        "test_functions": [
+          "test_train_config_validates_device",
+          "test_train_config_auto_device",
+          "test_train_config_output_dir_safe_path",
+          "test_train_config_no_overwrite_best_model",
+          "test_train_config_appends_timestamp"
+        ]
+      },
+      {
+        "file": "test_train_finetune_sampling.py",
+        "test_functions": [
+          "test_build_datasets_balances_capped_manifest_sampling",
+          "test_build_datasets_manifest_sampling_is_deterministic"
+        ]
+      },
+      {
+        "file": "test_train_rwf2000_smoke.py",
+        "test_functions": [
+          "test_train_smoke_dry_run_legacy",
+          "test_train_smoke_dry_run_x3d",
+          "test_train_smoke_invalid_caps",
+          "test_train_smoke_invalid_epochs"
+        ]
+      },
+      {
+        "file": "test_train_rwf2000_smoke_actual.py",
+        "test_functions": [
+          "test_smoke_training_safety_caps",
+          "test_actual_smoke_training_flow",
+          "test_dry_run_writes_no_checkpoint",
+          "test_production_weights_protection",
+          "test_invalid_device_fails"
+        ]
+      },
+      {
+        "file": "test_video_input_contract.py",
+        "test_functions": [
+          "test_contract_profiles_exist",
+          "test_legacy_slowfast_contract",
+          "test_x3d_contract",
+          "test_get_profile"
+        ]
+      },
+      {
+        "file": "test_video_loader.py",
+        "test_functions": [
+          "test_load_video_clip_legacy_profile",
+          "test_load_video_clip_x3d_profile",
+          "test_load_video_clip_missing_file",
+          "test_load_video_clip_corrupt_file",
+          "test_load_video_clip_padding"
+        ]
+      },
+      {
+        "file": "test_weapon_accuracy.py",
+        "test_functions": [
+          "test_model_loads_successfully",
+          "test_model_loads_on_cpu",
+          "test_model_load_latency_under_30s",
+          "test_model_reports_correct_backend",
+          "test_accuracy_above_90_percent",
+          "test_precision_above_85_percent",
+          "test_recall_above_85_percent",
+          "test_f1_score_above_85_percent",
+          "test_inference_latency_under_500ms",
+          "test_inference_latency_under_200ms_avg",
+          "test_score_is_between_0_and_1",
+          "test_non_weapon_frame_has_low_score",
+          "test_handles_black_frame",
+          "test_handles_white_frame",
+          "test_handles_small_frame",
+          "test_handles_large_frame",
+          "test_consecutive_frames_consistent",
+          "test_reset_clears_state",
+          "test_default_config",
+          "test_custom_confidence",
+          "test_custom_labels",
+          "test_config_from_env",
+          "test_disabled_engine_skips_processing"
+        ]
+      },
+      {
+        "file": "test_weapon_category.py",
+        "test_functions": [
+          "test_weapon_capability_unavailable_no_engine",
+          "test_weapon_capability_experimental_with_engine",
+          "test_weapon_engine_concurrency_skipping",
+          "test_weapon_engine_cooldown_skipping",
+          "test_weapon_realtime_flag",
+          "test_weapon_analysis_triggered_score",
+          "test_weapon_analysis_non_triggered_score",
+          "test_weapon_analysis_engine_exception"
+        ]
+      },
+      {
+        "file": "test_weapon_smoke_tool.py",
+        "test_functions": [
+          "test_smoke_tool_import",
+          "test_smoke_tool_result_format",
+          "test_graceful_failure_no_torchvision",
+          "test_smoke_tool_reports_new_fields"
+        ]
+      }
+    ]
+  },
+  "models": {
+    "available_onnx_providers": [
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "models": [
+      {
+        "path": "backend\\best_model.pt",
+        "bytes": 149344325,
+        "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01"
+      },
+      {
+        "path": "backend\\weapon_cs2_yolo12.pt",
+        "bytes": 40794535,
+        "sha256": "9a1a98c8752c00f183023eb19fa445832a69c14ef1a32f2eb70ac09d49bfcf4b"
+      },
+      {
+        "path": "backend\\weapon_hadi_yolo.pt",
+        "bytes": 6230954,
+        "sha256": "e85b15fe74a16de9ac98562a072a50bffdcda5a7fb6ef4d8594dc7de466ab6b5"
+      },
+      {
+        "path": "backend\\weapon_yolo.pt",
+        "bytes": 52042258,
+        "sha256": "4eef45c7c2e30cda788495ff8974372a945ee450cd8ff5cd5f8f8358a5b36be0"
+      },
+      {
+        "path": "backend\\yolov8n.pt",
+        "bytes": 6549796,
+        "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+      },
+      {
+        "path": "backend\\models\\person_yolo.onnx",
+        "bytes": 12851087,
+        "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "inputs": [
+          {
+            "name": "images",
+            "shape": [
+              1,
+              3,
+              640,
+              640
+            ],
+            "type": "tensor(float)"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "output0",
+            "shape": [
+              1,
+              84,
+              8400
+            ]
+          }
+        ],
+        "metadata": {
+          "date": "2026-05-16T22:28:14.037943",
+          "description": "Ultralytics YOLOv8n model trained on coco.yaml",
+          "author": "Ultralytics",
+          "version": "8.4.51",
+          "task": "detect",
+          "license": "AGPL-3.0 License (https://ultralytics.com/license)",
+          "docs": "https://docs.ultralytics.com",
+          "stride": "32",
+          "batch": "1",
+          "imgsz": "[640, 640]",
+          "names": "{0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed', 60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}",
+          "args": "{'batch': 1, 'half': False, 'dynamic': False, 'simplify': True, 'opset': 12, 'nms': False}",
+          "channels": "3",
+          "end2end": "False"
+        }
+      },
+      {
+        "path": "backend\\models\\weapon_yolo.onnx",
+        "bytes": 103636665,
+        "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "inputs": [
+          {
+            "name": "images",
+            "shape": [
+              1,
+              3,
+              640,
+              640
+            ],
+            "type": "tensor(float)"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "output0",
+            "shape": [
+              1,
+              10,
+              8400
+            ]
+          }
+        ],
+        "metadata": {
+          "date": "2026-05-17T01:45:43.999187",
+          "description": "Ultralytics weapon_YOLO model trained on /content/unified_weapon_dataset_v5/data.yaml",
+          "author": "Ultralytics",
+          "version": "8.4.51",
+          "task": "detect",
+          "license": "AGPL-3.0 License (https://ultralytics.com/license)",
+          "docs": "https://docs.ultralytics.com",
+          "stride": "32",
+          "batch": "1",
+          "imgsz": "[640, 640]",
+          "names": "{0: 'pistol', 1: 'rifle', 2: 'shotgun', 3: 'knife', 4: 'sword', 5: 'revolver'}",
+          "args": "{'batch': 1, 'half': False, 'dynamic': False, 'simplify': True, 'opset': 12, 'nms': False}",
+          "channels": "3",
+          "end2end": "False"
+        }
+      }
+    ]
+  },
+  "clips": [
+    {
+      "path": "backend\\cam1.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "backend\\cam1.mp4",
+      "sha256": "cfcef813ee30a339506e39a5558d46b12fef7fa7c64b450a3a854bf25dc4bbb0",
+      "readable": true,
+      "width": 320,
+      "height": 240,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "backend\\cam2.avi",
+      "sha256": "8948104c620c36e25a73f3f7008bbb6547eecbb5fd01e431858c03bc917f8580",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "backend\\cam2.mp4",
+      "sha256": "06291692184d2a65de3b1815e84590669a6ab56af5fd5bc053a00f8be5720dee",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "backend\\cam3.avi",
+      "sha256": "5f3b56d5d23aa969e20697bc93e3d0ed40ae3a2774391dd97f69432a5c50f028",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "backend\\cam3.mp4",
+      "sha256": "60591ba1c0b2424e0460cea2ca19de40c445cf80ac8bca1668c77d8b16ccf3df",
+      "readable": true,
+      "width": 1280,
+      "height": 720,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "demo_assets\\videos\\FXC43fACfPc_0.avi",
+      "sha256": "81dd72ec460e1102f63d9550dfa18b3e0d457804dc8757d8cb9a66eabedecc67",
+      "readable": true,
+      "width": 1920,
+      "height": 1080,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "demo_assets\\videos\\Wq0BuA8GM84_0.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "demo_assets\\videos\\YDOJvzChqSg_0 (1).avi",
+      "sha256": "5f3b56d5d23aa969e20697bc93e3d0ed40ae3a2774391dd97f69432a5c50f028",
+      "readable": true,
+      "width": 480,
+      "height": 360,
+      "nominal_fps": 30.0,
+      "nominal_frames": 150.0,
+      "duration_seconds": 5.0,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "samples\\video1.mp4",
+      "sha256": "0f1b5b619bdc1d65d8f95594d8208df987b93fcd5bd018cc7cff2aad509b1fc2",
+      "readable": true,
+      "width": 640,
+      "height": 360,
+      "nominal_fps": 23.976023976023978,
+      "nominal_frames": 721.0,
+      "duration_seconds": 30.07170833333333,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    },
+    {
+      "path": "samples\\video2.mp4",
+      "sha256": "23db1b7835047c4ce021c96f8d30e32e35157c5318f433daa4c12325d558cb4b",
+      "readable": true,
+      "width": 640,
+      "height": 360,
+      "nominal_fps": 15.0,
+      "nominal_frames": 109.0,
+      "duration_seconds": 7.266666666666667,
+      "label": "unknown",
+      "label_verified": false,
+      "source": "existing local project asset",
+      "license": "unverified",
+      "event_onset_seconds": null
+    }
+  ],
+  "reproductions": {
+    "D-01": {
+      "input_scores": [
+        0.1,
+        0.8,
+        0.1,
+        0.1
+      ],
+      "decision_scores_received": [
+        0.8
+      ]
+    },
+    "D-04": {
+      "artifact_exists": false
+    },
+    "D-07": {
+      "address_reuse_corruption": {
+        "iteration": 1,
+        "expected_pixel": 1,
+        "observed_pixel": 0
+      },
+      "attempt_limit": 5000
+    },
+    "D-08": {
+      "single_hit": {
+        "enabled": false,
+        "backend": "yolo",
+        "ready": false,
+        "loading": false,
+        "failed": false,
+        "isRealtime": false,
+        "score": 0.405,
+        "labels": [
+          "knife"
+        ],
+        "bbox": [
+          0.1,
+          0.1,
+          0.4,
+          0.4
+        ],
+        "latencyMs": 0.0,
+        "inferenceLatencyMs": 0.0,
+        "loadLatencyMs": 0.0,
+        "skippedFrames": 0,
+        "lastInferenceAt": 0.0,
+        "minIntervalMs": 2500,
+        "inferenceRunning": false,
+        "reason": "disabled-by-config"
+      },
+      "first_no_hit": {
+        "enabled": false,
+        "backend": "yolo",
+        "ready": false,
+        "loading": false,
+        "failed": false,
+        "isRealtime": false,
+        "score": 0.3443,
+        "labels": [],
+        "bbox": null,
+        "latencyMs": 0.0,
+        "inferenceLatencyMs": 0.0,
+        "loadLatencyMs": 0.0,
+        "skippedFrames": 0,
+        "lastInferenceAt": 0.0,
+        "minIntervalMs": 2500,
+        "inferenceRunning": false,
+        "reason": "disabled-by-config"
+      },
+      "note": "Score lingers but bbox is cleared immediately on the first completed no-hit inference."
+    },
+    "D-09": {
+      "enabled": true,
+      "model": "fusion-v1",
+      "score": 0.0,
+      "severity": "high",
+      "violenceScore": 0.0,
+      "motionScore": 0.0,
+      "weaponScore": 0.0,
+      "weaponEnabled": true,
+      "reason": "Fusion score combined violence and motion cues."
+    },
+    "D-10": {
+      "frames": 4,
+      "annotated_frames": 3
+    },
+    "D-12": {
+      "asyncio_sleep_requested_ms": 5,
+      "actual_ms": {
+        "count": 100,
+        "p05": 14.750645,
+        "p50": 15.4898,
+        "p95": 16.061455,
+        "max": 17.254799997317605
+      }
+    }
+  }
+}

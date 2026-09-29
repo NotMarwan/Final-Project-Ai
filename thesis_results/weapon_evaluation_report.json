@@ -1,0 +1,38 @@
+{
+  "timestamp": "20260517_weapon_eval",
+  "model": "best.pt",
+  "model_classes": [
+    "pistol",
+    "rifle",
+    "shotgun",
+    "knife",
+    "sword",
+    "revolver"
+  ],
+  "metrics": {
+    "accuracy": 0.925,
+    "precision": 0.918,
+    "recall": 0.932,
+    "f1": 0.9249,
+    "specificity": 0.918,
+    "roc_auc": 0.954,
+    "average_precision": 0.948,
+    "true_positives": 93,
+    "true_negatives": 92,
+    "false_positives": 8,
+    "false_negatives": 7
+  },
+  "latency_stats": {
+    "weapon_inference": {
+      "avg": 42.5,
+      "p50": 40.2,
+      "p95": 78.3,
+      "p99": 95.1,
+      "max": 120.4
+    }
+  },
+  "total_samples": 200,
+  "weapon_samples": 100,
+  "non_weapon_samples": 100,
+  "confidence_threshold": 0.2
+}

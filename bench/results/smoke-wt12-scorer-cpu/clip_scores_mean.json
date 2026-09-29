@@ -1,0 +1,11 @@
+[
+  {
+    "clip_id": "kth-walking-person02",
+    "source_sha256": "7b72486c2b424885a7d0839210023bc225c99c6a385fa63874d191ef60d853a7",
+    "split": "train",
+    "label": 0,
+    "label_source": "publisher",
+    "score": 0.09584,
+    "aggregation": "mean"
+  }
+]

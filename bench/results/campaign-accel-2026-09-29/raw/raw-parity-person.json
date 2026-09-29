@@ -1,0 +1,134 @@
+{
+  "experimentModel": "person",
+  "modelPath": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\models\\person_yolo.onnx",
+  "modelSha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+  "fixture": {
+    "source": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\cam3.mp4",
+    "sourceMode": "file-media",
+    "sourceSha256": "60591ba1c0b2424e0460cea2ca19de40c445cf80ac8bca1668c77d8b16ccf3df",
+    "frameIndices": [
+      0,
+      15,
+      30,
+      45,
+      60,
+      75,
+      90,
+      105,
+      120,
+      135
+    ],
+    "resolution": [
+      1280,
+      720
+    ]
+  },
+  "inputSize": [
+    640,
+    640
+  ],
+  "numClasses": 80,
+  "outputFormat": "raw",
+  "nmsParams": {
+    "confidence": 0.25,
+    "iouThreshold": 0.5,
+    "maxDetections": 300,
+    "space": "model space before border clipping"
+  },
+  "cpuProviders": [
+    "CPUExecutionProvider"
+  ],
+  "cudaProviders": [
+    [
+      "CUDAExecutionProvider",
+      {
+        "use_tf32": "0",
+        "cudnn_conv_algo_search": "HEURISTIC"
+      }
+    ],
+    "CPUExecutionProvider"
+  ],
+  "cpuActiveProviders": [
+    "CPUExecutionProvider"
+  ],
+  "cudaActiveProviders": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "stageModelLoadMs": {
+    "cpu": 73.234,
+    "cuda": 149.819
+  },
+  "rawParity": {
+    "maxAbsDiff": 0.003143311,
+    "perInput": [
+      {
+        "input": 0,
+        "maxAbsDiff": 0.002380371
+      },
+      {
+        "input": 1,
+        "maxAbsDiff": 0.002380371
+      },
+      {
+        "input": 2,
+        "maxAbsDiff": 0.001922607
+      },
+      {
+        "input": 3,
+        "maxAbsDiff": 0.003051758
+      },
+      {
+        "input": 4,
+        "maxAbsDiff": 0.001831055
+      },
+      {
+        "input": 5,
+        "maxAbsDiff": 0.003143311
+      },
+      {
+        "input": 6,
+        "maxAbsDiff": 0.002258301
+      },
+      {
+        "input": 7,
+        "maxAbsDiff": 0.002380371
+      },
+      {
+        "input": 8,
+        "maxAbsDiff": 0.002624512
+      },
+      {
+        "input": 9,
+        "maxAbsDiff": 0.001403809
+      }
+    ]
+  },
+  "decodedParityAllClasses": {
+    "cpuDetections": 50,
+    "cudaDetections": 50,
+    "matched": 50,
+    "unmatchedCpu": 0,
+    "unmatchedCuda": 0,
+    "matchRate": 1.0,
+    "matchedIouMeanOfMeans": 0.999999,
+    "matchedIouMin": 0.999997,
+    "matchedScoreAbsDiffMax": 3e-06
+  },
+  "decodedParityClassFilter": {
+    "cpuDetections": 47,
+    "cudaDetections": 47,
+    "matched": 47,
+    "unmatchedCpu": 0,
+    "unmatchedCuda": 0,
+    "matchRate": 1.0,
+    "matchedIouMeanOfMeans": 1.0,
+    "matchedIouMin": 0.999997,
+    "matchedScoreAbsDiffMax": 3e-06
+  },
+  "nearThresholdFlipsAtDecisionThresholds": {
+    "0.45": 0,
+    "0.55": 0
+  },
+  "clockBase": "perf_counter"
+}

@@ -1,0 +1,30 @@
+{
+  "EXP-01": {
+    "verdict": "adopt",
+    "notes": "CPU-EP baseline: person warm p50 67.70 ms (p05 60.37/p95 79.87, n=300), weapon warm p50 468.58 ms (p05 435.08/p95 545.41, n=300); cold/warm + preprocess/postprocess separated; providers ['CPUExecutionProvider']. Earlier 01:38 run CONTENDED/INVALID (invalid/)."
+  },
+  "EXP-02": {
+    "verdict": "adopt",
+    "notes": "CUDA EP: person warm p50 10.55 ms (6.42x vs CPU), weapon 26.02 ms (18.01x); parity gates ALL PASS: person raw max|d| 0.00314, weapon 0.00171; decoded match rate 1.0 both (50/50 and 4/4); matched-IoU min 0.999996; max |dscore| 3e-06/2e-06; zero near-threshold flips at 0.45/0.55. Finding: CUDA EP session creation in a fresh process requires torch CUDA/cuDNN DLLs loaded first (production gets this via inference.py's torch import)."
+  },
+  "EXP-03": {
+    "verdict": "reproduced (dirty claim) + speed gates pass for ONNX models",
+    "notes": "4 matched runs, all workload_valid=true. CPU medians (2 runs): person_onnx 82.58 ms [78.57, 82.58], weapon_window 539.65 ms [515.90, 539.65], violence_window 103.18 ms, capture/render/client fps p50 30. CUDA medians: person_onnx 22.285 ms [22.285, 22.046], weapon_window 52.86 ms [51.78, 52.86], violence_window 85.48 ms, fps 30. Speedups: person 3.706x, weapon 10.21x, violence 1.207x (violence torch on cuda:0 in BOTH configs; not the ONNX variable). Dirty-claim band: person 22.0-22.3 in [16.8,34.4] and weapon 51.8-52.9 in [28.2,55.9], capture>=28 -> verdict REPRODUCED. Providers in-run: CPU config ['CPUExecutionProvider']; CUDA config ['CUDAExecutionProvider','CPUExecutionProvider']. Registered revision-6fb3bcac CPU medians for reference: person_onnx 158.04 (n=155), weapon_window 809.01 (n=53), same source sha256."
+  },
+  "EXP-04": {
+    "verdict": "not run (budget/window)",
+    "notes": "fp16 gate NOT executed: the request budget and lock window were consumed by the corrected full-pipeline trials + analysis after the incident rework. Naive whole-model fp16 (ultralytics half=True) remains runnable via bench/accel/precision_gate.py; mixed-precision with detection-head block-listing remains DEFERRED with reason (onnxconverter_common absent, shared venv read-only). fp32 stays the default; no fp16 artifact exists to promote."
+  },
+  "EXP-05": {
+    "verdict": "reject TRT stage-2 on this host (with evidence)",
+    "notes": "TensorrtExecutionProvider listed by the wheel, but session creation fails in 0.072 s: RuntimeError 'CUDA_PATH is set but CUDA wasnt able to be loaded...'. Recon: nvinfer.dll not present on PATH; no TensorRT install directory. Two independent signatures (missing TRT runtime libs; CUDA/cuDNN DLLs not preloaded in the probe process). Stage-2 not runnable here; policy keeps TRT unselected."
+  },
+  "EXP-06": {
+    "verdict": "not completed",
+    "notes": "VRAM probe chain (1-worker then 2-worker, production trio) did not produce artifacts within the window (no raw-vram-*.json); likely worker startup/OOM under the 16 GB RAM budget; it was left running when the window closed. Per-camera-process VRAM at 1 and 2 workers remains UNMEASURED; WT-15 was told to cross-check with their own leg. 2-worker GPU inference must not be assumed feasible by this report."
+  },
+  "EXP-07": {
+    "verdict": "promote CUDA EP for the single-camera shape (conditions a+b met); 2-worker condition UNMEASURED",
+    "notes": "Pre-declared rule: (a) EXP-02 parity all pass [MET], (b) EXP-03 >=1.5x per-model speedup in both matched runs with no new failure state [MET for person 3.71x / weapon 10.21x; all four runs workload_valid=true], (c) EXP-06 2-worker VRAM <=10 GB [UNMEASURED]. Decision: promote ONNX CUDA EP (AI_SENTINEL_ORT_DEVICE=cuda) for the 1-camera demo shape where (a)+(b) are the binding conditions; multi-camera/2-worker GPU inference remains gated on measuring (c) — do not assume it. Rollback: AI_SENTINEL_ORT_DEVICE=cpu requires no wheel change (CPU EP exists in the installed onnxruntime-gpu build); full wheel rollback remains scripts/select_onnx_runtime.py --device cpu (mechanics tested; not executed here — venv read-only, pip show onnxruntime-gpu unchanged 1.18.0)."
+  }
+}

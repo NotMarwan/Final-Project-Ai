@@ -1,0 +1,51 @@
+{
+  "fixture_id": "kth-walking-person07",
+  "source_sha256": "02590fd66f198dd13c1e56bdb029fcad15e93ae780aac270a6db49dac6a627a9",
+  "run_id": "wt18-kth-walking-01",
+  "source_mode": "file-media",
+  "windows": [],
+  "detections": [
+    {
+      "time_s": 1.2,
+      "class": "pistol",
+      "score": 0.26917117834091187,
+      "bbox": [
+        69.35598754882812,
+        29.854904174804688,
+        98.53656005859375,
+        109.76800537109375
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 2.0,
+      "class": "pistol",
+      "score": 0.30647820234298706,
+      "bbox": [
+        0.023113727569580078,
+        39.90383529663086,
+        2.552699327468872,
+        50.160614013671875
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 6.4,
+      "class": "pistol",
+      "score": 0.5000677108764648,
+      "bbox": [
+        20.713443756103516,
+        49.045692443847656,
+        31.473506927490234,
+        58.85491180419922
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    }
+  ],
+  "alerts": [],
+  "tracks": [],
+  "model_sha256": null
+}

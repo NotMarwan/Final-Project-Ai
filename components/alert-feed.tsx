@@ -1,80 +1,116 @@
-"use client"
+﻿"use client"
 
-import { memo } from "react"
-import { Bell, ShieldAlert, Camera, MapPin, Search } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
+import { Bell, Camera, ChevronLeft, ChevronRight, Crosshair, ShieldAlert, WifiOff } from "lucide-react"
 import type { LiveAlert } from "@/components/video-player"
+import { CategoryFilter } from "./category-filter"
+import { formatAlertRelativeArabic, type DetectionCategory } from "@/lib/detection-types"
+import { useSentinel } from "@/lib/sentinel-store"
+import { REPLAY_SOURCE_PREFIX, SEVERITY_LABEL, SEVERITY_TOKEN, TRIAGE_ACTION_LABEL, TRIAGE_ALLOWED, TRIAGE_LABEL, selectVisibleAlerts, type TriageAction, type TriageState } from "@/lib/sentinel-selectors"
 
 interface AlertFeedProps {
   alerts: LiveAlert[]
   selectedAlertId: string | null
   onSelectAlert: (alert: LiveAlert) => void
+  selectedCategories: DetectionCategory[]
+  onCategoryChange: (categories: DetectionCategory[]) => void
 }
 
-export const AlertFeed = memo(function AlertFeed({ alerts, selectedAlertId, onSelectAlert }: AlertFeedProps) {
-  return (
-    <div className="flex flex-col h-full">
-      {/* الهيدر ثابت */}
-      <div className="flex flex-shrink-0 items-center gap-2.5 border-b border-border px-4 py-3">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-danger/10 text-danger border border-danger/20">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -right-1 -top-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-danger border-2 border-background"></span>
-          </span>
-        </div>
-        <div>
-          <h2 className="text-sm font-bold tracking-tight">Live Incident Feed</h2>
-          <p className="text-[11px] text-muted-foreground">Real-time violent activity alerts</p>
-        </div>
-        <Badge variant="outline" className="ml-auto font-mono text-xs border-danger/30 text-danger bg-danger/5">
-          {alerts.length}
-        </Badge>
-      </div>
+const WINDOW_SIZE = 80
 
-      {/* منطقة القائمة مع السحاب (overflow-y-auto) */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
-        {alerts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-10 text-center text-muted-foreground/60">
-            <ShieldAlert className="h-10 w-10 opacity-30" />
-            <p className="text-xs font-medium">Monitoring...</p>
-          </div>
-        ) : (
-          alerts.map((alert) => {
-            const isSelected = alert.id === selectedAlertId
-            return (
-              <button
-                key={alert.id}
-                onClick={() => onSelectAlert(alert)}
-                className={cn(
-                  "block w-full text-left rounded-lg border p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40",
-                  isSelected
-                    ? "bg-primary/10 border-primary/30 shadow-md scale-[1.01]"
-                    : "bg-card hover:bg-secondary/50 border-border hover:border-border-hover"
-                )}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge className={cn("text-[9px] uppercase font-bold", alert.severity === "critical" ? "bg-danger" : "bg-warning")}>
-                    {alert.severity}
-                  </Badge>
-                  <span className="font-mono text-[10px] text-muted-foreground ml-auto">{alert.timestamp}</span>
-                </div>
-                
-                <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5">
-                  <ShieldAlert className="h-3.5 w-3.5 text-danger" />
-                  {alert.type} Incident Detected
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-muted-foreground bg-background/50 rounded p-1.5 border border-border/50">
-                  <div className="flex items-center gap-1"><Camera className="h-3 w-3"/>{alert.cameraId}</div>
-                  <div className="flex items-center gap-1"><MapPin className="h-3 w-3"/>{alert.location}</div>
-                </div>
-              </button>
-            )
-          })
-        )}
-      </div>
+function useFeedClock() {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
+  return now
+}
+
+export const AlertFeed = memo(function AlertFeed({ alerts, selectedAlertId, onSelectAlert, selectedCategories, onCategoryChange }: AlertFeedProps) {
+  const { alerts: allAlerts, filters, setFilters, connectionStatus, fixtureMode, triage, recordTriage, rejectedEnvelopes } = useSentinel()
+  const now = useFeedClock()
+  const [triageBusyId, setTriageBusyId] = useState<string | null>(null)
+  const categoryCounts = useMemo(() => {
+    const counts = { weapon: 0, violence: 0 }
+    for (const alert of selectVisibleAlerts(allAlerts, { ...filters, type: undefined }, now)) {
+      if (alert.type === "Weapon") counts.weapon++
+      else counts.violence++
+    }
+    return counts
+  }, [allAlerts, filters, now])
+  const [page, setPage] = useState(0)
+  const listRef = useRef<HTMLDivElement>(null)
+  const lastPage = Math.max(0, Math.ceil(alerts.length / WINDOW_SIZE) - 1)
+  const safePage = Math.min(page, lastPage)
+  const windowed = alerts.slice(safePage * WINDOW_SIZE, (safePage + 1) * WINDOW_SIZE)
+
+  function focusIndex(index: number) {
+    if (index < 0 || index >= alerts.length) return
+    setPage(Math.floor(index / WINDOW_SIZE))
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const row = listRef.current?.querySelector<HTMLButtonElement>(`[data-alert-index="${index}"]`)
+      row?.focus()
+      row?.scrollIntoView({ block: "nearest" })
+    }))
+  }
+
+  async function applyTriageVerb(alert: LiveAlert, action: TriageAction) {
+    if (fixtureMode || triageBusyId) return
+    setTriageBusyId(alert.id)
+    await recordTriage(alert.id, action, "")
+    setTriageBusyId(null)
+  }
+
+  function handleRowKey(event: KeyboardEvent<HTMLButtonElement>, index: number, alert: LiveAlert) {
+    const target = event.key === "ArrowDown" ? index + 1 : event.key === "ArrowUp" ? index - 1 : event.key === "Home" ? 0 : event.key === "End" ? alerts.length - 1 : null
+    if (target !== null) { event.preventDefault(); focusIndex(target); return }
+    const verb: TriageAction | null = event.key === "a" ? "acknowledge" : event.key === "c" ? "resolve" : null
+    if (verb === null || !TRIAGE_ALLOWED[(triage[alert.id]?.state ?? "new") as TriageState].includes(verb)) return
+    event.preventDefault()
+    void applyTriageVerb(alert, verb)
+  }
+
+  const emptyIsFiltered = allAlerts.length > 0 && alerts.length === 0
+  return <section aria-label="سجل التنبيهات" className="flex h-full min-h-0 flex-col overflow-hidden bg-[var(--surface-1)]">
+    <div className="flex shrink-0 items-start gap-3 border-b border-[var(--border-hairline)] px-4 py-3.5">
+      <div className="grid size-9 shrink-0 place-items-center rounded-md border border-[var(--border-hairline)] bg-[var(--surface-2)] text-[var(--signal)]"><Bell size={17} /></div>
+      <div className="min-w-0 flex-1"><div className="text-[10px] font-semibold text-[var(--signal)]">سجل الاستلام</div><h2 className="text-[15px] font-bold leading-6">التنبيهات الواردة</h2><p className="text-[10px] text-[var(--text-tertiary)]">ضمن الفترة وعوامل التصفية المحددة</p></div>
+      <bdi className="instrument-num rounded border border-[var(--border-hairline)] bg-[var(--surface-2)] px-2 py-1 text-[13px] text-[var(--text-primary)]" aria-label={`${alerts.length} تنبيه`}>{alerts.length}</bdi>
     </div>
-  )
+    <CategoryFilter selectedCategories={selectedCategories} onCategoryChange={onCategoryChange} categoryCounts={categoryCounts} />
+    <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-2 py-2" role="list" aria-label="التنبيهات">
+      {windowed.length === 0 ? <div className="flex min-h-56 flex-col items-center justify-center px-5 text-center">
+        <div className="mb-3 grid size-12 place-items-center rounded-full border border-[var(--border-hairline)] bg-[var(--surface-2)] text-[var(--text-tertiary)]">{connectionStatus === "offline" && !fixtureMode ? <WifiOff size={21} /> : <ShieldAlert size={21} />}</div>
+        <strong className="text-[13px] text-[var(--text-primary)]">{emptyIsFiltered ? "لا تنبيهات تطابق التصفية" : connectionStatus === "offline" && !fixtureMode ? "قناة التنبيهات غير متصلة" : "لم ترد تنبيهات ضمن الفترة"}</strong>
+        <p className="mt-1.5 max-w-64 text-[11px] leading-5 text-[var(--text-tertiary)]">{emptyIsFiltered ? "غيّر نوع التنبيه أو درجة الخطورة أو امسح التصفية." : connectionStatus === "offline" && !fixtureMode ? "تعذّر تأكيد حالة الرصد المباشر. تظهر التنبيهات هنا عند استلامها." : "يعرض السجل التنبيهات المؤكدة التي استلمتها هذه الجلسة."}</p>
+        {emptyIsFiltered && <button type="button" onClick={() => setFilters({ range: filters.range })} className="mt-4 min-h-9 rounded border border-[var(--signal)] px-3 text-[11px] text-[var(--signal)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--signal)]">مسح التصفية</button>}
+      </div> : windowed.map((alert, localIndex) => {
+        const index = safePage * WINDOW_SIZE + localIndex
+        const severityLabel = SEVERITY_LABEL[alert.severity]
+        const severityColor = SEVERITY_TOKEN[alert.severity]
+        const triageState = (triage[alert.id]?.state ?? "new") as TriageState
+        const weapon = alert.type === "Weapon"
+        const TypeIcon = weapon ? Crosshair : ShieldAlert
+        const typeColor = weapon ? "var(--cat-weapon)" : "var(--cat-violence)"
+        const selected = alert.id === selectedAlertId
+        const replay = alert.cameraId.startsWith(REPLAY_SOURCE_PREFIX)
+        const fresh = index === 0 && now - Date.parse(alert.isoTime) < 10_000
+        return <div key={alert.id} role="listitem" className={`mb-1.5 rounded-md border border-s-[3px] ${selected ? "bg-[var(--surface-3)]" : "bg-[var(--surface-2)] hover:bg-[var(--surface-3)]"} ${fresh ? "motion-safe:animate-slide-from-right" : ""}`} style={{ borderColor: "var(--border-hairline)", borderInlineStartColor: severityColor }}>
+          <button type="button" data-alert-index={index} aria-current={selected ? "true" : undefined} aria-keyshortcuts="a c" onClick={() => onSelectAlert(alert)} onKeyDown={(event) => handleRowKey(event, index, alert)} className="block w-full px-3 pt-2.5 text-start focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--signal)]" aria-label={`${severityLabel}، ${weapon ? "رصد سلاح" : "رصد اعتداء"}، ${alert.cameraId}، ${formatAlertRelativeArabic(alert.isoTime, now)}، حالة المعالجة ${TRIAGE_LABEL[triageState]}`}>
+            <span className="flex items-center justify-between gap-2"><span className="flex min-w-0 items-center gap-2"><TypeIcon size={15} style={{ color: typeColor }} /><strong className="truncate text-[12px] text-[var(--text-primary)]">{weapon ? "رصد سلاح" : "رصد اعتداء"}</strong></span><span className="shrink-0 text-[10px] font-semibold" style={{ color: severityColor }}>{severityLabel}</span></span>
+            <span className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-[var(--text-tertiary)]"><span className="truncate">{alert.location}</span><time dateTime={alert.isoTime}>{formatAlertRelativeArabic(alert.isoTime, now)}</time></span>
+          </button>
+          <div className="mt-2 flex items-center justify-between gap-2 border-t border-[var(--border-hairline)] px-3 py-1.5">
+            <button type="button" aria-label={`تصفية حسب الكاميرا ${alert.cameraId}`} aria-pressed={filters.cameraId === alert.cameraId} onClick={() => setFilters({ ...filters, cameraId: filters.cameraId === alert.cameraId ? undefined : alert.cameraId })} className="flex min-h-7 items-center gap-1.5 rounded border border-[var(--border-hairline)] px-1.5 text-[10px] text-[var(--text-secondary)] hover:border-[var(--signal)] hover:text-[var(--signal)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--signal)]"><Camera size={11} /><bdi className="instrument-num" dir="ltr">{alert.cameraId}</bdi></button>
+            <span className="text-[9px]" style={{ color: replay ? "var(--state-replay)" : fixtureMode ? "var(--state-stale)" : "var(--text-tertiary)" }}>{replay ? "إعادة تشغيل" : fixtureMode ? "عينة" : "مستلم"}</span>
+            <span className="rounded border border-[var(--border-hairline)] px-1.5 py-0.5 text-[9px] text-[var(--text-secondary)]" title={triage[alert.id]?.source === "server" ? `مسجَّل في الخدمة بواسطة ${triage[alert.id]?.actor}` : "حالة الجلسة"}>{TRIAGE_LABEL[triageState]}</span>
+            <div className="flex min-w-18 items-center gap-1.5" title={`درجة النموذج ${Math.round(alert.confidence)} من 100 — غير معايرة`}><span className="h-1 w-11 overflow-hidden rounded-full bg-[var(--surface-3)]"><i className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, alert.confidence))}%`, background: typeColor }} /></span><bdi className="instrument-num text-[10px] text-[var(--text-secondary)]" dir="ltr">{Math.round(alert.confidence)}%</bdi></div>
+          </div>
+        </div>
+      })}
+    </div>
+    {alerts.length > WINDOW_SIZE && <div className="flex shrink-0 items-center justify-between border-t border-[var(--border-hairline)] px-3 py-2 text-[10px] text-[var(--text-tertiary)]"><button type="button" disabled={safePage === 0} onClick={() => setPage(safePage - 1)} className="flex min-h-8 items-center gap-1 text-[var(--signal)] disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-[var(--signal)]"><ChevronRight size={12} />الأحدث</button><bdi className="instrument-num" dir="ltr">{safePage * WINDOW_SIZE + 1}–{Math.min(alerts.length, (safePage + 1) * WINDOW_SIZE)} / {alerts.length}</bdi><button type="button" disabled={safePage === lastPage} onClick={() => setPage(safePage + 1)} className="flex min-h-8 items-center gap-1 text-[var(--signal)] disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-[var(--signal)]">الأقدم<ChevronLeft size={12} /></button></div>}
+    <div className="shrink-0 border-t border-[var(--border-hairline)] px-3 py-2 text-[10px] text-[var(--text-tertiary)]"><span>{fixtureMode ? "بيانات معاينة محلية؛ لا تمثل رصداً حياً" : connectionStatus === "online" ? "القناة متصلة؛ حالة الكاميرا غير مؤكدة" : "حالة الرصد المباشر غير مؤكدة"}</span>{!fixtureMode && <span className="ms-2">· <bdi dir="ltr" className="instrument-num">a</bdi> {TRIAGE_ACTION_LABEL.acknowledge} · <bdi dir="ltr" className="instrument-num">c</bdi> {TRIAGE_ACTION_LABEL.resolve}</span>}{rejectedEnvelopes > 0 && <span role="status" className="ms-2 text-[var(--threat-medium)]">· رُفض {rejectedEnvelopes} إطاراً لا يطابق عقد التنبيه</span>}</div>
+  </section>
 })

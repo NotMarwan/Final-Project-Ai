@@ -1,0 +1,73 @@
+{
+  "mode": "fixture-outputs",
+  "manifest": "C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-12/docs/campaign/eval/12-fixture-manifest.json",
+  "scores": "docs/campaign/experiments/artifacts/exp1908-winscores-C2.json",
+  "run_id": "wt19-exp1908-C2",
+  "n_manifest_fixtures": 12,
+  "n_fixtures_written": 12,
+  "written": [
+    {
+      "fixture_id": "kth-walking-person01",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person01.json",
+      "n_windows": 17
+    },
+    {
+      "fixture_id": "kth-walking-person02",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person02.json",
+      "n_windows": 14
+    },
+    {
+      "fixture_id": "kth-walking-person03",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person03.json",
+      "n_windows": 20
+    },
+    {
+      "fixture_id": "kth-walking-person04",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person04.json",
+      "n_windows": 14
+    },
+    {
+      "fixture_id": "kth-walking-person05",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person05.json",
+      "n_windows": 16
+    },
+    {
+      "fixture_id": "kth-walking-person06",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person06.json",
+      "n_windows": 13
+    },
+    {
+      "fixture_id": "kth-walking-person07",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person07.json",
+      "n_windows": 14
+    },
+    {
+      "fixture_id": "kth-walking-person08",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person08.json",
+      "n_windows": 20
+    },
+    {
+      "fixture_id": "kth-walking-person09",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person09.json",
+      "n_windows": 21
+    },
+    {
+      "fixture_id": "kth-walking-person10",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person10.json",
+      "n_windows": 20
+    },
+    {
+      "fixture_id": "kth-walking-person11",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person11.json",
+      "n_windows": 20
+    },
+    {
+      "fixture_id": "kth-walking-person12",
+      "path": "docs\\campaign\\experiments\\artifacts\\exp1908-outputs-C2\\kth-walking-person12.json",
+      "n_windows": 17
+    }
+  ],
+  "unmatched_clips": [],
+  "strict_enforced": true,
+  "strict_ok": true
+}

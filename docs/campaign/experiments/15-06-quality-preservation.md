@@ -1,0 +1,16 @@
+---
+authority: scoped
+non_authoritative: true
+---
+
+# EXP-15.06 Quality preservation: evidence ring, inference view, coordinate mapping
+
+- Hypothesis: The S-01 hot-path work preserves the evidence path byte-for-byte: the evidence ring (max-side 960 derivation, api.py camera_worker) is untouched by the worker/queue changes; the inference view (max-side 640) derives WITHOUT mutating or aliasing the source frame; the resize pixel contract tests stay green; and coordinate mapping model-input → original → display remains pure scaling with no drift.
+- Requirement link: WT-15 step 6; F-05 (downscale + IPC envelope); G-07 (window contract); SC-2/SC-6 (payload/timestamp semantics); test_resize_pixel_contract.py + test_motion_score.py (existing contracts).
+- Baseline: commit `e86d34b` scoped tests (13 passed after SC-10 cherry-pick `b7d1f43`); `downscale_for_inference`, `cached_resize`, `estimate_motion_score`, `_scale_person_tracks` semantics at baseline.
+- Candidate: my commits (telemetry additive, `enqueued_at`/`enqueued_at_qpc` packet fields, queue policy switch, allocation rule) with new pinning tests: source-frame non-mutation, passthrough-edge pinning (scale==1 returns the SAME buffer — documented boundary contract with WT-14), exact resolution shapes (640/960/256 cases), track mapping + clipping + invalid-box rejection, display-proportional mapping (MJPEG width 854), TemporalWindow gap rejection without sample fabrication.
+- Success criteria (defined BEFORE inspecting results): all scoped tests green (baseline + new); zero changes to `downscale_for_inference` pixel behavior (uniform-pixel preservation test); evidence-ring derivation code untouched in this slice (no diff to the 960 path or ring semantics — WT-14 owns api.py hunks); model-input→original→display mapping test pins exact values.
+- Failure criteria / rollback: any pixel-contract or mapping test failing blocks the slice; rollback = revert the offending commit (tests are the guard).
+- Result: MEASURED via scoped tests: 30 passed / 0 failed (command: `<venv>/python -m pytest backend/tests/test_inference_optimization.py backend/tests/test_motion_score.py backend/tests/test_resize_pixel_contract.py backend/tests/test_eof_discontinuity.py -q`; baseline provenance: 13 passed after the sanctioned SC-10 cherry-pick `b7d1f43` (pre-cherry-pick baseline had 1 pre-existing B-1 failure, demonstrated first); +17 new pinning tests added by this slice and green in the final run). Coverage as pre-registered: source-frame non-mutation ✓; passthrough-edge pin ✓ (same-buffer return preserved and documented — no silent "fix" into a copy); exact resolution shapes 640/960/256 ✓; uniform-pixel preservation ✓; track mapping + clipping + inverted/NaN rejection ✓; model-input→original→display (854-wide MJPEG) exact proportional values ✓; TemporalWindow gap rejection (1-gap valid, ≥2-gap invalid, no sample fabrication, non-monotonic rejected) ✓; worker propagation of invalid windows as DEGRADED ✓. Evidence ring untouched: zero diffs in this slice to the 960 path or ring semantics (api.py hunks belong to WT-14; boundary contract exchanged in writing).
+- Verdict: adopt.
+- Cold vs warm: n/a (contract tests, no timing claims).

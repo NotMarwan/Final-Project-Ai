@@ -1,0 +1,111 @@
+{
+  "scope": "Isolated ORT CUDA provider local-model parity and warm run timings; not accuracy or end-to-end pipeline throughput.",
+  "runtime_file": "C:\\Users\\PCD\\Downloads\\Hackathons\\Hackathons\\SAIF\\rebuild\\sprint2\\ort-gpu-1.18.0\\onnxruntime\\__init__.py",
+  "runtime_version": "1.18.0",
+  "torch_version": "2.3.0+cu118",
+  "torch_cuda": "11.8",
+  "cudnn_version": 8700,
+  "gpu_name": "NVIDIA GeForce RTX 3060",
+  "available_providers": [
+    "TensorrtExecutionProvider",
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "models": [
+    {
+      "name": "person_yolo.onnx",
+      "model_sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "cpu": {
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "warm_runs_ms": [
+          107.66519999742741,
+          99.51250000085565,
+          93.53579999879003,
+          97.7385999976832,
+          108.76999999891268,
+          94.892199998867,
+          90.75389999998151
+        ],
+        "p50_ms": 97.7385999976832,
+        "p95_ms": 108.4385599984671
+      },
+      "cuda": {
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "warm_runs_ms": [
+          21.920900002442067,
+          19.287499999336433,
+          25.674100001197075,
+          18.754700002318714,
+          21.30810000016936,
+          19.801800001005176,
+          17.934100000275066
+        ],
+        "p50_ms": 19.801800001005176,
+        "p95_ms": 24.54814000157057,
+        "profile_provider_events": {
+          "CUDAExecutionProvider": 1593
+        },
+        "profile_path": "C:\\Users\\PCD\\Downloads\\Hackathons\\Hackathons\\SAIF\\rebuild\\sprint2\\person_yolo.onnx-cuda-profile_2026-09-12_10-16-57.json"
+      },
+      "raw_max_abs_difference": 0.002044677734375,
+      "raw_allclose_rtol": 0.001,
+      "raw_allclose_atol": 0.01,
+      "decoded_count": 3,
+      "decoded_cpu_gpu_parity": true,
+      "median_speedup": 4.935844215814815
+    },
+    {
+      "name": "weapon_yolo.onnx",
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "cpu": {
+        "providers": [
+          "CPUExecutionProvider"
+        ],
+        "warm_runs_ms": [
+          807.3874000001524,
+          940.7729000013205,
+          1127.08300000304,
+          1129.7564999986207,
+          1128.5643999981403,
+          1262.1379000011075,
+          1057.564499998989
+        ],
+        "p50_ms": 1127.08300000304,
+        "p95_ms": 1222.4234800003615
+      },
+      "cuda": {
+        "providers": [
+          "CUDAExecutionProvider",
+          "CPUExecutionProvider"
+        ],
+        "warm_runs_ms": [
+          40.875800001231255,
+          42.399900001328206,
+          40.95139999844832,
+          44.621400000323774,
+          39.9357999995118,
+          41.469099996902514,
+          45.509100000344915
+        ],
+        "p50_ms": 41.469099996902514,
+        "p95_ms": 45.24279000033857,
+        "profile_provider_events": {
+          "CUDAExecutionProvider": 1998
+        },
+        "profile_path": "C:\\Users\\PCD\\Downloads\\Hackathons\\Hackathons\\SAIF\\rebuild\\sprint2\\weapon_yolo.onnx-cuda-profile_2026-09-12_10-17-16.json"
+      },
+      "raw_max_abs_difference": 0.001251220703125,
+      "raw_allclose_rtol": 0.001,
+      "raw_allclose_atol": 0.01,
+      "decoded_count": 1,
+      "decoded_cpu_gpu_parity": true,
+      "median_speedup": 27.178863300318216
+    }
+  ],
+  "official_compatibility_source": "https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html"
+}

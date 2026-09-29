@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/donvito/codex-astra-luna-orchestrator",
+  "revision": "30b7d0bb7e9b3b9a7d27e78a11c468f95c4cf704",
+  "profile": "pro",
+  "installed_on": "2026-09-29",
+  "license": "Apache-2.0",
+  "adaptations": [
+    "Inherited host approval policy",
+    "Three children plus root fits four session slots",
+    "Existing AGENTS project authorities preserved",
+    "AI Sentinel safety and evidence workflow appended to skill"
+  ]
+}

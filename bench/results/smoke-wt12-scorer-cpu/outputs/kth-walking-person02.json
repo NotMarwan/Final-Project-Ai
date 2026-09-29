@@ -1,0 +1,1278 @@
+{
+  "fixture_id": "kth-walking-person02",
+  "source_sha256": "7b72486c2b424885a7d0839210023bc225c99c6a385fa63874d191ef60d853a7",
+  "source_mode": "file-media",
+  "windows": [
+    {
+      "window_id": "w0000",
+      "start_s": 0.0,
+      "end_s": 1.28,
+      "span_s": 1.28,
+      "violence_conf": 0.047524,
+      "weapon_score": 0.0,
+      "observation_score": 0.047524,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0001",
+      "start_s": 0.32,
+      "end_s": 1.6,
+      "span_s": 1.28,
+      "violence_conf": 0.063031,
+      "weapon_score": 0.480873,
+      "observation_score": 0.063031,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0002",
+      "start_s": 0.64,
+      "end_s": 1.92,
+      "span_s": 1.28,
+      "violence_conf": 0.051236,
+      "weapon_score": 0.480873,
+      "observation_score": 0.051236,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0003",
+      "start_s": 0.96,
+      "end_s": 2.24,
+      "span_s": 1.28,
+      "violence_conf": 0.067671,
+      "weapon_score": 0.54068,
+      "observation_score": 0.067671,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0004",
+      "start_s": 1.28,
+      "end_s": 2.56,
+      "span_s": 1.28,
+      "violence_conf": 0.068474,
+      "weapon_score": 0.54068,
+      "observation_score": 0.068474,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0005",
+      "start_s": 1.6,
+      "end_s": 2.88,
+      "span_s": 1.28,
+      "violence_conf": 0.064687,
+      "weapon_score": 0.54068,
+      "observation_score": 0.064687,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0006",
+      "start_s": 1.92,
+      "end_s": 3.2,
+      "span_s": 1.28,
+      "violence_conf": 0.066929,
+      "weapon_score": 0.54068,
+      "observation_score": 0.066929,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0007",
+      "start_s": 2.24,
+      "end_s": 3.52,
+      "span_s": 1.28,
+      "violence_conf": 0.067391,
+      "weapon_score": 0.0,
+      "observation_score": 0.067391,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0008",
+      "start_s": 2.56,
+      "end_s": 3.84,
+      "span_s": 1.28,
+      "violence_conf": 0.102879,
+      "weapon_score": 0.0,
+      "observation_score": 0.102879,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0009",
+      "start_s": 2.88,
+      "end_s": 4.16,
+      "span_s": 1.28,
+      "violence_conf": 0.154043,
+      "weapon_score": 0.0,
+      "observation_score": 0.154043,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0010",
+      "start_s": 3.2,
+      "end_s": 4.48,
+      "span_s": 1.28,
+      "violence_conf": 0.167514,
+      "weapon_score": 0.0,
+      "observation_score": 0.167514,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0011",
+      "start_s": 3.52,
+      "end_s": 4.8,
+      "span_s": 1.28,
+      "violence_conf": 0.134401,
+      "weapon_score": 0.0,
+      "observation_score": 0.134401,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0012",
+      "start_s": 3.84,
+      "end_s": 5.12,
+      "span_s": 1.28,
+      "violence_conf": 0.123543,
+      "weapon_score": 0.0,
+      "observation_score": 0.123543,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0013",
+      "start_s": 4.16,
+      "end_s": 5.44,
+      "span_s": 1.28,
+      "violence_conf": 0.107904,
+      "weapon_score": 0.0,
+      "observation_score": 0.107904,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0014",
+      "start_s": 4.48,
+      "end_s": 5.76,
+      "span_s": 1.28,
+      "violence_conf": 0.138188,
+      "weapon_score": 0.0,
+      "observation_score": 0.138188,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0015",
+      "start_s": 4.8,
+      "end_s": 6.08,
+      "span_s": 1.28,
+      "violence_conf": 0.127057,
+      "weapon_score": 0.0,
+      "observation_score": 0.127057,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0016",
+      "start_s": 5.12,
+      "end_s": 6.4,
+      "span_s": 1.28,
+      "violence_conf": 0.136906,
+      "weapon_score": 0.0,
+      "observation_score": 0.136906,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0017",
+      "start_s": 5.44,
+      "end_s": 6.72,
+      "span_s": 1.28,
+      "violence_conf": 0.100707,
+      "weapon_score": 0.374474,
+      "observation_score": 0.100707,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0018",
+      "start_s": 5.76,
+      "end_s": 7.04,
+      "span_s": 1.28,
+      "violence_conf": 0.081988,
+      "weapon_score": 0.374474,
+      "observation_score": 0.081988,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0019",
+      "start_s": 6.08,
+      "end_s": 7.36,
+      "span_s": 1.28,
+      "violence_conf": 0.112046,
+      "weapon_score": 0.374474,
+      "observation_score": 0.112046,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0020",
+      "start_s": 6.4,
+      "end_s": 7.68,
+      "span_s": 1.28,
+      "violence_conf": 0.051275,
+      "weapon_score": 0.374474,
+      "observation_score": 0.051275,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0021",
+      "start_s": 6.72,
+      "end_s": 8.0,
+      "span_s": 1.28,
+      "violence_conf": 0.042828,
+      "weapon_score": 0.221517,
+      "observation_score": 0.042828,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0022",
+      "start_s": 7.04,
+      "end_s": 8.32,
+      "span_s": 1.28,
+      "violence_conf": 0.077335,
+      "weapon_score": 0.221517,
+      "observation_score": 0.077335,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0023",
+      "start_s": 7.36,
+      "end_s": 8.64,
+      "span_s": 1.28,
+      "violence_conf": 0.053276,
+      "weapon_score": 0.0,
+      "observation_score": 0.053276,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0024",
+      "start_s": 7.68,
+      "end_s": 8.96,
+      "span_s": 1.28,
+      "violence_conf": 0.088673,
+      "weapon_score": 0.0,
+      "observation_score": 0.088673,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0025",
+      "start_s": 8.0,
+      "end_s": 9.28,
+      "span_s": 1.28,
+      "violence_conf": 0.093455,
+      "weapon_score": 0.0,
+      "observation_score": 0.093455,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0026",
+      "start_s": 8.32,
+      "end_s": 9.6,
+      "span_s": 1.28,
+      "violence_conf": 0.101319,
+      "weapon_score": 0.0,
+      "observation_score": 0.101319,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0027",
+      "start_s": 8.64,
+      "end_s": 9.92,
+      "span_s": 1.28,
+      "violence_conf": 0.064365,
+      "weapon_score": 0.0,
+      "observation_score": 0.064365,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0028",
+      "start_s": 8.96,
+      "end_s": 10.24,
+      "span_s": 1.28,
+      "violence_conf": 0.06265,
+      "weapon_score": 0.0,
+      "observation_score": 0.06265,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0029",
+      "start_s": 9.28,
+      "end_s": 10.56,
+      "span_s": 1.28,
+      "violence_conf": 0.069449,
+      "weapon_score": 0.0,
+      "observation_score": 0.069449,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0030",
+      "start_s": 9.6,
+      "end_s": 10.88,
+      "span_s": 1.28,
+      "violence_conf": 0.059507,
+      "weapon_score": 0.0,
+      "observation_score": 0.059507,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0031",
+      "start_s": 9.92,
+      "end_s": 11.2,
+      "span_s": 1.28,
+      "violence_conf": 0.072405,
+      "weapon_score": 0.0,
+      "observation_score": 0.072405,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0032",
+      "start_s": 10.24,
+      "end_s": 11.52,
+      "span_s": 1.28,
+      "violence_conf": 0.074546,
+      "weapon_score": 0.0,
+      "observation_score": 0.074546,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0033",
+      "start_s": 10.56,
+      "end_s": 11.84,
+      "span_s": 1.28,
+      "violence_conf": 0.096009,
+      "weapon_score": 0.0,
+      "observation_score": 0.096009,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0034",
+      "start_s": 10.88,
+      "end_s": 12.16,
+      "span_s": 1.28,
+      "violence_conf": 0.091073,
+      "weapon_score": 0.0,
+      "observation_score": 0.091073,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0035",
+      "start_s": 11.2,
+      "end_s": 12.48,
+      "span_s": 1.28,
+      "violence_conf": 0.093423,
+      "weapon_score": 0.0,
+      "observation_score": 0.093423,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0036",
+      "start_s": 11.52,
+      "end_s": 12.8,
+      "span_s": 1.28,
+      "violence_conf": 0.142004,
+      "weapon_score": 0.0,
+      "observation_score": 0.142004,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0037",
+      "start_s": 11.84,
+      "end_s": 13.12,
+      "span_s": 1.28,
+      "violence_conf": 0.154981,
+      "weapon_score": 0.0,
+      "observation_score": 0.154981,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0038",
+      "start_s": 12.16,
+      "end_s": 13.44,
+      "span_s": 1.28,
+      "violence_conf": 0.138486,
+      "weapon_score": 0.0,
+      "observation_score": 0.138486,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0039",
+      "start_s": 12.48,
+      "end_s": 13.76,
+      "span_s": 1.28,
+      "violence_conf": 0.110857,
+      "weapon_score": 0.0,
+      "observation_score": 0.110857,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0040",
+      "start_s": 12.8,
+      "end_s": 14.08,
+      "span_s": 1.28,
+      "violence_conf": 0.133609,
+      "weapon_score": 0.0,
+      "observation_score": 0.133609,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0041",
+      "start_s": 13.12,
+      "end_s": 14.4,
+      "span_s": 1.28,
+      "violence_conf": 0.129898,
+      "weapon_score": 0.0,
+      "observation_score": 0.129898,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0042",
+      "start_s": 13.44,
+      "end_s": 14.72,
+      "span_s": 1.28,
+      "violence_conf": 0.139904,
+      "weapon_score": 0.0,
+      "observation_score": 0.139904,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0043",
+      "start_s": 13.76,
+      "end_s": 15.04,
+      "span_s": 1.28,
+      "violence_conf": 0.140217,
+      "weapon_score": 0.0,
+      "observation_score": 0.140217,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0044",
+      "start_s": 14.08,
+      "end_s": 15.36,
+      "span_s": 1.28,
+      "violence_conf": 0.285648,
+      "weapon_score": 0.0,
+      "observation_score": 0.285648,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0045",
+      "start_s": 14.4,
+      "end_s": 15.68,
+      "span_s": 1.28,
+      "violence_conf": 0.099933,
+      "weapon_score": 0.0,
+      "observation_score": 0.099933,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0046",
+      "start_s": 14.72,
+      "end_s": 16.0,
+      "span_s": 1.28,
+      "violence_conf": 0.070007,
+      "weapon_score": 0.0,
+      "observation_score": 0.070007,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0047",
+      "start_s": 15.04,
+      "end_s": 16.32,
+      "span_s": 1.28,
+      "violence_conf": 0.08818,
+      "weapon_score": 0.256295,
+      "observation_score": 0.08818,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0048",
+      "start_s": 15.36,
+      "end_s": 16.64,
+      "span_s": 1.28,
+      "violence_conf": 0.051316,
+      "weapon_score": 0.256295,
+      "observation_score": 0.051316,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0049",
+      "start_s": 15.68,
+      "end_s": 16.96,
+      "span_s": 1.28,
+      "violence_conf": 0.052847,
+      "weapon_score": 0.256295,
+      "observation_score": 0.052847,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0050",
+      "start_s": 16.0,
+      "end_s": 17.28,
+      "span_s": 1.28,
+      "violence_conf": 0.067902,
+      "weapon_score": 0.256295,
+      "observation_score": 0.067902,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0051",
+      "start_s": 16.32,
+      "end_s": 17.6,
+      "span_s": 1.28,
+      "violence_conf": 0.048029,
+      "weapon_score": 0.239707,
+      "observation_score": 0.048029,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    },
+    {
+      "window_id": "w0052",
+      "start_s": 16.64,
+      "end_s": 17.92,
+      "span_s": 1.28,
+      "violence_conf": 0.049993,
+      "weapon_score": 0.0,
+      "observation_score": 0.049993,
+      "valid": true,
+      "clock_source": "file-frame-index",
+      "frames_collected": 32,
+      "frames_required": 32
+    }
+  ],
+  "detections": [
+    {
+      "time_s": 1.4,
+      "class": "pistol",
+      "score": 0.480873,
+      "bbox": [
+        0.41,
+        0.75,
+        0.51,
+        0.89
+      ]
+    },
+    {
+      "time_s": 2.2,
+      "class": "pistol",
+      "score": 0.54068,
+      "bbox": [
+        0.09,
+        0.43,
+        0.15,
+        0.55
+      ]
+    },
+    {
+      "time_s": 6.6,
+      "class": "pistol",
+      "score": 0.374474,
+      "bbox": [
+        0.15,
+        0.79,
+        0.26,
+        0.93
+      ]
+    },
+    {
+      "time_s": 7.2,
+      "class": "pistol",
+      "score": 0.221517,
+      "bbox": [
+        0.21,
+        0.78,
+        0.31,
+        0.89
+      ]
+    },
+    {
+      "time_s": 16.2,
+      "class": "pistol",
+      "score": 0.256295,
+      "bbox": [
+        0.48,
+        0.4,
+        0.52,
+        0.45
+      ]
+    },
+    {
+      "time_s": 16.6,
+      "class": "pistol",
+      "score": 0.239707,
+      "bbox": [
+        0.69,
+        0.72,
+        0.79,
+        0.84
+      ]
+    }
+  ],
+  "alerts": [],
+  "tracks": [
+    {
+      "time_s": 0.4,
+      "track_id": 1,
+      "bbox": [
+        136.3,
+        20.86,
+        159.96,
+        107.01
+      ],
+      "confidence": 0.828969
+    },
+    {
+      "time_s": 0.6,
+      "track_id": 1,
+      "bbox": [
+        137.7,
+        20.14,
+        159.96,
+        107.15
+      ],
+      "confidence": 0.863025
+    },
+    {
+      "time_s": 0.8,
+      "track_id": 1,
+      "bbox": [
+        119.03,
+        19.46,
+        155.22,
+        112.5
+      ],
+      "confidence": 0.850302
+    },
+    {
+      "time_s": 1.0,
+      "track_id": 1,
+      "bbox": [
+        100.56,
+        22.27,
+        152.11,
+        110.93
+      ],
+      "confidence": 0.927976
+    },
+    {
+      "time_s": 1.2,
+      "track_id": 1,
+      "bbox": [
+        97.2,
+        18.68,
+        126.9,
+        110.65
+      ],
+      "confidence": 0.856865
+    },
+    {
+      "time_s": 1.4,
+      "track_id": 1,
+      "bbox": [
+        66.71,
+        19.38,
+        118.12,
+        110.03
+      ],
+      "confidence": 0.928735
+    },
+    {
+      "time_s": 1.6,
+      "track_id": 1,
+      "bbox": [
+        58.98,
+        17.16,
+        105.09,
+        108.25
+      ],
+      "confidence": 0.899881
+    },
+    {
+      "time_s": 1.8,
+      "track_id": 1,
+      "bbox": [
+        47.78,
+        13.21,
+        76.46,
+        107.86
+      ],
+      "confidence": 0.84812
+    },
+    {
+      "time_s": 2.0,
+      "track_id": 1,
+      "bbox": [
+        18.93,
+        16.51,
+        78.97,
+        105.67
+      ],
+      "confidence": 0.922771
+    },
+    {
+      "time_s": 2.2,
+      "track_id": 1,
+      "bbox": [
+        15.33,
+        13.44,
+        48.03,
+        106.42
+      ],
+      "confidence": 0.891297
+    },
+    {
+      "time_s": 2.4,
+      "track_id": 1,
+      "bbox": [
+        0.0,
+        14.84,
+        35.29,
+        106.87
+      ],
+      "confidence": 0.917072
+    },
+    {
+      "time_s": 6.4,
+      "track_id": 2,
+      "bbox": [
+        0.01,
+        19.16,
+        10.89,
+        114.76
+      ],
+      "confidence": 0.595658
+    },
+    {
+      "time_s": 6.6,
+      "track_id": 3,
+      "bbox": [
+        0.0,
+        21.68,
+        39.04,
+        114.38
+      ],
+      "confidence": 0.879604
+    },
+    {
+      "time_s": 6.8,
+      "track_id": 3,
+      "bbox": [
+        3.08,
+        21.4,
+        49.37,
+        112.91
+      ],
+      "confidence": 0.917617
+    },
+    {
+      "time_s": 7.0,
+      "track_id": 4,
+      "bbox": [
+        32.69,
+        18.63,
+        60.67,
+        112.24
+      ],
+      "confidence": 0.849967
+    },
+    {
+      "time_s": 7.2,
+      "track_id": 4,
+      "bbox": [
+        34.85,
+        18.91,
+        87.42,
+        108.97
+      ],
+      "confidence": 0.911878
+    },
+    {
+      "time_s": 7.4,
+      "track_id": 4,
+      "bbox": [
+        66.18,
+        15.05,
+        92.67,
+        108.11
+      ],
+      "confidence": 0.885204
+    },
+    {
+      "time_s": 7.6,
+      "track_id": 4,
+      "bbox": [
+        71.46,
+        15.06,
+        121.65,
+        107.19
+      ],
+      "confidence": 0.929214
+    },
+    {
+      "time_s": 7.8,
+      "track_id": 4,
+      "bbox": [
+        90.4,
+        14.83,
+        126.01,
+        104.98
+      ],
+      "confidence": 0.876819
+    },
+    {
+      "time_s": 8.0,
+      "track_id": 5,
+      "bbox": [
+        109.13,
+        15.27,
+        148.96,
+        107.67
+      ],
+      "confidence": 0.881261
+    },
+    {
+      "time_s": 8.2,
+      "track_id": 5,
+      "bbox": [
+        113.99,
+        20.27,
+        159.92,
+        108.56
+      ],
+      "confidence": 0.925649
+    },
+    {
+      "time_s": 8.4,
+      "track_id": 5,
+      "bbox": [
+        142.61,
+        21.62,
+        159.94,
+        109.47
+      ],
+      "confidence": 0.848895
+    },
+    {
+      "time_s": 8.6,
+      "track_id": 5,
+      "bbox": [
+        149.48,
+        29.82,
+        159.96,
+        109.79
+      ],
+      "confidence": 0.4935
+    },
+    {
+      "time_s": 9.6,
+      "track_id": 6,
+      "bbox": [
+        132.53,
+        14.45,
+        159.96,
+        102.42
+      ],
+      "confidence": 0.91239
+    },
+    {
+      "time_s": 9.8,
+      "track_id": 6,
+      "bbox": [
+        128.77,
+        12.4,
+        159.93,
+        102.99
+      ],
+      "confidence": 0.911749
+    },
+    {
+      "time_s": 10.0,
+      "track_id": 6,
+      "bbox": [
+        106.06,
+        11.78,
+        146.9,
+        102.99
+      ],
+      "confidence": 0.871849
+    },
+    {
+      "time_s": 10.2,
+      "track_id": 6,
+      "bbox": [
+        91.93,
+        14.53,
+        140.91,
+        103.91
+      ],
+      "confidence": 0.922875
+    },
+    {
+      "time_s": 10.4,
+      "track_id": 7,
+      "bbox": [
+        82.92,
+        12.82,
+        107.47,
+        102.99
+      ],
+      "confidence": 0.867126
+    },
+    {
+      "time_s": 10.6,
+      "track_id": 7,
+      "bbox": [
+        53.94,
+        17.01,
+        106.68,
+        104.63
+      ],
+      "confidence": 0.924503
+    },
+    {
+      "time_s": 10.8,
+      "track_id": 7,
+      "bbox": [
+        49.96,
+        16.41,
+        83.06,
+        105.75
+      ],
+      "confidence": 0.910148
+    },
+    {
+      "time_s": 11.0,
+      "track_id": 7,
+      "bbox": [
+        25.78,
+        16.45,
+        66.4,
+        105.28
+      ],
+      "confidence": 0.895744
+    },
+    {
+      "time_s": 11.2,
+      "track_id": 7,
+      "bbox": [
+        9.52,
+        18.83,
+        55.53,
+        106.93
+      ],
+      "confidence": 0.915804
+    },
+    {
+      "time_s": 11.4,
+      "track_id": 8,
+      "bbox": [
+        0.0,
+        15.46,
+        24.84,
+        108.79
+      ],
+      "confidence": 0.890799
+    },
+    {
+      "time_s": 11.6,
+      "track_id": 8,
+      "bbox": [
+        0.0,
+        36.75,
+        23.9,
+        103.67
+      ],
+      "confidence": 0.531586
+    },
+    {
+      "time_s": 15.4,
+      "track_id": 9,
+      "bbox": [
+        0.0,
+        16.43,
+        16.24,
+        109.77
+      ],
+      "confidence": 0.812719
+    },
+    {
+      "time_s": 15.6,
+      "track_id": 9,
+      "bbox": [
+        0.02,
+        17.12,
+        49.32,
+        107.71
+      ],
+      "confidence": 0.936494
+    },
+    {
+      "time_s": 15.8,
+      "track_id": 9,
+      "bbox": [
+        15.13,
+        15.22,
+        52.03,
+        105.75
+      ],
+      "confidence": 0.904221
+    },
+    {
+      "time_s": 16.0,
+      "track_id": 10,
+      "bbox": [
+        34.51,
+        14.01,
+        74.17,
+        106.75
+      ],
+      "confidence": 0.885598
+    },
+    {
+      "time_s": 16.2,
+      "track_id": 10,
+      "bbox": [
+        40.55,
+        15.99,
+        91.34,
+        105.27
+      ],
+      "confidence": 0.914117
+    },
+    {
+      "time_s": 16.4,
+      "track_id": 10,
+      "bbox": [
+        73.01,
+        13.14,
+        95.87,
+        105.19
+      ],
+      "confidence": 0.860456
+    },
+    {
+      "time_s": 16.6,
+      "track_id": 10,
+      "bbox": [
+        75.3,
+        13.57,
+        126.63,
+        105.55
+      ],
+      "confidence": 0.929199
+    },
+    {
+      "time_s": 16.8,
+      "track_id": 10,
+      "bbox": [
+        89.82,
+        13.52,
+        129.29,
+        102.38
+      ],
+      "confidence": 0.895677
+    },
+    {
+      "time_s": 17.0,
+      "track_id": 10,
+      "bbox": [
+        109.93,
+        13.47,
+        144.06,
+        106.41
+      ],
+      "confidence": 0.890212
+    },
+    {
+      "time_s": 17.2,
+      "track_id": 10,
+      "bbox": [
+        121.77,
+        19.34,
+        157.55,
+        109.07
+      ],
+      "confidence": 0.884005
+    },
+    {
+      "time_s": 17.4,
+      "track_id": 10,
+      "bbox": [
+        136.28,
+        21.42,
+        159.92,
+        110.05
+      ],
+      "confidence": 0.918541
+    },
+    {
+      "time_s": 17.6,
+      "track_id": 10,
+      "bbox": [
+        146.4,
+        24.82,
+        159.96,
+        109.51
+      ],
+      "confidence": 0.704331
+    }
+  ],
+  "media_facts": {
+    "frames_read": 450,
+    "fps": 25.0
+  },
+  "run_id": "smoke-wt12-scorer-cpu"
+}

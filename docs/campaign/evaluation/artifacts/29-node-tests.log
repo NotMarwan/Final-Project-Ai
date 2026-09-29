@@ -1,0 +1,177 @@
+(node:14116) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/components/overview/overview-time.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ timeline includes the newest boundary and excludes events outside the range (3.9047ms)
+✔ brush returns ordered, inclusive bucket bounds (1.447ms)
+✔ all-session timeline never labels absent history as an incident (0.3396ms)
+✔ step counts are 5 / 6 / 8 per range with exact epoch durations (0.3165ms)
+✔ an alert exactly on an interior bucket boundary draws in the later bucket (0.331ms)
+✔ a single-bucket brush window is closed and can include the shared boundary instant (0.3082ms)
+✔ inTimeWindow is closed at both ends and rejects unparseable times (0.2459ms)
+✔ all-session span grows with the oldest alert but never below one hour (0.2903ms)
+✔ windows are DST-safe: identical wall clocks, distinct instants (1.9605ms)
+(node:9772) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/components/shell/locale.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ normalizes Arabic and Persian numerals for readings (1.3093ms)
+✔ formats Arabic UI times in 24-hour Latin numerals (41.4137ms)
+(node:30732) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/detection-types.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ category labels are Arabic while wire IDs remain stable (1.2967ms)
+✔ relative alert time is Arabic and handles invalid or future timestamps (0.3429ms)
+✔ minute histogram counts only received alerts in the selected window (1.5111ms)
+(node:12888) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/sentinel-selectors.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ severity labels are a single Arabic source (2.4013ms)
+✔ severity normalization accepts the producer's none/low band without losing the alert (0.3386ms)
+✔ an alert with severity none is still parsed (regression: silent drop) (0.8013ms)
+✔ severity ordering is critical first with newest-first ties (0.3279ms)
+✔ triage transitions match the documented workflow (0.2841ms)
+✔ a session transition records actor, timestamp and history (0.4172ms)
+✔ triage records keep the newest state and stay bounded (16.5174ms)
+✔ triage records parse from the API and reject unknown vocabulary (0.8545ms)
+✔ alert_triage frames are routed to the triage branch, not parsed as alerts (0.7074ms)
+✔ stream frames classify alerts, triage, person counts and malformed payloads (0.8762ms)
+(node:40852) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/api-auth.ts?test=1790654188411 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ API credentials come only from tab storage and never from caller headers (150.5974ms)
+(node:45956) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/sentinel-selectors.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ confidence band index maps score edges exactly as the histogram does (5.1036ms)
+✔ session coverage reports the observed span and the cap flag (0.8781ms)
+✔ session coverage ignores unparseable timestamps (0.2569ms)
+✔ no comparison baseline exists for the session-wide range or an empty session (0.3727ms)
+✔ previous window is half-open [now-2d, now-d) and applies the same dimension filters (0.4868ms)
+✔ baseline is refused when session start leaves the previous window unobserved (0.2518ms)
+✔ baseline is refused when the 50-alert cap evicted the previous window (0.3699ms)
+✔ baseline is available when the session observed the whole previous window (0.2356ms)
+✔ brushed views compare against the same brush shifted back one duration (0.2789ms)
+✔ each chart drops only its own dimension and keeps the others (0.8242ms)
+✔ the brush filters camera/severity/confidence sets but never the timeline or context (0.4059ms)
+✔ a brush end boundary is closed like the overview brush filter (0.2729ms)
+✔ range windows are exact epoch durations across a DST fall-back (0.3201ms)
+✔ previous-window math stays exact across a DST spring-forward (0.2452ms)
+✔ person-count envelopes never enter the alert stream (0.3955ms)
+(node:39624) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/sentinel-selectors.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ camera and severity filters combine with AND (4.3359ms)
+✔ camera, type, severity, confidence, and range filters all combine (0.3342ms)
+✔ range includes its start and current time and both land in timeline buckets (46.7801ms)
+✔ latency percentiles stay unavailable with fewer than two measured samples (0.3481ms)
+✔ old critical alert does not set current threat level (0.3142ms)
+✔ backend weapon label enters the normalized alert feed (0.8339ms)
+✔ alert envelopes reject invalid IDs, timestamps, and out-of-range confidence (1.5248ms)
+✔ alert envelopes omit unchecked optional fields instead of copying payload objects (8.3462ms)
+✔ countBy treats prototype-like camera IDs as ordinary keys (0.7287ms)
+✔ person detection counts accept only non-negative safe integers (0.4951ms)
+(node:6960) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/ui-fixtures.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fixtures require the explicit query flag and stay disabled in production (1.8034ms)
+(node:34160) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/api-auth.ts?test=1790654188546 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the UI credential stays in tab-scoped storage and is attached centrally (17.6966ms)
+✔ the API key is never forwarded to an external origin (119.7209ms)
+✔ protected UI calls use the authenticated fetch helper (14.5648ms)
+✔ native streams remain header-free and the access prompt is mounted (5.5346ms)
+(node:2440) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/detection-envelope.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ detection stream accepts a valid overlay envelope (1.805ms)
+✔ detection stream rejects hostile track labels before canvas rendering (0.4091ms)
+✔ detection stream rejects malformed geometry and percentages (0.3718ms)
+(node:40684) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/detection-envelope.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ overlay envelope carries frameSequence when present and omits it when absent (1.7943ms)
+✔ malformed frameSequence fails the envelope closed (0.3516ms)
+✔ client overlay draws only when the payload frame is proven identical to the display frame (0.2459ms)
+✔ a file source is never labelled live and a stale stream raises the stale banner (1.6694ms)
+(node:40056) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/local-report.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a saved facts-only report must match the selected incident (1.5914ms)
+✔ online model output cannot masquerade as a local facts-only summary (0.224ms)
+✔ malformed or oversized reports fail closed (0.3085ms)
+✔ incident metrics keep missing observations unavailable and preserve measured zero (3.031ms)
+✔ incident metrics reject invalid values and blank weapon labels (0.3736ms)
+✔ evidence chain accepts only a record for this alert with valid hashes (0.5609ms)
+✔ the backend-produced report is accepted by the UI parser (producer/consumer contract) (4.1339ms)
+✔ the backend report for another incident id is rejected (1.4768ms)
+(node:41772) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/pipeline-telemetry.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ missing data cannot imply NORMAL or zero scores (4.2717ms)
+✔ camera IDs and explicit decision state define the boundary (0.4513ms)
+✔ out-of-range and malformed values remain unavailable (0.3261ms)
+✔ confirmed event boolean never promotes an unknown state (0.2645ms)
+✔ trace appends completed observations once despite repeated renders (1.2098ms)
+✔ restarted pipelines reset trace and old observations expire (0.2363ms)
+✔ stale server samples cannot look fresh after reconnect (0.2497ms)
+✔ subsystem health is explicit and preserves disabled/failed distinctions (0.2073ms)
+✔ fresh render traffic cannot revive a stalled inference (0.2145ms)
+✔ weapon-only completions do not fabricate violence observations (0.3878ms)
+✔ weapon completions cannot keep a stalled violence modality fresh (0.4649ms)
+✔ violence completions cannot keep a stalled weapon modality fresh (0.2264ms)
+✔ a combined sequence without producer IDs cannot invent model samples (0.1755ms)
+✔ top-level calibration and window clocks preserve backend meaning (0.2299ms)
+✔ stage, queue and frame-age telemetry parse with explicit clock labels (0.6197ms)
+✔ absent, unavailable and malformed telemetry stays unavailable instead of zero (0.3619ms)
+✔ frame age at display needs both clocks and never goes negative (0.1933ms)
+✔ modality freshness degradation keeps the pipeline telemetry block (0.3576ms)
+✔ display frame telemetry parses additively and never invents values (0.2066ms)
+(node:45084) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/reconnect-backoff.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ reconnect backoff grows exponentially, stays capped, and jitters within bounds (3.7604ms)
+✔ reconnect backoff tolerates degenerate attempts (0.4029ms)
+(node:38136) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/detection-types.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ track references are camera-scoped and cannot collide across cameras (2.8163ms)
+✔ cross-camera association is refused, same-camera association is allowed (0.6337ms)
+✔ person_detection events from another camera or malformed payloads are rejected (0.3981ms)
+✔ counting fields parse additively and missing values never become zero-free claims (0.6667ms)
+(node:44476) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/PCD/Downloads/jobs/sentinel-campaign/wt-29/lib/live-visual-state.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-29\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ source state never calls a file or unverified frame live (1.784ms)
+✔ detection snapshots publish at most once a second unless the decision changes (0.2978ms)
+✔ evidence links allow authenticated API paths and safe external HTTP URLs (0.5517ms)
+✔ overlay equality detects video dimension changes (0.4625ms)
+✔ overlay equality detects threat box geometry changes (0.3399ms)
+✔ toast suppression keeps live monitor visible while incidents stays quiet (0.213ms)
+✔ demo stop plan retries the same captured source id (2.1136ms)
+✔ weapon visual signal treats raw model probabilities as percents (0.2303ms)
+✔ contained video rect preserves object-contain letterboxing offsets (0.4539ms)
+✔ overlay projection supports both pixel and normalized boxes (0.5493ms)
+ℹ tests 105
+ℹ suites 0
+ℹ pass 105
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 741.8768

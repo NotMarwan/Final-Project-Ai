@@ -1,0 +1,895 @@
+{
+  "environment": {
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "torch": "2.3.0+cu118",
+      "torchvision": "0.18.0+cu118",
+      "ultralytics": "8.2.0",
+      "onnxruntime": "1.18.0",
+      "onnxruntime-gpu": null,
+      "opencv-python": "4.10.0.84",
+      "numpy": "1.26.4",
+      "fastapi": "0.115.0",
+      "pytest": "9.0.3",
+      "httpx": "0.27.0",
+      "psutil": "7.2.2"
+    },
+    "revision": "b96f49d3a1a4a588a7020a87e2df50dfe8aff30d",
+    "branch": "final-demo-transfer",
+    "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB, 591.86",
+    "source_hashes": {
+      "backend\\_pipeline_ai_deprecated.py": "9dc9148d0445ef0126b3809e1b31794c99523bf8c3591acd11b2d68f1fa0eeda",
+      "backend\\api.py": "e2e6e40afbc3f989964ce347208ffce82a5334325125b9e3020ec27f8e076a6a",
+      "backend\\audio.py": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b",
+      "backend\\augmentations.py": "2352531d6a8a3b064ec19a8e59aa95c09f8bab026d1c295ba29bf1b7f86a79d6",
+      "backend\\calibration_utils.py": "4e5849b4b60ae8eec0a2d417481675143fb1afc2f56e79cbf973174747eb8963",
+      "backend\\check_model_sha.py": "32ee8de9279d8b7c1c15e68edc589b0b7cf2edbd5e4b8b06fd554e961ed2dd16",
+      "backend\\colab_bridge_server.py": "212b29a4febdb648e9980854ad617d4290e84a6f57761f244e5ba0f48c7c0458",
+      "backend\\dataset_manager.py": "f8404633264e5f99cb6b33825b485509d04e70dab9a31a090c8762f01f00bf73",
+      "backend\\decision_config.py": "9c1a808908e275f4371aa11c98468821794dd7f1869e914c0611fd973b4f8ed4",
+      "backend\\detection_categories.py": "f3cce9d549255fdaf4627ea32d82afba280145bbb5bb855b5515861dd4a2fb9a",
+      "backend\\device_config.py": "4b7a344413c88a70c2bf9608c669201e8794a4a1d59d5caca1b2f71ac6f4571d",
+      "backend\\device_utils.py": "7c4b21f337fbaa0d8cdeeec47e27f4f41b7eb1eca65fc291ac610e9b2bfe1557",
+      "backend\\evidence.py": "f0204784a3062ce401b028d36cb7e00343a5180bb23066560edbc220b80898aa",
+      "backend\\export_models.py": "a2862f89d997698baa2838a9b99a9693b224eb55f6cb990ccaf5d1ce67d08127",
+      "backend\\face_intel.py": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598",
+      "backend\\frame_pipeline.py": "91e45649591e0b357b7e4e9b814d37ffbcb7a5bf4f5fdad761bc029549b8f51b",
+      "backend\\fusion.py": "76b313b558b972df5eb7757e9886c8e0406482f0486f7272e71fb2c29bf6ed8e",
+      "backend\\go2rtc_bridge.py": "40475c91839ad8a1bba16f360609ba5bce138395e3149b4c937b450058f0e652",
+      "backend\\inference.py": "e0b3100488bca7163b3e94cad2560ded3373d6508b4ec567621ed64da0919063",
+      "backend\\inference_process.py": "ade80dccb755c01366b31b5eda345ef3309809aad26ac359a2e9ca493b6214cd",
+      "backend\\live_alert_decision.py": "b970c745113b7989189536edb6be50a63e8b0f7b148d1275b8e8f769f294c1c0",
+      "backend\\local_forensics.py": "126786307d43d2e1a1124fe9ec97fbffdb5c31a5d092418e222e7dd4aca90fe4",
+      "backend\\metrics.py": "ad59db16e480b412402e4b508b4deebf81af2e46b8d60952e3fdda0fcb0af304",
+      "backend\\notifications.py": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087",
+      "backend\\openrouter_reporting.py": "5c66f686b7f81b0b44900deb55c64c239055783c7a0b90a48bcb5a7d29d4500c",
+      "backend\\optimization.py": "a59e5a88a7b4a2c91f44b38996e959a0f9840f6dc837a39dd3962b822c2ce158",
+      "backend\\person_detector.py": "ab503e07161d3c8202ee82c5818f52bdf321877b8698a3e6fc661cd8c2ba3b5a",
+      "backend\\pipeline_ai.py": "39fc06fbd16267924bb386652c921b26eff224d6e0626c484f0f10d06d42fac7",
+      "backend\\pipeline_capture.py": "745c84229f4ade80802e9e31881f29b8104d15bd98bd457b9997dd49c8e1924a",
+      "backend\\pipeline_render.py": "6f514b30dd1b1dfaa4d823661b5af7ce70704af49ed0ff7db784dc011875a0d3",
+      "backend\\prepare_colab_bundle.py": "b4eccaddadb2ed6c18297a83f099e84cc5efb7493d7535ca5b6573069d1e755d",
+      "backend\\render_colab_notebook.py": "097c240e81e3acf220c7831820fc4b2ffc1697f744bc41455d512524ef46f81a",
+      "backend\\reporting.py": "b4c7ef3c1d27a03d0febb74b9aa05a406f59f4f40d4a2431ca1e995595e7237d",
+      "backend\\security.py": "d8e3c04eb8195c44f0f17e4d9d43b220468d13b7825e9f7907cbcf444194bcb4",
+      "backend\\temporal_frames.py": "4a6231a4c9521275d9a002e48149ade5fac838541f22eccf36e5c23e6efa6665",
+      "backend\\train_calibration.py": "391db7136ea0744fe12c18f44307696461d7b24e848575b46c4bf9fc3154e663",
+      "backend\\train_finetune.py": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb",
+      "backend\\train_pipeline.py": "620e283c0e0c0a428ba91d1042a33a80af69901a7a447f7fe4db3cc8bbd02ef6",
+      "backend\\visual_annotator.py": "07061d7f275c9c9fad607b4bd1fee44566a7959c9d1742a6f347158c2cda1669",
+      "backend\\weapon.py": "8cd7740b8b431b22bc9a8ccf0ade723498db9f0c1df7c460fcb93085f6af4665",
+      "backend\\webrtc_streamer.py": "a10afa55f4427d553cdf3ab63677cc5fcd9a09d759848b6d1fa07af45fad7d00",
+      "backend\\yolo_onnx.py": "73fb71f76966c64a00096890721993c665dfb41586dc016b4d5b2564467157a4"
+    },
+    "harness_hashes": {
+      "bench\\__init__.py": "966019a685e1694b250bae2f7ce05ba70ea19f2531008e870f3d2fd8a4f60ea6",
+      "bench\\calibrate.py": "f10128e92e5348f09e0346437d9c348a8989a73379eea6b1f5da95bd7c3a3902",
+      "bench\\common.py": "00f3677a39757f2d4100b444d64be090b4180c08c4ce0ae306a0f3bb70de8b38",
+      "bench\\fetch_fixtures.py": "a7c66e6ce56ba516ad5899e386e36c627638ed0cb3d87efb6dd45cff45b9839c",
+      "bench\\legacy_tests.py": "eab00f319b1ecc37b184a200906655a5b8895e4c94aa3ce72f1c365f9239be81",
+      "bench\\probe.py": "cc4fcd83b8177c78c2a4cd9a4b686cbcc748d256d15c6ed9707f4457615eb73c",
+      "bench\\run.py": "dcf91d3dfcb10ba9bcba48fe71225cb879bfda1a088a820e763398b06b5ccc14",
+      "bench\\runtime.py": "6f72db14737a1a96a54a4abc86fc662861b09eeb33bf62f15cb09b5ea6266c70",
+      "bench\\security_scan.py": "7f7353d322b2c896c15e25c7927a9dd3636891854a9af264ffc58927de60bbc9",
+      "bench\\test_calibrate.py": "bfe388f9bef0ad54f5b82e79abaa253a0edd280fc324a50449e3b796ff83f6b2",
+      "bench\\test_common.py": "fccaa5dbaa428bc0d623335f3cc129a56d1271ceddcfdcbb150af6f2dcadd62e",
+      "bench\\test_summary.py": "fcbd0f3e3088a47e25f4436d5ee4f5425754f45b3245e72ef0fe7196787577de"
+    },
+    "source": {
+      "path": "demo_assets/videos/Wq0BuA8GM84_0.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+    },
+    "all_detection_requested": true
+  },
+  "started_monotonic": 14820.8148738,
+  "seconds": 90,
+  "warmup_seconds": 25,
+  "runtime_exit_code": 0,
+  "gpu_samples": [
+    {
+      "at": 14823.988779,
+      "gpu_percent,vram_mib": "39, 2418",
+      "process_tree_rss_bytes": 58793984,
+      "system_available_bytes": 3127324672
+    },
+    {
+      "at": 14826.6493352,
+      "gpu_percent,vram_mib": "32, 2417",
+      "process_tree_rss_bytes": 75198464,
+      "system_available_bytes": 3110952960
+    },
+    {
+      "at": 14829.1868144,
+      "gpu_percent,vram_mib": "40, 2417",
+      "process_tree_rss_bytes": 267214848,
+      "system_available_bytes": 2984013824
+    },
+    {
+      "at": 14831.7827868,
+      "gpu_percent,vram_mib": "24, 2355",
+      "process_tree_rss_bytes": 347930624,
+      "system_available_bytes": 2934333440
+    },
+    {
+      "at": 14834.3898662,
+      "gpu_percent,vram_mib": "63, 2353",
+      "process_tree_rss_bytes": 419659776,
+      "system_available_bytes": 2814681088
+    },
+    {
+      "at": 14835.9585572,
+      "gpu_percent,vram_mib": "23, 2378",
+      "process_tree_rss_bytes": 655945728,
+      "system_available_bytes": 2645159936
+    },
+    {
+      "at": 14837.1286367,
+      "gpu_percent,vram_mib": "36, 2412",
+      "process_tree_rss_bytes": 737824768,
+      "system_available_bytes": 2496614400
+    },
+    {
+      "at": 14838.4906678,
+      "gpu_percent,vram_mib": "57, 2496",
+      "process_tree_rss_bytes": 761401344,
+      "system_available_bytes": 2366214144
+    },
+    {
+      "at": 14840.0348228,
+      "gpu_percent,vram_mib": "46, 2485",
+      "process_tree_rss_bytes": 783069184,
+      "system_available_bytes": 2180022272
+    },
+    {
+      "at": 14841.4886282,
+      "gpu_percent,vram_mib": "21, 2477",
+      "process_tree_rss_bytes": 796274688,
+      "system_available_bytes": 2141577216
+    },
+    {
+      "at": 14843.2037288,
+      "gpu_percent,vram_mib": "26, 2477",
+      "process_tree_rss_bytes": 813772800,
+      "system_available_bytes": 2168324096
+    },
+    {
+      "at": 14844.5221395,
+      "gpu_percent,vram_mib": "24, 2451",
+      "process_tree_rss_bytes": 827891712,
+      "system_available_bytes": 2131177472
+    },
+    {
+      "at": 14845.771429,
+      "gpu_percent,vram_mib": "35, 2430",
+      "process_tree_rss_bytes": 854327296,
+      "system_available_bytes": 2106171392
+    },
+    {
+      "at": 14847.1375535,
+      "gpu_percent,vram_mib": "27, 2440",
+      "process_tree_rss_bytes": 873861120,
+      "system_available_bytes": 2016284672
+    },
+    {
+      "at": 14848.2544353,
+      "gpu_percent,vram_mib": "33, 2439",
+      "process_tree_rss_bytes": 1014353920,
+      "system_available_bytes": 1800466432
+    },
+    {
+      "at": 14849.3660858,
+      "gpu_percent,vram_mib": "10, 2894",
+      "process_tree_rss_bytes": 1198829568,
+      "system_available_bytes": 1632305152
+    },
+    {
+      "at": 14850.4788091,
+      "gpu_percent,vram_mib": "11, 2895",
+      "process_tree_rss_bytes": 1017712640,
+      "system_available_bytes": 1748484096
+    },
+    {
+      "at": 14851.6188985,
+      "gpu_percent,vram_mib": "30, 3157",
+      "process_tree_rss_bytes": 1149775872,
+      "system_available_bytes": 1629843456
+    },
+    {
+      "at": 14852.8393031,
+      "gpu_percent,vram_mib": "10, 3159",
+      "process_tree_rss_bytes": 1284526080,
+      "system_available_bytes": 1583886336
+    },
+    {
+      "at": 14854.2577792,
+      "gpu_percent,vram_mib": "10, 3159",
+      "process_tree_rss_bytes": 1471827968,
+      "system_available_bytes": 1411674112
+    },
+    {
+      "at": 14855.524027,
+      "gpu_percent,vram_mib": "16, 3197",
+      "process_tree_rss_bytes": 1574526976,
+      "system_available_bytes": 1509085184
+    },
+    {
+      "at": 14856.7715103,
+      "gpu_percent,vram_mib": "25, 3445",
+      "process_tree_rss_bytes": 1681371136,
+      "system_available_bytes": 1989746688
+    },
+    {
+      "at": 14857.9512324,
+      "gpu_percent,vram_mib": "33, 3448",
+      "process_tree_rss_bytes": 1705979904,
+      "system_available_bytes": 1949360128
+    },
+    {
+      "at": 14859.1692156,
+      "gpu_percent,vram_mib": "29, 3474",
+      "process_tree_rss_bytes": 1746366464,
+      "system_available_bytes": 1788219392
+    },
+    {
+      "at": 14860.378928,
+      "gpu_percent,vram_mib": "13, 3471",
+      "process_tree_rss_bytes": 1732542464,
+      "system_available_bytes": 1855967232
+    },
+    {
+      "at": 14861.5924418,
+      "gpu_percent,vram_mib": "12, 3474",
+      "process_tree_rss_bytes": 1740595200,
+      "system_available_bytes": 1854611456
+    },
+    {
+      "at": 14862.7346907,
+      "gpu_percent,vram_mib": "14, 3474",
+      "process_tree_rss_bytes": 1723113472,
+      "system_available_bytes": 1917480960
+    },
+    {
+      "at": 14863.9166816,
+      "gpu_percent,vram_mib": "47, 3474",
+      "process_tree_rss_bytes": 1720209408,
+      "system_available_bytes": 1970491392
+    },
+    {
+      "at": 14865.0532294,
+      "gpu_percent,vram_mib": "14, 3448",
+      "process_tree_rss_bytes": 1727000576,
+      "system_available_bytes": 1972826112
+    },
+    {
+      "at": 14866.1604491,
+      "gpu_percent,vram_mib": "10, 3446",
+      "process_tree_rss_bytes": 1719078912,
+      "system_available_bytes": 2208661504
+    },
+    {
+      "at": 14867.2744876,
+      "gpu_percent,vram_mib": "13, 3448",
+      "process_tree_rss_bytes": 1724628992,
+      "system_available_bytes": 2225340416
+    },
+    {
+      "at": 14868.3956997,
+      "gpu_percent,vram_mib": "12, 3448",
+      "process_tree_rss_bytes": 1723625472,
+      "system_available_bytes": 2212556800
+    },
+    {
+      "at": 14869.6249015,
+      "gpu_percent,vram_mib": "13, 3448",
+      "process_tree_rss_bytes": 1728634880,
+      "system_available_bytes": 2190970880
+    },
+    {
+      "at": 14870.8910279,
+      "gpu_percent,vram_mib": "19, 3460",
+      "process_tree_rss_bytes": 1764794368,
+      "system_available_bytes": 2145763328
+    },
+    {
+      "at": 14872.061429,
+      "gpu_percent,vram_mib": "13, 3454",
+      "process_tree_rss_bytes": 1728925696,
+      "system_available_bytes": 2155679744
+    },
+    {
+      "at": 14873.1909247,
+      "gpu_percent,vram_mib": "16, 3453",
+      "process_tree_rss_bytes": 1720496128,
+      "system_available_bytes": 2097369088
+    },
+    {
+      "at": 14874.3412039,
+      "gpu_percent,vram_mib": "12, 3453",
+      "process_tree_rss_bytes": 1725542400,
+      "system_available_bytes": 2076614656
+    },
+    {
+      "at": 14875.6036999,
+      "gpu_percent,vram_mib": "62, 3453",
+      "process_tree_rss_bytes": 1730084864,
+      "system_available_bytes": 2077470720
+    },
+    {
+      "at": 14876.7677798,
+      "gpu_percent,vram_mib": "57, 3450",
+      "process_tree_rss_bytes": 1737424896,
+      "system_available_bytes": 2011652096
+    },
+    {
+      "at": 14878.133224,
+      "gpu_percent,vram_mib": "13, 3469",
+      "process_tree_rss_bytes": 1726410752,
+      "system_available_bytes": 1904545792
+    },
+    {
+      "at": 14879.2690865,
+      "gpu_percent,vram_mib": "15, 3476",
+      "process_tree_rss_bytes": 1724567552,
+      "system_available_bytes": 1897713664
+    },
+    {
+      "at": 14880.4348135,
+      "gpu_percent,vram_mib": "73, 3480",
+      "process_tree_rss_bytes": 1730068480,
+      "system_available_bytes": 1915428864
+    },
+    {
+      "at": 14881.5943988,
+      "gpu_percent,vram_mib": "12, 3490",
+      "process_tree_rss_bytes": 1725083648,
+      "system_available_bytes": 1887969280
+    },
+    {
+      "at": 14882.7587614,
+      "gpu_percent,vram_mib": "15, 3490",
+      "process_tree_rss_bytes": 1733480448,
+      "system_available_bytes": 1866948608
+    },
+    {
+      "at": 14884.2226312,
+      "gpu_percent,vram_mib": "25, 3483",
+      "process_tree_rss_bytes": 1755594752,
+      "system_available_bytes": 1818050560
+    },
+    {
+      "at": 14885.3431192,
+      "gpu_percent,vram_mib": "11, 3477",
+      "process_tree_rss_bytes": 1731375104,
+      "system_available_bytes": 1902792704
+    },
+    {
+      "at": 14886.4918672,
+      "gpu_percent,vram_mib": "12, 3476",
+      "process_tree_rss_bytes": 1725587456,
+      "system_available_bytes": 1868988416
+    },
+    {
+      "at": 14887.7496414,
+      "gpu_percent,vram_mib": "42, 3476",
+      "process_tree_rss_bytes": 1731485696,
+      "system_available_bytes": 1838026752
+    },
+    {
+      "at": 14888.9285211,
+      "gpu_percent,vram_mib": "14, 3476",
+      "process_tree_rss_bytes": 1730019328,
+      "system_available_bytes": 1779449856
+    },
+    {
+      "at": 14890.2440224,
+      "gpu_percent,vram_mib": "17, 3478",
+      "process_tree_rss_bytes": 1756008448,
+      "system_available_bytes": 1696501760
+    },
+    {
+      "at": 14891.5323574,
+      "gpu_percent,vram_mib": "14, 3478",
+      "process_tree_rss_bytes": 1749610496,
+      "system_available_bytes": 1820073984
+    },
+    {
+      "at": 14892.7812206,
+      "gpu_percent,vram_mib": "14, 3472",
+      "process_tree_rss_bytes": 1738911744,
+      "system_available_bytes": 1773211648
+    },
+    {
+      "at": 14893.9643198,
+      "gpu_percent,vram_mib": "14, 3475",
+      "process_tree_rss_bytes": 1747255296,
+      "system_available_bytes": 1653248000
+    },
+    {
+      "at": 14895.2953403,
+      "gpu_percent,vram_mib": "13, 3475",
+      "process_tree_rss_bytes": 1729097728,
+      "system_available_bytes": 1677041664
+    },
+    {
+      "at": 14896.806123,
+      "gpu_percent,vram_mib": "30, 3548",
+      "process_tree_rss_bytes": 1741725696,
+      "system_available_bytes": 1599393792
+    },
+    {
+      "at": 14898.3380014,
+      "gpu_percent,vram_mib": "15, 3552",
+      "process_tree_rss_bytes": 1725865984,
+      "system_available_bytes": 1572593664
+    },
+    {
+      "at": 14900.375113,
+      "gpu_percent,vram_mib": "34, 3608",
+      "process_tree_rss_bytes": 1707995136,
+      "system_available_bytes": 1495896064
+    },
+    {
+      "at": 14901.722903,
+      "gpu_percent,vram_mib": "10, 3607",
+      "process_tree_rss_bytes": 1709703168,
+      "system_available_bytes": 1464684544
+    },
+    {
+      "at": 14902.9282169,
+      "gpu_percent,vram_mib": "12, 3606",
+      "process_tree_rss_bytes": 1731043328,
+      "system_available_bytes": 1402474496
+    },
+    {
+      "at": 14904.3209842,
+      "gpu_percent,vram_mib": "13, 3598",
+      "process_tree_rss_bytes": 1717547008,
+      "system_available_bytes": 1430401024
+    },
+    {
+      "at": 14905.4983538,
+      "gpu_percent,vram_mib": "13, 3601",
+      "process_tree_rss_bytes": 1745833984,
+      "system_available_bytes": 1409155072
+    },
+    {
+      "at": 14906.7660934,
+      "gpu_percent,vram_mib": "17, 3498",
+      "process_tree_rss_bytes": 1724485632,
+      "system_available_bytes": 1504768000
+    },
+    {
+      "at": 14908.0493879,
+      "gpu_percent,vram_mib": "57, 3498",
+      "process_tree_rss_bytes": 1724960768,
+      "system_available_bytes": 1374085120
+    },
+    {
+      "at": 14909.3430906,
+      "gpu_percent,vram_mib": "14, 3512",
+      "process_tree_rss_bytes": 1731862528,
+      "system_available_bytes": 1402494976
+    },
+    {
+      "at": 14910.7999681,
+      "gpu_percent,vram_mib": "58, 3513",
+      "process_tree_rss_bytes": 1732624384,
+      "system_available_bytes": 1346793472
+    }
+  ],
+  "summary": {
+    "trace_available": true,
+    "stage_latency_ms": {
+      "capture": {
+        "count": 1820,
+        "p05": 1.166435,
+        "p50": 2.0169,
+        "p95": 14.878825,
+        "max": 160.65730000082112
+      },
+      "display": {
+        "count": 0,
+        "p05": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "ipc_drop": {
+        "count": 201,
+        "p05": 0.0137,
+        "p50": 0.0194,
+        "p95": 0.2261,
+        "max": 0.7411000005959067
+      },
+      "ipc_enqueue": {
+        "count": 1607,
+        "p05": 0.0136,
+        "p50": 0.0194,
+        "p95": 0.04721,
+        "max": 22.796899998866138
+      },
+      "ipc_receive": {
+        "count": 0,
+        "p05": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "jpeg_encode": {
+        "count": 1805,
+        "p05": 3.847,
+        "p50": 4.1855,
+        "p95": 4.61872,
+        "max": 32.07739999925252
+      },
+      "metadata": {
+        "count": 0,
+        "p05": null,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "person_call": {
+        "count": 324,
+        "p05": 0.0067,
+        "p50": 74.0913,
+        "p95": 230.4629,
+        "max": 455.4944000010437
+      },
+      "person_onnx": {
+        "count": 162,
+        "p05": 161.827195,
+        "p50": 194.4654,
+        "p95": 267.176725,
+        "max": 455.47830000032263
+      },
+      "render": {
+        "count": 1805,
+        "p05": 4.3482,
+        "p50": 5.0542,
+        "p95": 5.79584,
+        "max": 114.96900000020105
+      },
+      "violence_load": {
+        "count": 1,
+        "p05": 9672.4838,
+        "p50": 9672.4838,
+        "p95": 9672.4838,
+        "max": 9672.4837999991
+      },
+      "violence_window": {
+        "count": 73,
+        "p05": 185.76292,
+        "p50": 247.068,
+        "p95": 531.50628,
+        "max": 3998.9514000008057
+      },
+      "weapon_window": {
+        "count": 34,
+        "p05": 1254.151275,
+        "p50": 1536.3565,
+        "p95": 2193.85391,
+        "max": 3286.6842999992514
+      }
+    },
+    "render_fps": {
+      "one_second_bins": [
+        28,
+        28,
+        29,
+        30,
+        30,
+        30,
+        30,
+        29,
+        29,
+        30,
+        27,
+        31,
+        28,
+        30,
+        30,
+        27,
+        31,
+        30,
+        28,
+        30,
+        30,
+        29,
+        30,
+        29,
+        28,
+        30,
+        30,
+        28,
+        30,
+        27,
+        29,
+        26,
+        30,
+        30,
+        28,
+        30,
+        29,
+        23,
+        25,
+        30,
+        27,
+        29,
+        29,
+        28,
+        24,
+        31,
+        26,
+        27,
+        31,
+        27,
+        21,
+        21,
+        14,
+        18,
+        23,
+        27,
+        23,
+        27,
+        30,
+        25,
+        28,
+        30,
+        29,
+        25,
+        29
+      ],
+      "count": 65,
+      "p05": 21.4,
+      "p50": 29.0,
+      "p95": 30.8,
+      "max": 31.0
+    },
+    "client_fps": {
+      "one_second_bins": [
+        26,
+        29,
+        29,
+        30,
+        30,
+        30,
+        30,
+        29,
+        28,
+        30,
+        27,
+        29,
+        30,
+        30,
+        30,
+        27,
+        31,
+        30,
+        28,
+        30,
+        30,
+        29,
+        29,
+        30,
+        28,
+        30,
+        30,
+        27,
+        31,
+        27,
+        29,
+        26,
+        30,
+        30,
+        28,
+        29,
+        30,
+        22,
+        25,
+        30,
+        27,
+        29,
+        29,
+        28,
+        24,
+        31,
+        26,
+        26,
+        31,
+        27,
+        21,
+        21,
+        14,
+        17,
+        23,
+        27,
+        23,
+        27,
+        30,
+        25,
+        28,
+        30,
+        29,
+        24,
+        0
+      ],
+      "count": 65,
+      "p05": 21.0,
+      "p50": 29.0,
+      "p95": 30.8,
+      "max": 31.0
+    },
+    "capture_fps": {
+      "one_second_bins": [
+        28,
+        28,
+        29,
+        30,
+        30,
+        30,
+        30,
+        30,
+        29,
+        30,
+        28,
+        30,
+        29,
+        29,
+        30,
+        28,
+        30,
+        30,
+        28,
+        30,
+        30,
+        29,
+        30,
+        29,
+        28,
+        30,
+        30,
+        28,
+        30,
+        27,
+        29,
+        26,
+        30,
+        30,
+        28,
+        30,
+        29,
+        23,
+        25,
+        30,
+        27,
+        29,
+        29,
+        28,
+        24,
+        31,
+        26,
+        27,
+        31,
+        27,
+        21,
+        22,
+        13,
+        18,
+        23,
+        28,
+        23,
+        26,
+        30,
+        26,
+        28,
+        32,
+        28,
+        25,
+        29
+      ],
+      "count": 65,
+      "p05": 22.2,
+      "p50": 29.0,
+      "p95": 30.0,
+      "max": 32.0
+    },
+    "model_call_counts": {
+      "violence_window": 73,
+      "weapon_window": 34,
+      "person_onnx": 162,
+      "person_yolo": 0
+    },
+    "accepted_raw_ipc_bytes_per_second": 12816443.076923076,
+    "ipc_dropped_frames": 201,
+    "alert_count": 0,
+    "first_display_seconds": 13.243534299999737,
+    "post_set_threshold_ms": {
+      "count": 100,
+      "p05": 3.86021,
+      "p50": 5.2762,
+      "p95": 14.03303,
+      "max": 90.18570000080217
+    },
+    "post_failures": [],
+    "glass_to_alert_ms": null,
+    "glass_to_display_ms": null,
+    "unmeasured_reasons": {
+      "glass_latency": "Legacy payload has no source capture timestamp or verified event onset; zero is not a measurement.",
+      "accuracy": "No verified held-out labels provided for this throughput run.",
+      "all_mutating_endpoints": "Only /set_threshold exercised; G-15 remains unproven."
+    },
+    "models": [
+      {
+        "violence": {
+          "enabled": true,
+          "device": "cuda:0",
+          "is_x3d_flag": false,
+          "actual_model_class": "ViolenceDetector",
+          "disabled_reason": "",
+          "stride": 16,
+          "threshold": 0.45,
+          "load_ms": 9672.476099998676,
+          "module_types": [
+            "AvgPool3d",
+            "BatchNorm3d",
+            "BottleneckBlock",
+            "Conv3d",
+            "Dropout",
+            "FuseFastToSlow",
+            "GELU",
+            "Identity",
+            "LayerNorm",
+            "Linear",
+            "MaxPool3d",
+            "ModuleList",
+            "MultiPathWayWithFuse",
+            "Net",
+            "PoolConcatPathway",
+            "ReLU",
+            "ResBlock",
+            "ResNetBasicStem",
+            "ResStage",
+            "Sequential",
+            "SlowFastBackbone",
+            "ViolenceDetector"
+          ]
+        },
+        "weapon": {
+          "actual_backend": "_ONNXBackend",
+          "config": {
+            "enabled": true,
+            "backend": "yolo",
+            "weight_path": "./weapon_hadi_yolo.pt",
+            "interval": 4,
+            "min_confidence": 0.2,
+            "ema_alpha": 0.45,
+            "input_size": 640,
+            "labels": [
+              "pistol",
+              "rifle",
+              "shotgun",
+              "knife",
+              "sword",
+              "revolver"
+            ],
+            "preload_on_startup": false,
+            "min_interval_ms": 500,
+            "realtime_threshold_ms": 500,
+            "independent_alert_threshold": 0.65,
+            "score_decay_half_life_ms": 5000,
+            "signal_ttl_ms": 10000
+          },
+          "ready": true,
+          "failed": false,
+          "reason": "ok",
+          "providers": [
+            "CPUExecutionProvider"
+          ]
+        }
+      }
+    ],
+    "complete_gates_passed": []
+  }
+}

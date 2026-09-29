@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.git/
+.gitignore
+node_modules/
+.next/
+desktop/
+*.md
+docs/
+manifests/
+plans/
+report.*.txt

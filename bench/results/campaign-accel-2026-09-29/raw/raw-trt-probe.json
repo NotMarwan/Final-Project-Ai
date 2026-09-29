@@ -1,0 +1,31 @@
+{
+  "experiment": "trt-ep-probe",
+  "modelPath": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\models\\person_yolo.onnx",
+  "ortVersion": "1.18.0",
+  "ortAvailableProviders": [
+    "TensorrtExecutionProvider",
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "gpuName": "NVIDIA GeForce RTX 3060",
+  "engineCacheDir": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16-artifacts\\trt-engine-cache\\52d1afd386f9b434",
+  "engineCacheInvalidationTriggers": [
+    "model change",
+    "ORT version change",
+    "TensorRT version change",
+    "hardware change"
+  ],
+  "trtOptions": {
+    "trt_engine_cache_enable": "1",
+    "trt_engine_cache_path": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16-artifacts\\trt-engine-cache\\52d1afd386f9b434",
+    "trt_timing_cache_enable": "1",
+    "trt_fp16_enable": "0"
+  },
+  "g13BudgetSeconds": 60.0,
+  "clockBase": "perf_counter",
+  "sessionCreated": false,
+  "failureSeconds": 0.072,
+  "failureType": "RuntimeError",
+  "failureMessage": "C:\\a\\_work\\1\\s\\onnxruntime\\python\\onnxruntime_pybind_state.cc:866 onnxruntime::python::CreateExecutionProviderInstance CUDA_PATH is set but CUDA wasnt able to be loaded. Please install the correct version of CUDA andcuDNN as mentioned in the GPU requirements page  (https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements),  make sure they're in the PATH, and that your GPU is supported.\n",
+  "verdict": "TRT EP unavailable on this host at probe time; stage-2 not runnable"
+}

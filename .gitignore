@@ -1,47 +1,128 @@
-# Dependencies
+# =============================================================================
+# AI-SENTINEL .gitignore — final-demo-transfer branch
+# Binary files (*.pt, *.avi, *.mp4, etc.) are managed by Git LFS.
+# Only specific heavy/generated/secret files are ignored below.
+# =============================================================================
+
+# --- JavaScript / Node ---
 node_modules/
 /.pnp
 .pnp.js
-
-# Testing
 /coverage
 
-# Next.js
+# --- Next.js ---
 /.next/
 /out/
-
-# Production
 /build
 
-# Misc
+# --- Misc system files ---
 .DS_Store
+Thumbs.db
+Desktop.ini
 *.pem
+spawn.js
 
-# Env
+# --- Secrets — NEVER commit real keys ---
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+backend/.env
+# Allow the example template files
+!.env.local.example
+!backend/.env.example
 
-# Vercel
+# --- Vercel / TypeScript artifacts ---
 .vercel
-
-# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-# Backend / AI
-*.pt
-*.pth
-*.exe
-*.mp4
-*.pdf
+# --- Python caches & virtual environments ---
 __pycache__/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
+venv/
+backend/venv/
+.venv/
 
-# System
-Thumbs.db
-Desktop.ini
+# --- Model weights NOT needed for demo ---
+# (Primary demo models — best_model.pt, weapon_hadi_yolo.pt — are tracked via LFS)
+backend/best_model.pt.local_mismatch_backup
+backend/weapon_cs2_yolo12.pt
+backend/weapon_yolo.pt
+backend/yolov8n.pt
+weights/
+checkpoints/
+dummy/
+
+# --- Generated evidence & runtime media ---
+# Evidence clips are generated at runtime — regenerate during demo
+backend/evidence_clips/
+backend/thumbnails/
+backend/recordings/
+backend/dvr/
+backend/reports/
+backend/weapon_detections/
+
+# --- Datasets & training artifacts ---
+datasets/
+external_eval/
+.data/
+.runlogs/
+temp_rwf/
+wandb/
+runs/
+
+# --- Unrelated / development artifacts ---
+unrelated/
+test/
+.runlogs/
+*.tar
+*.tar.gz
+local_backups/
+
+# --- Archives that are not part of the demo ---
+components/files.zip
+ai-sentinel-colab-code.zip
+val-20260418T185437Z-3-001.zip
+live_alert_runtime_patch.zip
+
+# --- Runtime databases & logs ---
+*.db
+*.sqlite
+logs/
+*.err.log
+*.out.log
+backend/audit_logs.jsonl
+backend/evidence_ledger.jsonl
+backend/sentinel.db
+backend/face_policy_overrides.json
+backend/known_faces_registry.json
+backend/camera_profiles.yml
+backend/startup.log
+backend/startup_err.log
+backend/startup_log.txt
+backend/run_err.txt
+backend/run_out.txt
+
+# --- go2rtc binary ---
+go2rtc.exe
+go2rtc
+go2rtc.zip
+backend/go2rtc.yml
+
+# --- Desktop / Mobile build artifacts ---
+desktop/dist/
+android/app/build/
+android/.gradle/
+*.apk
+*.aab
+
+# --- Playwright / browser automation artifacts ---
+.playwright-mcp/
+.roo/
+
+# --- Other tool artifacts ---
+.opencode/

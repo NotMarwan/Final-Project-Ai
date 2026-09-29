@@ -1,0 +1,9 @@
+{
+  "measurement": "cross-process clock comparability (spawned child)",
+  "parent_perf_counter": 52485.7221406,
+  "parent_monotonic": 52485.562,
+  "child_perf_minus_parent_perf_s": 0.12844639999821084,
+  "child_monotonic_minus_parent_monotonic_s": 0.125,
+  "child_perf_minus_parent_monotonic_s": 0.288590900003328,
+  "interpretation": "child_perf_minus_parent_perf_s near 0 (|x| < 0.5 s) => perf_counter/QPC is a shared cross-process base on this machine (spawn+import overhead only); monotonic comparison shows the GetTickCount64 quantization base."
+}

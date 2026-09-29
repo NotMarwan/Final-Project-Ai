@@ -1,0 +1,11 @@
+{
+  "fixture_id": "kth-walking-person03",
+  "source_sha256": "e669033d24c5faf105dfa7af2aac9f12262519cc465e89246a81384661fd2f71",
+  "run_id": "wt18-kth-walking-01",
+  "source_mode": "file-media",
+  "windows": [],
+  "detections": [],
+  "alerts": [],
+  "tracks": [],
+  "model_sha256": null
+}

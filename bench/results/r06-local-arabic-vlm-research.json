@@ -1,0 +1,94 @@
+{
+  "research_id": "R-06",
+  "checked_at_utc": "2026-09-12T06:39:00Z",
+  "status": "primary-source shortlist; no weights downloaded; no local VLM benchmark",
+  "scope": "Offline Arabic forensic image/video reporting while detection runs on a 12 GB RTX 3060",
+  "recommendation": {
+    "first_candidate": "Qwen/Qwen3.5-2B",
+    "comparison_candidate": "Qwen/Qwen3-VL-2B-Instruct",
+    "conditional_candidate": "Qwen/Qwen3.5-4B with measured quantization/offload",
+    "rationale": "The 2B release has a smaller published weight footprint and a native vision encoder. It is the lower-memory first experiment, not a verified Arabic reporting solution. Compare against the mature 2B vision-language family before adopting a new runtime.",
+    "not_selected": "Qwen2.5-VL-3B-Instruct for a default redistributed product because its repository uses the Qwen Research License, not Apache-2.0."
+  },
+  "models": [
+    {
+      "id": "Qwen/Qwen3.5-2B",
+      "license": "Apache-2.0",
+      "vision": "Official card describes a language model with a vision encoder and image/video usage.",
+      "languages": "Family card reports 201 languages/dialects. No Arabic forensic-report quality result was located in this bounded review.",
+      "weights_on_disk_gb": 4.55,
+      "repository_size_gb": 4.57,
+      "tree_commit_short": "15852e8",
+      "native_context_tokens": 262144,
+      "mode": "Non-thinking default on the 2B model; suitable for bounded factual summaries as an experiment.",
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen3.5-2B",
+        "https://huggingface.co/Qwen/Qwen3.5-2B/tree/main",
+        "https://huggingface.co/Qwen/Qwen3.5-2B/raw/main/config.json"
+      ]
+    },
+    {
+      "id": "Qwen/Qwen3.5-4B",
+      "license": "Apache-2.0",
+      "weights_on_disk_gb": 9.32,
+      "repository_size_gb": 9.34,
+      "tree_commit_short": "851bf6e",
+      "caution": "The marketing name is 4B; the Hub total-size display rounds to 5B parameters. Two published BF16/F32 weight shards total about 9.32 GB. Do not estimate VRAM using the model name alone.",
+      "inference": "Unquantized shared-GPU use has materially less headroom than 2B. Quantized fit and latency must be measured; disk size is not peak runtime VRAM.",
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen3.5-4B",
+        "https://huggingface.co/Qwen/Qwen3.5-4B/tree/main",
+        "https://huggingface.co/Qwen/Qwen3.5-4B/raw/main/config.json"
+      ]
+    },
+    {
+      "id": "Qwen/Qwen3-VL-2B-Instruct",
+      "license": "Apache-2.0",
+      "role": "Comparison baseline for visual grounding and Arabic report generation, using the same prompts/evidence as 3.5-2B.",
+      "limitations": "Official card reports video support and 32-language OCR, but neither establishes Arabic forensic accuracy on this project. Card examples contain historical package-install guidance; verify current pinned runtime compatibility instead of blindly running source-install commands.",
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct"
+      ]
+    },
+    {
+      "id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "license": "Qwen Research License Agreement",
+      "license_evidence": "The official LICENSE limits the grant to non-commercial research/evaluation and directs commercial users to request a license.",
+      "technical_note": "Official card supports bounded image resolution through min_pixels/max_pixels. It remains a technical comparison option if use complies with its license.",
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct/raw/main/LICENSE",
+        "https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct"
+      ]
+    }
+  ],
+  "runtime_findings": [
+    {
+      "finding": "Current Transformers documentation exposes Qwen3_5ForConditionalGeneration plus a processor for multimodal use. The causal-language-only class omits image/video input.",
+      "source": "https://huggingface.co/docs/transformers/main/en/model_doc/qwen3_5"
+    },
+    {
+      "finding": "Official bitsandbytes documentation lists Windows NVIDIA CUDA support and NF4/FP4 support on Pascal or newer. This makes Windows RTX 3060 quantization plausible; it does not certify this model/runtime combination or its peak memory.",
+      "source": "https://huggingface.co/docs/transformers/main/en/quantization/bitsandbytes"
+    },
+    {
+      "finding": "Offline loading requires a previously cached complete model/processor/tokenizer snapshot. HF_HUB_OFFLINE=1 prevents Hub HTTP calls; local_files_only=True selects cached files.",
+      "source": "https://huggingface.co/docs/transformers/main/en/installation#offline-mode"
+    }
+  ],
+  "proposed_experiment_not_implemented": {
+    "resource_policy": "One queued report at a time. Begin with 2-4 locally stored evidence frames, bounded image resolution, short context (for example 4096 tokens), and a bounded Arabic output. Keep detection prioritized and cancel/defer report work if the measured reserved-VRAM budget is exceeded.",
+    "measurements": [
+      "Peak allocated/reserved GPU memory with detection active",
+      "Detection throughput and p95 stage latency with/without generation",
+      "Arabic factual precision and unsupported claims against independently labeled clips",
+      "Evidence references and timestamp accuracy",
+      "Network-disabled model reload and complete report generation"
+    ],
+    "memory_interpretation": "Published weight bytes exclude KV cache, activations, vision preprocessing, CUDA allocator overhead, and other resident models. No fixed memory or generation-time promise is justified from this research.",
+    "safety_boundary": "Generated text summarizes verified event evidence; it must not become a detection/confirmation signal. Require explicit uncertainty for unobservable identity, motive, weapon subtype, and scene details."
+  },
+  "current_source_observation": {
+    "path": "backend/openrouter_reporting.py:76",
+    "fact": "The inspected existing remote reporter defaults to deepseek/deepseek-chat-v3.1 via OPENROUTER_MODEL. That is not evidence of an installed offline visual model."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "method": "stage timings on legacy SlowFast inference path after four warmup windows; CUDA synchronized around transfer and forward; capture excluded",
+  "source": "demo_assets\\videos\\Wq0BuA8GM84_0.avi",
+  "frames_decoded": 150,
+  "windows_profiled": 15,
+  "device": "cuda:0",
+  "model_class": "ViolenceDetector",
+  "model_load_ms": 5486.79,
+  "stages": {
+    "assembly": {
+      "count": 15,
+      "p50_ms": 0.0092,
+      "p95_ms": 0.0151,
+      "mean_ms": 0.0095
+    },
+    "preprocess": {
+      "count": 15,
+      "p50_ms": 60.2735,
+      "p95_ms": 77.6671,
+      "mean_ms": 61.0715
+    },
+    "transfer": {
+      "count": 15,
+      "p50_ms": 4.9711,
+      "p95_ms": 6.9544,
+      "mean_ms": 5.2752
+    },
+    "forward": {
+      "count": 15,
+      "p50_ms": 42.6049,
+      "p95_ms": 48.8315,
+      "mean_ms": 43.6828
+    },
+    "postprocess": {
+      "count": 15,
+      "p50_ms": 0.7256,
+      "p95_ms": 1.2855,
+      "mean_ms": 0.8608
+    }
+  }
+}

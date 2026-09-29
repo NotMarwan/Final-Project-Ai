@@ -1,0 +1,150 @@
+# AI Sentinel — camera capture profiles (WT-14 capture-quality)
+#
+# SCHEMA (documented contract; parsed by backend/pipeline_capture.py
+# `load_capture_profiles` for the capture-tuning keys and by
+# backend/api.py `_load_profile_camera_sources` for the legacy source keys).
+#
+# File discovery order (first existing wins; never shadows a user file):
+#   1. $CAMERA_PROFILES_PATH (absolute, or relative to backend/)
+#   2. backend/camera_profiles.yml        (legacy location, user-owned)
+#   3. config/camera_profiles.yml         (this shipped default)
+#
+# Top level:
+#   version: 1                  schema version (informational)
+#   cameras: {<camera-id>: {...}}   camera-id keys must match CAMERA_SOURCES ids
+#
+# Per camera — SOURCE keys (legacy; consumed by api.py):
+#   enabled:  bool    false => camera contributes no source; api.py falls back
+#                     to $CAM1_SOURCE/$CAM2_SOURCE env or cam1.mp4/cam2.mp4.
+#   source:   int | str   USB device index, file path (relative to THIS file's
+#                     directory), or rtsp/rtmp/http(s) URL.
+#   rtsp:     {high: url, low: url}    IP camera pair; `low` preferred for
+#                     live inference when present.
+#
+# Per camera — CAPTURE-QUALITY keys (WT-14; additive, ignored by old code):
+#   backend:  dshow | msmf          pinned Windows backend for USB sources.
+#                     Network sources always use CAP_FFMPEG (low-latency
+#                     options); files use CAP_ANY.  CAP_ANY for live sources is
+#                     FORBIDDEN here because it makes mode negotiation
+#                     non-deterministic across OpenCV builds.
+#   request: {width, height, fps, fourcc, fallback_fourcc}
+#                     The negotiated-mode request: 1280x720@30 MJPG with a
+#                     YUY2 fallback (USB2 reality: 720p30 raw exceeds USB2
+#                     bandwidth; MJPG is the compressed pin mode).  The actual
+#                     mode is READ BACK after open and asserted; a mismatch
+#                     (e.g. Windows UVC "MJPEG at source autodecode" silently
+#                     swapping in NV12/YUY2) marks the camera DEGRADED on the
+#                     F-38 health surface with exact requested-vs-actual
+#                     values.  It is NEVER silent and NEVER "fixed" by
+#                     lowering the camera resolution.
+#   verify_mode:  bool    true => read-back assertion on (recommended).
+#   drain_to_latest: bool true => live NETWORK sources read via
+#                     grab-drain-retrieve (latest-frame-wins) with
+#                     drain_budget_s time budget and max_drain attempts.
+#   ring: {max_side, seconds, format, jpeg_quality, max_entries}
+#                     Evidence ring (F-21 pre-window).  format:
+#                       bgr    — exact decoded frames (default; no quality
+#                                claim is ever reduced silently)
+#                       jpeg90 — JPEG q90 compressed records, decoded at clip
+#                                assembly (~22 MiB/cam vs ~222 MiB raw at
+#                                960x540@30, WT-10 §3.2)
+#                       nv12   — NV12 4:2:0 records (half of BGR)
+#                     max_side 960 + seconds 5.0 are the historical evidence
+#                     contract and stay default.  Derived inference views
+#                     (max-side 640) NEVER contaminate the ring.
+#   reconnect: {initial_delay_s, max_delay_s, multiplier, jitter}
+#                     Exponential backoff with +/- jitter fraction:
+#                     1s, 2s, 4s, ... capped at 30s (replaces the fixed 2s).
+#   priority: int     Reserved for load-shedding order (lower = more
+#                     important); surfaced on health.
+#   degradation:      Multi-camera pressure ladder (ordered; each step applies
+#                     cumulatively; transitions are counted + logged and
+#                     decimated evidence frames are surfaced as
+#                     evidenceFramesDecimated — loss is NEVER silent):
+#       enabled: bool
+#       degrade_after_s: float    sustained pressure before stepping down
+#       recover_after_s: float    sustained health before stepping back up
+#       steps: ordered list of one-key steps, in the canonical order
+#              {jpeg_quality: N} -> {ring_fps: N} -> {ring_max_side: N}
+#              -> {pause_annotation: true}
+#
+# NOTE: capture mode (camera resolution/fps/fourcc) is NEVER lowered as a
+# speed solution (user requirement).  The degradation ladder only touches
+# evidence-ring representation and display annotation under sustained
+# multi-camera pressure, and every effect is explicitly surfaced.
+version: 1
+cameras:
+  CAM-01:
+    # Shipped inactive so env-based source selection keeps working.
+    # To activate: set enabled: true and provide `source` (or `rtsp`).
+    enabled: false
+    source: 0
+    backend: dshow
+    request:
+      width: 1280
+      height: 720
+      fps: 30
+      fourcc: MJPG
+      fallback_fourcc: YUY2
+    verify_mode: true
+    drain_to_latest: true
+    drain_budget_s: 0.004
+    max_drain: 30
+    ring:
+      max_side: 960
+      seconds: 5.0
+      format: bgr
+      jpeg_quality: 90
+      max_entries: 600
+    reconnect:
+      initial_delay_s: 1.0
+      max_delay_s: 30.0
+      multiplier: 2.0
+      jitter: 0.2
+    priority: 1
+    degradation:
+      enabled: true
+      degrade_after_s: 5.0
+      recover_after_s: 30.0
+      steps:
+        - { jpeg_quality: 75 }
+        - { jpeg_quality: 50 }
+        - { ring_fps: 15 }
+        - { ring_max_side: 640 }
+        - { pause_annotation: true }
+  CAM-02:
+    enabled: false
+    source: 0
+    backend: msmf
+    request:
+      width: 1280
+      height: 720
+      fps: 30
+      fourcc: MJPG
+      fallback_fourcc: YUY2
+    verify_mode: true
+    drain_to_latest: true
+    drain_budget_s: 0.004
+    max_drain: 30
+    ring:
+      max_side: 960
+      seconds: 5.0
+      format: bgr
+      jpeg_quality: 90
+      max_entries: 600
+    reconnect:
+      initial_delay_s: 1.0
+      max_delay_s: 30.0
+      multiplier: 2.0
+      jitter: 0.2
+    priority: 2
+    degradation:
+      enabled: true
+      degrade_after_s: 5.0
+      recover_after_s: 30.0
+      steps:
+        - { jpeg_quality: 75 }
+        - { jpeg_quality: 50 }
+        - { ring_fps: 15 }
+        - { ring_max_side: 640 }
+        - { pause_annotation: true }

@@ -1,0 +1,496 @@
+{
+ "footage_s": 269.68,
+ "footage_hours": 0.07491111111111111,
+ "threshold": 0.45,
+ "clips": 12,
+ "configs": {
+  "C1": {
+   "all_window": {
+    "n": 206,
+    "fp": 9
+   },
+   "all_frame": {
+    "n": 6386,
+    "fp": 279
+   },
+   "fp_windows_per_camera_hour": 120.14239098190448,
+   "fp_frames_per_camera_hour": 3724.414120439039,
+   "slices": {
+    "all": {
+     "n": 206,
+     "fp": 9
+    },
+    "low_resolution": {
+     "n": 206,
+     "fp": 9
+    },
+    "out_of_cctv_domain": {
+     "n": 206,
+     "fp": 9
+    },
+    "staged_single_person": {
+     "n": 206,
+     "fp": 9
+    },
+    "static_camera": {
+     "n": 206,
+     "fp": 9
+    }
+   },
+   "clips_with_fp": [
+    "person01_walking_d1_uncomp.avi",
+    "person06_walking_d1_uncomp.avi",
+    "person07_walking_d1_uncomp.avi",
+    "person09_walking_d1_uncomp.avi"
+   ],
+   "clips_with_fp_n": 4,
+   "per_clip": {
+    "person01_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 2
+    },
+    "person02_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person03_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person04_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person05_walking_d1_uncomp.avi": {
+     "windows": 16,
+     "fp": 0
+    },
+    "person06_walking_d1_uncomp.avi": {
+     "windows": 13,
+     "fp": 2
+    },
+    "person07_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 4
+    },
+    "person08_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person09_walking_d1_uncomp.avi": {
+     "windows": 21,
+     "fp": 1
+    },
+    "person10_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person11_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person12_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 0
+    }
+   },
+   "bootstrap": {
+    "unit": "session",
+    "units": 12,
+    "unit_ids": [
+     "kth-person01",
+     "kth-person02",
+     "kth-person03",
+     "kth-person04",
+     "kth-person05",
+     "kth-person06",
+     "kth-person07",
+     "kth-person08",
+     "kth-person09",
+     "kth-person10",
+     "kth-person11",
+     "kth-person12"
+    ],
+    "resamples": 2000,
+    "seed": 20260929,
+    "method": "cluster bootstrap over independent units; percentile 95% CI; adjacent frames/windows never resampled independently",
+    "intervals": {
+     "frame_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 1987
+     },
+     "frame_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "window_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 1987
+     },
+     "window_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "event_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "alert_precision": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "false_alerts_per_camera_hour": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 2000
+     },
+     "ttd_p50": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     }
+    }
+   }
+  },
+  "C2": {
+   "all_window": {
+    "n": 206,
+    "fp": 25
+   },
+   "all_frame": {
+    "n": 6386,
+    "fp": 775
+   },
+   "fp_windows_per_camera_hour": 333.72886383862357,
+   "fp_frames_per_camera_hour": 10345.59477899733,
+   "slices": {
+    "all": {
+     "n": 206,
+     "fp": 25
+    },
+    "low_resolution": {
+     "n": 206,
+     "fp": 25
+    },
+    "out_of_cctv_domain": {
+     "n": 206,
+     "fp": 25
+    },
+    "staged_single_person": {
+     "n": 206,
+     "fp": 25
+    },
+    "static_camera": {
+     "n": 206,
+     "fp": 25
+    }
+   },
+   "clips_with_fp": [
+    "person01_walking_d1_uncomp.avi",
+    "person06_walking_d1_uncomp.avi",
+    "person07_walking_d1_uncomp.avi",
+    "person08_walking_d1_uncomp.avi",
+    "person09_walking_d1_uncomp.avi",
+    "person10_walking_d1_uncomp.avi"
+   ],
+   "clips_with_fp_n": 6,
+   "per_clip": {
+    "person01_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 6
+    },
+    "person02_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person03_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person04_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person05_walking_d1_uncomp.avi": {
+     "windows": 16,
+     "fp": 0
+    },
+    "person06_walking_d1_uncomp.avi": {
+     "windows": 13,
+     "fp": 6
+    },
+    "person07_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 8
+    },
+    "person08_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 2
+    },
+    "person09_walking_d1_uncomp.avi": {
+     "windows": 21,
+     "fp": 2
+    },
+    "person10_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 1
+    },
+    "person11_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person12_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 0
+    }
+   },
+   "bootstrap": {
+    "unit": "session",
+    "units": 12,
+    "unit_ids": [
+     "kth-person01",
+     "kth-person02",
+     "kth-person03",
+     "kth-person04",
+     "kth-person05",
+     "kth-person06",
+     "kth-person07",
+     "kth-person08",
+     "kth-person09",
+     "kth-person10",
+     "kth-person11",
+     "kth-person12"
+    ],
+    "resamples": 2000,
+    "seed": 20260929,
+    "method": "cluster bootstrap over independent units; percentile 95% CI; adjacent frames/windows never resampled independently",
+    "intervals": {
+     "frame_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 2000
+     },
+     "frame_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "window_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 2000
+     },
+     "window_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "event_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "alert_precision": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "false_alerts_per_camera_hour": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 2000
+     },
+     "ttd_p50": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     }
+    }
+   }
+  },
+  "C3": {
+   "all_window": {
+    "n": 206,
+    "fp": 9
+   },
+   "all_frame": {
+    "n": 6386,
+    "fp": 279
+   },
+   "fp_windows_per_camera_hour": 120.14239098190448,
+   "fp_frames_per_camera_hour": 3724.414120439039,
+   "slices": {
+    "all": {
+     "n": 206,
+     "fp": 9
+    },
+    "low_resolution": {
+     "n": 206,
+     "fp": 9
+    },
+    "out_of_cctv_domain": {
+     "n": 206,
+     "fp": 9
+    },
+    "staged_single_person": {
+     "n": 206,
+     "fp": 9
+    },
+    "static_camera": {
+     "n": 206,
+     "fp": 9
+    }
+   },
+   "clips_with_fp": [
+    "person01_walking_d1_uncomp.avi",
+    "person06_walking_d1_uncomp.avi",
+    "person07_walking_d1_uncomp.avi",
+    "person09_walking_d1_uncomp.avi"
+   ],
+   "clips_with_fp_n": 4,
+   "per_clip": {
+    "person01_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 2
+    },
+    "person02_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person03_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person04_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 0
+    },
+    "person05_walking_d1_uncomp.avi": {
+     "windows": 16,
+     "fp": 0
+    },
+    "person06_walking_d1_uncomp.avi": {
+     "windows": 13,
+     "fp": 2
+    },
+    "person07_walking_d1_uncomp.avi": {
+     "windows": 14,
+     "fp": 4
+    },
+    "person08_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person09_walking_d1_uncomp.avi": {
+     "windows": 21,
+     "fp": 1
+    },
+    "person10_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person11_walking_d1_uncomp.avi": {
+     "windows": 20,
+     "fp": 0
+    },
+    "person12_walking_d1_uncomp.avi": {
+     "windows": 17,
+     "fp": 0
+    }
+   },
+   "bootstrap": {
+    "unit": "session",
+    "units": 12,
+    "unit_ids": [
+     "kth-person01",
+     "kth-person02",
+     "kth-person03",
+     "kth-person04",
+     "kth-person05",
+     "kth-person06",
+     "kth-person07",
+     "kth-person08",
+     "kth-person09",
+     "kth-person10",
+     "kth-person11",
+     "kth-person12"
+    ],
+    "resamples": 2000,
+    "seed": 20260929,
+    "method": "cluster bootstrap over independent units; percentile 95% CI; adjacent frames/windows never resampled independently",
+    "intervals": {
+     "frame_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 1987
+     },
+     "frame_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "window_precision": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 1987
+     },
+     "window_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "event_recall": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "alert_precision": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     },
+     "false_alerts_per_camera_hour": {
+      "estimate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.0,
+      "resamples_with_value": 2000
+     },
+     "ttd_p50": {
+      "estimate": null,
+      "ci95_low": null,
+      "ci95_high": null,
+      "resamples_with_value": 0
+     }
+    }
+   }
+  }
+ }
+}

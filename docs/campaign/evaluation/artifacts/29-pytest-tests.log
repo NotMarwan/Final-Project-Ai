@@ -1,0 +1,140 @@
+...................FF.....F............................................. [ 58%]
+....................................................                     [100%]
+================================== FAILURES ===================================
+___________ test_navigation_keys_and_rail_visit_all_arabic_sections ___________
+
+page = <Page url='http://127.0.0.1:3141/?fixtures=1'>
+dev_server = 'http://127.0.0.1:3141'
+
+    def test_navigation_keys_and_rail_visit_all_arabic_sections(page: Page, dev_server: str) -> None:
+        # Arrange
+>       open_dashboard(page, dev_server)
+
+tests\e2e\test_operator_flows.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:91: in open_dashboard
+    page.goto(base_url + "/" + suffix, wait_until="domcontentloaded")
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\sync_api\_generated.py:9362: in goto
+    self._sync(
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_frame.py:153: in goto
+    await self._channel.send(
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000275ECFC5A90>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000275ED36C3B0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.
+E           Call log:
+E             - navigating to "http://127.0.0.1:3141/?fixtures=1", waiting until "domcontentloaded"
+
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+______________ test_fixture_banner_and_offline_state_are_honest _______________
+
+page = <Page url='http://127.0.0.1:3141/?fixtures=1'>
+dev_server = 'http://127.0.0.1:3141'
+
+    def test_fixture_banner_and_offline_state_are_honest(page: Page, dev_server: str) -> None:
+        # Arrange / Act
+>       open_dashboard(page, dev_server, fixtures=True)
+
+tests\e2e\test_operator_flows.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\conftest.py:91: in open_dashboard
+    page.goto(base_url + "/" + suffix, wait_until="domcontentloaded")
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\sync_api\_generated.py:9362: in goto
+    self._sync(
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_frame.py:153: in goto
+    await self._channel.send(
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000275ECFC5A90>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000275ED4541A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.
+E           Call log:
+E             - navigating to "http://127.0.0.1:3141/?fixtures=1", waiting until "domcontentloaded"
+
+..\..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_____________ test_each_section_has_no_unexpected_console_errors ______________
+
+page = <Page url='http://127.0.0.1:3141/?fixtures=1&section=system'>
+dev_server = 'http://127.0.0.1:3141'
+
+    def test_each_section_has_no_unexpected_console_errors(page: Page, dev_server: str) -> None:
+        # Arrange
+        open_dashboard(page, dev_server)
+        errors: list[str] = []
+        page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
+        page.on("pageerror", lambda error: errors.append(str(error)))
+    
+        # Act: visit every route surface through the visible rail.
+        for label, _heading in SECTIONS:
+            index = SECTIONS.index((label, _heading))
+            page.locator(".rail-item").nth(index).click()
+            expected_label = rail_label(page, index)
+            expect(page.locator(".rail-item[aria-current='page']")).to_have_attribute("title", expected_label)
+            expect(page.locator(".topbar-location strong")).to_have_text(expected_label)
+    
+        # Assert: the offline EventSource refusal is an expected connection state.
+        unexpected = [message for message in errors if "EventSource" not in message and "localhost:8002" not in message and "127.0.0.1:8002" not in message]
+>       assert not unexpected, "Unexpected browser console errors:\n" + "\n".join(unexpected)
+E       AssertionError: Unexpected browser console errors:
+E         Failed to load resource: net::ERR_FAILED
+E       assert not ['Failed to load resource: net::ERR_FAILED']
+
+tests\e2e\test_operator_flows.py:179: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_operator_flows.py::test_navigation_keys_and_rail_visit_all_arabic_sections - playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1:3141/?fixtures=1", waiting until "domcontentloaded"
+FAILED tests/e2e/test_operator_flows.py::test_fixture_banner_and_offline_state_are_honest - playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1:3141/?fixtures=1", waiting until "domcontentloaded"
+FAILED tests/e2e/test_operator_flows.py::test_each_section_has_no_unexpected_console_errors - AssertionError: Unexpected browser console errors:
+  Failed to load resource: net::ERR_FAILED
+assert not ['Failed to load resource: net::ERR_FAILED']
+3 failed, 121 passed in 225.78s (0:03:45)

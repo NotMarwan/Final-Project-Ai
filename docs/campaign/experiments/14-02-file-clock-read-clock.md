@@ -1,0 +1,16 @@
+---
+authority: scoped
+non_authoritative: true
+---
+
+# EXP-1402 File-clock vs read-clock sampling contract (WT-10 E-2)
+
+- Hypothesis: with the capture loop's exact timestamp arithmetic (sample_timestamp = source_epoch + file_frame_index/source_fps), a 30 fps fixture yields sample-timestamp spacing 1/30 s within 10% and a valid 32-frame TemporalWindow; with file skip 2 the spacing triples and the window invalidates — the sampling contract flips exactly as specified (window.clockSource=file-media).
+- Requirement link: SC-6 (timestamp semantics), F-04 (capture thread); WT-10 E-2 acceptance.
+- Baseline: commit e86d34b; loop stamps captured_at=time.monotonic() after read_frame() (read-complete time), sample_timestamp file-only arithmetic in api.camera_worker (~api.py:1296 area).
+- Candidate: commit e7dc49e/7e4e5d6; same arithmetic, stamps now via capture_now() (published base, default 'monotonic-gettickcount64' == time.monotonic(); opt-in 'perf-qpc'); CaptureThread(file_skip_frames=N) reproduces the skip contract; TemporalWindow(frames=32, nominal_fps=30.0) evaluated on generated 30 fps MJPG fixture (cv2.VideoWriter, 150 frames, 640x360, synthetic gradient content — no user media used).
+- Success criteria (BEFORE results): skip=0 -> sample spacing mean within 10% of 1/30 s AND window.valid true over first 32 stamps; skip=2 -> spacing ~3x nominal AND window.valid false; measured over 40 reads per condition (n stated).
+- Failure criteria / rollback: either condition failing rejects the timestamp wiring; revert to direct time.monotonic() stamps.
+- Result: MEASURED (n=40 reads per condition, 30 fps MJPG fixture 150 frames 640x360, cv2.VideoWriter, generated — no user media; Contention label per Main arbitration 2026-09-29: latency-sensitive figures are POTENTIALLY CONTENDED (WT-19 hold-timestamp dispute over the 02:23-02:27 window; deterministic byte totals/counts stand as measured).): file_skip=0 -> sample gap mean 0.033333 s (dev 0.00% vs 1/30; stdev 0.000000), read gap mean 0.847 ms, TemporalWindow(32) valid=True (span 1.033333333 s vs nominal 1.033333333 s). file_skip=2 -> sample gap mean 0.033333 s and window VALID=TRUE — DEFECT FOUND: the candidate wiring counted one media frame per read while the decoder consumed three, so a skip run masqueraded as 32 frames @ 30 fps (pre-registered acceptance FAILS on the measured wiring; this is the experiment doing its job). FIX landed in the same experiment window: sample_timestamp now rides CaptureThread.last_media_index (skipped frames count toward the media clock; loop boundary calls reset_media_timeline()), SC-6 "file-media" semantics preserved, live path untouched. Acceptance re-proven deterministically (test_file_media_index_counts_skipped_frames_and_invalidates_window): skip=2 stamps [0.0, 0.1, 0.2, 0.3] -> window invalid; skip=0 stamps [0, 1/30, 2/30, 3/30] -> window valid. Fixture wall-clock re-run not repeated (RESOURCE-LOCK queue at integration deadline; the deterministic test carries the acceptance, and the arithmetic is timing-free). Scoped suite 36/36 green.
+- Verdict: adapt (defect measured -> fixed -> regression-pinned)
+- Cold vs warm: single cold run per condition (fixture decode included in wall time; per-read decode latency reported separately in EXP-1406/stageFrameReadMs).

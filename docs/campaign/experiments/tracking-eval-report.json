@@ -1,0 +1,4364 @@
+{
+  "fixtures": [
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\crossing.json",
+      "name": "crossing",
+      "frames": 30,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.996527,
+            "DetA": 1.0,
+            "AssA": 0.993066,
+            "LocA": 0.993066,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 60,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 60
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 30,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 30,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 1,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "merge_split",
+              "frame_index": 30,
+              "kind": "merge",
+              "track_a": 1,
+              "track_b": 2
+            }
+          ]
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.996527,
+            "DetA": 1.0,
+            "AssA": 0.993066,
+            "LocA": 0.993066,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.993066,
+                "LocA": 0.993066,
+                "HOTA": 0.996527,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 60,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 60
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 30,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 30,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 1,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "merge_split",
+              "frame_index": 30,
+              "kind": "merge",
+              "track_a": 1,
+              "track_b": 2
+            }
+          ]
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 1.0,
+            "DetA": 1.0,
+            "AssA": 1.0,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 1.0,
+                "TP": 60,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 60,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 60
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 30,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 30,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 1,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "merge_split",
+              "frame_index": 30,
+              "kind": "merge",
+              "track_a": 1,
+              "track_b": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\occlusion.json",
+      "name": "occlusion",
+      "frames": 30,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.904885,
+            "DetA": 0.9,
+            "AssA": 0.909796,
+            "LocA": 0.998356,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 0.9,
+                "AssA": 0.909796,
+                "LocA": 0.998356,
+                "HOTA": 0.904885,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.947368,
+            "IDP": 1.0,
+            "IDR": 0.9,
+            "IDTP": 54,
+            "IDFN": 6,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 54
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.2,
+            "count_bias": -0.2,
+            "frames_undercounted": 6,
+            "frames_overcounted": 0,
+            "frames_exact": 24,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 24,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "occlusion": {
+                "frames": 6,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 1,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 17,
+              "track_id": 1,
+              "gap_frames": 6
+            }
+          ]
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.893999,
+            "DetA": 0.89027,
+            "AssA": 0.897762,
+            "LocA": 0.991969,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.9,
+                "AssA": 0.903841,
+                "LocA": 0.990912,
+                "HOTA": 0.901918,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.868852,
+                "AssA": 0.884234,
+                "LocA": 0.994911,
+                "HOTA": 0.87651,
+                "TP": 53,
+                "FN": 7,
+                "FP": 1
+              },
+              "0.85": {
+                "DetA": 0.868852,
+                "AssA": 0.884234,
+                "LocA": 0.994911,
+                "HOTA": 0.87651,
+                "TP": 53,
+                "FN": 7,
+                "FP": 1
+              },
+              "0.90": {
+                "DetA": 0.83871,
+                "AssA": 0.865694,
+                "LocA": 0.996953,
+                "HOTA": 0.852095,
+                "TP": 52,
+                "FN": 8,
+                "FP": 2
+              },
+              "0.95": {
+                "DetA": 0.83871,
+                "AssA": 0.865694,
+                "LocA": 0.996953,
+                "HOTA": 0.852095,
+                "TP": 52,
+                "FN": 8,
+                "FP": 2
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.947368,
+            "IDP": 1.0,
+            "IDR": 0.9,
+            "IDTP": 54,
+            "IDFN": 6,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 54
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.2,
+            "count_bias": -0.2,
+            "frames_undercounted": 6,
+            "frames_overcounted": 0,
+            "frames_exact": 24,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 24,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "occlusion": {
+                "frames": 6,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 1,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 17,
+              "track_id": 1,
+              "gap_frames": 6
+            }
+          ]
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 0.815135,
+            "DetA": 0.9,
+            "AssA": 0.738272,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 0.9,
+                "AssA": 0.738272,
+                "LocA": 1.0,
+                "HOTA": 0.815135,
+                "TP": 54,
+                "FN": 6,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.77193,
+            "IDP": 0.814815,
+            "IDR": 0.733333,
+            "IDTP": 44,
+            "IDFN": 16,
+            "IDFP": 10,
+            "threshold": 0.5,
+            "gt_detections": 60,
+            "pred_detections": 54
+          },
+          "counting": {
+            "frames": 30,
+            "count_mae": 0.2,
+            "count_bias": -0.2,
+            "frames_undercounted": 6,
+            "frames_overcounted": 0,
+            "frames_exact": 24,
+            "track_switches": 1,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 24,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "occlusion": {
+                "frames": 6,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 1,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "re_entry",
+              "frame_index": 17,
+              "new_track": 3,
+              "old_track": 1,
+              "gap_frames": 6,
+              "overlap": 0.5484
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\exit_reentry.json",
+      "name": "exit_reentry",
+      "frames": 40,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.999623,
+            "DetA": 1.0,
+            "AssA": 0.999246,
+            "LocA": 0.999246,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 68,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 68,
+            "pred_detections": 68
+          },
+          "counting": {
+            "frames": 40,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 40,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "exit": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "reentry": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 1,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 25,
+              "track_id": 2,
+              "gap_frames": 12
+            }
+          ]
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.999623,
+            "DetA": 1.0,
+            "AssA": 0.999246,
+            "LocA": 0.999246,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.999246,
+                "LocA": 0.999246,
+                "HOTA": 0.999623,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 68,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 68,
+            "pred_detections": 68
+          },
+          "counting": {
+            "frames": 40,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 40,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "exit": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "reentry": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 1,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 25,
+              "track_id": 2,
+              "gap_frames": 12
+            }
+          ]
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 0.893487,
+            "DetA": 1.0,
+            "AssA": 0.798319,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.798319,
+                "LocA": 1.0,
+                "HOTA": 0.893487,
+                "TP": 68,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.823529,
+            "IDP": 0.823529,
+            "IDR": 0.823529,
+            "IDTP": 56,
+            "IDFN": 12,
+            "IDFP": 12,
+            "threshold": 0.5,
+            "gt_detections": 68,
+            "pred_detections": 68
+          },
+          "counting": {
+            "frames": 40,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 40,
+            "track_switches": 1,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "exit": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "reentry": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 1,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "re_entry",
+              "frame_index": 25,
+              "new_track": 3,
+              "old_track": 2,
+              "gap_frames": 12,
+              "overlap": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\duplicate_detections.json",
+      "name": "duplicate_detections",
+      "frames": 20,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.706253,
+            "DetA": 0.5,
+            "AssA": 0.997586,
+            "LocA": 0.997586,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.10": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.15": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.20": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.25": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.30": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.35": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.40": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.45": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.50": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.55": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.60": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.65": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.70": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.75": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.80": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.85": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.90": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.95": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.666667,
+            "IDP": 0.5,
+            "IDR": 1.0,
+            "IDTP": 20,
+            "IDFN": 0,
+            "IDFP": 20,
+            "threshold": 0.5,
+            "gt_detections": 20,
+            "pred_detections": 40
+          },
+          "counting": {
+            "frames": 20,
+            "count_mae": 1.0,
+            "count_bias": 1.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 20,
+            "frames_exact": 0,
+            "track_switches": 0,
+            "gt_tracks": 1,
+            "slices": {
+              "normal": {
+                "frames": 5,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              },
+              "duplicate": {
+                "frames": 15,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": []
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.706253,
+            "DetA": 0.5,
+            "AssA": 0.997586,
+            "LocA": 0.997586,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.10": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.15": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.20": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.25": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.30": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.35": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.40": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.45": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.50": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.55": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.60": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.65": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.70": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.75": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.80": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.85": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.90": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.95": {
+                "DetA": 0.5,
+                "AssA": 0.997586,
+                "LocA": 0.997586,
+                "HOTA": 0.706253,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.666667,
+            "IDP": 0.5,
+            "IDR": 1.0,
+            "IDTP": 20,
+            "IDFN": 0,
+            "IDFP": 20,
+            "threshold": 0.5,
+            "gt_detections": 20,
+            "pred_detections": 40
+          },
+          "counting": {
+            "frames": 20,
+            "count_mae": 1.0,
+            "count_bias": 1.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 20,
+            "frames_exact": 0,
+            "track_switches": 0,
+            "gt_tracks": 1,
+            "slices": {
+              "normal": {
+                "frames": 5,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              },
+              "duplicate": {
+                "frames": 15,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": []
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 0.707107,
+            "DetA": 0.5,
+            "AssA": 1.0,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.10": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.15": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.20": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.25": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.30": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.35": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.40": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.45": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.50": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.55": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.60": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.65": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.70": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.75": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.80": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.85": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.90": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              },
+              "0.95": {
+                "DetA": 0.5,
+                "AssA": 1.0,
+                "LocA": 1.0,
+                "HOTA": 0.707107,
+                "TP": 20,
+                "FN": 0,
+                "FP": 20
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.666667,
+            "IDP": 0.5,
+            "IDR": 1.0,
+            "IDTP": 20,
+            "IDFN": 0,
+            "IDFP": 20,
+            "threshold": 0.5,
+            "gt_detections": 20,
+            "pred_detections": 40
+          },
+          "counting": {
+            "frames": 20,
+            "count_mae": 1.0,
+            "count_bias": 1.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 20,
+            "frames_exact": 0,
+            "track_switches": 0,
+            "gt_tracks": 1,
+            "slices": {
+              "normal": {
+                "frames": 5,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              },
+              "duplicate": {
+                "frames": 15,
+                "count_mae": 1.0,
+                "count_bias": 1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": []
+        }
+      }
+    },
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\missed_person.json",
+      "name": "missed_person",
+      "frames": 24,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.790569,
+            "DetA": 0.75,
+            "AssA": 0.833333,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.857143,
+            "IDP": 1.0,
+            "IDR": 0.75,
+            "IDTP": 36,
+            "IDFN": 12,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 48,
+            "pred_detections": 36
+          },
+          "counting": {
+            "frames": 24,
+            "count_mae": 0.5,
+            "count_bias": -0.5,
+            "frames_undercounted": 12,
+            "frames_overcounted": 0,
+            "frames_exact": 12,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "low_recall": {
+                "frames": 12,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 11,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 3,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 5,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 7,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 9,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 11,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 13,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 15,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 17,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 19,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 21,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 23,
+              "track_id": 2,
+              "gap_frames": 1
+            }
+          ]
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.790569,
+            "DetA": 0.75,
+            "AssA": 0.833333,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 0.75,
+                "AssA": 0.833333,
+                "LocA": 1.0,
+                "HOTA": 0.790569,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.857143,
+            "IDP": 1.0,
+            "IDR": 0.75,
+            "IDTP": 36,
+            "IDFN": 12,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 48,
+            "pred_detections": 36
+          },
+          "counting": {
+            "frames": 24,
+            "count_mae": 0.5,
+            "count_bias": -0.5,
+            "frames_undercounted": 12,
+            "frames_overcounted": 0,
+            "frames_exact": 12,
+            "track_switches": 0,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "low_recall": {
+                "frames": 12,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 11,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "dropout",
+              "frame_index": 3,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 5,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 7,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 9,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 11,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 13,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 15,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 17,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 19,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 21,
+              "track_id": 2,
+              "gap_frames": 1
+            },
+            {
+              "flag": "dropout",
+              "frame_index": 23,
+              "track_id": 2,
+              "gap_frames": 1
+            }
+          ]
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 0.714435,
+            "DetA": 0.75,
+            "AssA": 0.680556,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 0.75,
+                "AssA": 0.680556,
+                "LocA": 1.0,
+                "HOTA": 0.714435,
+                "TP": 36,
+                "FN": 12,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.595238,
+            "IDP": 0.694444,
+            "IDR": 0.520833,
+            "IDTP": 25,
+            "IDFN": 23,
+            "IDFP": 11,
+            "threshold": 0.5,
+            "gt_detections": 48,
+            "pred_detections": 36
+          },
+          "counting": {
+            "frames": 24,
+            "count_mae": 0.5,
+            "count_bias": -0.5,
+            "frames_undercounted": 12,
+            "frames_overcounted": 0,
+            "frames_exact": 12,
+            "track_switches": 11,
+            "gt_tracks": 2,
+            "slices": {
+              "normal": {
+                "frames": 12,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              },
+              "low_recall": {
+                "frames": 12,
+                "count_mae": 1.0,
+                "count_bias": -1.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 11,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": [
+            {
+              "flag": "id_switch",
+              "frame_index": 3,
+              "new_track": 3,
+              "old_track": 2,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 5,
+              "new_track": 4,
+              "old_track": 3,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 7,
+              "new_track": 5,
+              "old_track": 4,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 9,
+              "new_track": 6,
+              "old_track": 5,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 11,
+              "new_track": 7,
+              "old_track": 6,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 13,
+              "new_track": 8,
+              "old_track": 7,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 15,
+              "new_track": 9,
+              "old_track": 8,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 17,
+              "new_track": 10,
+              "old_track": 9,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 19,
+              "new_track": 11,
+              "old_track": 10,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 21,
+              "new_track": 12,
+              "old_track": 11,
+              "gap_frames": 1,
+              "overlap": 1.0
+            },
+            {
+              "flag": "id_switch",
+              "frame_index": 23,
+              "new_track": 13,
+              "old_track": 12,
+              "gap_frames": 1,
+              "overlap": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fixture": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-22\\tests\\fixtures\\tracking\\fast_motion.json",
+      "name": "fast_motion",
+      "frames": 16,
+      "trackers": {
+        "bytetrack": {
+          "HOTA": {
+            "HOTA": 0.876747,
+            "DetA": 0.91423,
+            "AssA": 0.840829,
+            "LocA": 0.922979,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.882353,
+                "AssA": 0.817172,
+                "LocA": 0.926128,
+                "HOTA": 0.849137,
+                "TP": 15,
+                "FN": 1,
+                "FP": 1
+              },
+              "0.85": {
+                "DetA": 0.684211,
+                "AssA": 0.644447,
+                "LocA": 0.941884,
+                "HOTA": 0.664031,
+                "TP": 13,
+                "FN": 3,
+                "FP": 3
+              },
+              "0.90": {
+                "DetA": 0.52381,
+                "AssA": 0.500536,
+                "LocA": 0.955569,
+                "HOTA": 0.512041,
+                "TP": 11,
+                "FN": 5,
+                "FP": 5
+              },
+              "0.95": {
+                "DetA": 0.28,
+                "AssA": 0.271994,
+                "LocA": 0.971409,
+                "HOTA": 0.275968,
+                "TP": 7,
+                "FN": 9,
+                "FP": 9
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 16,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 16,
+            "pred_detections": 16
+          },
+          "counting": {
+            "frames": 16,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 16,
+            "track_switches": 0,
+            "gt_tracks": 1,
+            "slices": {
+              "fast_motion": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 2
+          },
+          "failure_events": [
+            {
+              "flag": "drift",
+              "frame_index": 2,
+              "track_id": 1,
+              "matched_iou": 0.2121
+            },
+            {
+              "flag": "drift",
+              "frame_index": 3,
+              "track_id": 1,
+              "matched_iou": 0.2487
+            }
+          ]
+        },
+        "ocsort": {
+          "HOTA": {
+            "HOTA": 0.876747,
+            "DetA": 0.91423,
+            "AssA": 0.840829,
+            "LocA": 0.922979,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.916107,
+                "LocA": 0.916107,
+                "HOTA": 0.957135,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 0.882353,
+                "AssA": 0.817172,
+                "LocA": 0.926128,
+                "HOTA": 0.849137,
+                "TP": 15,
+                "FN": 1,
+                "FP": 1
+              },
+              "0.85": {
+                "DetA": 0.684211,
+                "AssA": 0.644447,
+                "LocA": 0.941884,
+                "HOTA": 0.664031,
+                "TP": 13,
+                "FN": 3,
+                "FP": 3
+              },
+              "0.90": {
+                "DetA": 0.52381,
+                "AssA": 0.500536,
+                "LocA": 0.955569,
+                "HOTA": 0.512041,
+                "TP": 11,
+                "FN": 5,
+                "FP": 5
+              },
+              "0.95": {
+                "DetA": 0.28,
+                "AssA": 0.271994,
+                "LocA": 0.971409,
+                "HOTA": 0.275968,
+                "TP": 7,
+                "FN": 9,
+                "FP": 9
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 1.0,
+            "IDP": 1.0,
+            "IDR": 1.0,
+            "IDTP": 16,
+            "IDFN": 0,
+            "IDFP": 0,
+            "threshold": 0.5,
+            "gt_detections": 16,
+            "pred_detections": 16
+          },
+          "counting": {
+            "frames": 16,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 16,
+            "track_switches": 0,
+            "gt_tracks": 1,
+            "slices": {
+              "fast_motion": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 2
+          },
+          "failure_events": [
+            {
+              "flag": "drift",
+              "frame_index": 2,
+              "track_id": 1,
+              "matched_iou": 0.2121
+            },
+            {
+              "flag": "drift",
+              "frame_index": 3,
+              "track_id": 1,
+              "matched_iou": 0.2487
+            }
+          ]
+        },
+        "iou_legacy": {
+          "HOTA": {
+            "HOTA": 0.25,
+            "DetA": 1.0,
+            "AssA": 0.0625,
+            "LocA": 1.0,
+            "alphas": 19,
+            "per_alpha": {
+              "0.05": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.10": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.15": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.20": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.25": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.30": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.35": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.40": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.45": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.50": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.55": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.60": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.65": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.70": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.75": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.80": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.85": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.90": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              },
+              "0.95": {
+                "DetA": 1.0,
+                "AssA": 0.0625,
+                "LocA": 1.0,
+                "HOTA": 0.25,
+                "TP": 16,
+                "FN": 0,
+                "FP": 0
+              }
+            }
+          },
+          "IDF1": {
+            "IDF1": 0.0625,
+            "IDP": 0.0625,
+            "IDR": 0.0625,
+            "IDTP": 1,
+            "IDFN": 15,
+            "IDFP": 15,
+            "threshold": 0.5,
+            "gt_detections": 16,
+            "pred_detections": 16
+          },
+          "counting": {
+            "frames": 16,
+            "count_mae": 0.0,
+            "count_bias": 0.0,
+            "frames_undercounted": 0,
+            "frames_overcounted": 0,
+            "frames_exact": 16,
+            "track_switches": 15,
+            "gt_tracks": 1,
+            "slices": {
+              "fast_motion": {
+                "frames": 16,
+                "count_mae": 0.0,
+                "count_bias": 0.0
+              }
+            }
+          },
+          "failure_flags": {
+            "id_switch": 0,
+            "re_entry": 0,
+            "merge_split": 0,
+            "dropout": 0,
+            "drift": 0
+          },
+          "failure_events": []
+        }
+      }
+    }
+  ]
+}

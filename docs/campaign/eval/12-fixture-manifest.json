@@ -1,0 +1,1960 @@
+{
+  "schema_version": "wt12-fixture-manifest/1",
+  "generated": "2026-09-29",
+  "media_root": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures",
+  "policy": {
+    "label_provenance_allowed": [
+      "independent-human",
+      "publisher"
+    ],
+    "label_provenance_forbidden": [
+      "auto",
+      "model",
+      "pseudo",
+      "synthetic"
+    ],
+    "note": "Labels are publisher annotations or independent human review only. Model output and synthetic data can never establish evaluation truth."
+  },
+  "runtime_contract": {
+    "window_frames": 32,
+    "stride_frames_policy": "config-driven (VIOLENCE_STRIDE); the effective stride of a run is derivable from windows[].start_s deltas in its outputs",
+    "fps_source": "media.fps per fixture",
+    "window_integrity_fields": [
+      "valid",
+      "frames_collected",
+      "frames_required",
+      "span_s"
+    ]
+  },
+  "split_policy": "split by subject (= session): person01-02 train, person03-04 val, person05-06 calibration, person07-12 test; no session crosses a split boundary",
+  "acquisition": {
+    "tool": "bench/fetch_fixtures.py",
+    "rights_statement_checked_at_acquisition": true,
+    "failures": []
+  },
+  "fixtures": [
+    {
+      "fixture_id": "kth-boxing-person01",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "train",
+      "session_id": "kth-person01",
+      "media": {
+        "path": "kth/person01_boxing_d1_uncomp.avi",
+        "sha256": "386712f3cf150c46f8d0d0e5f83d4c2676b1738de627718d4a47d6c03db78548",
+        "bytes": 1619968,
+        "fps": 25.0,
+        "frame_count": 360,
+        "width": 160,
+        "height": 120,
+        "duration_s": 14.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person02",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "train",
+      "session_id": "kth-person02",
+      "media": {
+        "path": "kth/person02_boxing_d1_uncomp.avi",
+        "sha256": "e8512309bb2a21295157d5de11a4ee371204e6e88f24678b8b9b1744b2500be7",
+        "bytes": 1855488,
+        "fps": 25.0,
+        "frame_count": 428,
+        "width": 160,
+        "height": 120,
+        "duration_s": 17.12
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person03",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "val",
+      "session_id": "kth-person03",
+      "media": {
+        "path": "kth/person03_boxing_d1_uncomp.avi",
+        "sha256": "8d9c44bb5c75d52ef4cf63a86d63629dd96b1ac9440f03c246a0fa16fc9edaa4",
+        "bytes": 2015232,
+        "fps": 25.0,
+        "frame_count": 442,
+        "width": 160,
+        "height": 120,
+        "duration_s": 17.68
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person04",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "val",
+      "session_id": "kth-person04",
+      "media": {
+        "path": "kth/person04_boxing_d1_uncomp.avi",
+        "sha256": "91a7f62ae71974a6bb33ddfa4da553287709b90c4de881c5cde4fc101101023d",
+        "bytes": 1765376,
+        "fps": 25.0,
+        "frame_count": 328,
+        "width": 160,
+        "height": 120,
+        "duration_s": 13.12
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person05",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "calibration",
+      "session_id": "kth-person05",
+      "media": {
+        "path": "kth/person05_boxing_d1_uncomp.avi",
+        "sha256": "ab7c0c2cbebc145d66b4ac0afb383f9ef60e6ecc496799f970461fd2102b512e",
+        "bytes": 2476032,
+        "fps": 25.0,
+        "frame_count": 438,
+        "width": 160,
+        "height": 120,
+        "duration_s": 17.52
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person06",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "calibration",
+      "session_id": "kth-person06",
+      "media": {
+        "path": "kth/person06_boxing_d1_uncomp.avi",
+        "sha256": "10fc56764a7f095cba0c4fabc23e83d43f114f619866d276bc28221481187dca",
+        "bytes": 1660928,
+        "fps": 25.0,
+        "frame_count": 412,
+        "width": 160,
+        "height": 120,
+        "duration_s": 16.48
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person07",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person07",
+      "media": {
+        "path": "kth/person07_boxing_d1_uncomp.avi",
+        "sha256": "45b94d67e9bb8131a75d0ff53ba6b7567eecd0221453ec8c7eddfccfe3d5a022",
+        "bytes": 1800192,
+        "fps": 25.0,
+        "frame_count": 385,
+        "width": 160,
+        "height": 120,
+        "duration_s": 15.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person08",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person08",
+      "media": {
+        "path": "kth/person08_boxing_d1_uncomp.avi",
+        "sha256": "55eb3c966307c5d21b1b712ff5ec0d585e558434c2990288dca8d1432d58258d",
+        "bytes": 2269184,
+        "fps": 25.0,
+        "frame_count": 420,
+        "width": 160,
+        "height": 120,
+        "duration_s": 16.8
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person09",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person09",
+      "media": {
+        "path": "kth/person09_boxing_d1_uncomp.avi",
+        "sha256": "ce1415565f5b7efd03b7000383c5bc4ac3bcfca7f48c24fd9ee48c492bfe6347",
+        "bytes": 2482176,
+        "fps": 25.0,
+        "frame_count": 448,
+        "width": 160,
+        "height": 120,
+        "duration_s": 17.92
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person10",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person10",
+      "media": {
+        "path": "kth/person10_boxing_d1_uncomp.avi",
+        "sha256": "d1fde49808753c2b0ff1452df538639b4c702a3dc47167ea04d50aee367671d4",
+        "bytes": 1857536,
+        "fps": 25.0,
+        "frame_count": 422,
+        "width": 160,
+        "height": 120,
+        "duration_s": 16.88
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person11",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person11",
+      "media": {
+        "path": "kth/person11_boxing_d1_uncomp.avi",
+        "sha256": "edaca51e2a063c09ad34613251cc719a814163095cff4b0a95479b1d8e4bbf08",
+        "bytes": 1724416,
+        "fps": 25.0,
+        "frame_count": 351,
+        "width": 160,
+        "height": 120,
+        "duration_s": 14.04
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-boxing-person12",
+      "category": "positive",
+      "subcategory": "violence_staged",
+      "split": "test",
+      "session_id": "kth-person12",
+      "media": {
+        "path": "kth/person12_boxing_d1_uncomp.avi",
+        "sha256": "bd56161b366f143491cbe992eb86a8b54d35ea5b815ef3eb79027c03db2deef1",
+        "bytes": 2875392,
+        "fps": 25.0,
+        "frame_count": 590,
+        "width": 160,
+        "height": 120,
+        "duration_s": 23.6
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/boxing.zip",
+        "archive_sha256": "09437744bd760b3ba628d0315d12e2b6a7f86f5fbd41a316583bb4e3d5f09f20",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "violence_like",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'boxing' (staged single-person punching; no onset annotation available)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person01",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "train",
+      "session_id": "kth-person01",
+      "media": {
+        "path": "kth/person01_handwaving_d1_uncomp.avi",
+        "sha256": "6255a65a0d026df3dde9b74ff0085264139a931d2855eb0399c0413c49ee4714",
+        "bytes": 2211840,
+        "fps": 25.0,
+        "frame_count": 468,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.72
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person02",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "train",
+      "session_id": "kth-person02",
+      "media": {
+        "path": "kth/person02_handwaving_d1_uncomp.avi",
+        "sha256": "13e0ee38be59976638c96818ecd7c782d070e76627f4881cf9199bbd6af1336d",
+        "bytes": 2521088,
+        "fps": 25.0,
+        "frame_count": 550,
+        "width": 160,
+        "height": 120,
+        "duration_s": 22.0
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person03",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "val",
+      "session_id": "kth-person03",
+      "media": {
+        "path": "kth/person03_handwaving_d1_uncomp.avi",
+        "sha256": "dac7f3ed8ba5044f381f47105a3a43943ecc17cea30f761bc60b8ad44890ae27",
+        "bytes": 2543616,
+        "fps": 25.0,
+        "frame_count": 570,
+        "width": 160,
+        "height": 120,
+        "duration_s": 22.8
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person04",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "val",
+      "session_id": "kth-person04",
+      "media": {
+        "path": "kth/person04_handwaving_d1_uncomp.avi",
+        "sha256": "64550a7e5a8552c98a3984e3a0f3bf64cad5f3adc1f5d7195dd8dd9320a22c38",
+        "bytes": 3244032,
+        "fps": 25.0,
+        "frame_count": 732,
+        "width": 160,
+        "height": 120,
+        "duration_s": 29.28
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person05",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "calibration",
+      "session_id": "kth-person05",
+      "media": {
+        "path": "kth/person05_handwaving_d1_uncomp.avi",
+        "sha256": "b681d2d64a457705799dc588a4a43374612a1ec6655d70f3bded8d2e16beacbf",
+        "bytes": 2525184,
+        "fps": 25.0,
+        "frame_count": 460,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person06",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "calibration",
+      "session_id": "kth-person06",
+      "media": {
+        "path": "kth/person06_handwaving_d1_uncomp.avi",
+        "sha256": "c523d7332926b2d9f46383deb5dcded7f4bd3e42ca640748a8fa0c4d50e8423d",
+        "bytes": 1810432,
+        "fps": 25.0,
+        "frame_count": 460,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person07",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person07",
+      "media": {
+        "path": "kth/person07_handwaving_d1_uncomp.avi",
+        "sha256": "cb575b7ac4b3454267ec363f9af8126146404b6c6c46ff7da6ec507ae41671f9",
+        "bytes": 3063808,
+        "fps": 25.0,
+        "frame_count": 782,
+        "width": 160,
+        "height": 120,
+        "duration_s": 31.28
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person08",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person08",
+      "media": {
+        "path": "kth/person08_handwaving_d1_uncomp.avi",
+        "sha256": "351c41620c3b8bf50be8f57c04c379dff11da3dccfb1c8045b3a38ab47df9981",
+        "bytes": 2488320,
+        "fps": 25.0,
+        "frame_count": 502,
+        "width": 160,
+        "height": 120,
+        "duration_s": 20.08
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person09",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person09",
+      "media": {
+        "path": "kth/person09_handwaving_d1_uncomp.avi",
+        "sha256": "807d72d389ca81b13a8d53e6b2c5dc3bf433dd95c2bf9db09e056c83497e90b8",
+        "bytes": 2551808,
+        "fps": 25.0,
+        "frame_count": 450,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.0
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person10",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person10",
+      "media": {
+        "path": "kth/person10_handwaving_d1_uncomp.avi",
+        "sha256": "099bf19ddefdb2e25ee9a9855ac46189082568fd06fa39e712e5125ced7b5082",
+        "bytes": 2215936,
+        "fps": 25.0,
+        "frame_count": 524,
+        "width": 160,
+        "height": 120,
+        "duration_s": 20.96
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person11",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person11",
+      "media": {
+        "path": "kth/person11_handwaving_d1_uncomp.avi",
+        "sha256": "98745983eb84867b584e209227df9c8f5a8375f5998f955cef26bfa2046c1857",
+        "bytes": 2011136,
+        "fps": 25.0,
+        "frame_count": 475,
+        "width": 160,
+        "height": 120,
+        "duration_s": 19.0
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-handwaving-person12",
+      "category": "negative",
+      "subcategory": "waving",
+      "split": "test",
+      "session_id": "kth-person12",
+      "media": {
+        "path": "kth/person12_handwaving_d1_uncomp.avi",
+        "sha256": "f431e42f427fa2e5aba6f6da1b87ec8e77d855ce0acc910e718e032256545c3d",
+        "bytes": 2938880,
+        "fps": 25.0,
+        "frame_count": 672,
+        "width": 160,
+        "height": 120,
+        "duration_s": 26.88
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/handwaving.zip",
+        "archive_sha256": "93f2274a27a576f353cf093f67bc4816f52b73950abc2e6b441fbf23d7e6fa14",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'handwaving' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person01",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "train",
+      "session_id": "kth-person01",
+      "media": {
+        "path": "kth/person01_walking_d1_uncomp.avi",
+        "sha256": "68634c2edc2219b20b2a83fdba2262f5614ca7db753d464e42e304e37c5dbd04",
+        "bytes": 2390016,
+        "fps": 25.0,
+        "frame_count": 555,
+        "width": 160,
+        "height": 120,
+        "duration_s": 22.2
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person02",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "train",
+      "session_id": "kth-person02",
+      "media": {
+        "path": "kth/person02_walking_d1_uncomp.avi",
+        "sha256": "7b72486c2b424885a7d0839210023bc225c99c6a385fa63874d191ef60d853a7",
+        "bytes": 2056192,
+        "fps": 25.0,
+        "frame_count": 450,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.0
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person03",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "val",
+      "session_id": "kth-person03",
+      "media": {
+        "path": "kth/person03_walking_d1_uncomp.avi",
+        "sha256": "e669033d24c5faf105dfa7af2aac9f12262519cc465e89246a81384661fd2f71",
+        "bytes": 2676736,
+        "fps": 25.0,
+        "frame_count": 640,
+        "width": 160,
+        "height": 120,
+        "duration_s": 25.6
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person04",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "val",
+      "session_id": "kth-person04",
+      "media": {
+        "path": "kth/person04_walking_d1_uncomp.avi",
+        "sha256": "66b6f88da70270c7327087020910119c62ca0374cf436ead6c92b65bff8075df",
+        "bytes": 2181120,
+        "fps": 25.0,
+        "frame_count": 470,
+        "width": 160,
+        "height": 120,
+        "duration_s": 18.8
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person05",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "calibration",
+      "session_id": "kth-person05",
+      "media": {
+        "path": "kth/person05_walking_d1_uncomp.avi",
+        "sha256": "ec21190d6d3d962375a93f7638922dd513ed961b368d805e00d253c917c4ebe0",
+        "bytes": 2789376,
+        "fps": 25.0,
+        "frame_count": 535,
+        "width": 160,
+        "height": 120,
+        "duration_s": 21.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person06",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "calibration",
+      "session_id": "kth-person06",
+      "media": {
+        "path": "kth/person06_walking_d1_uncomp.avi",
+        "sha256": "09e4c586f6e3c2052debc4858a2794e69242374d54a3c6fa9dda8ce36b91963a",
+        "bytes": 1581056,
+        "fps": 25.0,
+        "frame_count": 420,
+        "width": 160,
+        "height": 120,
+        "duration_s": 16.8
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person07",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person07",
+      "media": {
+        "path": "kth/person07_walking_d1_uncomp.avi",
+        "sha256": "02590fd66f198dd13c1e56bdb029fcad15e93ae780aac270a6db49dac6a627a9",
+        "bytes": 1929216,
+        "fps": 25.0,
+        "frame_count": 475,
+        "width": 160,
+        "height": 120,
+        "duration_s": 19.0
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person08",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person08",
+      "media": {
+        "path": "kth/person08_walking_d1_uncomp.avi",
+        "sha256": "84e26963cea590bf5129adf5865011847681c42d73869ce35375c2164346c24d",
+        "bytes": 2902016,
+        "fps": 25.0,
+        "frame_count": 647,
+        "width": 160,
+        "height": 120,
+        "duration_s": 25.88
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person09",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person09",
+      "media": {
+        "path": "kth/person09_walking_d1_uncomp.avi",
+        "sha256": "308dc99f0bbfcc5b1d2b11c5d0e49552b14d5a097a561318590df90123a8e64f",
+        "bytes": 3026944,
+        "fps": 25.0,
+        "frame_count": 685,
+        "width": 160,
+        "height": 120,
+        "duration_s": 27.4
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person10",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person10",
+      "media": {
+        "path": "kth/person10_walking_d1_uncomp.avi",
+        "sha256": "9daedb8cfa4721bb472f915ae6406a17c66b0a316896390447acea6eb3317b8f",
+        "bytes": 2658304,
+        "fps": 25.0,
+        "frame_count": 655,
+        "width": 160,
+        "height": 120,
+        "duration_s": 26.2
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person11",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person11",
+      "media": {
+        "path": "kth/person11_walking_d1_uncomp.avi",
+        "sha256": "fc3f7504675275cd60798a66ffb312cc17b7dc36a350b5ffaf4d50a281d45da3",
+        "bytes": 2959360,
+        "fps": 25.0,
+        "frame_count": 640,
+        "width": 160,
+        "height": 120,
+        "duration_s": 25.6
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    },
+    {
+      "fixture_id": "kth-walking-person12",
+      "category": "negative",
+      "subcategory": "walking",
+      "split": "test",
+      "session_id": "kth-person12",
+      "media": {
+        "path": "kth/person12_walking_d1_uncomp.avi",
+        "sha256": "3fb9a255804e9e35a755df9a26446429ddb5539ca7ce52a2aaf40249d1357909",
+        "bytes": 2826240,
+        "fps": 25.0,
+        "frame_count": 570,
+        "width": 160,
+        "height": 120,
+        "duration_s": 22.8
+      },
+      "source": {
+        "dataset": "KTH Actions",
+        "url": "https://www.csc.kth.se/cvap/actions/walking.zip",
+        "archive_sha256": "4fc2f5b7c07776b7caeeffb8276886d82e9c43bb7e41f60fe2143621102cb771",
+        "retrieved": "2026-09-29",
+        "publisher_page": "https://www.csc.kth.se/cvap/actions/"
+      },
+      "license": {
+        "name": "KTH Actions dataset terms (publisher page)",
+        "url": "https://www.csc.kth.se/cvap/actions/",
+        "spdx": "LicenseRef-KTH-noncommercial",
+        "commercial_use": false,
+        "redistribution": "none - clips never enter git; reproduce with bench/fetch_fixtures.py",
+        "attribution": "Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK",
+        "rights_basis": "publisher grants public non-commercial use with citation; quote verified at acquisition",
+        "verified_quote": "The database is publicly available for non-commercial use. Please refer to [Schuldt, Laptev and Caputo, Proc. ICPR'04, Cambridge, UK] if you use this database in your publications.",
+        "verified_on": "2026-09-29"
+      },
+      "labels": {
+        "class": "benign",
+        "label_source": "publisher",
+        "annotation_ref": "KTH publisher action label 'walking' (benign single-person action)",
+        "onset_s": null,
+        "onset_available": false,
+        "frames": null,
+        "counts": null,
+        "boxes": null
+      },
+      "difficulty_tags": [
+        "low_resolution",
+        "static_camera",
+        "staged_single_person",
+        "out_of_cctv_domain"
+      ],
+      "notes": "Auxiliary out-of-domain fixture (160x120 static camera, staged). Never evidence of CCTV deployment performance."
+    }
+  ],
+  "unavailable_categories": [
+    {
+      "category": "negative/hugging",
+      "attempted_sources": [
+        "KTH Actions (no such action class)",
+        "RWF-2000 (videos withdrawn by author)",
+        "Hockey Fight / Movies (hosts 404; NHL/studio copyright)",
+        "XD-Violence (no licence text)",
+        "UCF-Crime (no licence text)"
+      ],
+      "why_excluded": "No lawfully available corpus isolates hugging in CCTV-like footage (WT-06 rights scan, 2026-09-29). Gap recorded instead of fabricating labels; local consented recording required."
+    },
+    {
+      "category": "negative/handshakes",
+      "attempted_sources": [
+        "KTH Actions (no such action class)",
+        "RWF-2000 (withdrawn)",
+        "XD-Violence (unlicensed)",
+        "UCF-Crime (unlicensed)"
+      ],
+      "why_excluded": "Same as hugging: no lawful public CCTV source with verified licence text."
+    },
+    {
+      "category": "negative/phone_use",
+      "attempted_sources": [
+        "KTH Actions (no such action class)",
+        "RWF-2000 (withdrawn)",
+        "XD-Violence (unlicensed)",
+        "UCF-Crime (unlicensed)"
+      ],
+      "why_excluded": "Same as hugging: no lawful public CCTV source with verified licence text."
+    },
+    {
+      "category": "positive/weapon_visible_close_range",
+      "attempted_sources": [
+        "public video datasets (no permissively licensed weapon video corpus verified)",
+        "image-level weapon datasets (per-dataset licence text not yet verified)"
+      ],
+      "why_excluded": "No candidate passed the verify-licence-text-before-download rule yet. Open: verify a permissively licensed image dataset for frame-level weapon evaluation."
+    },
+    {
+      "category": "positive/violence_with_independent_onset",
+      "attempted_sources": [
+        "RWF-2000 (clip-level; withdrawn anyway)",
+        "XD-Violence (unlicensed)",
+        "UBI-Fight / NTU-CCTV-Fight (frame-level, licence unverified [?])",
+        "KTH boxing (staged, clip-level only, no onset)"
+      ],
+      "why_excluded": "No rights-cleared fixture with INDEPENDENTLY LABELED ONSET could be secured. Consequence: time-to-detection (G-04) is UNMEASURABLE with current fixtures; never estimated from model output."
+    }
+  ]
+}

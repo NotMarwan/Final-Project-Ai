@@ -1,0 +1,762 @@
+{
+  "experiment": "EXP-03 pipeline comparison",
+  "cpuRuns": [
+    {
+      "directory": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16\\bench\\results\\campaign-accel-2026-09-29\\fullpipeline-cpu-1",
+      "seconds": 75,
+      "warmup": 25,
+      "workload_valid": true,
+      "runtime_exit_code": 0,
+      "source": {
+        "path": "C:/Users/PCD/Downloads/jobs/integration/demo_assets/videos/Wq0BuA8GM84_0.avi",
+        "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+      },
+      "models": [
+        {
+          "violence": {
+            "enabled": true,
+            "device": "cuda:0",
+            "is_x3d_flag": false,
+            "actual_model_class": "ViolenceDetector",
+            "disabled_reason": "",
+            "stride": 8,
+            "threshold": 0.45,
+            "load_ms": 4880.026999999245,
+            "warmup_ms": 0.0,
+            "inference_optimizations": {
+              "cudnn_benchmark": false,
+              "channels_last_3d": false,
+              "pinned_host_tensor": false,
+              "fp16_autocast": false,
+              "preprocess_workers": 4
+            },
+            "module_types": [
+              "AvgPool3d",
+              "BatchNorm3d",
+              "BottleneckBlock",
+              "Conv3d",
+              "Dropout",
+              "FuseFastToSlow",
+              "GELU",
+              "Identity",
+              "LayerNorm",
+              "Linear",
+              "MaxPool3d",
+              "ModuleList",
+              "MultiPathWayWithFuse",
+              "Net",
+              "PoolConcatPathway",
+              "ReLU",
+              "ResBlock",
+              "ResNetBasicStem",
+              "ResStage",
+              "Sequential",
+              "SlowFastBackbone",
+              "ViolenceDetector"
+            ]
+          },
+          "weapon": {
+            "actual_backend": "_ONNXBackend",
+            "config": {
+              "enabled": true,
+              "backend": "yolo",
+              "weight_path": "./weapon_hadi_yolo.pt",
+              "interval": 20,
+              "min_confidence": 0.2,
+              "ema_alpha": 0.45,
+              "input_size": 640,
+              "labels": [
+                "pistol",
+                "rifle",
+                "shotgun",
+                "knife",
+                "sword",
+                "revolver"
+              ],
+              "preload_on_startup": false,
+              "min_interval_ms": 2500,
+              "realtime_threshold_ms": 500,
+              "independent_alert_threshold": 0.65,
+              "score_decay_half_life_ms": 5000,
+              "signal_ttl_ms": 10000
+            },
+            "ready": true,
+            "failed": false,
+            "reason": "ok",
+            "providers": [
+              "CPUExecutionProvider"
+            ]
+          }
+        }
+      ],
+      "person_onnx": {
+        "count": 232,
+        "p05": 70.155865,
+        "p50": 78.56895,
+        "p95": 101.103325,
+        "max": 133.17409999581287
+      },
+      "weapon_window": {
+        "count": 20,
+        "p05": 493.868495,
+        "p50": 515.8952,
+        "p95": 561.525865,
+        "max": 585.6133999986923
+      },
+      "violence_window": {
+        "count": 148,
+        "p05": 94.995035,
+        "p50": 100.58875,
+        "p95": 143.48039,
+        "max": 368.5750000004191
+      },
+      "capture_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 30.0,
+        "p95": 30.55,
+        "max": 31.0
+      },
+      "render_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 30.0,
+        "p95": 30.0,
+        "max": 31.0
+      },
+      "client_fps": {
+        "count": 50,
+        "p05": 26.45,
+        "p50": 30.0,
+        "p95": 30.0,
+        "max": 31.0
+      },
+      "model_call_counts": {
+        "violence_window": 148,
+        "weapon_window": 20,
+        "person_onnx": 232,
+        "person_yolo": 0
+      },
+      "ipc_dropped_frames": 0
+    },
+    {
+      "directory": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16\\bench\\results\\campaign-accel-2026-09-29\\fullpipeline-cpu-2",
+      "seconds": 75,
+      "warmup": 25,
+      "workload_valid": true,
+      "runtime_exit_code": 0,
+      "source": {
+        "path": "C:/Users/PCD/Downloads/jobs/integration/demo_assets/videos/Wq0BuA8GM84_0.avi",
+        "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+      },
+      "models": [
+        {
+          "violence": {
+            "enabled": true,
+            "device": "cuda:0",
+            "is_x3d_flag": false,
+            "actual_model_class": "ViolenceDetector",
+            "disabled_reason": "",
+            "stride": 8,
+            "threshold": 0.45,
+            "load_ms": 2221.3332999963313,
+            "warmup_ms": 0.0,
+            "inference_optimizations": {
+              "cudnn_benchmark": false,
+              "channels_last_3d": false,
+              "pinned_host_tensor": false,
+              "fp16_autocast": false,
+              "preprocess_workers": 4
+            },
+            "module_types": [
+              "AvgPool3d",
+              "BatchNorm3d",
+              "BottleneckBlock",
+              "Conv3d",
+              "Dropout",
+              "FuseFastToSlow",
+              "GELU",
+              "Identity",
+              "LayerNorm",
+              "Linear",
+              "MaxPool3d",
+              "ModuleList",
+              "MultiPathWayWithFuse",
+              "Net",
+              "PoolConcatPathway",
+              "ReLU",
+              "ResBlock",
+              "ResNetBasicStem",
+              "ResStage",
+              "Sequential",
+              "SlowFastBackbone",
+              "ViolenceDetector"
+            ]
+          },
+          "weapon": {
+            "actual_backend": "_ONNXBackend",
+            "config": {
+              "enabled": true,
+              "backend": "yolo",
+              "weight_path": "./weapon_hadi_yolo.pt",
+              "interval": 20,
+              "min_confidence": 0.2,
+              "ema_alpha": 0.45,
+              "input_size": 640,
+              "labels": [
+                "pistol",
+                "rifle",
+                "shotgun",
+                "knife",
+                "sword",
+                "revolver"
+              ],
+              "preload_on_startup": false,
+              "min_interval_ms": 2500,
+              "realtime_threshold_ms": 500,
+              "independent_alert_threshold": 0.65,
+              "score_decay_half_life_ms": 5000,
+              "signal_ttl_ms": 10000
+            },
+            "ready": true,
+            "failed": false,
+            "reason": "ok",
+            "providers": [
+              "CPUExecutionProvider"
+            ]
+          }
+        }
+      ],
+      "person_onnx": {
+        "count": 229,
+        "p05": 72.01172,
+        "p50": 82.5814,
+        "p95": 108.877,
+        "max": 149.14760000101523
+      },
+      "weapon_window": {
+        "count": 19,
+        "p05": 516.51524,
+        "p50": 539.6538,
+        "p95": 604.84813,
+        "max": 659.976100003405
+      },
+      "violence_window": {
+        "count": 146,
+        "p05": 95.804725,
+        "p50": 103.1835,
+        "p95": 139.578875,
+        "max": 148.88749999954598
+      },
+      "capture_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 30.0,
+        "p95": 30.0,
+        "max": 31.0
+      },
+      "render_fps": {
+        "count": 50,
+        "p05": 26.45,
+        "p50": 30.0,
+        "p95": 30.55,
+        "max": 32.0
+      },
+      "client_fps": {
+        "count": 50,
+        "p05": 25.0,
+        "p50": 30.0,
+        "p95": 31.0,
+        "max": 32.0
+      },
+      "model_call_counts": {
+        "violence_window": 146,
+        "weapon_window": 19,
+        "person_onnx": 229,
+        "person_yolo": 0
+      },
+      "ipc_dropped_frames": 0
+    }
+  ],
+  "cudaRuns": [
+    {
+      "directory": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16\\bench\\results\\campaign-accel-2026-09-29\\fullpipeline-cuda-1",
+      "seconds": 75,
+      "warmup": 25,
+      "workload_valid": true,
+      "runtime_exit_code": 0,
+      "source": {
+        "path": "C:/Users/PCD/Downloads/jobs/integration/demo_assets/videos/Wq0BuA8GM84_0.avi",
+        "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+      },
+      "models": [
+        {
+          "violence": {
+            "enabled": true,
+            "device": "cuda:0",
+            "is_x3d_flag": false,
+            "actual_model_class": "ViolenceDetector",
+            "disabled_reason": "",
+            "stride": 8,
+            "threshold": 0.45,
+            "load_ms": 2224.992800001928,
+            "warmup_ms": 0.0,
+            "inference_optimizations": {
+              "cudnn_benchmark": false,
+              "channels_last_3d": false,
+              "pinned_host_tensor": false,
+              "fp16_autocast": false,
+              "preprocess_workers": 4
+            },
+            "module_types": [
+              "AvgPool3d",
+              "BatchNorm3d",
+              "BottleneckBlock",
+              "Conv3d",
+              "Dropout",
+              "FuseFastToSlow",
+              "GELU",
+              "Identity",
+              "LayerNorm",
+              "Linear",
+              "MaxPool3d",
+              "ModuleList",
+              "MultiPathWayWithFuse",
+              "Net",
+              "PoolConcatPathway",
+              "ReLU",
+              "ResBlock",
+              "ResNetBasicStem",
+              "ResStage",
+              "Sequential",
+              "SlowFastBackbone",
+              "ViolenceDetector"
+            ]
+          },
+          "weapon": {
+            "actual_backend": "_ONNXBackend",
+            "config": {
+              "enabled": true,
+              "backend": "yolo",
+              "weight_path": "./weapon_hadi_yolo.pt",
+              "interval": 20,
+              "min_confidence": 0.2,
+              "ema_alpha": 0.45,
+              "input_size": 640,
+              "labels": [
+                "pistol",
+                "rifle",
+                "shotgun",
+                "knife",
+                "sword",
+                "revolver"
+              ],
+              "preload_on_startup": false,
+              "min_interval_ms": 2500,
+              "realtime_threshold_ms": 500,
+              "independent_alert_threshold": 0.65,
+              "score_decay_half_life_ms": 5000,
+              "signal_ttl_ms": 10000
+            },
+            "ready": true,
+            "failed": false,
+            "reason": "ok",
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          }
+        }
+      ],
+      "person_onnx": {
+        "count": 244,
+        "p05": 18.206435,
+        "p50": 22.285,
+        "p95": 40.639105,
+        "max": 64.5624000026146
+      },
+      "weapon_window": {
+        "count": 19,
+        "p05": 47.61309,
+        "p50": 51.776,
+        "p95": 66.20052,
+        "max": 71.30099999631057
+      },
+      "violence_window": {
+        "count": 145,
+        "p05": 63.02238,
+        "p50": 84.0547,
+        "p95": 98.77348,
+        "max": 135.0315999952727
+      },
+      "capture_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 30.0,
+        "p95": 31.0,
+        "max": 31.0
+      },
+      "render_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 29.5,
+        "p95": 31.0,
+        "max": 31.0
+      },
+      "client_fps": {
+        "count": 50,
+        "p05": 26.0,
+        "p50": 29.0,
+        "p95": 31.0,
+        "max": 31.0
+      },
+      "model_call_counts": {
+        "violence_window": 145,
+        "weapon_window": 19,
+        "person_onnx": 244,
+        "person_yolo": 0
+      },
+      "ipc_dropped_frames": 0
+    },
+    {
+      "directory": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16\\bench\\results\\campaign-accel-2026-09-29\\fullpipeline-cuda-2",
+      "seconds": 75,
+      "warmup": 25,
+      "workload_valid": true,
+      "runtime_exit_code": 0,
+      "source": {
+        "path": "C:/Users/PCD/Downloads/jobs/integration/demo_assets/videos/Wq0BuA8GM84_0.avi",
+        "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+      },
+      "models": [
+        {
+          "violence": {
+            "enabled": true,
+            "device": "cuda:0",
+            "is_x3d_flag": false,
+            "actual_model_class": "ViolenceDetector",
+            "disabled_reason": "",
+            "stride": 8,
+            "threshold": 0.45,
+            "load_ms": 4512.783700003638,
+            "warmup_ms": 0.0,
+            "inference_optimizations": {
+              "cudnn_benchmark": false,
+              "channels_last_3d": false,
+              "pinned_host_tensor": false,
+              "fp16_autocast": false,
+              "preprocess_workers": 4
+            },
+            "module_types": [
+              "AvgPool3d",
+              "BatchNorm3d",
+              "BottleneckBlock",
+              "Conv3d",
+              "Dropout",
+              "FuseFastToSlow",
+              "GELU",
+              "Identity",
+              "LayerNorm",
+              "Linear",
+              "MaxPool3d",
+              "ModuleList",
+              "MultiPathWayWithFuse",
+              "Net",
+              "PoolConcatPathway",
+              "ReLU",
+              "ResBlock",
+              "ResNetBasicStem",
+              "ResStage",
+              "Sequential",
+              "SlowFastBackbone",
+              "ViolenceDetector"
+            ]
+          },
+          "weapon": {
+            "actual_backend": "_ONNXBackend",
+            "config": {
+              "enabled": true,
+              "backend": "yolo",
+              "weight_path": "./weapon_hadi_yolo.pt",
+              "interval": 20,
+              "min_confidence": 0.2,
+              "ema_alpha": 0.45,
+              "input_size": 640,
+              "labels": [
+                "pistol",
+                "rifle",
+                "shotgun",
+                "knife",
+                "sword",
+                "revolver"
+              ],
+              "preload_on_startup": false,
+              "min_interval_ms": 2500,
+              "realtime_threshold_ms": 500,
+              "independent_alert_threshold": 0.65,
+              "score_decay_half_life_ms": 5000,
+              "signal_ttl_ms": 10000
+            },
+            "ready": true,
+            "failed": false,
+            "reason": "ok",
+            "providers": [
+              "CUDAExecutionProvider",
+              "CPUExecutionProvider"
+            ]
+          }
+        }
+      ],
+      "person_onnx": {
+        "count": 244,
+        "p05": 18.60771,
+        "p50": 22.0456,
+        "p95": 68.04474,
+        "max": 90.21460000076331
+      },
+      "weapon_window": {
+        "count": 20,
+        "p05": 49.071905,
+        "p50": 52.8575,
+        "p95": 63.19475,
+        "max": 70.10599999921396
+      },
+      "violence_window": {
+        "count": 146,
+        "p05": 63.951925,
+        "p50": 85.4845,
+        "p95": 112.527375,
+        "max": 145.33940000546863
+      },
+      "capture_fps": {
+        "count": 50,
+        "p05": 27.0,
+        "p50": 30.0,
+        "p95": 31.0,
+        "max": 31.0
+      },
+      "render_fps": {
+        "count": 50,
+        "p05": 26.45,
+        "p50": 30.0,
+        "p95": 31.0,
+        "max": 32.0
+      },
+      "client_fps": {
+        "count": 50,
+        "p05": 25.45,
+        "p50": 30.0,
+        "p95": 31.0,
+        "max": 33.0
+      },
+      "model_call_counts": {
+        "violence_window": 146,
+        "weapon_window": 20,
+        "person_onnx": 244,
+        "person_yolo": 0
+      },
+      "ipc_dropped_frames": 0
+    }
+  ],
+  "cpuMedians": {
+    "person_onnx": {
+      "n_runs": 2,
+      "medianOfP50": 82.5814,
+      "perRun": [
+        78.56895,
+        82.5814
+      ]
+    },
+    "weapon_window": {
+      "n_runs": 2,
+      "medianOfP50": 539.6538,
+      "perRun": [
+        515.8952,
+        539.6538
+      ]
+    },
+    "violence_window": {
+      "n_runs": 2,
+      "medianOfP50": 103.1835,
+      "perRun": [
+        100.58875,
+        103.1835
+      ]
+    },
+    "capture_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        30.0,
+        30.0
+      ]
+    },
+    "render_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        30.0,
+        30.0
+      ]
+    },
+    "client_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        30.0,
+        30.0
+      ]
+    }
+  },
+  "cudaMedians": {
+    "person_onnx": {
+      "n_runs": 2,
+      "medianOfP50": 22.285,
+      "perRun": [
+        22.285,
+        22.0456
+      ]
+    },
+    "weapon_window": {
+      "n_runs": 2,
+      "medianOfP50": 52.8575,
+      "perRun": [
+        51.776,
+        52.8575
+      ]
+    },
+    "violence_window": {
+      "n_runs": 2,
+      "medianOfP50": 85.4845,
+      "perRun": [
+        84.0547,
+        85.4845
+      ]
+    },
+    "capture_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        30.0,
+        30.0
+      ]
+    },
+    "render_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        29.5,
+        30.0
+      ]
+    },
+    "client_fps": {
+      "n_runs": 2,
+      "medianOfP50": 30.0,
+      "perRun": [
+        29.0,
+        30.0
+      ]
+    }
+  },
+  "cpuToCudaSpeedup": {
+    "person_onnx": 3.706,
+    "weapon_window": 10.21,
+    "violence_window": 1.207
+  },
+  "speedGate": {
+    "person_onnx": true,
+    "weapon_window": true,
+    "violence_window": false
+  },
+  "dirtyClaimCheck": {
+    "claim": {
+      "person_onnx": {
+        "low": 16.8,
+        "high": 34.4,
+        "claim": [
+          24.0,
+          25.7
+        ]
+      },
+      "weapon_window": {
+        "low": 28.2,
+        "high": 55.9,
+        "claim": [
+          43.0,
+          40.3
+        ]
+      },
+      "capture_fps_p50_min": 28.0
+    },
+    "perStage": {
+      "person_onnx": {
+        "cudaP50PerRun": [
+          22.285,
+          22.0456
+        ],
+        "inClaimBand": [
+          true
+        ],
+        "claimValues": [
+          24.0,
+          25.7
+        ],
+        "band": [
+          16.8,
+          34.4
+        ]
+      },
+      "weapon_window": {
+        "cudaP50PerRun": [
+          51.776,
+          52.8575
+        ],
+        "inClaimBand": [
+          true
+        ],
+        "claimValues": [
+          43.0,
+          40.3
+        ],
+        "band": [
+          28.2,
+          55.9
+        ]
+      }
+    },
+    "captureFpsAtLeast28BothRuns": true,
+    "verdict": "REPRODUCED"
+  },
+  "registeredBaseline": {
+    "revision": "6fb3bcac8be7adbc30086978b28b5fb26f541c16",
+    "source": {
+      "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\demo_assets\\videos\\Wq0BuA8GM84_0.avi",
+      "sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586"
+    },
+    "stages": {
+      "person_onnx": {
+        "count": 155,
+        "p05": 117.91026,
+        "p50": 158.038,
+        "p95": 226.58965,
+        "max": 364.5053000000189
+      },
+      "weapon_window": {
+        "count": 53,
+        "p05": 643.90532,
+        "p50": 809.0082,
+        "p95": 1423.22106,
+        "max": 1698.978000000352
+      },
+      "violence_window": {
+        "count": 78,
+        "p05": 119.264425,
+        "p50": 156.49315,
+        "p95": 239.720665,
+        "max": 302.82920000172453
+      }
+    },
+    "capture_fps": 30.0
+  },
+  "clockBase": "perf_counter"
+}

@@ -1,0 +1,4 @@
+Blueprint entry S-13 disagrees with source fingerprint for lib/detection-types.ts; re-assess the entry before updating docs/blueprint/index.json
+Stale generated document: docs/SOURCE-MANIFEST.json
+Stale generated document: docs/CURRENT.md
+Stale generated document: docs/blueprint/INDEX.md

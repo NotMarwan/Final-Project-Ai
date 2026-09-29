@@ -1,0 +1,106 @@
+{
+  "scope": "All blobs reachable from all local refs; known current credentials plus token signatures.",
+  "blobs_scanned": 1744,
+  "bytes_scanned": 87468811,
+  "template_values_excluded": [
+    "GROQ_API_KEY"
+  ],
+  "history_findings": [
+    {
+      "object": "8d7596b3bcd996b6a41b02e93b46bff7b19fcc8a",
+      "path_hint": "frontend/README.md",
+      "credential_kinds": [
+        "ADMIN_API_KEY"
+      ]
+    },
+    {
+      "object": "180310c145a690bf6fc6239fa513377942a810c7",
+      "path_hint": "README.md",
+      "credential_kinds": [
+        "ADMIN_API_KEY"
+      ]
+    },
+    {
+      "object": "4d18fa930b9041634c024ada8388b062c49820b6",
+      "path_hint": "README.md",
+      "credential_kinds": [
+        "ADMIN_API_KEY"
+      ]
+    },
+    {
+      "object": "7765aed83730f7773423b9018f770585c128f2ce",
+      "path_hint": "backend/config.yml",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    },
+    {
+      "object": "306efca0d1d5fad54e284bf7fb1ddf2f0e67c25b",
+      "path_hint": "components/ai-report.tsx",
+      "credential_kinds": [
+        "ADMIN_API_KEY"
+      ]
+    },
+    {
+      "object": "5f1a99b7abc965c08c947bc8831dc9d68b239094",
+      "path_hint": "backend/config.yml",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    },
+    {
+      "object": "8ca6d42b1df9db454eee1a8022a77d541eec06ba",
+      "path_hint": ".kilo/agent/notifications-agent.md",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    },
+    {
+      "object": "561969fe33aeda6b926a368cd8df0f1add1bad57",
+      "path_hint": "backend/config.yml",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    },
+    {
+      "object": "c11602619c445d81540134c3ddea699d3a4e40b3",
+      "path_hint": "backend/config.yml",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    },
+    {
+      "object": "8c0a4cfc601aecb6eb4a8a96a45b80561847292e",
+      "path_hint": "backend/config.yml",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN"
+      ]
+    }
+  ],
+  "current_env_copies": [
+    {
+      "path": "backend/.env",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN",
+        "OPENROUTER_API_KEY",
+        "ADMIN_API_KEY"
+      ],
+      "tracked": false
+    },
+    {
+      "path": "desktop/dist/win-unpacked/backend/.env",
+      "credential_kinds": [
+        "TELEGRAM_BOT_TOKEN",
+        "OPENROUTER_API_KEY",
+        "ADMIN_API_KEY"
+      ],
+      "tracked": false
+    }
+  ],
+  "limitations": [
+    "Remote-only and unreachable/deleted objects not scanned.",
+    "Git LFS pointers scanned, not remote LFS payloads or compressed archive contents.",
+    "No-match is not proof that every unknown credential is absent."
+  ],
+  "secret_values_saved": false
+}

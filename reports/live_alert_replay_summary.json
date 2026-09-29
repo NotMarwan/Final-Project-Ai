@@ -1,0 +1,13 @@
+{
+  "decision_layer_version": "V2",
+  "watch_threshold": 0.45,
+  "confirm_threshold": 0.65,
+  "confirm_n": 2,
+  "confirm_m": 3,
+  "min_decision_interval_seconds": 0.5,
+  "alert_cooldown_seconds": 3.0,
+  "false_positive_replay_count": 5,
+  "still_confirmed_alert_count": 0,
+  "result": "PASS",
+  "safety_note": "Visible alert must be controlled by confirmed_alert, not model_prediction."
+}

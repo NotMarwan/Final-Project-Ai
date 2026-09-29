@@ -1,0 +1,188 @@
+{
+  "scope": "Real local ONNX CPU inference and tensor decoder parity; not accuracy, calibration, camera throughput or runtime acceptance.",
+  "models": [
+    {
+      "name": "person_yolo.onnx",
+      "model_sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "raw_shape": [
+        1,
+        84,
+        8400
+      ],
+      "names": {
+        "0": "person",
+        "1": "bicycle",
+        "2": "car",
+        "3": "motorcycle",
+        "4": "airplane",
+        "5": "bus",
+        "6": "train",
+        "7": "truck",
+        "8": "boat",
+        "9": "traffic light",
+        "10": "fire hydrant",
+        "11": "stop sign",
+        "12": "parking meter",
+        "13": "bench",
+        "14": "bird",
+        "15": "cat",
+        "16": "dog",
+        "17": "horse",
+        "18": "sheep",
+        "19": "cow",
+        "20": "elephant",
+        "21": "bear",
+        "22": "zebra",
+        "23": "giraffe",
+        "24": "backpack",
+        "25": "umbrella",
+        "26": "handbag",
+        "27": "tie",
+        "28": "suitcase",
+        "29": "frisbee",
+        "30": "skis",
+        "31": "snowboard",
+        "32": "sports ball",
+        "33": "kite",
+        "34": "baseball bat",
+        "35": "baseball glove",
+        "36": "skateboard",
+        "37": "surfboard",
+        "38": "tennis racket",
+        "39": "bottle",
+        "40": "wine glass",
+        "41": "cup",
+        "42": "fork",
+        "43": "knife",
+        "44": "spoon",
+        "45": "bowl",
+        "46": "banana",
+        "47": "apple",
+        "48": "sandwich",
+        "49": "orange",
+        "50": "broccoli",
+        "51": "carrot",
+        "52": "hot dog",
+        "53": "pizza",
+        "54": "donut",
+        "55": "cake",
+        "56": "chair",
+        "57": "couch",
+        "58": "potted plant",
+        "59": "bed",
+        "60": "dining table",
+        "61": "toilet",
+        "62": "tv",
+        "63": "laptop",
+        "64": "mouse",
+        "65": "remote",
+        "66": "keyboard",
+        "67": "cell phone",
+        "68": "microwave",
+        "69": "oven",
+        "70": "toaster",
+        "71": "sink",
+        "72": "refrigerator",
+        "73": "book",
+        "74": "clock",
+        "75": "vase",
+        "76": "scissors",
+        "77": "teddy bear",
+        "78": "hair drier",
+        "79": "toothbrush"
+      },
+      "selected_classes": [
+        0
+      ],
+      "single_inference_ms": 232.90049999923212,
+      "decoded_bus_rows": [
+        [
+          670.4491577148438,
+          380.5578308105469,
+          809.9188232421875,
+          879.6510620117188,
+          0.8902071714401245,
+          0.0
+        ],
+        [
+          221.67640686035156,
+          407.4198913574219,
+          343.78369140625,
+          856.1857299804688,
+          0.8832788467407227,
+          0.0
+        ],
+        [
+          50.6815185546875,
+          397.2987060546875,
+          244.39768981933594,
+          905.3758544921875,
+          0.8784424066543579,
+          0.0
+        ]
+      ],
+      "ultralytics_decoder_parity": true,
+      "adapter_hits": 3,
+      "old_person_decoder_hits": 0,
+      "blank_frame_hits": 0
+    },
+    {
+      "name": "weapon_yolo.onnx",
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "providers": [
+        "CPUExecutionProvider"
+      ],
+      "raw_shape": [
+        1,
+        10,
+        8400
+      ],
+      "names": {
+        "0": "pistol",
+        "1": "rifle",
+        "2": "shotgun",
+        "3": "knife",
+        "4": "sword",
+        "5": "revolver"
+      },
+      "selected_classes": [
+        0,
+        1,
+        3
+      ],
+      "single_inference_ms": 1449.5574000011402,
+      "decoded_bus_rows": [
+        [
+          199.4370574951172,
+          486.26458740234375,
+          270.1209411621094,
+          548.9974975585938,
+          0.27537229657173157,
+          0.0
+        ]
+      ],
+      "ultralytics_decoder_parity": true,
+      "adapter_hits": 1,
+      "old_person_decoder_hits": null,
+      "blank_frame_hits": 0
+    }
+  ],
+  "image": {
+    "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\venv\\Lib\\site-packages\\ultralytics\\assets\\bus.jpg",
+    "sha256": "c02019c4979c191eb739ddd944445ef408dad5679acab6fd520ef9d434bfbc63",
+    "shape": [
+      1080,
+      810,
+      3
+    ]
+  },
+  "source_sha256": {
+    "yolo_onnx.py": "b13e186d162ad673e6f4475562575e6d3c7d6fee13be0858a093eaf369d8e277",
+    "person_detector.py": "2430e7df9273d9ef7276e25c5db208105aeeadc95a50088b7ba7bbecb680511b",
+    "weapon.py": "8ab994dd82e814c618408f3f2e9fc7b00a226f41513acc824c1698887d070148",
+    "optimization.py": "a59e5a88a7b4a2c91f44b38996e959a0f9840f6dc837a39dd3962b822c2ce158"
+  }
+}

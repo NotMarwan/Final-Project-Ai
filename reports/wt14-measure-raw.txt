@@ -1,0 +1,602 @@
+
+========================================================================
+E-1a: virtual camera mode enumeration (ffmpeg dshow metadata)
+========================================================================
+ffmpeg binary: C:\Users\PCD\Downloads\jobs\sentinel-campaign\Final Project AI Sentinel\venv\Lib\site-packages\imageio_ffmpeg\binaries\ffmpeg-win-x86_64-v7.1.exe exists: False
+
+========================================================================
+E-1b: negotiated-mode read-back probe (CAP_DSHOW vs CAP_MSMF on device indices)
+========================================================================
+[ WARN:0@0.288] global cap.cpp:323 cv::VideoCapture::open VIDEOIO(DSHOW): raised unknown C++ exception!
+
+
+[ WARN:0@0.289] global cap.cpp:344 cv::VideoCapture::open VIDEOIO(DSHOW): backend is generally available but can't be used to capture by index
+[dshow] index 0: not opened
+[dshow] index 1: opened=True frame=True frame_shape=(720, 1280, 3) readback={'width': 1280, 'height': 720, 'fps': 30.00003000003, 'fourcc': 'YUY2'}
+[ WARN:0@2.735] global cap.cpp:344 cv::VideoCapture::open VIDEOIO(DSHOW): backend is generally available but can't be used to capture by index
+[dshow] index 2: not opened
+ [INFO] [DSH]  python.exe
+ [INFO] [DSH]  Creating WndMsg Listener Window
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Performing initializing sequence
+ [INFO] [DSH]  Get MessageBus interface succeeded
+ [WARN] [DSH]  MessageBus perform initialize in progress
+ [WARN] [DSH]  MessageBus perform start in progress
+ [INFO] [MBHB] Updating MB Status
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [MBHB] Bus connected. (5) peers connected : Audio UI Backend, Core, DShow Filter, NvContainer Plugin, Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (1) Core
+ [INFO] [MBHB] Marked joined / connected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked joined / connected for module (3) DShow Filter
+ [INFO] [MBHB] Marked joined / connected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (5) Audio UI Backend
+ [INFO] [DSH]  Self joined the MessageBus
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [DSH]  Request to get container state
+ [INFO] [DSH]  Successfully fetched the GPU details
+ [INFO] [DSH]  Found matching GPU for CUDA and D3D
+ [INFO] [DSH]  Chosen GPU for D3D: (0) NVIDIA GeForce RTX 3060 : 69863, 0
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request to wait for core launch init
+ [INFO] [DSH]  Core launch init is done
+ [INFO] [DSH]  Request to post cmd for core init
+ [INFO] [DSH]  Core initializing now
+ [INFO] [DSH]  Initializing streaming output
+ [INFO] [DSH]  Request query output resolution
+ [ERR ] [DSH]  query res invalid response retry
+ [ERR ] [DSH]  query res invalid response retry
+ [ERR ] [DSH]  query res invalid response retry
+ [ERR ] [DSH]  query res invalid response retry
+ [INFO] [DSH]  Querying stream output successful. Params: 1280x720@30/1
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  fmt:2 bpp:24 :640x480
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  On Thread Create
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request core to start streaming
+ [INFO] [DSH]  Fill buffer started
+ [INFO] [DSH]  Initializing image blit data
+ [INFO] [DSH]  jpeg exif orientation property not found
+ [INFO] [DSH]  image size acquired successfully. src: 1920x1080
+ [INFO] [DSH]  image scaler initialized successfully. dst: 1280x720
+ [INFO] [DSH]  Flip/Rotation Options: 16
+ [INFO] [DSH]  flip rotator initialized successfully
+ [INFO] [DSH]  Successfully copied image pixels
+ [INFO] [DSH]  Verify core stream readiness before the first frame (sh)
+ [INFO] [UIB]  Request to wait for core output stream readiness
+ [INFO] [UIB]  Core output stream is ready
+ [INFO] [DSH]  Request query surf
+ [INFO] [DSH]  On Destroy Create
+ [INFO] [DSH]  Request core to stop streaming
+ [WARN] [DSH]  MessageBus perform stop in progress
+ [INFO] [MBHB] Force marking all NBX MB modules as disconnected
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [MBHB] Marked left / disconnected for module (0) Reserved
+ [INFO] [MBHB] Marked left / disconnected for module (1) Core
+ [INFO] [MBHB] Marked left / disconnected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked left / disconnected for module (3) DShow Filter
+ [INFO] [MBHB] Marked left / disconnected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked left / disconnected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [DSH]  Destroying parent object
+ [INFO] [DSH]  Destroying D3D SH Object
+ [INFO] [DSH]  Released FiltShSurf
+ [INFO] [DSH]  Released FiltStgRes
+ [INFO] [DSH]  Released ImmCtx
+ [INFO] [DSH]  Released D3D Device
+ [INFO] [DSH]  Released Adapter
+ [INFO] [DSH]  Released DXGI Factory
+ [INFO] [DSH]  Destroying WndMsg Listener Window
+ [INFO] [DSH]  Destroyed window
+ [INFO] [DSH]  Unregistered window class
+ [INFO] [DSH]  Creating WndMsg Listener Window
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Performing initializing sequence
+ [INFO] [DSH]  Re-initializing MessageBus Handler
+ [INFO] [DSH]  Request to get container state
+ [WARN] [DSH]  MessageBus perform initialize in progress
+ [WARN] [DSH]  MessageBus perform start in progress
+ [INFO] [MBHB] Updating MB Status
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [MBHB] Bus connected. (5) peers connected : Audio UI Backend, Core, DShow Filter, NvContainer Plugin, Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (1) Core
+ [INFO] [MBHB] Marked joined / connected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked joined / connected for module (3) DShow Filter
+ [INFO] [MBHB] Marked joined / connected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [DSH]  Successfully fetched the GPU details
+ [INFO] [DSH]  Found matching GPU for CUDA and D3D
+ [INFO] [DSH]  Chosen GPU for D3D: (0) NVIDIA GeForce RTX 3060 : 69863, 0
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request to wait for core launch init
+ [INFO] [DSH]  Core launch init is done
+ [INFO] [DSH]  Request to post cmd for core init
+ [INFO] [DSH]  Core initializing now
+ [INFO] [DSH]  Initializing streaming output
+ [INFO] [DSH]  Request query output resolution
+ [INFO] [DSH]  Querying stream output successful. Params: 1280x720@30/1
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  fmt:2 bpp:24 :1280x720
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  On Thread Create
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request core to start streaming
+ [INFO] [DSH]  Fill buffer started
+ [INFO] [DSH]  Initializing image blit data
+ [INFO] [DSH]  jpeg exif orientation property not found
+ [INFO] [DSH]  image size acquired successfully. src: 1920x1080
+ [INFO] [DSH]  image scaler initialized successfully. dst: 1280x720
+ [INFO] [DSH]  Flip/Rotation Options: 16
+ [INFO] [DSH]  flip rotator initialized successfully
+ [INFO] [DSH]  Successfully copied image pixels
+ [INFO] [DSH]  Verify core stream readiness before the first frame (sh)
+ [INFO] [UIB]  Request to wait for core output stream readiness
+ [INFO] [UIB]  Core output stream is ready
+ [INFO] [DSH]  Request query surf
+ [INFO] [DSH]  On Destroy Create
+ [INFO] [DSH]  Request core to stop streaming
+ [WARN] [DSH]  MessageBus perform stop in progress
+ [INFO] [MBHB] Force marking all NBX MB modules as disconnected
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [MBHB] Marked left / disconnected for module (0) Reserved
+ [INFO] [MBHB] Marked left / disconnected for module (1) Core
+ [INFO] [MBHB] Marked left / disconnected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked left / disconnected for module (3) DShow Filter
+ [INFO] [MBHB] Marked left / disconnected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked left / disconnected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [DSH]  Destroying parent object
+ [INFO] [DSH]  Destroying D3D SH Object
+ [INFO] [DSH]  Released FiltShSurf
+ [INFO] [DSH]  Released FiltStgRes
+ [INFO] [DSH]  Released ImmCtx
+ [INFO] [DSH]  Released D3D Device
+ [INFO] [DSH]  Released Adapter
+ [INFO] [DSH]  Released DXGI Factory
+ [INFO] [DSH]  Destroying WndMsg Listener Window
+ [INFO] [DSH]  Destroyed window
+ [INFO] [DSH]  Unregistered window class
+ [INFO] [DSH]  Creating WndMsg Listener Window
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Performing initializing sequence
+ [INFO] [DSH]  Re-initializing MessageBus Handler
+ [INFO] [DSH]  Request to get container state
+ [WARN] [DSH]  MessageBus perform initialize in progress
+ [WARN] [DSH]  MessageBus perform start in progress
+ [INFO] [MBHB] Updating MB Status
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [MBHB] Bus connected. (5) peers connected : Audio UI Backend, Core, DShow Filter, NvContainer Plugin, Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (1) Core
+ [INFO] [MBHB] Marked joined / connected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked joined / connected for module (3) DShow Filter
+ [INFO] [MBHB] Marked joined / connected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [DSH]  Successfully fetched the GPU details
+ [INFO] [DSH]  Found matching GPU for CUDA and D3D
+ [INFO] [DSH]  Chosen GPU for D3D: (0) NVIDIA GeForce RTX 3060 : 69863, 0
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request to wait for core launch init
+ [INFO] [DSH]  Core launch init is done
+ [INFO] [DSH]  Request to post cmd for core init
+ [INFO] [DSH]  Core initializing now
+ [INFO] [DSH]  Initializing streaming output
+ [INFO] [DSH]  Request query output resolution
+ [INFO] [DSH]  Querying stream output successful. Params: 1280x720@30/1
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  fmt:2 bpp:24 :1280x720
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  On Thread Create
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request core to start streaming
+ [INFO] [DSH]  Fill buffer started
+ [INFO] [DSH]  Initializing image blit data
+ [INFO] [DSH]  jpeg exif orientation property not found
+ [INFO] [DSH]  image size acquired successfully. src: 1920x1080
+ [INFO] [DSH]  image scaler initialized successfully. dst: 1280x720
+ [INFO] [DSH]  Flip/Rotation Options: 16
+ [INFO] [DSH]  flip rotator initialized successfully
+ [INFO] [DSH]  Successfully copied image pixels
+ [INFO] [DSH]  Verify core stream readiness before the first frame (sh)
+ [INFO] [UIB]  Request to wait for core output stream readiness
+ [INFO] [UIB]  Core output stream is ready
+ [INFO] [DSH]  Request query surf
+ [INFO] [DSH]  On Destroy Create
+ [INFO] [DSH]  Request core to stop streaming
+ [WARN] [DSH]  MessageBus perform stop in progress
+ [INFO] [MBHB] Force marking all NBX MB modules as disconnected
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [MBHB] Marked left / disconnected for module (0) Reserved
+ [INFO] [MBHB] Marked left / disconnected for module (1) Core
+ [INFO] [MBHB] Marked left / disconnected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked left / disconnected for module (3) DShow Filter
+ [INFO] [MBHB] Marked left / disconnected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked left / disconnected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [DSH]  Destroying parent object
+ [INFO] [DSH]  Destroying D3D SH Object
+ [INFO] [DSH]  Released FiltShSurf
+ [INFO] [DSH]  Released FiltStgRes
+ [INFO] [DSH]  Released ImmCtx
+ [INFO] [DSH]  Released D3D Device
+ [INFO] [DSH]  Released Adapter
+ [INFO] [DSH]  Released DXGI Factory
+ [INFO] [DSH]  Destroying WndMsg Listener Window
+ [INFO] [DSH]  Destroyed window
+ [INFO] [DSH]  Unregistered window class
+ [INFO] [DSH]  Creating WndMsg Listener Window
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Performing initializing sequence
+ [INFO] [DSH]  Re-initializing MessageBus Handler
+ [INFO] [DSH]  Request to get container state
+ [WARN] [DSH]  MessageBus perform initialize in progress
+ [WARN] [DSH]  MessageBus perform start in progress
+ [INFO] [MBHB] Updating MB Status
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [MBHB] Bus connected. (5) peers connected : Audio UI Backend, Core, DShow Filter, NvContainer Plugin, Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (1) Core
+ [INFO] [MBHB] Marked joined / connected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked joined / connected for module (3) DShow Filter
+ [INFO] [MBHB] Marked joined / connected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked joined / connected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [DSH]  Successfully fetched the GPU details
+ [INFO] [DSH]  Found matching GPU for CUDA and D3D
+ [INFO] [DSH]  Chosen GPU for D3D: (0) NVIDIA GeForce RTX 3060 : 69863, 0
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request to wait for core launch init
+ [INFO] [DSH]  Core launch init is done
+ [INFO] [DSH]  Request to post cmd for core init
+ [INFO] [DSH]  Core initializing now
+ [INFO] [DSH]  Initializing streaming output
+ [INFO] [DSH]  Request query output resolution
+ [INFO] [DSH]  Querying stream output successful. Params: 1280x720@30/1
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [ERR ] [DSH]  set format subtype invalid
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  fmt:0 bpp:32 :1280x720
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  fmt:2 bpp:24 :1280x720
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  Requested to perform initializing sequence
+ [INFO] [DSH]  Already initialized
+ [INFO] [DSH]  On Thread Create
+ [INFO] [DSH]  Request to start core exe
+ [INFO] [DSH]  Core reported already running -- Verifying
+ [INFO] [DSH]  Verified core exe started
+ [INFO] [DSH]  Request core to start streaming
+ [INFO] [DSH]  Fill buffer started
+ [INFO] [DSH]  Initializing image blit data
+ [INFO] [DSH]  jpeg exif orientation property not found
+ [INFO] [DSH]  image size acquired successfully. src: 1920x1080
+ [INFO] [DSH]  image scaler initialized successfully. dst: 1280x720
+ [INFO] [DSH]  Flip/Rotation Options: 16
+ [INFO] [DSH]  flip rotator initialized successfully
+ [INFO] [DSH]  Successfully copied image pixels
+ [INFO] [DSH]  Verify core stream readiness before the first frame (sh)
+ [INFO] [UIB]  Request to wait for core output stream readiness
+ [INFO] [UIB]  Core output stream is ready
+ [INFO] [DSH]  Request query surf
+[dshow] index 3: opened=True frame=True frame_shape=(720, 1280, 3) readback={'width': 1280, 'height': 720, 'fps': 30.00003000003, 'fourcc': 'NONE'}
+ [INFO] [DSH]  On Destroy Create
+ [INFO] [DSH]  Request core to stop streaming
+ [WARN] [DSH]  MessageBus perform stop in progress
+ [INFO] [MBHB] Force marking all NBX MB modules as disconnected
+ [INFO] [MBHB] Previous marked bus status : Reserved : 0 | Core : 1 | NvContainer Plugin : 1 | DShow Filter : 1 | Camera UI Backend : 1 | Audio UI Backend : 1 | 
+ [INFO] [MBHB] Marked left / disconnected for module (0) Reserved
+ [INFO] [MBHB] Marked left / disconnected for module (1) Core
+ [INFO] [MBHB] Marked left / disconnected for module (2) NvContainer Plugin
+ [INFO] [MBHB] Marked left / disconnected for module (3) DShow Filter
+ [INFO] [MBHB] Marked left / disconnected for module (4) Camera UI Backend
+ [INFO] [MBHB] Marked left / disconnected for module (5) Audio UI Backend
+ [INFO] [MBHB] Updated marked bus status  : Reserved : 0 | Core : 0 | NvContainer Plugin : 0 | DShow Filter : 0 | Camera UI Backend : 0 | Audio UI Backend : 0 | 
+ [INFO] [DSH]  Destroying parent object
+ [INFO] [DSH]  Destroying D3D SH Object
+ [INFO] [DSH]  Released FiltShSurf
+ [INFO] [DSH]  Released FiltStgRes
+ [INFO] [DSH]  Released ImmCtx
+ [INFO] [DSH]  Released D3D Device
+ [INFO] [DSH]  Released Adapter
+ [INFO] [DSH]  Released DXGI Factory
+ [INFO] [DSH]  Destroying WndMsg Listener Window
+ [INFO] [DSH]  Destroyed window
+ [INFO] [DSH]  Unregistered window class
+[msmf] index 0: not opened
+[msmf] index 1: not opened
+[msmf] index 2: not opened
+[msmf] index 3: not opened
+
+========================================================================
+E-1c: CaptureThread negotiated-mode assertion against a virtual device (index 0)
+========================================================================
+[ WARN:0@8.449] global cap.cpp:323 cv::VideoCapture::open VIDEOIO(DSHOW): raised unknown C++ exception!
+
+
+[ WARN:0@8.449] global cap.cpp:344 cv::VideoCapture::open VIDEOIO(DSHOW): backend is generally available but can't be used to capture by index
+open: False state: idle
+negotiated: None mismatched: None
+health_details: {'captureState': 'idle', 'clockBase': 'monotonic-gettickcount64', 'ringFormat': 'bgr', 'drainToLatest': False, 'framesReadCount': 0, 'duplicateFrameCount': 0, 'reconnectCount': 0, 'readGapP50Ms': 0.0, 'readGapP95Ms': 0.0, 'readGapMaxMs': 0.0, 'readGapSampleCount': 0, 'stageFrameReadP50Ms': 0.0, 'stageFrameReadP95Ms': 0.0, 'stageFrameReadSampleCount': 0, 'frameQueueDropped': 0, 'frameQueueDepth': 0, 'evidenceFramesDecimated': 0, 'evidenceFramesAdjusted': 0}
+
+========================================================================
+E-2: file-clock vs read-clock sampling contract (30fps fixture)
+========================================================================
+fixture: C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-14\reports\wt14-e2-30fps.avi 2956986 bytes
+file_skip=0: frames=40 sample_gap_mean=0.033333s (1/30=0.033333s, dev=0.00%) sample_gap_stdev=0.000000s read_gap_mean=0.000847s window_valid=True window={'frames_collected': 32, 'frames_required': 32, 'span_seconds': 1.0333333333328483, 'nominal_span_seconds': 1.0333333333333334, 'valid': True}
+file_skip=2: frames=40 sample_gap_mean=0.033333s (1/30=0.033333s, dev=0.00%) sample_gap_stdev=0.000000s read_gap_mean=0.002804s window_valid=True window={'frames_collected': 32, 'frames_required': 32, 'span_seconds': 1.0333333333328483, 'nominal_span_seconds': 1.0333333333333334, 'valid': True}
+
+========================================================================
+E-3: drop detection harness (slow consumer, bounded queue)
+========================================================================
+produced=200 consumed=7 frameQueueDropped=193 frameQueueDepth=3
+
+========================================================================
+E-6 + ring memory: 150 x 960x540 frames, three ring formats
+========================================================================
+raw BGR ring: entries=150 frame_bytes=1555200 total=233280000 (222.5 MiB)
+bgr: total_payload=233280000 (222.47 MiB) vs raw=222.47 MiB ratio=1.000 encode_ms/frame=0.721 decode_ms/frame=0.001 samples=150 size_adjusted=0 rss_delta=0.0 MiB
+jpeg90: total_payload=15808702 (15.08 MiB) vs raw=222.47 MiB ratio=0.068 encode_ms/frame=10.558 decode_ms/frame=6.040 samples=150 size_adjusted=0 rss_delta=0.0 MiB
+nv12: total_payload=116640000 (111.24 MiB) vs raw=222.47 MiB ratio=0.500 encode_ms/frame=0.339 decode_ms/frame=0.408 samples=150 size_adjusted=0 rss_delta=0.0 MiB
+
+========================================================================
+E-6 detail: jpeg90 per-frame encode/decode latency distribution
+========================================================================
+encode_ms p50=10.102 p95=12.301 n=150
+decode_ms p50=5.583 p95=7.171 n=150
+
+========================================================================
+E-6 detail: aliasing proof on the real pipeline helpers (measured mutation isolation)
+========================================================================
+ring payload unchanged after capture-buffer mutation: True | entry aliases raw: False
+
+========================================================================
+BATCH DONE
+========================================================================

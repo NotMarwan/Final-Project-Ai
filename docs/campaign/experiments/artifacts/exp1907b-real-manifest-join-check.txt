@@ -1,0 +1,7 @@
+manifest fixtures: 12
+payloads: 12  unmatched: 0
+media present on disk: 12/12
+manifest media_root: C:\Users\PCD\Downloads\jobs\sentinel-campaign\wt-12-fixtures
+validated by wt-12 load_outputs: 12
+sample: kth-walking-person01 68634c2edc22 windows: 1 keys: ['calibrated_conf', 'end_s', 'ensemble_k', 'ensemble_score', 'ensemble_spread', 'frames_collected'] ...
+splits: {'train': 2, 'val': 2, 'calibration': 2, 'test': 6}

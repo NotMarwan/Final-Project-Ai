@@ -1,0 +1,328 @@
+{
+  "schema_version": "weapon-negative-run-summary/1",
+  "alert_threshold": 0.65,
+  "denominators": {
+    "clips": 12,
+    "frames_with_detections": 132,
+    "detections_logged": 170
+  },
+  "false_alert_frames": 35,
+  "detections_at_or_above_alert": 40,
+  "per_class": {
+    "pistol": {
+      "detections": 170,
+      "at_or_above_alert": 40,
+      "max_score": 0.7772232890129089,
+      "p95_score": 0.7487062871456146
+    }
+  },
+  "per_group": {
+    "firearm": {
+      "detections": 170,
+      "at_or_above_alert": 40,
+      "max_score": 0.7772232890129089,
+      "p95_score": 0.7487062871456146
+    }
+  },
+  "splits": [
+    "calibration",
+    "test",
+    "train",
+    "val"
+  ],
+  "interpretation": "Detections on a known-benign source are false positives by construction. Split provenance decides whether this figure may enter a gate claim; 'unregistered' rows are auxiliary-domain only.",
+  "run_id": "wt18-kth-waving-01",
+  "source_label": "kth-weapon-free",
+  "clips": [
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person01",
+      "source_sha256": "6255a65a0d026df3dde9b74ff0085264139a931d2855eb0399c0413c49ee4714",
+      "split": "train",
+      "clip_id": "person01_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 12,
+      "per_class": {
+        "pistol": 12
+      },
+      "per_group": {
+        "firearm": 12
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person02",
+      "source_sha256": "13e0ee38be59976638c96818ecd7c782d070e76627f4881cf9199bbd6af1336d",
+      "split": "train",
+      "clip_id": "person02_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 14,
+      "per_class": {
+        "pistol": 14
+      },
+      "per_group": {
+        "firearm": 14
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person03",
+      "source_sha256": "dac7f3ed8ba5044f381f47105a3a43943ecc17cea30f761bc60b8ad44890ae27",
+      "split": "val",
+      "clip_id": "person03_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 12,
+      "per_class": {
+        "pistol": 12
+      },
+      "per_group": {
+        "firearm": 12
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person04",
+      "source_sha256": "64550a7e5a8552c98a3984e3a0f3bf64cad5f3adc1f5d7195dd8dd9320a22c38",
+      "split": "val",
+      "clip_id": "person04_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 8,
+      "per_class": {
+        "pistol": 8
+      },
+      "per_group": {
+        "firearm": 8
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person05",
+      "source_sha256": "b681d2d64a457705799dc588a4a43374612a1ec6655d70f3bded8d2e16beacbf",
+      "split": "calibration",
+      "clip_id": "person05_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 7,
+      "per_class": {
+        "pistol": 7
+      },
+      "per_group": {
+        "firearm": 7
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person06",
+      "source_sha256": "c523d7332926b2d9f46383deb5dcded7f4bd3e42ca640748a8fa0c4d50e8423d",
+      "split": "calibration",
+      "clip_id": "person06_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 23,
+      "per_class": {
+        "pistol": 23
+      },
+      "per_group": {
+        "firearm": 23
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person07",
+      "source_sha256": "cb575b7ac4b3454267ec363f9af8126146404b6c6c46ff7da6ec507ae41671f9",
+      "split": "test",
+      "clip_id": "person07_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 28,
+      "per_class": {
+        "pistol": 28
+      },
+      "per_group": {
+        "firearm": 28
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person08",
+      "source_sha256": "351c41620c3b8bf50be8f57c04c379dff11da3dccfb1c8045b3a38ab47df9981",
+      "split": "test",
+      "clip_id": "person08_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 5,
+      "per_class": {
+        "pistol": 5
+      },
+      "per_group": {
+        "firearm": 5
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person09",
+      "source_sha256": "807d72d389ca81b13a8d53e6b2c5dc3bf433dd95c2bf9db09e056c83497e90b8",
+      "split": "test",
+      "clip_id": "person09_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 4,
+      "per_class": {
+        "pistol": 4
+      },
+      "per_group": {
+        "firearm": 4
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person10",
+      "source_sha256": "099bf19ddefdb2e25ee9a9855ac46189082568fd06fa39e712e5125ced7b5082",
+      "split": "test",
+      "clip_id": "person10_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 27,
+      "per_class": {
+        "pistol": 27
+      },
+      "per_group": {
+        "firearm": 27
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person11",
+      "source_sha256": "98745983eb84867b584e209227df9c8f5a8375f5998f955cef26bfa2046c1857",
+      "split": "test",
+      "clip_id": "person11_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 16,
+      "per_class": {
+        "pistol": 16
+      },
+      "per_group": {
+        "firearm": 16
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-waving-01",
+      "fixture_id": "kth-handwaving-person12",
+      "source_sha256": "f431e42f427fa2e5aba6f6da1b87ec8e77d855ce0acc910e718e032256545c3d",
+      "split": "test",
+      "clip_id": "person12_handwaving_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 14,
+      "per_class": {
+        "pistol": 14
+      },
+      "per_group": {
+        "firearm": 14
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-waving\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    }
+  ],
+  "media": [
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person01_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person02_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person03_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person04_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person05_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person06_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person07_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person08_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person09_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person10_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person11_handwaving_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person12_handwaving_d1_uncomp.avi"
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "schema_version": "weapon-negative-run-summary/1",
+  "alert_threshold": 0.65,
+  "denominators": {
+    "clips": 12,
+    "frames_with_detections": 213,
+    "detections_logged": 214
+  },
+  "false_alert_frames": 45,
+  "detections_at_or_above_alert": 45,
+  "per_class": {
+    "pistol": {
+      "detections": 214,
+      "at_or_above_alert": 45,
+      "max_score": 0.7668117880821228,
+      "p95_score": 0.7144548803567886
+    }
+  },
+  "per_group": {
+    "firearm": {
+      "detections": 214,
+      "at_or_above_alert": 45,
+      "max_score": 0.7668117880821228,
+      "p95_score": 0.7144548803567886
+    }
+  },
+  "splits": [
+    "calibration",
+    "test",
+    "train",
+    "val"
+  ],
+  "interpretation": "Detections on a known-benign source are false positives by construction. Split provenance decides whether this figure may enter a gate claim; 'unregistered' rows are auxiliary-domain only.",
+  "run_id": "wt18-kth-boxing-01",
+  "source_label": "kth-weapon-free",
+  "clips": [
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person01",
+      "source_sha256": "386712f3cf150c46f8d0d0e5f83d4c2676b1738de627718d4a47d6c03db78548",
+      "split": "train",
+      "clip_id": "person01_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 27,
+      "per_class": {
+        "pistol": 27
+      },
+      "per_group": {
+        "firearm": 27
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person02",
+      "source_sha256": "e8512309bb2a21295157d5de11a4ee371204e6e88f24678b8b9b1744b2500be7",
+      "split": "train",
+      "clip_id": "person02_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 23,
+      "per_class": {
+        "pistol": 23
+      },
+      "per_group": {
+        "firearm": 23
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person03",
+      "source_sha256": "8d9c44bb5c75d52ef4cf63a86d63629dd96b1ac9440f03c246a0fa16fc9edaa4",
+      "split": "val",
+      "clip_id": "person03_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 26,
+      "per_class": {
+        "pistol": 26
+      },
+      "per_group": {
+        "firearm": 26
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person04",
+      "source_sha256": "91a7f62ae71974a6bb33ddfa4da553287709b90c4de881c5cde4fc101101023d",
+      "split": "val",
+      "clip_id": "person04_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 4,
+      "per_class": {
+        "pistol": 4
+      },
+      "per_group": {
+        "firearm": 4
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person05",
+      "source_sha256": "ab7c0c2cbebc145d66b4ac0afb383f9ef60e6ecc496799f970461fd2102b512e",
+      "split": "calibration",
+      "clip_id": "person05_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 16,
+      "per_class": {
+        "pistol": 16
+      },
+      "per_group": {
+        "firearm": 16
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person06",
+      "source_sha256": "10fc56764a7f095cba0c4fabc23e83d43f114f619866d276bc28221481187dca",
+      "split": "calibration",
+      "clip_id": "person06_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 17,
+      "per_class": {
+        "pistol": 17
+      },
+      "per_group": {
+        "firearm": 17
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person07",
+      "source_sha256": "45b94d67e9bb8131a75d0ff53ba6b7567eecd0221453ec8c7eddfccfe3d5a022",
+      "split": "test",
+      "clip_id": "person07_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 21,
+      "per_class": {
+        "pistol": 21
+      },
+      "per_group": {
+        "firearm": 21
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person08",
+      "source_sha256": "55eb3c966307c5d21b1b712ff5ec0d585e558434c2990288dca8d1432d58258d",
+      "split": "test",
+      "clip_id": "person08_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 11,
+      "per_class": {
+        "pistol": 11
+      },
+      "per_group": {
+        "firearm": 11
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person09",
+      "source_sha256": "ce1415565f5b7efd03b7000383c5bc4ac3bcfca7f48c24fd9ee48c492bfe6347",
+      "split": "test",
+      "clip_id": "person09_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 20,
+      "per_class": {
+        "pistol": 20
+      },
+      "per_group": {
+        "firearm": 20
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person10",
+      "source_sha256": "d1fde49808753c2b0ff1452df538639b4c702a3dc47167ea04d50aee367671d4",
+      "split": "test",
+      "clip_id": "person10_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 28,
+      "per_class": {
+        "pistol": 28
+      },
+      "per_group": {
+        "firearm": 28
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person11",
+      "source_sha256": "edaca51e2a063c09ad34613251cc719a814163095cff4b0a95479b1d8e4bbf08",
+      "split": "test",
+      "clip_id": "person11_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 17,
+      "per_class": {
+        "pistol": 17
+      },
+      "per_group": {
+        "firearm": 17
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-boxing-01",
+      "fixture_id": "kth-boxing-person12",
+      "source_sha256": "bd56161b366f143491cbe992eb86a8b54d35ea5b815ef3eb79027c03db2deef1",
+      "split": "test",
+      "clip_id": "person12_boxing_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 4,
+      "per_class": {
+        "pistol": 4
+      },
+      "per_group": {
+        "firearm": 4
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-boxing\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    }
+  ],
+  "media": [
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person01_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person02_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person03_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person04_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person05_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person06_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person07_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person08_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person09_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person10_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person11_boxing_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person12_boxing_d1_uncomp.avi"
+  ]
+}

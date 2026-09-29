@@ -1,0 +1,71 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "cells": {
+    "libx264_solo": {
+      "runs_s": [
+        3.236,
+        2.852,
+        2.631,
+        2.761
+      ],
+      "cold_s": 3.236,
+      "warm_median_s": 2.761,
+      "encoder_reported": "ffmpeg/libx264"
+    },
+    "nvenc_solo": {
+      "runs_s": [
+        1.099,
+        1.032,
+        1.07,
+        1.072
+      ],
+      "cold_s": 1.099,
+      "warm_median_s": 1.07,
+      "encoder_reported": "ffmpeg/h264_nvenc"
+    },
+    "nvenc_two_concurrent": {
+      "per_session_s": [
+        [
+          1.68,
+          1.579
+        ],
+        [
+          1.735,
+          1.734
+        ],
+        [
+          1.732,
+          1.772
+        ]
+      ],
+      "errors": []
+    }
+  },
+  "interference": {
+    "torch_solo_ms": {
+      "n": 200,
+      "median": 2.395,
+      "p05": 2.281,
+      "p95": 3.043
+    },
+    "torch_during_nvenc_ms": {
+      "n": 200,
+      "median": 4.458,
+      "p05": 2.299,
+      "p95": 6.555
+    },
+    "nvenc_during_torch_s": {
+      "runs_s": [
+        1.077,
+        1.059,
+        1.105
+      ],
+      "cold_s": 1.077,
+      "warm_median_s": 1.082,
+      "encoder_reported": "ffmpeg/h264_nvenc"
+    }
+  },
+  "notes": [],
+  "torch": "2.3.0+cu118",
+  "cuda_available": true
+}

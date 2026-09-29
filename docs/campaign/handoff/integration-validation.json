@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "authority": "scoped",
+  "non_authoritative": true,
+  "date": "2026-09-29",
+  "measured_source_revision": "e1a5636aae64f6f41bb00227090300c45157775c",
+  "runtime_report": "bench/results/integration-review-2026-09-29/report.json",
+  "backend_source_hash_count": 62,
+  "backend_source_hashes_match": true,
+  "checks": {
+    "python_backend_and_root": {
+      "passed": 817,
+      "skipped": 10,
+      "deselected_integration": 5,
+      "subtests_passed": 6,
+      "command": "python -m pytest backend/tests tests --ignore=tests/e2e -m \"not integration\" -q"
+    },
+    "measurement_and_evaluation_harness": {
+      "passed": 43,
+      "command": "python -m pytest bench -q"
+    },
+    "frontend_node": {
+      "passed": 108
+    },
+    "browser": {
+      "passed_checks": 8,
+      "execution": "7 passed in full run; corrected console-error attribution test passed separately. Exact backend origins only are exempted; page errors remain failures."
+    },
+    "typecheck": "passed",
+    "lint": "passed",
+    "production_build": "passed",
+    "documentation": "docs:sync and docs:check passed; generated diffs reviewed",
+    "dependency_audit_known_vulnerabilities": 0,
+    "independent_astra_review": "Two P2 findings fixed and independently confirmed; no further P1/P2 in the scoped follow-up."
+  },
+  "skipped_scope": [
+    "No staged desktop distribution",
+    "Untracked enhancement/YuNet weights or fixtures absent",
+    "Standalone real ONNX smoke opt-in; model inference exercised in fresh replay"
+  ],
+  "runtime_limitations": [
+    "No independent labels or event-onset timing in this replay",
+    "No production calibration artifact; explicit development override only",
+    "No live-camera or 60-minute acceptance run",
+    "Observer intentionally ends before runtime; client FPS tail includes shutdown, so render cadence is reported separately",
+    "first_display_seconds is an offset relative to the model-ready measurement marker and can be negative; it is not launch-to-first-frame timing"
+  ],
+  "integration_policy": "Deliver the reviewed tree through main without making credential-bearing campaign history reachable. Preserve both previous main roots and user modifications; no force push or credential rotation."
+}

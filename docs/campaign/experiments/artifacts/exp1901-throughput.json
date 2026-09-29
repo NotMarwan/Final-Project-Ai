@@ -1,0 +1,89 @@
+{
+  "mode": "throughput",
+  "code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "weights": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-19\\backend\\best_model.pt",
+  "weights_sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "source_mode": "synthetic-random-windows",
+  "arch": {
+    "slowfast_window16": {
+      "feasible": false,
+      "error": "input image (T: 4 H: 7 W: 7) smaller than kernel size (kT: 8 kH: 7 kW: 7)",
+      "weights_note": "shipped-checkpoint"
+    },
+    "slowfast_window32": {
+      "feasible": true,
+      "cold_ms": 58.683600000222214,
+      "warm": {
+        "n": 30,
+        "p05_ms": 53.47730000357842,
+        "median_ms": 55.52120000356808,
+        "p95_ms": 61.768399995344225,
+        "mean_ms": 56.313639999522515,
+        "min_ms": 53.427999999257736,
+        "max_ms": 63.29369999730261
+      },
+      "preprocess_ms": {
+        "n": 5,
+        "p05_ms": 13.966300000902265,
+        "median_ms": 14.778100005059969,
+        "p95_ms": 16.501900005096104,
+        "mean_ms": 15.076300001237541,
+        "min_ms": 13.966300000902265,
+        "max_ms": 16.501900005096104
+      },
+      "completed_inferences_per_s": 18.010067627936255,
+      "weights_note": "shipped-checkpoint"
+    },
+    "r2plus1d_window16": {
+      "feasible": true,
+      "cold_ms": 47.50609999609878,
+      "warm": {
+        "n": 30,
+        "p05_ms": 43.917100003454834,
+        "median_ms": 45.76460000680527,
+        "p95_ms": 58.078499998373445,
+        "mean_ms": 48.386503333798224,
+        "min_ms": 43.87910000514239,
+        "max_ms": 65.79960000090068
+      },
+      "preprocess_ms": {
+        "n": 5,
+        "p05_ms": 16.932300000917166,
+        "median_ms": 17.45650000520982,
+        "p95_ms": 22.413799997593742,
+        "mean_ms": 18.583820000640117,
+        "min_ms": 16.932300000917166,
+        "max_ms": 22.413799997593742
+      },
+      "completed_inferences_per_s": 21.730084105160156,
+      "weights_note": "RANDOM-INIT (no trained R(2+1)D weights exist)"
+    },
+    "r2plus1d_window32": {
+      "feasible": true,
+      "cold_ms": 88.06470000126865,
+      "warm": {
+        "n": 30,
+        "p05_ms": 85.31260000017937,
+        "median_ms": 86.67340000101831,
+        "p95_ms": 92.62299999682,
+        "mean_ms": 87.23169666627655,
+        "min_ms": 84.72069999697851,
+        "max_ms": 93.98549999605166
+      },
+      "preprocess_ms": {
+        "n": 5,
+        "p05_ms": 16.10400000208756,
+        "median_ms": 16.412099997978657,
+        "p95_ms": 16.845999998622574,
+        "mean_ms": 16.430120001314208,
+        "min_ms": 16.10400000208756,
+        "max_ms": 16.845999998622574
+      },
+      "completed_inferences_per_s": 11.53306761144337,
+      "weights_note": "RANDOM-INIT (no trained R(2+1)D weights exist)"
+    }
+  },
+  "preprocess": {}
+}

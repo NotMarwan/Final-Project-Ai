@@ -1,0 +1,14 @@
+{
+  "fixture_sha256": "558e87b2efee94ca90e367a247770d233f79324259e9193525f322cb4d19e318",
+  "browser": "Codex Chromium in-app browser",
+  "observed_video": {
+    "duration": 2,
+    "currentTime": 2,
+    "ended": true,
+    "readyState": 4,
+    "width": 64,
+    "height": 48,
+    "error": null
+  },
+  "scope": "Synthetic codec fixture only; not live evidence timing"
+}

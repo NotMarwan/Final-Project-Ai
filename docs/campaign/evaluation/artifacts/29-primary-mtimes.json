@@ -1,0 +1,967 @@
+[
+ {
+  "status": "M",
+  "path": ".claude/settings.local.json",
+  "mtime": "2026-06-06T06:46:55.853Z"
+ },
+ {
+  "status": "D",
+  "path": "backend-sse.err.log",
+  "mtime": "ERR:ENOENT"
+ },
+ {
+  "status": "D",
+  "path": "backend-sse.out.log",
+  "mtime": "ERR:ENOENT"
+ },
+ {
+  "status": "D",
+  "path": "backend-test.err.log",
+  "mtime": "ERR:ENOENT"
+ },
+ {
+  "status": "D",
+  "path": "backend-test.out.log",
+  "mtime": "ERR:ENOENT"
+ },
+ {
+  "status": "M",
+  "path": "backend/api.py",
+  "mtime": "2026-09-12T07:59:15.642Z"
+ },
+ {
+  "status": "M",
+  "path": "bench/README.md",
+  "mtime": "2026-09-12T07:46:22.383Z"
+ },
+ {
+  "status": "M",
+  "path": "bench/common.py",
+  "mtime": "2026-09-12T07:42:21.668Z"
+ },
+ {
+  "status": "M",
+  "path": "docs/ISSUES.md",
+  "mtime": "2026-09-12T07:46:22.382Z"
+ },
+ {
+  "status": "M",
+  "path": "docs/PLAN.md",
+  "mtime": "2026-09-12T07:46:22.380Z"
+ },
+ {
+  "status": "M",
+  "path": "docs/RUNBOOK.md",
+  "mtime": "2026-09-12T07:46:22.381Z"
+ },
+ {
+  "status": "M",
+  "path": "next.config.mjs",
+  "mtime": "2026-09-12T07:59:10.042Z"
+ },
+ {
+  "status": "M",
+  "path": "postcss.config.mjs",
+  "mtime": "2026-09-12T07:53:48.766Z"
+ },
+ {
+  "status": "M",
+  "path": "scripts/docs_contract.py",
+  "mtime": "2026-09-12T07:43:19.208Z"
+ },
+ {
+  "status": "M",
+  "path": "tests/docs_contract/test_docs_contract.py",
+  "mtime": "2026-09-12T07:42:24.918Z"
+ },
+ {
+  "status": "??",
+  "path": ".gate-strength.json",
+  "mtime": "2026-08-31T12:38:07.201Z"
+ },
+ {
+  "status": "??",
+  "path": ".github/workflows/face-policy-tests.yml",
+  "mtime": "2026-05-16T18:34:15.153Z"
+ },
+ {
+  "status": "??",
+  "path": "3.GP_Phase-2-Final Examiners Assessment Form.pdf",
+  "mtime": "2026-05-19T23:44:38.585Z"
+ },
+ {
+  "status": "??",
+  "path": "AI-Sentinel Presentation v2.html",
+  "mtime": "2026-05-20T08:48:56.835Z"
+ },
+ {
+  "status": "??",
+  "path": "AI-Sentinel Presentation v2.pdf",
+  "mtime": "2026-05-20T08:55:00.939Z"
+ },
+ {
+  "status": "??",
+  "path": "AI-Sentinel Speaker Notes (Arabic).pdf",
+  "mtime": "2026-05-20T09:09:25.862Z"
+ },
+ {
+  "status": "??",
+  "path": "GP Book Preparation-20260519T233309Z-3-001.zip",
+  "mtime": "2026-05-19T23:33:56.158Z"
+ },
+ {
+  "status": "??",
+  "path": "GP Book Preparation/",
+  "mtime": "2026-05-19T23:34:09.099Z"
+ },
+ {
+  "status": "??",
+  "path": "THAMANYAH_Presentation.html",
+  "mtime": "2026-05-20T08:14:00.356Z"
+ },
+ {
+  "status": "??",
+  "path": "android/",
+  "mtime": "2026-05-16T18:34:15.514Z"
+ },
+ {
+  "status": "??",
+  "path": "archive/misc_unsorted/",
+  "mtime": "2026-05-07T11:04:42.575Z"
+ },
+ {
+  "status": "??",
+  "path": "arsenal/",
+  "mtime": "2026-09-12T05:58:09.334Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/C\\357\\200\\272Tempsentinel_backend.log",
+  "mtime": "ERR:ENOENT"
+ },
+ {
+  "status": "??",
+  "path": "backend/_pipeline_ai_deprecated.py",
+  "mtime": "2026-05-17T18:48:45.378Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/archive/",
+  "mtime": "2026-05-17T13:41:17.136Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/augmentations.py",
+  "mtime": "2026-05-16T18:34:15.745Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam1.avi",
+  "mtime": "2026-05-12T05:55:27.589Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam1.mp4",
+  "mtime": "2026-04-11T21:47:33.403Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam2.avi",
+  "mtime": "2026-05-12T05:55:27.616Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam2.mp4",
+  "mtime": "2026-04-11T21:50:25.314Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam3.avi",
+  "mtime": "2026-05-12T05:55:27.636Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cam3.mp4",
+  "mtime": "2026-04-06T06:09:53.612Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/check_model_sha.py",
+  "mtime": "2026-05-16T18:34:15.752Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/cloudflared-windows-amd64.exe",
+  "mtime": "2026-04-12T08:16:02.780Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/dataset_manager.py",
+  "mtime": "2026-05-16T18:34:15.760Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/go2rtc_bridge.py",
+  "mtime": "2026-05-16T18:34:15.776Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/openrouter_reporting.py",
+  "mtime": "2026-05-16T18:34:15.788Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/rapport.pdf",
+  "mtime": "2026-05-16T18:34:15.806Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/__init__.py",
+  "mtime": "2026-05-16T18:34:15.822Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_authenticated_routes.py",
+  "mtime": "2026-09-12T07:49:33.856Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_decision_layer.py",
+  "mtime": "2026-05-18T04:17:17.330Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_device_utils.py",
+  "mtime": "2026-05-16T19:05:46.058Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_eye_level.py",
+  "mtime": "2026-05-16T18:34:15.832Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_inference_cache.py",
+  "mtime": "2026-05-17T22:08:01.721Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_inference_lifecycle.py",
+  "mtime": "2026-09-12T07:59:39.799Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_inference_process.py",
+  "mtime": "2026-05-18T04:09:54.835Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_onnx_switch.py",
+  "mtime": "2026-09-12T07:44:56.991Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tests/test_pipeline_integration.py",
+  "mtime": "2026-05-16T19:15:29.547Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/tools/thesis_evaluation.py",
+  "mtime": "2026-05-16T18:34:15.869Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/train_pipeline.py",
+  "mtime": "2026-05-16T18:34:15.876Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/uvicorn_rt.log",
+  "mtime": "2026-05-16T18:34:15.886Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/uvicorn_stderr.log",
+  "mtime": "2026-05-17T23:50:36.200Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/uvicorn_stdout.log",
+  "mtime": "2026-05-18T02:31:56.611Z"
+ },
+ {
+  "status": "??",
+  "path": "backend/weapon_model_data.yaml",
+  "mtime": "2026-05-16T18:34:15.894Z"
+ },
+ {
+  "status": "??",
+  "path": "banner-full.html",
+  "mtime": "2026-05-17T19:00:25.032Z"
+ },
+ {
+  "status": "??",
+  "path": "banner-methodology-circle.html",
+  "mtime": "2026-05-17T19:07:46.391Z"
+ },
+ {
+  "status": "??",
+  "path": "banner-methodology-square.html",
+  "mtime": "2026-05-17T19:07:15.340Z"
+ },
+ {
+  "status": "??",
+  "path": "banner-methodology.html",
+  "mtime": "2026-05-17T19:02:09.926Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/.coverage-sprint3",
+  "mtime": "2026-09-12T08:01:07.296Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint2-gpu-480p/",
+  "mtime": "2026-09-12T07:21:12.632Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint2-restored-480p/",
+  "mtime": "2026-09-12T07:28:03.970Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint3-cpu-baseline/",
+  "mtime": "2026-09-12T07:36:13.050Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint3-decision-coverage.json",
+  "mtime": "2026-09-12T08:01:11.926Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint3-gpu-candidate/",
+  "mtime": "2026-09-12T07:38:05.073Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/results/sprint3-gpu-repeat/",
+  "mtime": "2026-09-12T07:41:33.912Z"
+ },
+ {
+  "status": "??",
+  "path": "bench/test_trace_chunks.py",
+  "mtime": "2026-09-12T07:38:41.960Z"
+ },
+ {
+  "status": "??",
+  "path": "capacitor-app/",
+  "mtime": "2026-05-15T21:11:58.647Z"
+ },
+ {
+  "status": "??",
+  "path": "capacitor.config.ts",
+  "mtime": "2026-05-16T18:34:15.903Z"
+ },
+ {
+  "status": "??",
+  "path": "components/command-palette.tsx",
+  "mtime": "2026-05-17T20:28:31.809Z"
+ },
+ {
+  "status": "??",
+  "path": "design_extract/",
+  "mtime": "2026-05-20T08:34:33.969Z"
+ },
+ {
+  "status": "??",
+  "path": "desktop/assets/",
+  "mtime": "2026-05-16T18:34:16.034Z"
+ },
+ {
+  "status": "??",
+  "path": "desktop/launcher.ps1",
+  "mtime": "2026-05-16T18:34:36.789Z"
+ },
+ {
+  "status": "??",
+  "path": "desktop/package-lock.json",
+  "mtime": "2026-05-16T18:34:36.794Z"
+ },
+ {
+  "status": "??",
+  "path": "desktop/package.json",
+  "mtime": "2026-05-16T18:34:36.795Z"
+ },
+ {
+  "status": "??",
+  "path": "frontend.zip",
+  "mtime": "2026-05-20T07:42:36.320Z"
+ },
+ {
+  "status": "??",
+  "path": "frontend_dev.log",
+  "mtime": "2026-05-17T23:42:50.236Z"
+ },
+ {
+  "status": "??",
+  "path": "frontend_dev_err.log",
+  "mtime": "2026-05-17T23:42:50.238Z"
+ },
+ {
+  "status": "??",
+  "path": "methodology-idea1-horizontal.html",
+  "mtime": "2026-05-17T19:22:50.135Z"
+ },
+ {
+  "status": "??",
+  "path": "methodology-idea2-circular.html",
+  "mtime": "2026-05-17T19:22:50.136Z"
+ },
+ {
+  "status": "??",
+  "path": "methodology-idea3-vertical.html",
+  "mtime": "2026-05-17T19:22:50.136Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1) (1).docx",
+  "mtime": "2026-05-16T18:34:37.024Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1).docx",
+  "mtime": "2026-05-16T18:34:37.026Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip (1).png",
+  "mtime": "2026-05-16T18:34:37.046Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/Gemini_Generated_Image_s3ipbcs3ipbcs3ip.png",
+  "mtime": "2026-05-16T18:34:37.060Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/Graduation_Poster_Template.docx",
+  "mtime": "2026-05-16T18:34:37.062Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_train_weapon_yolo.ipynb",
+  "mtime": "2026-05-16T18:34:37.068Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_train_weapon_yolo_pro.ipynb",
+  "mtime": "2026-05-16T18:34:37.070Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_train_weapon_yolo_v3.ipynb",
+  "mtime": "2026-05-16T18:34:37.071Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_train_weapon_yolo_v4.ipynb",
+  "mtime": "2026-05-16T18:34:37.074Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_train_weapon_yolo_v5.ipynb",
+  "mtime": "2026-05-16T18:34:37.076Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/colab_verify_live_alert_decision_layer.ipynb",
+  "mtime": "2026-05-16T18:34:37.077Z"
+ },
+ {
+  "status": "??",
+  "path": "notebooks/graduation_poster_template.pdf",
+  "mtime": "2026-05-16T18:34:37.082Z"
+ },
+ {
+  "status": "??",
+  "path": "public/weapon-detections/",
+  "mtime": "2026-05-16T18:34:37.218Z"
+ },
+ {
+  "status": "??",
+  "path": "rebuild-apk.bat",
+  "mtime": "2026-05-16T18:34:37.221Z"
+ },
+ {
+  "status": "??",
+  "path": "releases/",
+  "mtime": "2026-05-07T11:07:07.996Z"
+ },
+ {
+  "status": "??",
+  "path": "run-tunnel.ps1",
+  "mtime": "2026-05-16T18:34:37.244Z"
+ },
+ {
+  "status": "??",
+  "path": "samples/",
+  "mtime": "2026-05-15T21:11:47.864Z"
+ },
+ {
+  "status": "??",
+  "path": "scratch/",
+  "mtime": "2026-05-16T18:34:37.255Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/analyze_saif.py",
+  "mtime": "2026-08-31T12:30:35.838Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/benchmark_pipeline.py",
+  "mtime": "2026-05-16T19:15:24.207Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/build_raw_artifacts.py",
+  "mtime": "2026-08-31T12:40:47.452Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/convert_kilo_agents.py",
+  "mtime": "2026-05-16T18:34:37.257Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/create_desktop_shortcut.ps1",
+  "mtime": "2026-05-16T18:34:37.258Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/debug_conv.py",
+  "mtime": "2026-08-31T12:35:33.032Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/debug_conv2.py",
+  "mtime": "2026-08-31T12:35:54.477Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/debug_conv3.py",
+  "mtime": "2026-08-31T12:36:22.899Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/deploy.sh",
+  "mtime": "2026-05-16T19:15:17.917Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/export_onnx.py",
+  "mtime": "2026-05-16T19:07:16.830Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/extract_saif_full.py",
+  "mtime": "2026-08-31T12:35:13.914Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/extract_saif_i18n.py",
+  "mtime": "2026-08-31T12:31:42.846Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/fetch_saif.py",
+  "mtime": "2026-08-31T12:30:03.720Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/fix_icon.py",
+  "mtime": "2026-05-16T18:34:37.260Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/generate_icon.py",
+  "mtime": "2026-05-16T18:34:37.261Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/grep_bundle.py",
+  "mtime": "2026-08-31T12:37:35.267Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/icon_output/",
+  "mtime": "2026-05-16T18:34:37.273Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/introspect_gate.py",
+  "mtime": "2026-08-31T12:39:17.015Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/prep_raw.py",
+  "mtime": "2026-08-31T12:50:47.646Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/prepare_weapon_dataset.py",
+  "mtime": "2026-05-16T18:34:37.276Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/render_saif_md.py",
+  "mtime": "2026-08-31T12:36:35.371Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/select_onnx_runtime.py",
+  "mtime": "2026-09-12T07:43:19.239Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/setup-go2rtc.ps1",
+  "mtime": "2026-05-16T18:34:37.278Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/stop-cloud.sh",
+  "mtime": "2026-05-16T19:15:18.664Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/test_integration.py",
+  "mtime": "2026-05-16T18:34:37.279Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/test_weapon_detector.py",
+  "mtime": "2026-05-16T18:34:37.280Z"
+ },
+ {
+  "status": "??",
+  "path": "scripts/test_yolo_weapon.py",
+  "mtime": "2026-05-16T18:34:37.282Z"
+ },
+ {
+  "status": "??",
+  "path": "sentinel-live.png",
+  "mtime": "2026-05-18T00:09:39.698Z"
+ },
+ {
+  "status": "??",
+  "path": "sentinel-status.png",
+  "mtime": "2026-05-18T00:10:23.793Z"
+ },
+ {
+  "status": "??",
+  "path": "sentinel-system.png",
+  "mtime": "2026-05-18T00:10:42.446Z"
+ },
+ {
+  "status": "??",
+  "path": "smoke-home.html",
+  "mtime": "2026-09-28T23:19:11.569Z"
+ },
+ {
+  "status": "??",
+  "path": "speaker-notes-ar.html",
+  "mtime": "2026-05-20T09:07:02.985Z"
+ },
+ {
+  "status": "??",
+  "path": "start-tunnel.ps1",
+  "mtime": "2026-05-16T18:34:37.290Z"
+ },
+ {
+  "status": "??",
+  "path": "team_explainer/",
+  "mtime": "2026-05-20T09:28:17.179Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_phase2.zip",
+  "mtime": "2026-05-20T09:17:51.172Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_phase2/",
+  "mtime": "2026-05-20T07:52:03.390Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/PHASE2_BOOK_CONTENT.md",
+  "mtime": "2026-05-16T18:34:37.345Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/PHASE2_TABLE_OF_CONTENTS.md",
+  "mtime": "2026-05-16T18:34:37.345Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/PHASE2_TABLE_OF_CONTENTS.tex",
+  "mtime": "2026-05-16T18:34:37.347Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/README.md",
+  "mtime": "2026-05-16T18:34:37.348Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/Rollup SDP-6-Electrical2026.pptx",
+  "mtime": "2026-05-17T12:52:02.807Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/WhatsApp Image 2026-05-17 at 2.44.30 PM.jpeg",
+  "mtime": "2026-05-17T12:51:04.830Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/appendix.aux",
+  "mtime": "2026-05-16T18:34:37.350Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/appendix.tex",
+  "mtime": "2026-05-16T18:34:37.351Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/architecture_diagram.md",
+  "mtime": "2026-05-16T18:34:37.352Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/banner_assets/",
+  "mtime": "2026-05-17T12:58:12.725Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/banner_hawkeye.html",
+  "mtime": "2026-05-17T13:01:35.294Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/banner_hawkeye.pptx",
+  "mtime": "2026-05-17T13:04:18.695Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/build_banner.py",
+  "mtime": "2026-05-17T13:04:10.187Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter1_introduction.aux",
+  "mtime": "2026-05-16T18:34:37.355Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter1_introduction.tex",
+  "mtime": "2026-05-16T18:34:37.356Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter2_literature.aux",
+  "mtime": "2026-05-16T18:34:37.358Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter2_literature.tex",
+  "mtime": "2026-05-16T18:34:37.360Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter3_system_design.aux",
+  "mtime": "2026-05-16T18:34:37.361Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter3_system_design.tex",
+  "mtime": "2026-05-16T18:34:37.363Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter4_implementation.aux",
+  "mtime": "2026-05-16T18:34:37.364Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter4_implementation.tex",
+  "mtime": "2026-05-16T18:34:37.366Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter5_evaluation.aux",
+  "mtime": "2026-05-16T18:34:37.369Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter6_discussion.aux",
+  "mtime": "2026-05-16T18:34:37.372Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter6_discussion.tex",
+  "mtime": "2026-05-16T18:34:37.379Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter7_conclusion.aux",
+  "mtime": "2026-05-16T18:34:37.382Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/chapter7_conclusion.tex",
+  "mtime": "2026-05-16T18:34:37.383Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/comparison_chart.png",
+  "mtime": "2026-05-16T18:34:37.385Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/comparison_table.json",
+  "mtime": "2026-05-16T18:34:37.387Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/compile.bat",
+  "mtime": "2026-05-16T18:34:37.388Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/compile_log_1.txt",
+  "mtime": "2026-05-16T18:34:37.390Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/compile_log_2.txt",
+  "mtime": "2026-05-16T18:34:37.392Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/compile_log_3.txt",
+  "mtime": "2026-05-16T18:34:37.393Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/confusion_matrix.png",
+  "mtime": "2026-05-16T18:34:37.395Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/dataflow_diagram.md",
+  "mtime": "2026-05-16T18:34:37.432Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/false_alarm_analysis.json",
+  "mtime": "2026-05-16T18:34:37.433Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/front_matter.tex",
+  "mtime": "2026-05-16T18:34:37.434Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/latency_distribution.png",
+  "mtime": "2026-05-16T18:34:37.435Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/metrics_bar_chart.png",
+  "mtime": "2026-05-16T18:34:37.454Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/precision_recall_curve.png",
+  "mtime": "2026-05-16T18:34:37.463Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/roc_curve.png",
+  "mtime": "2026-05-16T18:34:37.464Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/state_machine_diagram.md",
+  "mtime": "2026-05-16T18:34:37.465Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.aux",
+  "mtime": "2026-05-16T18:34:37.467Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.bib",
+  "mtime": "2026-05-16T18:34:37.468Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.lof",
+  "mtime": "2026-05-16T18:34:37.469Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.log",
+  "mtime": "2026-05-16T18:34:37.470Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.lot",
+  "mtime": "2026-05-16T18:34:37.471Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.out",
+  "mtime": "2026-05-16T18:34:37.472Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.pdf",
+  "mtime": "2026-05-16T18:34:37.495Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.tex",
+  "mtime": "2026-05-16T18:34:37.497Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis.toc",
+  "mtime": "2026-05-16T18:34:37.498Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis_figures/",
+  "mtime": "2026-05-16T18:34:37.504Z"
+ },
+ {
+  "status": "??",
+  "path": "thesis_results/thesis_report.json",
+  "mtime": "2026-05-16T18:34:37.507Z"
+ },
+ {
+  "status": "??",
+  "path": "torchaudio-2.3.0+cu118-cp312-cp312-win_amd64.whl",
+  "mtime": "2026-05-17T14:20:52.632Z"
+ },
+ {
+  "status": "??",
+  "path": "torchvision-0.18.0+cu118-cp312-cp312-win_amd64.whl",
+  "mtime": "2026-05-17T14:20:32.887Z"
+ }
+]

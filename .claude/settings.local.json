@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 \"C:/Users/PCD/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"AI security surveillance SOC dashboard dark mission-critical real-time\" --design-system -p \"SentinelEye\")",
+      "Bash(python3 \"C:/Users/PCD/.claude/plugins/ui-ux-pro-max-skill/src/ui-ux-pro-max/scripts/search.py\" \"AI security surveillance SOC dashboard dark mission-critical real-time\" --design-system -p \"SentinelEye\")",
+      "Bash(python3 \"C:/Users/PCD/.claude/plugins/ui-ux-pro-max-skill/src/ui-ux-pro-max/scripts/search.py\" \"security dashboard fintech dark professional\" --domain color)",
+      "Bash(python3 \"C:/Users/PCD/.claude/plugins/ui-ux-pro-max-skill/src/ui-ux-pro-max/scripts/search.py\" \"real-time dashboard monitoring dark brutal\" --domain style -n 4)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('dependencies',{}\\).keys\\(\\)\\)\\)\")"
+    ]
+  }
+}

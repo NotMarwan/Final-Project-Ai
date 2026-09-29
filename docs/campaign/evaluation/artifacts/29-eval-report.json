@@ -1,0 +1,1345 @@
+{
+  "schema_version": "wt12-eval-report/1",
+  "generated_utc": "2026-09-29T04:22:00+00:00",
+  "protocol": "docs/campaign/eval/12-eval-protocol.md",
+  "manifest": "docs\\campaign\\eval\\12-fixture-manifest.json",
+  "operating_point": {
+    "violence_threshold": 0.45,
+    "match_before_s": 0.0,
+    "match_after_s": 5.0,
+    "rule": "threshold fixed before inspecting results; retuning is a separate declared step"
+  },
+  "splits_evaluated": [
+    "calibration",
+    "test",
+    "val"
+  ],
+  "fixtures_evaluated": [
+    "kth-boxing-person01",
+    "kth-boxing-person02",
+    "kth-boxing-person03",
+    "kth-boxing-person04",
+    "kth-boxing-person05",
+    "kth-boxing-person06",
+    "kth-boxing-person07",
+    "kth-boxing-person08",
+    "kth-boxing-person09",
+    "kth-boxing-person10",
+    "kth-boxing-person11",
+    "kth-boxing-person12",
+    "kth-handwaving-person01",
+    "kth-handwaving-person02",
+    "kth-handwaving-person03",
+    "kth-handwaving-person04",
+    "kth-handwaving-person05",
+    "kth-handwaving-person06",
+    "kth-handwaving-person07",
+    "kth-handwaving-person08",
+    "kth-handwaving-person09",
+    "kth-handwaving-person10",
+    "kth-handwaving-person11",
+    "kth-handwaving-person12",
+    "kth-walking-person01",
+    "kth-walking-person02",
+    "kth-walking-person03",
+    "kth-walking-person04",
+    "kth-walking-person05",
+    "kth-walking-person06",
+    "kth-walking-person07",
+    "kth-walking-person08",
+    "kth-walking-person09",
+    "kth-walking-person10",
+    "kth-walking-person11",
+    "kth-walking-person12"
+  ],
+  "source_modes": [
+    "file-media"
+  ],
+  "slices": {
+    "all": {
+      "fixtures": [
+        "kth-boxing-person01",
+        "kth-boxing-person02",
+        "kth-boxing-person03",
+        "kth-boxing-person04",
+        "kth-boxing-person05",
+        "kth-boxing-person06",
+        "kth-boxing-person07",
+        "kth-boxing-person08",
+        "kth-boxing-person09",
+        "kth-boxing-person10",
+        "kth-boxing-person11",
+        "kth-boxing-person12",
+        "kth-handwaving-person01",
+        "kth-handwaving-person02",
+        "kth-handwaving-person03",
+        "kth-handwaving-person04",
+        "kth-handwaving-person05",
+        "kth-handwaving-person06",
+        "kth-handwaving-person07",
+        "kth-handwaving-person08",
+        "kth-handwaving-person09",
+        "kth-handwaving-person10",
+        "kth-handwaving-person11",
+        "kth-handwaving-person12",
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 36,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 696,
+        "fp": 768,
+        "tn": 12528,
+        "fn": 4288,
+        "predicted_positive": 1464,
+        "actual_positive": 4984,
+        "predicted_negative": 16816,
+        "actual_negative": 13296,
+        "n": 18280,
+        "precision": 0.47540983606557374,
+        "recall": 0.13964686998394862,
+        "f1": 0.21588089330024815,
+        "grid_frames": 18411,
+        "unevaluated_frames": 131
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 81,
+        "fp": 87,
+        "tn": 1503,
+        "fn": 506,
+        "predicted_positive": 168,
+        "actual_positive": 587,
+        "predicted_negative": 2009,
+        "actual_negative": 1590,
+        "n": 2177,
+        "precision": 0.48214285714285715,
+        "recall": 0.13798977853492334,
+        "f1": 0.21456953642384105,
+        "average_precision": 0.347368
+      },
+      "frame_level_by_class": {
+        "available": true,
+        "classes": {
+          "pistol": {
+            "level": "clip(detection)",
+            "class": "pistol",
+            "threshold": 0.45,
+            "tp": 0,
+            "fp": 4,
+            "tn": 32,
+            "fn": 0,
+            "predicted_positive": 4,
+            "actual_positive": 0,
+            "predicted_negative": 32,
+            "actual_negative": 36,
+            "n": 36,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "average_precision": null,
+            "box_level": {
+              "ap50": null,
+              "class": "pistol",
+              "reason": "no box-level ground truth in fixtures"
+            }
+          }
+        }
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 12,
+        "events_matched": 2,
+        "events_missed": 10,
+        "event_recall": 0.16666666666666666,
+        "alerts_total": 9,
+        "alerts_matched": 2,
+        "alert_precision": 0.2222222222222222,
+        "false_alerts": 7,
+        "false_alerts_detail": [
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a001",
+            "time_s": 6.72,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a002",
+            "time_s": 9.92,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a003",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a000",
+            "time_s": 7.04,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a001",
+            "time_s": 10.24,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a002",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-walking-person07",
+            "alert_id": "kth-walking-person07-a000",
+            "time_s": 1.6,
+            "pre_onset": false
+          }
+        ],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 535.48,
+        "negative_observation_hours": 0.148744444,
+        "false_alerts_per_camera_hour": 47.060581160827674,
+        "missed_events_detail": [
+          {
+            "fixture_id": "kth-boxing-person02",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person03",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person04",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person05",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person06",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person07",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person09",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person10",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person11",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person12",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          }
+        ],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "low_resolution": {
+      "fixtures": [
+        "kth-boxing-person01",
+        "kth-boxing-person02",
+        "kth-boxing-person03",
+        "kth-boxing-person04",
+        "kth-boxing-person05",
+        "kth-boxing-person06",
+        "kth-boxing-person07",
+        "kth-boxing-person08",
+        "kth-boxing-person09",
+        "kth-boxing-person10",
+        "kth-boxing-person11",
+        "kth-boxing-person12",
+        "kth-handwaving-person01",
+        "kth-handwaving-person02",
+        "kth-handwaving-person03",
+        "kth-handwaving-person04",
+        "kth-handwaving-person05",
+        "kth-handwaving-person06",
+        "kth-handwaving-person07",
+        "kth-handwaving-person08",
+        "kth-handwaving-person09",
+        "kth-handwaving-person10",
+        "kth-handwaving-person11",
+        "kth-handwaving-person12",
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 36,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 696,
+        "fp": 768,
+        "tn": 12528,
+        "fn": 4288,
+        "predicted_positive": 1464,
+        "actual_positive": 4984,
+        "predicted_negative": 16816,
+        "actual_negative": 13296,
+        "n": 18280,
+        "precision": 0.47540983606557374,
+        "recall": 0.13964686998394862,
+        "f1": 0.21588089330024815,
+        "grid_frames": 18411,
+        "unevaluated_frames": 131
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 81,
+        "fp": 87,
+        "tn": 1503,
+        "fn": 506,
+        "predicted_positive": 168,
+        "actual_positive": 587,
+        "predicted_negative": 2009,
+        "actual_negative": 1590,
+        "n": 2177,
+        "precision": 0.48214285714285715,
+        "recall": 0.13798977853492334,
+        "f1": 0.21456953642384105,
+        "average_precision": 0.347368
+      },
+      "frame_level_by_class": {
+        "available": true,
+        "classes": {
+          "pistol": {
+            "level": "clip(detection)",
+            "class": "pistol",
+            "threshold": 0.45,
+            "tp": 0,
+            "fp": 4,
+            "tn": 32,
+            "fn": 0,
+            "predicted_positive": 4,
+            "actual_positive": 0,
+            "predicted_negative": 32,
+            "actual_negative": 36,
+            "n": 36,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "average_precision": null,
+            "box_level": {
+              "ap50": null,
+              "class": "pistol",
+              "reason": "no box-level ground truth in fixtures"
+            }
+          }
+        }
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 12,
+        "events_matched": 2,
+        "events_missed": 10,
+        "event_recall": 0.16666666666666666,
+        "alerts_total": 9,
+        "alerts_matched": 2,
+        "alert_precision": 0.2222222222222222,
+        "false_alerts": 7,
+        "false_alerts_detail": [
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a001",
+            "time_s": 6.72,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a002",
+            "time_s": 9.92,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a003",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a000",
+            "time_s": 7.04,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a001",
+            "time_s": 10.24,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a002",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-walking-person07",
+            "alert_id": "kth-walking-person07-a000",
+            "time_s": 1.6,
+            "pre_onset": false
+          }
+        ],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 535.48,
+        "negative_observation_hours": 0.148744444,
+        "false_alerts_per_camera_hour": 47.060581160827674,
+        "missed_events_detail": [
+          {
+            "fixture_id": "kth-boxing-person02",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person03",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person04",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person05",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person06",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person07",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person09",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person10",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person11",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person12",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          }
+        ],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "out_of_cctv_domain": {
+      "fixtures": [
+        "kth-boxing-person01",
+        "kth-boxing-person02",
+        "kth-boxing-person03",
+        "kth-boxing-person04",
+        "kth-boxing-person05",
+        "kth-boxing-person06",
+        "kth-boxing-person07",
+        "kth-boxing-person08",
+        "kth-boxing-person09",
+        "kth-boxing-person10",
+        "kth-boxing-person11",
+        "kth-boxing-person12",
+        "kth-handwaving-person01",
+        "kth-handwaving-person02",
+        "kth-handwaving-person03",
+        "kth-handwaving-person04",
+        "kth-handwaving-person05",
+        "kth-handwaving-person06",
+        "kth-handwaving-person07",
+        "kth-handwaving-person08",
+        "kth-handwaving-person09",
+        "kth-handwaving-person10",
+        "kth-handwaving-person11",
+        "kth-handwaving-person12",
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 36,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 696,
+        "fp": 768,
+        "tn": 12528,
+        "fn": 4288,
+        "predicted_positive": 1464,
+        "actual_positive": 4984,
+        "predicted_negative": 16816,
+        "actual_negative": 13296,
+        "n": 18280,
+        "precision": 0.47540983606557374,
+        "recall": 0.13964686998394862,
+        "f1": 0.21588089330024815,
+        "grid_frames": 18411,
+        "unevaluated_frames": 131
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 81,
+        "fp": 87,
+        "tn": 1503,
+        "fn": 506,
+        "predicted_positive": 168,
+        "actual_positive": 587,
+        "predicted_negative": 2009,
+        "actual_negative": 1590,
+        "n": 2177,
+        "precision": 0.48214285714285715,
+        "recall": 0.13798977853492334,
+        "f1": 0.21456953642384105,
+        "average_precision": 0.347368
+      },
+      "frame_level_by_class": {
+        "available": true,
+        "classes": {
+          "pistol": {
+            "level": "clip(detection)",
+            "class": "pistol",
+            "threshold": 0.45,
+            "tp": 0,
+            "fp": 4,
+            "tn": 32,
+            "fn": 0,
+            "predicted_positive": 4,
+            "actual_positive": 0,
+            "predicted_negative": 32,
+            "actual_negative": 36,
+            "n": 36,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "average_precision": null,
+            "box_level": {
+              "ap50": null,
+              "class": "pistol",
+              "reason": "no box-level ground truth in fixtures"
+            }
+          }
+        }
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 12,
+        "events_matched": 2,
+        "events_missed": 10,
+        "event_recall": 0.16666666666666666,
+        "alerts_total": 9,
+        "alerts_matched": 2,
+        "alert_precision": 0.2222222222222222,
+        "false_alerts": 7,
+        "false_alerts_detail": [
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a001",
+            "time_s": 6.72,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a002",
+            "time_s": 9.92,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a003",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a000",
+            "time_s": 7.04,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a001",
+            "time_s": 10.24,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a002",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-walking-person07",
+            "alert_id": "kth-walking-person07-a000",
+            "time_s": 1.6,
+            "pre_onset": false
+          }
+        ],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 535.48,
+        "negative_observation_hours": 0.148744444,
+        "false_alerts_per_camera_hour": 47.060581160827674,
+        "missed_events_detail": [
+          {
+            "fixture_id": "kth-boxing-person02",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person03",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person04",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person05",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person06",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person07",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person09",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person10",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person11",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person12",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          }
+        ],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "staged_single_person": {
+      "fixtures": [
+        "kth-boxing-person01",
+        "kth-boxing-person02",
+        "kth-boxing-person03",
+        "kth-boxing-person04",
+        "kth-boxing-person05",
+        "kth-boxing-person06",
+        "kth-boxing-person07",
+        "kth-boxing-person08",
+        "kth-boxing-person09",
+        "kth-boxing-person10",
+        "kth-boxing-person11",
+        "kth-boxing-person12",
+        "kth-handwaving-person01",
+        "kth-handwaving-person02",
+        "kth-handwaving-person03",
+        "kth-handwaving-person04",
+        "kth-handwaving-person05",
+        "kth-handwaving-person06",
+        "kth-handwaving-person07",
+        "kth-handwaving-person08",
+        "kth-handwaving-person09",
+        "kth-handwaving-person10",
+        "kth-handwaving-person11",
+        "kth-handwaving-person12",
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 36,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 696,
+        "fp": 768,
+        "tn": 12528,
+        "fn": 4288,
+        "predicted_positive": 1464,
+        "actual_positive": 4984,
+        "predicted_negative": 16816,
+        "actual_negative": 13296,
+        "n": 18280,
+        "precision": 0.47540983606557374,
+        "recall": 0.13964686998394862,
+        "f1": 0.21588089330024815,
+        "grid_frames": 18411,
+        "unevaluated_frames": 131
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 81,
+        "fp": 87,
+        "tn": 1503,
+        "fn": 506,
+        "predicted_positive": 168,
+        "actual_positive": 587,
+        "predicted_negative": 2009,
+        "actual_negative": 1590,
+        "n": 2177,
+        "precision": 0.48214285714285715,
+        "recall": 0.13798977853492334,
+        "f1": 0.21456953642384105,
+        "average_precision": 0.347368
+      },
+      "frame_level_by_class": {
+        "available": true,
+        "classes": {
+          "pistol": {
+            "level": "clip(detection)",
+            "class": "pistol",
+            "threshold": 0.45,
+            "tp": 0,
+            "fp": 4,
+            "tn": 32,
+            "fn": 0,
+            "predicted_positive": 4,
+            "actual_positive": 0,
+            "predicted_negative": 32,
+            "actual_negative": 36,
+            "n": 36,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "average_precision": null,
+            "box_level": {
+              "ap50": null,
+              "class": "pistol",
+              "reason": "no box-level ground truth in fixtures"
+            }
+          }
+        }
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 12,
+        "events_matched": 2,
+        "events_missed": 10,
+        "event_recall": 0.16666666666666666,
+        "alerts_total": 9,
+        "alerts_matched": 2,
+        "alert_precision": 0.2222222222222222,
+        "false_alerts": 7,
+        "false_alerts_detail": [
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a001",
+            "time_s": 6.72,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a002",
+            "time_s": 9.92,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a003",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a000",
+            "time_s": 7.04,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a001",
+            "time_s": 10.24,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a002",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-walking-person07",
+            "alert_id": "kth-walking-person07-a000",
+            "time_s": 1.6,
+            "pre_onset": false
+          }
+        ],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 535.48,
+        "negative_observation_hours": 0.148744444,
+        "false_alerts_per_camera_hour": 47.060581160827674,
+        "missed_events_detail": [
+          {
+            "fixture_id": "kth-boxing-person02",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person03",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person04",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person05",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person06",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person07",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person09",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person10",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person11",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person12",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          }
+        ],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "static_camera": {
+      "fixtures": [
+        "kth-boxing-person01",
+        "kth-boxing-person02",
+        "kth-boxing-person03",
+        "kth-boxing-person04",
+        "kth-boxing-person05",
+        "kth-boxing-person06",
+        "kth-boxing-person07",
+        "kth-boxing-person08",
+        "kth-boxing-person09",
+        "kth-boxing-person10",
+        "kth-boxing-person11",
+        "kth-boxing-person12",
+        "kth-handwaving-person01",
+        "kth-handwaving-person02",
+        "kth-handwaving-person03",
+        "kth-handwaving-person04",
+        "kth-handwaving-person05",
+        "kth-handwaving-person06",
+        "kth-handwaving-person07",
+        "kth-handwaving-person08",
+        "kth-handwaving-person09",
+        "kth-handwaving-person10",
+        "kth-handwaving-person11",
+        "kth-handwaving-person12",
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 36,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 696,
+        "fp": 768,
+        "tn": 12528,
+        "fn": 4288,
+        "predicted_positive": 1464,
+        "actual_positive": 4984,
+        "predicted_negative": 16816,
+        "actual_negative": 13296,
+        "n": 18280,
+        "precision": 0.47540983606557374,
+        "recall": 0.13964686998394862,
+        "f1": 0.21588089330024815,
+        "grid_frames": 18411,
+        "unevaluated_frames": 131
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 81,
+        "fp": 87,
+        "tn": 1503,
+        "fn": 506,
+        "predicted_positive": 168,
+        "actual_positive": 587,
+        "predicted_negative": 2009,
+        "actual_negative": 1590,
+        "n": 2177,
+        "precision": 0.48214285714285715,
+        "recall": 0.13798977853492334,
+        "f1": 0.21456953642384105,
+        "average_precision": 0.347368
+      },
+      "frame_level_by_class": {
+        "available": true,
+        "classes": {
+          "pistol": {
+            "level": "clip(detection)",
+            "class": "pistol",
+            "threshold": 0.45,
+            "tp": 0,
+            "fp": 4,
+            "tn": 32,
+            "fn": 0,
+            "predicted_positive": 4,
+            "actual_positive": 0,
+            "predicted_negative": 32,
+            "actual_negative": 36,
+            "n": 36,
+            "precision": 0.0,
+            "recall": null,
+            "f1": 0.0,
+            "average_precision": null,
+            "box_level": {
+              "ap50": null,
+              "class": "pistol",
+              "reason": "no box-level ground truth in fixtures"
+            }
+          }
+        }
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 12,
+        "events_matched": 2,
+        "events_missed": 10,
+        "event_recall": 0.16666666666666666,
+        "alerts_total": 9,
+        "alerts_matched": 2,
+        "alert_precision": 0.2222222222222222,
+        "false_alerts": 7,
+        "false_alerts_detail": [
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a001",
+            "time_s": 6.72,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a002",
+            "time_s": 9.92,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-boxing-person01",
+            "alert_id": "kth-boxing-person01-a003",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a000",
+            "time_s": 7.04,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a001",
+            "time_s": 10.24,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-handwaving-person05",
+            "alert_id": "kth-handwaving-person05-a002",
+            "time_s": 13.44,
+            "pre_onset": false
+          },
+          {
+            "fixture_id": "kth-walking-person07",
+            "alert_id": "kth-walking-person07-a000",
+            "time_s": 1.6,
+            "pre_onset": false
+          }
+        ],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 535.48,
+        "negative_observation_hours": 0.148744444,
+        "false_alerts_per_camera_hour": 47.060581160827674,
+        "missed_events_detail": [
+          {
+            "fixture_id": "kth-boxing-person02",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person03",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person04",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person05",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person06",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person07",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person09",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person10",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person11",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          },
+          {
+            "fixture_id": "kth-boxing-person12",
+            "event_id": "0000",
+            "onset_s": 0.0,
+            "onset_known": false
+          }
+        ],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    }
+  },
+  "bootstrap": {
+    "unit": "session",
+    "units": 12,
+    "unit_ids": [
+      "kth-person01",
+      "kth-person02",
+      "kth-person03",
+      "kth-person04",
+      "kth-person05",
+      "kth-person06",
+      "kth-person07",
+      "kth-person08",
+      "kth-person09",
+      "kth-person10",
+      "kth-person11",
+      "kth-person12"
+    ],
+    "resamples": 2000,
+    "seed": 20260929,
+    "method": "cluster bootstrap over independent units; percentile 95% CI; adjacent frames/windows never resampled independently",
+    "intervals": {
+      "frame_precision": {
+        "estimate": 0.47541,
+        "ci95_low": 0.130379,
+        "ci95_high": 0.805614,
+        "resamples_with_value": 2000
+      },
+      "frame_recall": {
+        "estimate": 0.139647,
+        "ci95_low": 0.026841,
+        "ci95_high": 0.308183,
+        "resamples_with_value": 2000
+      },
+      "window_precision": {
+        "estimate": 0.482143,
+        "ci95_low": 0.1395,
+        "ci95_high": 0.808551,
+        "resamples_with_value": 2000
+      },
+      "window_recall": {
+        "estimate": 0.13799,
+        "ci95_low": 0.028561,
+        "ci95_high": 0.306503,
+        "resamples_with_value": 2000
+      },
+      "event_recall": {
+        "estimate": 0.166667,
+        "ci95_low": 0.0,
+        "ci95_high": 0.416667,
+        "resamples_with_value": 2000
+      },
+      "alert_precision": {
+        "estimate": 0.222222,
+        "ci95_low": 0.0,
+        "ci95_high": 1.0,
+        "resamples_with_value": 1980
+      },
+      "false_alerts_per_camera_hour": {
+        "estimate": 47.060581,
+        "ci95_low": 0.0,
+        "ci95_high": 105.5502,
+        "resamples_with_value": 2000
+      },
+      "ttd_p50": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      }
+    }
+  },
+  "unavailable_metrics": [
+    {
+      "metric": "time_to_detection_s",
+      "reason": "no evaluated fixture carries an independently labeled onset; clip-level publisher labels cannot time the alert"
+    },
+    {
+      "metric": "counting",
+      "reason": "no evaluated fixture carries labels.counts"
+    },
+    {
+      "metric": "ap50_by_class",
+      "reason": "no box-level ground truth in fixtures"
+    }
+  ]
+}

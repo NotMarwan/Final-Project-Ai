@@ -1,0 +1,10 @@
+{
+  "people": [
+    {
+      "person_id": "GUEST-001",
+      "display_name": "Example Person",
+      "role": "speaker",
+      "embeddings": []
+    }
+  ]
+}

@@ -52,6 +52,7 @@ export function IncidentPanel({ alert }: IncidentPanelProps) {
   const [exportState, setExportState] = useState<ExportState>({ phase: "idle" })
 
   // Reset export state whenever the active alert changes
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const alertId = alert?.id
 
   // ── Dispatch handler ───────────────────────────────────────────────────────

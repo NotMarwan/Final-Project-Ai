@@ -1,0 +1,3 @@
+# Optional bundled FFmpeg runtime for browser-compatible evidence clips.
+# The encoder also accepts a system ffmpeg or AI_SENTINEL_FFMPEG path.
+imageio-ffmpeg==0.6.0

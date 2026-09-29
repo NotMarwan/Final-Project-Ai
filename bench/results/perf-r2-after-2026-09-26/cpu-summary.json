@@ -1,0 +1,13 @@
+﻿{
+    "metric":  "Python process CPU share of total machine capacity",
+    "mean_percent":  6.52,
+    "p50_percent":  6.61,
+    "p95_percent":  8.95,
+    "sample_count":  53,
+    "measured_seconds":  50,
+    "logical_processors":  12,
+    "measurement_window":  "50-second measured portion after the 25-second warmup",
+    "method":  "PowerShell sampled cumulative CPU-time deltas for the benchmark Python process tree, normalized by elapsed time and logical processors.",
+    "workload_valid":  true,
+    "runtime_exit_code":  0
+}

@@ -1,0 +1,138 @@
+{
+  "person_onnx_contract": {
+    "input_shape": [
+      1,
+      84,
+      8400
+    ],
+    "expected_person_count": 1,
+    "actual_person_count": 0
+  },
+  "weapon_onnx_contract": {
+    "input_shape": [
+      1,
+      10,
+      8400
+    ],
+    "expected_model_space_xyxy": [
+      128,
+      112,
+      192,
+      208
+    ],
+    "actual_hits": [
+      [
+        0.8999999761581421,
+        "knife",
+        [
+          160.0,
+          160.0,
+          64.0,
+          96.0
+        ]
+      ]
+    ]
+  },
+  "generated_evidence": [
+    {
+      "file": "alert-1789178372120-2abab1.mp4",
+      "bytes": 5837889,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178381686-2169ba.mp4",
+      "bytes": 5813618,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178387638-bee77d.mp4",
+      "bytes": 5838309,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178393584-c5a5ac.mp4",
+      "bytes": 5817782,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178402047-316dac.mp4",
+      "bytes": 5839212,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178407722-02cfbb.mp4",
+      "bytes": 5841833,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178413402-27e87d.mp4",
+      "bytes": 5850891,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178419222-45c5df.mp4",
+      "bytes": 5866947,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178424975-8d13b3.mp4",
+      "bytes": 5930139,
+      "first_frame_readable": true,
+      "fps": 30.0,
+      "frames": 300.0,
+      "duration_seconds": 10.0,
+      "codec": "h264",
+      "browser_playability": "not tested"
+    },
+    {
+      "file": "alert-1789178430969-d9f77f.mp4",
+      "bytes": 4237214,
+      "first_frame_readable": false,
+      "fps": 0.0,
+      "frames": 0.0,
+      "duration_seconds": null,
+      "codec": "\u0000\u0000\u0000\u0000",
+      "browser_playability": "not tested"
+    }
+  ]
+}

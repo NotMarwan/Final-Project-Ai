@@ -1,0 +1,7 @@
+{
+  "runtime": "onnxruntime-gpu==1.18.0",
+  "gpu_wheel_sha256": "97df451777322a534dbedff49d43a4f6f74bd5258ccf31b2161e1af606bc724d",
+  "rollback_wheel": "C:\\Users\\PCD\\Downloads\\Hackathons\\Hackathons\\SAIF\\rebuild\\sprint2\\wheelhouse\\onnxruntime-1.18.0-cp312-cp312-win_amd64.whl",
+  "rollback_wheel_sha256": "1fa175bd43f610465d5787ae06050c81f7ce09da2bf3e914eb282cb8eab363ef",
+  "status": "rolled-back-to-onnxruntime-1.18.0-after-two-invalid-full-pipeline-runs"
+}

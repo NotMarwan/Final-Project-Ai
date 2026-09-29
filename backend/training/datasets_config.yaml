@@ -1,0 +1,170 @@
+# Multi-Dataset Training Configuration for AI Sentinel
+# Supports: RWC-2000, UFC, HockeyFights, Movies, VIRAT, UCF-Crime, and more
+
+datasets:
+  # RWC-2000: Real-world surveillance camera dataset
+  rwc2000:
+    enabled: true
+    path: "D:/datasets/RWC-2000"
+    split: "train"
+    label: 1  # violence
+    weight: 0.15
+    clip_length: 32
+    stride: 16
+    min_clip_length: 32
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+      augment_angle: true  # Critical for 170cm angle
+      augment_lighting: true
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+
+  # UFC: Ultimate Fighting Championship videos
+  ufc:
+    enabled: true
+    path: "D:/datasets/UFC"
+    split: "train"
+    label: 1  # violence
+    weight: 0.15
+    clip_length: 32
+    stride: 16
+    min_clip_length: 32
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+      augment_angle: true
+      augment_lighting: true
+    note: "Professional fighting - high quality violence examples"
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+
+  # HockeyFights: Hockey fight detection dataset
+  hockey:
+    enabled: true
+    path: "D:/datasets/HockeyFights"
+    split: "train"
+    label: 1
+    weight: 0.10
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+
+  # Movies dataset: Violence in movies
+  movies:
+    enabled: true
+    path: "D:/datasets/Movies"
+    split: "train"
+    label: 1
+    weight: 0.10
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+
+  # VIRAT: Video and Image Retrieval and Analysis Tool
+  virat:
+    enabled: true
+    path: "D:/datasets/VIRAT"
+    split: "train"
+    label: 1
+    weight: 0.10
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+      augment_angle: true  # Surveillance-style footage
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+    categories:
+      - violence
+      - crowd_surge
+      - intrusion
+
+  # UCF-Crime: Crime detection dataset
+  ucf_crime:
+    enabled: true
+    path: "D:/datasets/UCF-Crime"
+    split: "train"
+    label: 1
+    weight: 0.15
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+    categories:
+      - violence
+      - abuse
+      - arrest
+      - assault
+      - burglary
+
+  # Surveillance Camera Fight Dataset
+  scfd:
+    enabled: true
+    path: "D:/datasets/SCFD"
+    split: "train"
+    label: 1
+    weight: 0.10
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+      augment_angle: true  # Surveillance cameras
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+
+  # Custom dataset: User-provided videos
+  custom:
+    enabled: true
+    path: "D:/datasets/Custom"
+    split: "train"
+    label: 1
+    weight: 0.15
+    clip_length: 32
+    stride: 16
+    preprocess:
+      resize: [160, 160]
+      normalize: true
+      augment_angle: true
+    splits:
+      train: 0.8
+      val: 0.1
+      test: 0.1
+    note: "User-uploaded videos for fine-tuning"
+
+# Training configuration
+training:
+  batch_size: 8
+  num_workers: 4
+  num_epochs: 50
+  learning_rate: 0.001
+  optimizer: "Adam"
+  scheduler: "CosineAnnealingLR"
+  loss: "CrossEntropyLoss"

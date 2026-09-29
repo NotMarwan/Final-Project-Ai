@@ -1,0 +1,51 @@
+{
+  "mode": "compare",
+  "a": "docs/campaign/experiments/artifacts/exp1904-scores-baseline-k1.json",
+  "b": "docs/campaign/experiments/artifacts/exp1904-scores-branch-k1.json",
+  "a_code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "b_code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "n_probes_a": 3,
+  "n_probes_b": 3,
+  "observation_ids_a": [
+    5,
+    7,
+    9
+  ],
+  "observation_ids_b": [
+    3,
+    5,
+    7
+  ],
+  "observation_ids_match": false,
+  "n_windows_a": 0,
+  "n_windows_b": 7,
+  "probe_summary": {
+    "last_conf": {
+      "max_abs_delta": 0.13741341751341668,
+      "n": 3
+    },
+    "raw_conf": {
+      "max_abs_delta": 0.09482929110527039,
+      "n": 3
+    },
+    "calibrated_conf": {
+      "max_abs_delta": 0.09482930256377853,
+      "n": 3
+    },
+    "span_seconds": {
+      "max_abs_delta": 0.0,
+      "n": 3
+    },
+    "window_valid": {
+      "max_abs_delta": 0.0,
+      "n": 3
+    },
+    "is_violent": {
+      "max_abs_delta": 1.0,
+      "n": 3
+    }
+  },
+  "window_summary": {},
+  "max_abs_delta": 1.0,
+  "parity_at_1e-4": false
+}

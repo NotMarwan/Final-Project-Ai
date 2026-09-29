@@ -1,0 +1,319 @@
+{
+  "schema_version": "weapon-negative-run-summary/1",
+  "alert_threshold": 0.65,
+  "denominators": {
+    "clips": 10,
+    "frames_with_detections": 21,
+    "detections_logged": 21
+  },
+  "false_alert_frames": 2,
+  "detections_at_or_above_alert": 2,
+  "per_class": {
+    "pistol": {
+      "detections": 21,
+      "at_or_above_alert": 2,
+      "max_score": 0.6587232947349548,
+      "p95_score": 0.6501954197883606
+    }
+  },
+  "per_group": {
+    "firearm": {
+      "detections": 21,
+      "at_or_above_alert": 2,
+      "max_score": 0.6587232947349548,
+      "p95_score": 0.6501954197883606
+    }
+  },
+  "splits": [
+    "calibration",
+    "test",
+    "train"
+  ],
+  "interpretation": "Detections on a known-benign source are false positives by construction. Split provenance decides whether this figure may enter a gate claim; 'unregistered' rows are auxiliary-domain only.",
+  "run_id": "wt18-kth-walking-01",
+  "source_label": "kth-weapon-free",
+  "clips": [
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person01",
+      "source_sha256": "68634c2edc2219b20b2a83fdba2262f5614ca7db753d464e42e304e37c5dbd04",
+      "split": "train",
+      "clip_id": "person01_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 2,
+      "per_class": {
+        "pistol": 2
+      },
+      "per_group": {
+        "firearm": 2
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person02",
+      "source_sha256": "7b72486c2b424885a7d0839210023bc225c99c6a385fa63874d191ef60d853a7",
+      "split": "train",
+      "clip_id": "person02_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 1,
+      "per_class": {
+        "pistol": 1
+      },
+      "per_group": {
+        "firearm": 1
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person03",
+      "source_sha256": "e669033d24c5faf105dfa7af2aac9f12262519cc465e89246a81384661fd2f71",
+      "split": "val",
+      "clip_id": "person03_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 0,
+      "per_class": {},
+      "per_group": {},
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person04",
+      "source_sha256": "66b6f88da70270c7327087020910119c62ca0374cf436ead6c92b65bff8075df",
+      "split": "val",
+      "clip_id": "person04_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 0,
+      "per_class": {},
+      "per_group": {},
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person05",
+      "source_sha256": "ec21190d6d3d962375a93f7638922dd513ed961b368d805e00d253c917c4ebe0",
+      "split": "calibration",
+      "clip_id": "person05_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 1,
+      "per_class": {
+        "pistol": 1
+      },
+      "per_group": {
+        "firearm": 1
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person06",
+      "source_sha256": "09e4c586f6e3c2052debc4858a2794e69242374d54a3c6fa9dda8ce36b91963a",
+      "split": "calibration",
+      "clip_id": "person06_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 2,
+      "per_class": {
+        "pistol": 2
+      },
+      "per_group": {
+        "firearm": 2
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person07",
+      "source_sha256": "02590fd66f198dd13c1e56bdb029fcad15e93ae780aac270a6db49dac6a627a9",
+      "split": "test",
+      "clip_id": "person07_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 3,
+      "per_class": {
+        "pistol": 3
+      },
+      "per_group": {
+        "firearm": 3
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person08",
+      "source_sha256": "84e26963cea590bf5129adf5865011847681c42d73869ce35375c2164346c24d",
+      "split": "test",
+      "clip_id": "person08_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 4,
+      "per_class": {
+        "pistol": 4
+      },
+      "per_group": {
+        "firearm": 4
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person09",
+      "source_sha256": "308dc99f0bbfcc5b1d2b11c5d0e49552b14d5a097a561318590df90123a8e64f",
+      "split": "test",
+      "clip_id": "person09_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 1,
+      "per_class": {
+        "pistol": 1
+      },
+      "per_group": {
+        "firearm": 1
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person10",
+      "source_sha256": "9daedb8cfa4721bb472f915ae6406a17c66b0a316896390447acea6eb3317b8f",
+      "split": "test",
+      "clip_id": "person10_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 3,
+      "per_class": {
+        "pistol": 3
+      },
+      "per_group": {
+        "firearm": 3
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person11",
+      "source_sha256": "fc3f7504675275cd60798a66ffb312cc17b7dc36a350b5ffaf4d50a281d45da3",
+      "split": "test",
+      "clip_id": "person11_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 2,
+      "per_class": {
+        "pistol": 2
+      },
+      "per_group": {
+        "firearm": 2
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-kth-walking-01",
+      "fixture_id": "kth-walking-person12",
+      "source_sha256": "3fb9a255804e9e35a755df9a26446429ddb5539ca7ce52a2aaf40249d1357909",
+      "split": "test",
+      "clip_id": "person12_walking_d1_uncomp",
+      "source": "kth-weapon-free",
+      "source_mode": "file-media",
+      "detections_logged": 2,
+      "per_class": {
+        "pistol": 2
+      },
+      "per_group": {
+        "firearm": 2
+      },
+      "log_path": "bench\\results\\wt18-weapon-kth-walking\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 10,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    }
+  ],
+  "media": [
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person01_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person02_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person03_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person04_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person05_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person06_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person07_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person08_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person09_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person10_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person11_walking_d1_uncomp.avi",
+    "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-12-fixtures\\kth\\person12_walking_d1_uncomp.avi"
+  ]
+}

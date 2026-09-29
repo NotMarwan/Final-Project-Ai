@@ -1,0 +1,411 @@
+{
+  "schema": "sentinel-accel-report/1",
+  "campaign": "WT-16 inference acceleration (S-20 slice: provider/session/precision/export)",
+  "worktree": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-16",
+  "environment": {
+    "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+    "packages": {
+      "torch": "2.3.0+cu118",
+      "onnxruntime": null,
+      "onnxruntime-gpu": "1.18.0",
+      "numpy": "1.26.4",
+      "opencv-python": "4.10.0.84",
+      "ultralytics": "8.2.0"
+    },
+    "ortAvailableProviders": [
+      "TensorrtExecutionProvider",
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "torchCuda": "11.8",
+    "torchCudnn": 8700,
+    "gitHead": "1218a6cbdd8d9b9fd30eca7b033721fbb60fadf7",
+    "gitBranch": "codex/sentinel-16-inference-accel",
+    "gpu": "NVIDIA GeForce RTX 3060, 12288 MiB, 591.86"
+  },
+  "modelHashes": {
+    "person_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\models\\person_yolo.onnx",
+      "sha256": "3fafb13e995667e7f877c647b33df05be6d587e75aa79d9cc34e9b3f493e60b8",
+      "bytes": 12851087
+    },
+    "weapon_yolo.onnx": {
+      "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\models\\weapon_yolo.onnx",
+      "sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "bytes": 103636665
+    },
+    "best_model.pt": {
+      "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\best_model.pt",
+      "sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+      "bytes": 149344325
+    },
+    "weapon_hadi_yolo.pt": {
+      "path": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\weapon_hadi_yolo.pt",
+      "sha256": "e85b15fe74a16de9ac98562a072a50bffdcda5a7fb6ef4d8594dc7de466ab6b5",
+      "bytes": 6230954
+    }
+  },
+  "preprocessing": "yolo_onnx.prepare_input: letterbox max-side to fixed model input, pad 114, BGR->RGB, /255, NCHW float32",
+  "decisionConfig": "config/thresholds.toml defaults untouched (violence 0.45, weapon 0.55, display 0.45)",
+  "sourceMode": "file-media for every fixture and full-pipeline run (no camera device exists); no run is labeled live",
+  "fixtureProvenance": "Full-pipeline trials read the demo asset READ-ONLY from the user's pre-existing worktree C:/Users/PCD/Downloads/jobs/integration/demo_assets/videos/Wq0BuA8GM84_0.avi (sha256 55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586; identical to the registered revision-6fb3bcac run's source). Microbench/parity fixtures read cam3.mp4 (sha256 recorded per artifact) from the primary checkout, also read-only. Nothing was written into either source location.",
+  "adapterState": {
+    "B3": "bench harness auto-stubs go2rtc_bridge/openrouter_reporting (modules absent); SC-10 optional-import commit cherry-picked as 86d7697 so api.py is importable in a clean checkout; every measurement ran with the harness stub adapters active and benchmark-overrides.json recorded"
+  },
+  "clockBase": "perf_counter",
+  "clockDiscipline": "all durations single-clock perf_counter_ns diffs; producer monotonic stamps copied through unchanged and never subtracted across bases; processing latency is not glass-to-alert",
+  "measurementRules": "completed-inference timing (CUDA synchronized where applicable); cold vs warm separated; p05/p50/p95/max with counts; launch timings never mixed into compute distributions",
+  "artifacts": {
+    "fullpipeline-cpu-1\\audit.jsonl": {
+      "sha256": "3f166cd0626d6a01a6c7be98c9945027c47fbf3fb544835b3d5af609eeccdc94",
+      "bytes": 16500
+    },
+    "fullpipeline-cpu-1\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "fullpipeline-cpu-1\\benchmark-start.json": {
+      "sha256": "32e320a30cf587dab42a47c7184cf4861f2ccd65172a2632e24f0e2dec4646a5",
+      "bytes": 123
+    },
+    "fullpipeline-cpu-1\\client.json": {
+      "sha256": "00d133931b6c8485d0d36702a284ce6ba1d11faa6217ab2144a683abc6b41367",
+      "bytes": 56807
+    },
+    "fullpipeline-cpu-1\\cpu-summary.json": {
+      "sha256": "cb798762d4756b24f830da4a6b7c17cdda239ee0a916f3c2fe76bbe05b69dfee",
+      "bytes": 508
+    },
+    "fullpipeline-cpu-1\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "fullpipeline-cpu-1\\runtime.log": {
+      "sha256": "655fe11d680a428eb6fd46c5fc708e6a90f19dd9f5b825f5817a93112d2a9933",
+      "bytes": 8594
+    },
+    "fullpipeline-cpu-1\\trace-11944.json": {
+      "sha256": "4d58048b6d7aa3e47da09d5efd3d098abd3f7a66caee0b4316fc5a5f39379af1",
+      "bytes": 981432
+    },
+    "fullpipeline-cpu-1\\trace-28344.json": {
+      "sha256": "4aadb1e37f2720faba7d30b728b06d389de3a7e4a0cf848e7ed4c267a67ee654",
+      "bytes": 3189734
+    },
+    "fullpipeline-cpu-1.log": {
+      "sha256": "9010965d69acfd6e2586d0a300d4608681adba06cea6df790b87eee102eb5a2a",
+      "bytes": 7965
+    },
+    "fullpipeline-cpu-2\\audit.jsonl": {
+      "sha256": "19a3d869e328cdd6bf70154ec4242722381f1f02388b7c890a1fefd69152b3e0",
+      "bytes": 16500
+    },
+    "fullpipeline-cpu-2\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "fullpipeline-cpu-2\\benchmark-start.json": {
+      "sha256": "3905c888d2adfa4e79dc453ae76dceced4f71d86c522459669cc7008dba8d7af",
+      "bytes": 123
+    },
+    "fullpipeline-cpu-2\\client.json": {
+      "sha256": "948d1acc25afe36a2e04e4b80d905d8192d1fa94fbf420c6aa6c7668cf8ffddd",
+      "bytes": 56954
+    },
+    "fullpipeline-cpu-2\\cpu-summary.json": {
+      "sha256": "c0c67cd6e95b96746c867e4297bb16d4f5f5b6cd7a7a120829afe031fd7e6776",
+      "bytes": 509
+    },
+    "fullpipeline-cpu-2\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "fullpipeline-cpu-2\\runtime.log": {
+      "sha256": "e70fc20da732dd890d4d6dc610c53458370f2afe7d31e6f77905f4edb80756b7",
+      "bytes": 8726
+    },
+    "fullpipeline-cpu-2\\trace-1360.json": {
+      "sha256": "3437bcacf1ebe2051ac5784b67d5803e7ff307c0619769ae9ade2de33bec8701",
+      "bytes": 3130884
+    },
+    "fullpipeline-cpu-2\\trace-33700.json": {
+      "sha256": "4461580424bc4d0902033d665b1d6162865fedc3a726c968b2f07bb97cfd4326",
+      "bytes": 980343
+    },
+    "fullpipeline-cpu-2.log": {
+      "sha256": "410e58620d22449084aac12ff6a1d21022f97b03ea33b4b6a49d880eb8e5b57a",
+      "bytes": 7949
+    },
+    "fullpipeline-cuda-1\\audit.jsonl": {
+      "sha256": "dc9aa6cbcf2083488cced99cb6420c6a1b2649d625a1f5109db336e508d96591",
+      "bytes": 16500
+    },
+    "fullpipeline-cuda-1\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "fullpipeline-cuda-1\\benchmark-start.json": {
+      "sha256": "4cd7fe91a4641ac3bb3488cb07c86992f5fb743a0b597d2d0b5bc1947a273645",
+      "bytes": 123
+    },
+    "fullpipeline-cuda-1\\client.json": {
+      "sha256": "e9afcafe7c706a85fbc6dfcd4681c2cb194e1bdefb434f0e5f05e849e1d22e1f",
+      "bytes": 56939
+    },
+    "fullpipeline-cuda-1\\cpu-summary.json": {
+      "sha256": "28289b0f46275939a5e27818f8acb0ed38ce7539cfb089311f9be07144e51151",
+      "bytes": 506
+    },
+    "fullpipeline-cuda-1\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "fullpipeline-cuda-1\\runtime.log": {
+      "sha256": "bd023a2060f9d2b90db945fa9da8143a3f82ecb9294e0f81b2fb3ac94fa74b79",
+      "bytes": 9790
+    },
+    "fullpipeline-cuda-1\\trace-29984.json": {
+      "sha256": "0d5d76287d3fb0957d7b279a4b4a07fdd475995e45b434275c9bd4314e9d5973",
+      "bytes": 1055882
+    },
+    "fullpipeline-cuda-1\\trace-34264.json": {
+      "sha256": "fa5707fd4c4d4d42159d61262e68c83b63ef85253da9e73b4db405ed9f67402e",
+      "bytes": 3325475
+    },
+    "fullpipeline-cuda-1.log": {
+      "sha256": "7532579555c0dbe6f4d6360c185b88c92044b14aaba099e4d2b419fc7cd552ed",
+      "bytes": 7982
+    },
+    "fullpipeline-cuda-2\\audit.jsonl": {
+      "sha256": "205e8f6233207fb29aaec06ce592afab58721b3440809cfe9e380726f5191451",
+      "bytes": 16500
+    },
+    "fullpipeline-cuda-2\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "fullpipeline-cuda-2\\benchmark-start.json": {
+      "sha256": "8924912aec7077c8487d6c3f380f7db6bb9c7b79bfd1ca220a18d925eaee90aa",
+      "bytes": 123
+    },
+    "fullpipeline-cuda-2\\client.json": {
+      "sha256": "8bf1a7d8760825278971626ada2e1f15e89a789a999c2b68905bdcafc9b1e239",
+      "bytes": 56746
+    },
+    "fullpipeline-cuda-2\\cpu-summary.json": {
+      "sha256": "3fd986817981acbda41d4db5216d891e6d10503a297d6b1e1c6c5d184b395d65",
+      "bytes": 506
+    },
+    "fullpipeline-cuda-2\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "fullpipeline-cuda-2\\runtime.log": {
+      "sha256": "3e3ace68a1a665670816eb5e8bf16567cfbf638589de8f1384b3196d68eb29bf",
+      "bytes": 8408
+    },
+    "fullpipeline-cuda-2\\trace-34324.json": {
+      "sha256": "f8e92a6867a21d2c6aa08057e3b17af82e1632a248c51bc23a396acb7b12bc84",
+      "bytes": 981707
+    },
+    "fullpipeline-cuda-2\\trace-40732.json": {
+      "sha256": "1b56ba9b4a9da4aa5305ba246f21dd39266e8b595707c847d70b0a7cd8485b20",
+      "bytes": 3261534
+    },
+    "fullpipeline-cuda-2.log": {
+      "sha256": "c4b4cddf1ac7c0b4a51f9c6571a367c3207be5ddbca5de8134cb7b688654346f",
+      "bytes": 7986
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\audit.jsonl": {
+      "sha256": "03f9ce1720ea540d9108968ce5724682bfc2849e2c2e65823f7fca7fd5b672de",
+      "bytes": 16500
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\benchmark-start.json": {
+      "sha256": "f4c54c24d73f94c6d36d90bdd931ba629f55dc670c4c9e74bfa47bc1d67ecb05",
+      "bytes": 123
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\client.json": {
+      "sha256": "7656777d726452ebf141a1b9bf9aeba08f26ca8c4aa57cb8b71d45512c423938",
+      "bytes": 56991
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\cpu-summary.json": {
+      "sha256": "e5edfb02841842b4204270eb8dd01259b28775df537bf4f2903603b86e3df129",
+      "bytes": 505
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\runtime.log": {
+      "sha256": "7c4e55b1ab0e635916197fd45e7f29bf3fcfc233582e60b8905ff83d497ab1e1",
+      "bytes": 9258
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\trace-42404.json": {
+      "sha256": "5718b8499ab0a5b127f0e405d01e0f084fea2a7f24668cb224e1a4834e4cfdc3",
+      "bytes": 3296962
+    },
+    "invalid\\fullpipeline-cpu-1.NO-MODELS\\trace-6960.json": {
+      "sha256": "096908aec5225036a2d2677146a265aec1703afc85c895876a8dd45afd4cbd67",
+      "bytes": 823046
+    },
+    "invalid\\fullpipeline-cpu-2.log": {
+      "sha256": "f2ed4cb3fa025b602e00d689dbcd1a9171e2ba172ef8fbd1f805853a78df0560",
+      "bytes": 7886
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\audit.jsonl": {
+      "sha256": "3e10172ae044680e52c2a12b8cc77c2bb0a46cfb033816eb340c28287479dc8f",
+      "bytes": 16500
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\benchmark-start.json": {
+      "sha256": "448102dba0df1e87370ce84bd85d8f1100a9bacc4c3de357c50f012abc009285",
+      "bytes": 123
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\client.json": {
+      "sha256": "9c2ad57430e0843e6b1171e1f30b5f308142a07240a89892953275e8eb249040",
+      "bytes": 56860
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\cpu-summary.json": {
+      "sha256": "5556140b76d080b6b2c237b901edf4d854080d3648ebbe37bbdd106c71327773",
+      "bytes": 507
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\runtime.log": {
+      "sha256": "7ea2ed1dc2474ed2989a7a2b3c58fa43dbfaa9393d87e86891ba79c4db5c4f9c",
+      "bytes": 37697
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\trace-28240.json": {
+      "sha256": "4fba27e7f543d4f6780907421a940c8287d0bf7ec110566125b77add85eaa3e0",
+      "bytes": 3188794
+    },
+    "invalid\\fullpipeline-cpu-2.NO-MODELS\\trace-43720.json": {
+      "sha256": "f0b0d5ba6246ba638d2f022e8ba57111e42ba712dd1a13b1eb92c44440e7fd22",
+      "bytes": 859630
+    },
+    "invalid\\fullpipeline-cuda-1.log": {
+      "sha256": "ee180d0bd28ab536c279eb1fbcfc8d1ee5a5463fa9cf984359015194ea9ae589",
+      "bytes": 7886
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\audit.jsonl": {
+      "sha256": "928ff15a2ecb80a363faf90185b9d48e2ba464168f7bcaaf6a96875441de1591",
+      "bytes": 16500
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\benchmark-overrides.json": {
+      "sha256": "fc99c1e7858de85ef19a3afff7cf4d4e1e2f7a10e0ab91e58cf7c25be4f6bdfd",
+      "bytes": 191
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\benchmark-start.json": {
+      "sha256": "013c1cfafa05cc3eabcd63aba2bee1bdff6f19aa171999025ff6eb9514de6180",
+      "bytes": 123
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\client.json": {
+      "sha256": "8ff6b8a271df3a33a0fd8000d1f6e8e6dd515ff427e7d3d54e5319653e97d0fc",
+      "bytes": 56862
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\cpu-summary.json": {
+      "sha256": "fd1c53a7e5ef128e0156c8c93e5901fadc5fec815614f89974f3ff516508da79",
+      "bytes": 507
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\models-ready.json": {
+      "sha256": "19fd7f60b1e20ba7c94c69253a37aa5f1f63c35a82b399544a3a20e81935c069",
+      "bytes": 82
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\runtime.log": {
+      "sha256": "63e2e55cdb1f516f0da127328118aad165af8d751a504b87d50f77dae5c4bb89",
+      "bytes": 37836
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\trace-34600.json": {
+      "sha256": "2b045ab3b8799edd39b6ace0f0df77a77e99a5c12384267f7a413aa9c316a640",
+      "bytes": 3154211
+    },
+    "invalid\\fullpipeline-cuda-1.NO-MODELS-KILLED\\trace-44996.json": {
+      "sha256": "4dd38bbbf20dfc01b54eae9e0d1df1f356a2093d7251f27a6547105fb390648e",
+      "bytes": 861316
+    },
+    "invalid\\raw-person-cpu.CONTENDED-no-valid-lock.json": {
+      "sha256": "29b6740ff6f3227d67922e1405a7460c8a937d88cc5abb15f53789e6cfe176fa",
+      "bytes": 61912
+    },
+    "raw\\raw-parity-person.json": {
+      "sha256": "e167787e2e31b3d823587959ae5beb51c217ca7fd0e09d97d31ec28c9bb0eca9",
+      "bytes": 2902
+    },
+    "raw\\raw-parity-weapon.json": {
+      "sha256": "a10cb2f40c21c55c9889441c465ed4fcc8aa9affb962e2fe9b121d08354c1cd8",
+      "bytes": 2646
+    },
+    "raw\\raw-person-cpu.json": {
+      "sha256": "9fe8b7f914c18e11705b87d1cce09bc9c1d64704d296389e00ea63a3d66cf719",
+      "bytes": 61670
+    },
+    "raw\\raw-person-cuda.json": {
+      "sha256": "40ccb9c434bff643fa465257aa9aeac896def4a7736b3b875d8e90c940df9308",
+      "bytes": 61477
+    },
+    "raw\\raw-pipeline-comparison.json": {
+      "sha256": "d2a5659c7824c4d522f14361de75ecaaec2234b33786c377132214856f800574",
+      "bytes": 20110
+    },
+    "raw\\raw-trt-probe.json": {
+      "sha256": "830af50300e586a66478ed7941110ab0e129963ae59aab495af6ddebb013eee0",
+      "bytes": 1572
+    },
+    "raw\\raw-weapon-cpu.json": {
+      "sha256": "a7867b168823b89093f992875cf7d7571afa562fffa566d5bdf8aac0a673d32e",
+      "bytes": 60378
+    },
+    "raw\\raw-weapon-cuda.json": {
+      "sha256": "cf829aab41d72e9caa30f57d7406bbd06e340e796181e2b9db4e5c7051aed7a3",
+      "bytes": 59921
+    },
+    "verdicts.json": {
+      "sha256": "7d9853e3088bbdd56c5f029a724a176f1c03bd60aee91fb821b3e73e99ea7dab",
+      "bytes": 4141
+    }
+  },
+  "experimentVerdicts": {
+    "EXP-01": {
+      "verdict": "adopt",
+      "notes": "CPU-EP baseline: person warm p50 67.70 ms (p05 60.37/p95 79.87, n=300), weapon warm p50 468.58 ms (p05 435.08/p95 545.41, n=300); cold/warm + preprocess/postprocess separated; providers ['CPUExecutionProvider']. Earlier 01:38 run CONTENDED/INVALID (invalid/)."
+    },
+    "EXP-02": {
+      "verdict": "adopt",
+      "notes": "CUDA EP: person warm p50 10.55 ms (6.42x vs CPU), weapon 26.02 ms (18.01x); parity gates ALL PASS: person raw max|d| 0.00314, weapon 0.00171; decoded match rate 1.0 both (50/50 and 4/4); matched-IoU min 0.999996; max |dscore| 3e-06/2e-06; zero near-threshold flips at 0.45/0.55. Finding: CUDA EP session creation in a fresh process requires torch CUDA/cuDNN DLLs loaded first (production gets this via inference.py's torch import)."
+    },
+    "EXP-03": {
+      "verdict": "reproduced (dirty claim) + speed gates pass for ONNX models",
+      "notes": "4 matched runs, all workload_valid=true. CPU medians (2 runs): person_onnx 82.58 ms [78.57, 82.58], weapon_window 539.65 ms [515.90, 539.65], violence_window 103.18 ms, capture/render/client fps p50 30. CUDA medians: person_onnx 22.285 ms [22.285, 22.046], weapon_window 52.86 ms [51.78, 52.86], violence_window 85.48 ms, fps 30. Speedups: person 3.706x, weapon 10.21x, violence 1.207x (violence torch on cuda:0 in BOTH configs; not the ONNX variable). Dirty-claim band: person 22.0-22.3 in [16.8,34.4] and weapon 51.8-52.9 in [28.2,55.9], capture>=28 -> verdict REPRODUCED. Providers in-run: CPU config ['CPUExecutionProvider']; CUDA config ['CUDAExecutionProvider','CPUExecutionProvider']. Registered revision-6fb3bcac CPU medians for reference: person_onnx 158.04 (n=155), weapon_window 809.01 (n=53), same source sha256."
+    },
+    "EXP-04": {
+      "verdict": "not run (budget/window)",
+      "notes": "fp16 gate NOT executed: the request budget and lock window were consumed by the corrected full-pipeline trials + analysis after the incident rework. Naive whole-model fp16 (ultralytics half=True) remains runnable via bench/accel/precision_gate.py; mixed-precision with detection-head block-listing remains DEFERRED with reason (onnxconverter_common absent, shared venv read-only). fp32 stays the default; no fp16 artifact exists to promote."
+    },
+    "EXP-05": {
+      "verdict": "reject TRT stage-2 on this host (with evidence)",
+      "notes": "TensorrtExecutionProvider listed by the wheel, but session creation fails in 0.072 s: RuntimeError 'CUDA_PATH is set but CUDA wasnt able to be loaded...'. Recon: nvinfer.dll not present on PATH; no TensorRT install directory. Two independent signatures (missing TRT runtime libs; CUDA/cuDNN DLLs not preloaded in the probe process). Stage-2 not runnable here; policy keeps TRT unselected."
+    },
+    "EXP-06": {
+      "verdict": "not completed",
+      "notes": "VRAM probe chain (1-worker then 2-worker, production trio) did not produce artifacts within the window (no raw-vram-*.json); likely worker startup/OOM under the 16 GB RAM budget; it was left running when the window closed. Per-camera-process VRAM at 1 and 2 workers remains UNMEASURED; WT-15 was told to cross-check with their own leg. 2-worker GPU inference must not be assumed feasible by this report."
+    },
+    "EXP-07": {
+      "verdict": "promote CUDA EP for the single-camera shape (conditions a+b met); 2-worker condition UNMEASURED",
+      "notes": "Pre-declared rule: (a) EXP-02 parity all pass [MET], (b) EXP-03 >=1.5x per-model speedup in both matched runs with no new failure state [MET for person 3.71x / weapon 10.21x; all four runs workload_valid=true], (c) EXP-06 2-worker VRAM <=10 GB [UNMEASURED]. Decision: promote ONNX CUDA EP (AI_SENTINEL_ORT_DEVICE=cuda) for the 1-camera demo shape where (a)+(b) are the binding conditions; multi-camera/2-worker GPU inference remains gated on measuring (c) — do not assume it. Rollback: AI_SENTINEL_ORT_DEVICE=cpu requires no wheel change (CPU EP exists in the installed onnxruntime-gpu build); full wheel rollback remains scripts/select_onnx_runtime.py --device cpu (mechanics tested; not executed here — venv read-only, pip show onnxruntime-gpu unchanged 1.18.0)."
+    }
+  },
+  "limitations": [
+    "venv shared and read-only: no wheel switch executed (pip show onnxruntime-gpu unchanged at end); promotion delivered as operator-executable flow with switch-mechanics tests",
+    "camera device absent: live-capture integrity unproven everywhere",
+    "fp16 mixed-precision (head block-listed) deferred: onnxconverter_common absent, venv read-only"
+  ]
+}

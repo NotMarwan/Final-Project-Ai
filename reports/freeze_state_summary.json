@@ -1,0 +1,20 @@
+{
+  "freeze_date": "2026-05-07",
+  "project": "AI-Sentinel",
+  "stable_runtime_reference": {
+    "final_live_alert_api_check": "PASS",
+    "safe_to_run_live_demo": true,
+    "violence_cls": 1,
+    "stable_model_sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+    "live_alert_decision_layer": "V2"
+  },
+  "false_positive_replay": {
+    "false_positive_replay_count": 5,
+    "still_confirmed_alert_count": 0,
+    "result": "PASS"
+  },
+  "workspace_observations": {
+    "local_backend_best_model_sha256": "1fb38eeb54821d827a4621ac3fce4ad98488bc05fbf99df9ab78a13ed223b6cb",
+    "local_backend_best_model_matches_reference": false
+  }
+}

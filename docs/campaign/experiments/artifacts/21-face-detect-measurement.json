@@ -1,0 +1,293 @@
+{
+  "model": "assets/yunet/face_detection_yunet_2023mar.onnx",
+  "model_sha256": null,
+  "fixture_frames": 27,
+  "repeats": 20,
+  "source_mode": "file-media fixtures extracted from demo_assets/videos/*.avi (NOT live capture)",
+  "per_frame": [
+    {
+      "frame": "FXC43fACfPc__f000000.jpg",
+      "size": "1920x1080",
+      "faces_native": 2,
+      "faces_max640": 1,
+      "ied_px_native": [
+        17.0,
+        13.2
+      ],
+      "yaw_proxy_deg": [
+        -0.1,
+        0.4
+      ]
+    },
+    {
+      "frame": "FXC43fACfPc__f000018.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000036.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000054.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000072.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000090.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000108.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000126.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "FXC43fACfPc__f000144.jpg",
+      "size": "1920x1080",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000000.jpg",
+      "size": "480x360",
+      "faces_native": 1,
+      "faces_max640": 1,
+      "ied_px_native": [
+        7.6
+      ],
+      "yaw_proxy_deg": [
+        -11.1
+      ]
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000018.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000036.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000054.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000072.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000090.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000108.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000126.jpg",
+      "size": "480x360",
+      "faces_native": 3,
+      "faces_max640": 3,
+      "ied_px_native": [
+        8.9,
+        10.2,
+        7.9
+      ],
+      "yaw_proxy_deg": [
+        -10.9,
+        29.5,
+        29.5
+      ]
+    },
+    {
+      "frame": "Wq0BuA8GM84__f000144.jpg",
+      "size": "480x360",
+      "faces_native": 1,
+      "faces_max640": 1,
+      "ied_px_native": [
+        9.6
+      ],
+      "yaw_proxy_deg": [
+        12.4
+      ]
+    },
+    {
+      "frame": "YDOJvzChqSg__f000000.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000018.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000036.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000054.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000072.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000090.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000108.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000126.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    },
+    {
+      "frame": "YDOJvzChqSg__f000144.jpg",
+      "size": "480x360",
+      "faces_native": 0,
+      "faces_max640": 0,
+      "ied_px_native": [],
+      "yaw_proxy_deg": []
+    }
+  ],
+  "totals": {
+    "faces_native_all_frames": 7,
+    "faces_max640_all_frames": 6,
+    "frames_with_faces_native": 4,
+    "frames_with_faces_max640": 4
+  },
+  "latency_warm_by_class": {
+    "1920x1080": {
+      "n": 180,
+      "p05_ms": 140.156,
+      "median_ms": 154.878,
+      "p95_ms": 197.468,
+      "mean_ms": 160.311
+    },
+    "480x360": {
+      "n": 360,
+      "p05_ms": 8.959,
+      "median_ms": 9.957,
+      "p95_ms": 12.044,
+      "mean_ms": 10.218
+    }
+  },
+  "latency_cold_first_call_ms": {
+    "n": 27,
+    "p05_ms": 8.591,
+    "median_ms": 9.79,
+    "p95_ms": 183.42,
+    "mean_ms": 62.261
+  },
+  "failure_states": {
+    "tiny_face_frame_1_6_scale": {
+      "detected": 1,
+      "reportable": 0,
+      "reasons": [
+        "face_box_too_small:8.3px<36px",
+        "ied_too_small:4.5px<12px"
+      ]
+    },
+    "motion_blur_face_region": {
+      "detected": 1,
+      "reportable": 1
+    },
+    "synthetic_no_face_scene": {
+      "detected": 0
+    }
+  }
+}

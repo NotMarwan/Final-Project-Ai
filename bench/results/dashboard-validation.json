@@ -1,0 +1,68 @@
+{
+  "checked_at_utc": "2026-09-12T06:49:00Z",
+  "scope": "Dashboard credibility panel and offline Arabic report viewer",
+  "files": [
+    "app/page.tsx",
+    "components/video-player.tsx",
+    "components/pipeline-telemetry.tsx",
+    "components/dashboard-header.tsx",
+    "components/alert-feed.tsx",
+    "components/ai-report.tsx",
+    "hooks/use-detection-stream.ts",
+    "lib/pipeline-telemetry.ts",
+    "lib/local-report.ts",
+    "tests/pipeline-telemetry.test.mjs",
+    "tests/local-report.test.mjs"
+  ],
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "passed": true
+    },
+    "focused_lint": {
+      "passed": true,
+      "warnings": 0
+    },
+    "whitespace_diff_check": {
+      "passed": true
+    },
+    "regression_tests": {
+      "command": "node --experimental-strip-types --test tests/local-report.test.mjs tests/pipeline-telemetry.test.mjs",
+      "passed": 15,
+      "failed": 0
+    },
+    "browser_smoke": {
+      "method": "Codex browser AX inspection and screenshot of locally rendered Next dashboard",
+      "viewport": [
+        1280,
+        720
+      ],
+      "states_verified": [
+        "Offline camera shows unavailable/retry; no automatic demo fallback",
+        "No-data scores, decision, thresholds, subsystem health and latency are unavailable",
+        "Header does not claim two live cameras; empty incident feed does not claim monitoring active",
+        "System displays measured page-session elapsed time and categorical connection status",
+        "Offline Arabic facts-only report viewer is primary; online DeepSeek report is collapsed and optional"
+      ]
+    }
+  },
+  "semantics": {
+    "samples": "Each score trace uses its own producer completion ID; combined or repeated render samples cannot invent per-model observations.",
+    "freshness": "Five-second transport and independent completed-inference freshness; historical values remain distinguishable from current state.",
+    "confirmation": "Only the backend decision contract yields CONFIRMED; scores or isThreat flags alone do not.",
+    "local_report": "Read-only saved facts summary via GET /reports/local/{alertId}; exact mode/id validated, Arabic plain text escaped and RTL, no image/VLM claim.",
+    "window_clock": "Window span explicitly distinguishes recorded-media time from live capture time; incomplete windows do not falsely show invalid."
+  },
+  "limitations": [
+    "No live-camera UI measurement",
+    "Actual replay trace and saved-report ready state were not browser-verified against the integrated backend",
+    "No claim of glass-to-alert latency, calibration, full runtime gate readiness, or Arabic VLM quality",
+    "Existing NEXT_PUBLIC_ADMIN_API_KEY authHeaders in ai-report were reused; no new credential storage or credential values introduced"
+  ],
+  "preview_cleanup": {
+    "started_parent_pid": 39836,
+    "started_server_pid": 32152,
+    "stopped": true
+  },
+  "research_artifact": "r06-local-arabic-vlm-research.json"
+}

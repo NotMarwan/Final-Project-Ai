@@ -1,0 +1,123 @@
+{
+  "schema_version": "weapon-negative-run-summary/1",
+  "alert_threshold": 0.65,
+  "denominators": {
+    "clips": 3,
+    "frames_with_detections": 36,
+    "detections_logged": 42
+  },
+  "false_alert_frames": 16,
+  "detections_at_or_above_alert": 16,
+  "per_class": {
+    "pistol": {
+      "detections": 41,
+      "at_or_above_alert": 16,
+      "max_score": 0.7241254448890686,
+      "p95_score": 0.7080497145652771
+    },
+    "knife": {
+      "detections": 1,
+      "at_or_above_alert": 0,
+      "max_score": 0.2663317918777466,
+      "p95_score": 0.2663317918777466
+    }
+  },
+  "per_group": {
+    "firearm": {
+      "detections": 41,
+      "at_or_above_alert": 16,
+      "max_score": 0.7241254448890686,
+      "p95_score": 0.7080497145652771
+    },
+    "edged": {
+      "detections": 1,
+      "at_or_above_alert": 0,
+      "max_score": 0.2663317918777466,
+      "p95_score": 0.2663317918777466
+    }
+  },
+  "splits": [
+    "unregistered"
+  ],
+  "interpretation": "Detections on a known-benign source are false positives by construction. Split provenance decides whether this figure may enter a gate claim; 'unregistered' rows are auxiliary-domain only.",
+  "run_id": "wt18-negaux-01",
+  "source_label": "aux-demo-clips",
+  "clips": [
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-negaux-01",
+      "fixture_id": "unregistered:FXC43fACfPc_0",
+      "source_sha256": "81dd72ec460e1102f63d9550dfa18b3e0d457804dc8757d8cb9a66eabedecc67",
+      "split": "unregistered",
+      "clip_id": "FXC43fACfPc_0",
+      "source": "aux-demo-clips",
+      "source_mode": "file-media",
+      "detections_logged": 35,
+      "per_class": {
+        "pistol": 35
+      },
+      "per_group": {
+        "firearm": 35
+      },
+      "log_path": "C:\\Users\\PCD\\Downloads\\jobs\\wt18-scratch\\fp-run-01\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 5,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-negaux-01",
+      "fixture_id": "unregistered:Wq0BuA8GM84_0",
+      "source_sha256": "55ff3f5731ab5d1001325786593b02102dc137c87b6051905f4e6932c22ad586",
+      "split": "unregistered",
+      "clip_id": "Wq0BuA8GM84_0",
+      "source": "aux-demo-clips",
+      "source_mode": "file-media",
+      "detections_logged": 4,
+      "per_class": {
+        "pistol": 4
+      },
+      "per_group": {
+        "firearm": 4
+      },
+      "log_path": "C:\\Users\\PCD\\Downloads\\jobs\\wt18-scratch\\fp-run-01\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 5,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    },
+    {
+      "schema_version": "weapon-fp-log/1",
+      "run_id": "wt18-negaux-01",
+      "fixture_id": "unregistered:YDOJvzChqSg_0 (1)",
+      "source_sha256": "5f3b56d5d23aa969e20697bc93e3d0ed40ae3a2774391dd97f69432a5c50f028",
+      "split": "unregistered",
+      "clip_id": "YDOJvzChqSg_0 (1)",
+      "source": "aux-demo-clips",
+      "source_mode": "file-media",
+      "detections_logged": 3,
+      "per_class": {
+        "knife": 1,
+        "pistol": 2
+      },
+      "per_group": {
+        "edged": 1,
+        "firearm": 2
+      },
+      "log_path": "C:\\Users\\PCD\\Downloads\\jobs\\wt18-scratch\\fp-run-01\\fp_detections.jsonl",
+      "frames_sampled": 30,
+      "stride": 5,
+      "model_sha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+      "execution_provider": "CUDAExecutionProvider",
+      "health": "ok"
+    }
+  ],
+  "media": [
+    "demo_assets\\videos\\FXC43fACfPc_0.avi",
+    "demo_assets\\videos\\Wq0BuA8GM84_0.avi",
+    "demo_assets\\videos\\YDOJvzChqSg_0 (1).avi"
+  ]
+}

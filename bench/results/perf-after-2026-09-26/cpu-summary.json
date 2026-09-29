@@ -1,0 +1,13 @@
+{
+  "metric": "Python process CPU share of total machine capacity",
+  "mean_percent": 6.43,
+  "p50_percent": 6.72,
+  "p95_percent": 8.59,
+  "sample_count": 49,
+  "measured_seconds": 50.1,
+  "logical_processors": 12,
+  "measurement_window": "50-second measured portion after the 25-second warmup",
+  "method": "PowerShell sampled cumulative CPU-time deltas for Python processes launched during this replay; CPU seconds were normalized by elapsed time and 12 logical processors.",
+  "before_comparison": null,
+  "before_comparison_reason": "The stock bench report does not sample CPU utilization; no matching process CPU samples were recorded for the before run."
+}

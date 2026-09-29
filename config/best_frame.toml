@@ -1,0 +1,40 @@
+# Best-frame selection + incident capture tuning (SC-5 pattern: one config block).
+#
+# The [best_frame] block below is the SINGLE authority for the deterministic
+# defect-axis scorer weights. Weights must sum to 1.0 (validated at load time).
+# Axes: sharpness (variance of Laplacian), exposure clipping, yaw (proxy from
+# face landmarks when faces are present), face size (px), inter-eye distance
+# (IED px), occlusion (fraction of the subject region occluded/clipped).
+[best_frame]
+w_sharpness = 0.30
+w_exposure = 0.15
+w_yaw = 0.15
+w_face_size = 0.20
+w_ied = 0.10
+w_occlusion = 0.10
+
+# Normalisation references. Values are saturated (clamped) at the reference.
+sharpness_ref = 500.0        # variance-of-Laplacian that counts as fully sharp
+exposure_clip_lo = 5         # pixel <= this counts as crushed
+exposure_clip_hi = 250       # pixel >= this counts as blown
+clipping_bad = 0.25          # clipped fraction that counts as fully bad exposure
+yaw_ratio_bad = 0.35         # |nose_x - eye_mid_x| / IED that counts as full profile
+face_min_px = 60.0           # face min-side px that counts as unusable
+face_good_px = 140.0         # face min-side px that counts as fully usable
+ied_min_px = 24.0            # IED px that counts as unusable
+ied_good_px = 60.0           # IED px that counts as fully usable
+
+# Pre-event ring sweep: the clearest frame usually precedes the trigger.
+[best_frame.window]
+pre_seconds = 10.0
+post_seconds = 5.0
+
+# Incident capture ring + queue. Scoring runs on `sample_fps` frames; a sparse
+# native-resolution ring exists so native crops remain possible when memory allows.
+[capture_ring]
+sample_fps = 4.0
+native_fps = 1.0
+native_max_frames = 24
+max_seconds = 10.0
+queue_capacity = 8
+max_post_frames_per_job = 64

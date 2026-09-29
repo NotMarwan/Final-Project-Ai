@@ -1,0 +1,561 @@
+{
+  "schema_version": "wt12-eval-report/1",
+  "generated_utc": "2026-09-28T23:25:53+00:00",
+  "protocol": "docs/campaign/eval/12-eval-protocol.md",
+  "manifest": "docs\\campaign\\eval\\12-fixture-manifest.json",
+  "operating_point": {
+    "violence_threshold": 0.45,
+    "match_before_s": 0.0,
+    "match_after_s": 5.0,
+    "rule": "threshold fixed before inspecting results; retuning is a separate declared step"
+  },
+  "splits_evaluated": [
+    "calibration",
+    "test",
+    "val"
+  ],
+  "fixtures_evaluated": [
+    "kth-walking-person01",
+    "kth-walking-person02",
+    "kth-walking-person03",
+    "kth-walking-person04",
+    "kth-walking-person05",
+    "kth-walking-person06",
+    "kth-walking-person07",
+    "kth-walking-person08",
+    "kth-walking-person09",
+    "kth-walking-person10",
+    "kth-walking-person11",
+    "kth-walking-person12"
+  ],
+  "source_modes": [
+    "file-media"
+  ],
+  "slices": {
+    "all": {
+      "fixtures": [
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 12,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 279,
+        "tn": 6107,
+        "fn": 0,
+        "predicted_positive": 279,
+        "actual_positive": 0,
+        "predicted_negative": 6107,
+        "actual_negative": 6386,
+        "n": 6386,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "grid_frames": 6742,
+        "unevaluated_frames": 356
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 9,
+        "tn": 197,
+        "fn": 0,
+        "predicted_positive": 9,
+        "actual_positive": 0,
+        "predicted_negative": 197,
+        "actual_negative": 206,
+        "n": 206,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "average_precision": null
+      },
+      "frame_level_by_class": {
+        "available": false,
+        "reason": "no detections recorded in outputs"
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 0,
+        "events_matched": 0,
+        "events_missed": 0,
+        "event_recall": null,
+        "alerts_total": 0,
+        "alerts_matched": 0,
+        "alert_precision": null,
+        "false_alerts": 0,
+        "false_alerts_detail": [],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 269.68,
+        "negative_observation_hours": 0.074911111,
+        "false_alerts_per_camera_hour": 0.0,
+        "missed_events_detail": [],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "low_resolution": {
+      "fixtures": [
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 12,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 279,
+        "tn": 6107,
+        "fn": 0,
+        "predicted_positive": 279,
+        "actual_positive": 0,
+        "predicted_negative": 6107,
+        "actual_negative": 6386,
+        "n": 6386,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "grid_frames": 6742,
+        "unevaluated_frames": 356
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 9,
+        "tn": 197,
+        "fn": 0,
+        "predicted_positive": 9,
+        "actual_positive": 0,
+        "predicted_negative": 197,
+        "actual_negative": 206,
+        "n": 206,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "average_precision": null
+      },
+      "frame_level_by_class": {
+        "available": false,
+        "reason": "no detections recorded in outputs"
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 0,
+        "events_matched": 0,
+        "events_missed": 0,
+        "event_recall": null,
+        "alerts_total": 0,
+        "alerts_matched": 0,
+        "alert_precision": null,
+        "false_alerts": 0,
+        "false_alerts_detail": [],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 269.68,
+        "negative_observation_hours": 0.074911111,
+        "false_alerts_per_camera_hour": 0.0,
+        "missed_events_detail": [],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "out_of_cctv_domain": {
+      "fixtures": [
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 12,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 279,
+        "tn": 6107,
+        "fn": 0,
+        "predicted_positive": 279,
+        "actual_positive": 0,
+        "predicted_negative": 6107,
+        "actual_negative": 6386,
+        "n": 6386,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "grid_frames": 6742,
+        "unevaluated_frames": 356
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 9,
+        "tn": 197,
+        "fn": 0,
+        "predicted_positive": 9,
+        "actual_positive": 0,
+        "predicted_negative": 197,
+        "actual_negative": 206,
+        "n": 206,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "average_precision": null
+      },
+      "frame_level_by_class": {
+        "available": false,
+        "reason": "no detections recorded in outputs"
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 0,
+        "events_matched": 0,
+        "events_missed": 0,
+        "event_recall": null,
+        "alerts_total": 0,
+        "alerts_matched": 0,
+        "alert_precision": null,
+        "false_alerts": 0,
+        "false_alerts_detail": [],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 269.68,
+        "negative_observation_hours": 0.074911111,
+        "false_alerts_per_camera_hour": 0.0,
+        "missed_events_detail": [],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "staged_single_person": {
+      "fixtures": [
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 12,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 279,
+        "tn": 6107,
+        "fn": 0,
+        "predicted_positive": 279,
+        "actual_positive": 0,
+        "predicted_negative": 6107,
+        "actual_negative": 6386,
+        "n": 6386,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "grid_frames": 6742,
+        "unevaluated_frames": 356
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 9,
+        "tn": 197,
+        "fn": 0,
+        "predicted_positive": 9,
+        "actual_positive": 0,
+        "predicted_negative": 197,
+        "actual_negative": 206,
+        "n": 206,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "average_precision": null
+      },
+      "frame_level_by_class": {
+        "available": false,
+        "reason": "no detections recorded in outputs"
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 0,
+        "events_matched": 0,
+        "events_missed": 0,
+        "event_recall": null,
+        "alerts_total": 0,
+        "alerts_matched": 0,
+        "alert_precision": null,
+        "false_alerts": 0,
+        "false_alerts_detail": [],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 269.68,
+        "negative_observation_hours": 0.074911111,
+        "false_alerts_per_camera_hour": 0.0,
+        "missed_events_detail": [],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    },
+    "static_camera": {
+      "fixtures": [
+        "kth-walking-person01",
+        "kth-walking-person02",
+        "kth-walking-person03",
+        "kth-walking-person04",
+        "kth-walking-person05",
+        "kth-walking-person06",
+        "kth-walking-person07",
+        "kth-walking-person08",
+        "kth-walking-person09",
+        "kth-walking-person10",
+        "kth-walking-person11",
+        "kth-walking-person12"
+      ],
+      "fixtures_n": 12,
+      "frame_level": {
+        "level": "frame",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 279,
+        "tn": 6107,
+        "fn": 0,
+        "predicted_positive": 279,
+        "actual_positive": 0,
+        "predicted_negative": 6107,
+        "actual_negative": 6386,
+        "n": 6386,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "grid_frames": 6742,
+        "unevaluated_frames": 356
+      },
+      "window_level": {
+        "level": "window",
+        "threshold": 0.45,
+        "tp": 0,
+        "fp": 9,
+        "tn": 197,
+        "fn": 0,
+        "predicted_positive": 9,
+        "actual_positive": 0,
+        "predicted_negative": 197,
+        "actual_negative": 206,
+        "n": 206,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0,
+        "average_precision": null
+      },
+      "frame_level_by_class": {
+        "available": false,
+        "reason": "no detections recorded in outputs"
+      },
+      "event_level": {
+        "level": "event",
+        "match_before_s": 0.0,
+        "match_after_s": 5.0,
+        "events_total": 0,
+        "events_matched": 0,
+        "events_missed": 0,
+        "event_recall": null,
+        "alerts_total": 0,
+        "alerts_matched": 0,
+        "alert_precision": null,
+        "false_alerts": 0,
+        "false_alerts_detail": [],
+        "pre_onset_false_alerts": 0,
+        "negative_observation_seconds": 269.68,
+        "negative_observation_hours": 0.074911111,
+        "false_alerts_per_camera_hour": 0.0,
+        "missed_events_detail": [],
+        "time_to_detection_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "onset_known_only": true
+        }
+      },
+      "counting": {
+        "level": "counting",
+        "available": false,
+        "reason": "no fixture carries labels.counts; counting metrics unmeasured"
+      }
+    }
+  },
+  "bootstrap": {
+    "unit": "session",
+    "units": 12,
+    "unit_ids": [
+      "kth-person01",
+      "kth-person02",
+      "kth-person03",
+      "kth-person04",
+      "kth-person05",
+      "kth-person06",
+      "kth-person07",
+      "kth-person08",
+      "kth-person09",
+      "kth-person10",
+      "kth-person11",
+      "kth-person12"
+    ],
+    "resamples": 2000,
+    "seed": 20260929,
+    "method": "cluster bootstrap over independent units; percentile 95% CI; adjacent frames/windows never resampled independently",
+    "intervals": {
+      "frame_precision": {
+        "estimate": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "resamples_with_value": 1987
+      },
+      "frame_recall": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      },
+      "window_precision": {
+        "estimate": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "resamples_with_value": 1987
+      },
+      "window_recall": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      },
+      "event_recall": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      },
+      "alert_precision": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      },
+      "false_alerts_per_camera_hour": {
+        "estimate": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "resamples_with_value": 2000
+      },
+      "ttd_p50": {
+        "estimate": null,
+        "ci95_low": null,
+        "ci95_high": null,
+        "resamples_with_value": 0
+      }
+    }
+  },
+  "unavailable_metrics": [
+    {
+      "metric": "time_to_detection_s",
+      "reason": "no evaluated fixture carries an independently labeled onset; clip-level publisher labels cannot time the alert"
+    },
+    {
+      "metric": "counting",
+      "reason": "no evaluated fixture carries labels.counts"
+    },
+    {
+      "metric": "ap50_by_class",
+      "reason": "no box-level ground truth in fixtures"
+    }
+  ]
+}

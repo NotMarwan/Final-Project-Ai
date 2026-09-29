@@ -1,0 +1,27 @@
+{
+ "queue_pressure": {
+  "queue_capacity": 2,
+  "triggers": 21,
+  "trigger_elapsed_s": 0.0,
+  "feed_500_finished_within_15s": true,
+  "feed_elapsed_s": 0.0,
+  "counter": {
+   "triggered": 21,
+   "completed": 0,
+   "failed": 0,
+   "dropped_jobs": 19,
+   "dropped_frames": 0
+  },
+  "no_hang": true
+ },
+ "storage_failure": {
+  "evidence_dir": "C:\\Users\\PCD\\AppData\\Local\\Temp\\wt29-evidence-qez4oo2l\\readonly-evidence",
+  "enforced_by": "icacls deny PCD:(OI)(CI)W",
+  "write_succeeded": false,
+  "explicit_error": true,
+  "error_type": "PermissionError",
+  "error_message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\PCD\\\\AppData\\\\Local\\\\Temp\\\\wt29-evidence-qez4oo2l\\\\readonly-evidence\\\\alert-test.mp4'",
+  "error_mentions_path": true
+ },
+ "clock_utc": "2026-09-29T04:19:50Z"
+}

@@ -1,0 +1,303 @@
+{
+  "fixture_id": "kth-boxing-person09",
+  "source_sha256": "ce1415565f5b7efd03b7000383c5bc4ac3bcfca7f48c24fd9ee48c492bfe6347",
+  "run_id": "wt18-kth-boxing-01",
+  "source_mode": "file-media",
+  "windows": [],
+  "detections": [
+    {
+      "time_s": 0.4,
+      "class": "pistol",
+      "score": 0.5484052300453186,
+      "bbox": [
+        54.8614616394043,
+        17.849472045898438,
+        90.27687072753906,
+        43.48738098144531
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 0.8,
+      "class": "pistol",
+      "score": 0.7076793909072876,
+      "bbox": [
+        52.061920166015625,
+        24.784408569335938,
+        61.076507568359375,
+        33.81641387939453
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 1.2,
+      "class": "pistol",
+      "score": 0.2543795108795166,
+      "bbox": [
+        52.93585205078125,
+        19.351341247558594,
+        90.76527404785156,
+        42.38030242919922
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 1.6,
+      "class": "pistol",
+      "score": 0.411689817905426,
+      "bbox": [
+        52.209815979003906,
+        23.83141326904297,
+        60.29517364501953,
+        31.722572326660156
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 2.0,
+      "class": "pistol",
+      "score": 0.45247405767440796,
+      "bbox": [
+        64.83155822753906,
+        22.296234130859375,
+        90.09779357910156,
+        39.08168029785156
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 2.8,
+      "class": "pistol",
+      "score": 0.5075947046279907,
+      "bbox": [
+        59.966796875,
+        21.057662963867188,
+        68.42338562011719,
+        32.78840637207031
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 3.2,
+      "class": "pistol",
+      "score": 0.22395777702331543,
+      "bbox": [
+        57.166259765625,
+        19.941925048828125,
+        68.10818481445312,
+        29.536788940429688
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 3.6,
+      "class": "pistol",
+      "score": 0.3351980447769165,
+      "bbox": [
+        52.94212341308594,
+        22.295631408691406,
+        62.64501190185547,
+        29.74726104736328
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 4.0,
+      "class": "pistol",
+      "score": 0.6511744260787964,
+      "bbox": [
+        57.453277587890625,
+        21.567893981933594,
+        89.66021728515625,
+        43.887916564941406
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 4.4,
+      "class": "pistol",
+      "score": 0.5450592041015625,
+      "bbox": [
+        62.84978485107422,
+        24.46784210205078,
+        69.5916519165039,
+        32.985023498535156
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 5.2,
+      "class": "pistol",
+      "score": 0.6811178922653198,
+      "bbox": [
+        60.756187438964844,
+        23.610607147216797,
+        69.19341278076172,
+        33.73453140258789
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 5.6,
+      "class": "pistol",
+      "score": 0.6330870985984802,
+      "bbox": [
+        54.121826171875,
+        23.591079711914062,
+        63.03563690185547,
+        31.83514404296875
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 6.8,
+      "class": "pistol",
+      "score": 0.2826838493347168,
+      "bbox": [
+        66.04277038574219,
+        23.09972381591797,
+        74.75177001953125,
+        31.012428283691406
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 7.6,
+      "class": "pistol",
+      "score": 0.6125224828720093,
+      "bbox": [
+        56.94298553466797,
+        21.251304626464844,
+        65.6639404296875,
+        30.980659484863285
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 8.0,
+      "class": "pistol",
+      "score": 0.6890167593955994,
+      "bbox": [
+        53.979698181152344,
+        21.101097106933594,
+        63.76769256591797,
+        29.32733917236328
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 8.4,
+      "class": "pistol",
+      "score": 0.46306079626083374,
+      "bbox": [
+        52.057090759277344,
+        23.308265686035156,
+        60.972862243652344,
+        31.277656555175778
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 8.8,
+      "class": "pistol",
+      "score": 0.510113537311554,
+      "bbox": [
+        59.326255798339844,
+        20.9599609375,
+        67.7657241821289,
+        29.430160522460938
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 10.0,
+      "class": "pistol",
+      "score": 0.6665521264076233,
+      "bbox": [
+        57.91450500488281,
+        21.099639892578125,
+        66.0759048461914,
+        30.059013366699222
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 10.4,
+      "class": "pistol",
+      "score": 0.24052220582962036,
+      "bbox": [
+        51.272525787353516,
+        22.79180145263672,
+        62.46267318725586,
+        31.11425018310547
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    },
+    {
+      "time_s": 11.2,
+      "class": "pistol",
+      "score": 0.2655907869338989,
+      "bbox": [
+        58.105560302734375,
+        23.508827209472656,
+        67.0890884399414,
+        31.896766662597656
+      ],
+      "canonical_label": "pistol",
+      "group": "firearm"
+    }
+  ],
+  "alerts": [
+    {
+      "alert_id": "kth-boxing-person09:person09_boxing_d1_uncomp:20:1",
+      "time_s": 0.8,
+      "score": 0.7076793909072876,
+      "class": "pistol"
+    },
+    {
+      "alert_id": "kth-boxing-person09:person09_boxing_d1_uncomp:100:8",
+      "time_s": 4.0,
+      "score": 0.6511744260787964,
+      "class": "pistol"
+    },
+    {
+      "alert_id": "kth-boxing-person09:person09_boxing_d1_uncomp:130:10",
+      "time_s": 5.2,
+      "score": 0.6811178922653198,
+      "class": "pistol"
+    },
+    {
+      "alert_id": "kth-boxing-person09:person09_boxing_d1_uncomp:200:14",
+      "time_s": 8.0,
+      "score": 0.6890167593955994,
+      "class": "pistol"
+    },
+    {
+      "alert_id": "kth-boxing-person09:person09_boxing_d1_uncomp:250:17",
+      "time_s": 10.0,
+      "score": 0.6665521264076233,
+      "class": "pistol"
+    }
+  ],
+  "tracks": [],
+  "model_sha256": null
+}

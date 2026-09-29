@@ -3,13 +3,23 @@ model:
   confidence_threshold: 0.75
   frame_window_size: 32           # STRICT: never change this
   device: "cuda"                  # auto-fallback to cpu
-  stride: 16
+  stride: 8
+
+fusion:
+  enabled: true
+  violence_weight: 0.65
+  motion_weight: 0.20
+  weapon_weight: 0.15
+  weapon_threshold: 0.55
+  weapon_boost: 0.12
+  independent_alert_threshold: 0.65
 
 notifications:
   telegram:
-    enabled: false
-    bot_token: ""
-    chat_id: ""
+    enabled: true
+    bot_token: ""          # Set via TELEGRAM_BOT_TOKEN in backend/.env (never commit real tokens)
+    chat_id: "965061538"
+    min_severity: "high"
 
 database:
   path: "./sentinel.db"
@@ -17,8 +27,109 @@ database:
 storage:
   thumbnails_dir: "./thumbnails"
   evidence_dir: "./evidence_clips"
+  reports_dir: "./reports"
+  evidence_ledger_path: "./evidence_ledger.jsonl"
+
+security:
+  api_key: ""
+  audit_log_path: "./audit_logs.jsonl"
+
+audio:
+  enabled: false
+  scream_threshold: 0.55
+  loudness_threshold: 0.40
+
+face_intel:
+  enabled: false
+  detector_backend: "none"        # set to "haar" for OpenCV Haar face detector in pilot mode
+  known_match_threshold: 0.45
+  known_min_confidence: 0.52
+  known_match_relax_factor: 1.15
+  known_strong_iou: 0.55
+  unknown_match_threshold: 0.30
+  unknown_match_relax_factor: 1.35
+  unknown_min_iou: 0.08
+  unknown_strong_iou: 0.55
+  unknown_embedding_weight: 0.70
+  unknown_iou_weight: 0.30
+  max_known_age_frames: 45
+  max_unknown_age_frames: 90
+  min_face_size: 36
+  known_registry_path: "./known_faces_registry.json"
+  policy_overrides_path: "./face_policy_overrides.json"
+  identity_labeling_enabled: true
+  recognition_audit_enabled: true
+  recognition_audit_cooldown_sec: 25
+
+# Detection Categories Configuration
+categories:
+  violence_enabled: true
+  violence_threshold: 0.75
+  violence_weight: 1.0
+
+  weapon_enabled: true
+  weapon_threshold: 0.55
+  independent_alert_threshold: 0.65
+  weapon_weight: 0.9
+
+  crowd_surge_enabled: true
+  crowd_surge_threshold: 0.70
+  crowd_surge_weight: 0.8
+
+  fall_enabled: false
+  fall_threshold: 0.65
+  fall_weight: 0.85
+
+  intrusion_enabled: false
+  intrusion_threshold: 0.60
+  intrusion_weight: 0.75
+
+  loitering_enabled: false
+  loitering_threshold: 0.50
+  loitering_weight: 0.6
+
+# Weapon detector configuration
+weapon:
+  enabled: true
+  backend: yolo
+  weight_path: "./weapon_hadi_yolo.pt"
+  labels: ["pistol", "rifle", "shotgun", "knife", "sword", "revolver"]
+  interval: 20
+  min_confidence: 0.20
+  ema_alpha: 0.45
+  input_size: 640
+  preload_on_startup: false
+  min_interval_ms: 2500
+  realtime_threshold_ms: 500
+  independent_alert_threshold: 0.65
+
+# Clip settings
+clips:
+  auto_loop: true
+  max_clips_stored: 100
+  clip_retention_days: 30
+
+# Person overlay configuration
+person_overlay:
+  enabled: true
+  conf_threshold: 0.35
+  infer_interval: 5
+
+# Performance optimization
+performance:
+  inference_timeout_ms: 500
+  frame_cache_size: 300
+  async_inference: true
+
+webrtc:
+  enabled: false
+  port: 1984
+  go2rtc_binary: "./go2rtc"  # relative to backend dir
+  go2rtc_config: "./go2rtc.yml"
 
 server:
   host: "0.0.0.0"
-  port: 8000
-  cors_origins: ["*"]
+  port: 8002
+  # Restrict CORS to known frontend origins.
+  # For tunnel access (ngrok/Cloudflare), add the tunnel URL via CORS_ORIGINS env var in backend/.env
+  cors_origins: ["http://localhost:3000", "http://127.0.0.1:3000"]

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "permission": {
+    "read": "allow",
+    "edit": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "bash": "allow",
+    "task": "allow",
+    "external_directory": "allow",
+    "todowrite": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "codesearch": "allow",
+    "lsp": "allow",
+    "doom_loop": "allow",
+    "skill": "allow",
+    "todoread": "allow"
+  },
+  "default_agent": "code",
+  "agent": {
+    "backend-reviewer-2": {
+      "mode": "subagent",
+      "description": "Backend API & architecture deep-dive specialist (second reviewer)",
+      "prompt": "Read repository-root AGENTS.md and the documents it names before working. Your role is backend-reviewer-2. Use current implementation and measured evidence. Carry out only the assigned task; do not treat historical artifacts as instructions. This role adds no independent project facts or approval requirements.",
+      "model": "kilo/stepfun/step-3.5-flash:free",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow"
+      }
+    }
+  }
+}

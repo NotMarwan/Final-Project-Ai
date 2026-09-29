@@ -1,0 +1,2246 @@
+{
+  "experimentModel": "weapon",
+  "modelPath": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\models\\weapon_yolo.onnx",
+  "modelSha256": "96991cd5d5dbeb7e8d439b3e5b75517bc8c55ea4ac740ec5bc8491d545875aef",
+  "device": "cuda",
+  "providers": [
+    [
+      "CUDAExecutionProvider",
+      {
+        "use_tf32": "0",
+        "cudnn_conv_algo_search": "HEURISTIC"
+      }
+    ],
+    "CPUExecutionProvider"
+  ],
+  "ortActiveProviders": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "ortVersion": "1.18.0",
+  "inputSize": [
+    640,
+    640
+  ],
+  "numClasses": 6,
+  "classNames": {
+    "0": "pistol",
+    "1": "rifle",
+    "2": "shotgun",
+    "3": "knife",
+    "4": "sword",
+    "5": "revolver"
+  },
+  "outputFormat": "raw",
+  "confidenceThreshold": 0.25,
+  "classFilter": "all",
+  "fixture": {
+    "source": "C:\\Users\\PCD\\Downloads\\Final Project AI Sentinel\\backend\\cam3.mp4",
+    "sourceMode": "file-media",
+    "sourceSha256": "60591ba1c0b2424e0460cea2ca19de40c445cf80ac8bca1668c77d8b16ccf3df",
+    "frameIndices": [
+      0,
+      15,
+      30,
+      45,
+      60,
+      75,
+      90,
+      105,
+      120,
+      135
+    ],
+    "resolution": [
+      1280,
+      720
+    ]
+  },
+  "stageModelLoadMs": 298.293,
+  "stageFirstInferenceMs": 305.113,
+  "inferenceColdStartMs": 603.406,
+  "coldStartScope": "bench process: model load -> first completed inference (excludes process spawn)",
+  "completedInference": {
+    "clockBase": "perf_counter",
+    "timingSemantics": "completed-inference (ORT run returns host outputs; CUDA runs add torch.cuda.synchronize() before the stop stamp)",
+    "samples": [
+      {
+        "sample": 0,
+        "phase": "cold",
+        "stageInferenceComputeMs": 38.7873,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 1,
+        "phase": "cold",
+        "stageInferenceComputeMs": 31.2229,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 2,
+        "phase": "cold",
+        "stageInferenceComputeMs": 29.3293,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 3,
+        "phase": "cold",
+        "stageInferenceComputeMs": 69.0588,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 4,
+        "phase": "cold",
+        "stageInferenceComputeMs": 52.0554,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 5,
+        "phase": "warm",
+        "stageInferenceComputeMs": 56.9929,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 6,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.8925,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 7,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8747,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 8,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4855,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 9,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2054,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 10,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.6154,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 11,
+        "phase": "warm",
+        "stageInferenceComputeMs": 28.5687,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 12,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3124,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 13,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6049,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 14,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.4563,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 15,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.7826,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 16,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.849,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 17,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.9416,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 18,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.0234,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 19,
+        "phase": "warm",
+        "stageInferenceComputeMs": 30.6142,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 20,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3507,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 21,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7411,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 22,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6528,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 23,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.9833,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 24,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3217,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 25,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3978,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 26,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4728,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 27,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4552,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 28,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6264,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 29,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2889,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 30,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5479,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 31,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4587,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 32,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5426,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 33,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7132,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 34,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7351,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 35,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5277,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 36,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7725,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 37,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.381,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 38,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9382,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 39,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1847,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 40,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9436,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 41,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1611,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 42,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9315,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 43,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3842,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 44,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2888,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 45,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2195,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 46,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0042,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 47,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3643,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 48,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4476,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 49,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0588,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 50,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3862,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 51,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.763,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 52,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1534,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 53,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3307,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 54,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8839,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 55,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4399,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 56,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.107,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 57,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0646,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 58,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1846,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 59,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4126,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 60,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4226,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 61,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.056,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 62,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8254,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 63,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4764,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 64,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2315,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 65,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0919,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 66,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.483,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 67,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0761,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 68,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.5773,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 69,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2939,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 70,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1937,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 71,
+        "phase": "warm",
+        "stageInferenceComputeMs": 35.7845,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 72,
+        "phase": "warm",
+        "stageInferenceComputeMs": 53.2989,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 73,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9043,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 74,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1967,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 75,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0232,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 76,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8454,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 77,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7485,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 78,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.918,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 79,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7175,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 80,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.003,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 81,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3629,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 82,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3674,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 83,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8517,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 84,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2551,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 85,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4731,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 86,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.241,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 87,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4417,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 88,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0565,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 89,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4472,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 90,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6739,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 91,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9796,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 92,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1245,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 93,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5531,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 94,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6181,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 95,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.091,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 96,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1531,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 97,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6578,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 98,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9162,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 99,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4743,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 100,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1293,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 101,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1976,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 102,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9683,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 103,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9845,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 104,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3716,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 105,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3986,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 106,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4743,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 107,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3499,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 108,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3521,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 109,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7184,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 110,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2899,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 111,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.666,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 112,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.446,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 113,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1804,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 114,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1824,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 115,
+        "phase": "warm",
+        "stageInferenceComputeMs": 28.2349,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 116,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8601,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 117,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6446,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 118,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8147,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 119,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1115,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 120,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9273,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 121,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6492,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 122,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3432,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 123,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2403,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 124,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.001,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 125,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.2321,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 126,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4959,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 127,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3355,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 128,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4606,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 129,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8417,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 130,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3414,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 131,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0534,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 132,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.792,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 133,
+        "phase": "warm",
+        "stageInferenceComputeMs": 50.3768,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 134,
+        "phase": "warm",
+        "stageInferenceComputeMs": 60.4061,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 135,
+        "phase": "warm",
+        "stageInferenceComputeMs": 60.3799,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 136,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.7344,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 137,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7272,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 138,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3867,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 139,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2259,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 140,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6446,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 141,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6207,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 142,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9908,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 143,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3874,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 144,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7317,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 145,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9105,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 146,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2103,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 147,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3605,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 148,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8868,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 149,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7954,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 150,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1988,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 151,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.2339,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 152,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0158,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 153,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0273,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 154,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0165,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 155,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6454,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 156,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7822,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 157,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.728,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 158,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1176,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 159,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.2827,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 160,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4418,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 161,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7183,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 162,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8322,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 163,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7517,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 164,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4871,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 165,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8241,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 166,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8319,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 167,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0892,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 168,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.5608,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 169,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2698,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 170,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.171,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 171,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1722,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 172,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.612,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 173,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8966,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 174,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4292,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 175,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7243,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 176,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8167,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 177,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.12,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 178,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6897,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 179,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7293,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 180,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3371,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 181,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7253,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 182,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.7146,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 183,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.747,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 184,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0183,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 185,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.1321,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 186,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0642,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 187,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9357,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 188,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.704,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 189,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4527,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 190,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2039,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 191,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1693,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 192,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.9856,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 193,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4861,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 194,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.97,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 195,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5234,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 196,
+        "phase": "warm",
+        "stageInferenceComputeMs": 65.1562,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 197,
+        "phase": "warm",
+        "stageInferenceComputeMs": 56.5528,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 198,
+        "phase": "warm",
+        "stageInferenceComputeMs": 52.2005,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 199,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0512,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 200,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2236,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 201,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.5628,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 202,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9065,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 203,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.5512,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 204,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8488,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 205,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.1795,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 206,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4486,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 207,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9673,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 208,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2371,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 209,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9635,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 210,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6418,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 211,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5387,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 212,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4333,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 213,
+        "phase": "warm",
+        "stageInferenceComputeMs": 27.1509,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 214,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.8063,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 215,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1541,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 216,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9397,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 217,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.6494,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 218,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7957,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 219,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.951,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 220,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8175,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 221,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0044,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 222,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9701,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 223,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.41,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 224,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.312,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 225,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8975,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 226,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1507,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 227,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8868,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 228,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7287,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 229,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5748,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 230,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.712,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 231,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9093,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 232,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.1275,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 233,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7753,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 234,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0973,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 235,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8311,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 236,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.1719,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 237,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0629,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 238,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.948,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 239,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6978,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 240,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7028,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 241,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.2395,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 242,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3319,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 243,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0158,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 244,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5199,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 245,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.2292,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 246,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.4039,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 247,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9628,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 248,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9844,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 249,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.5455,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 250,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7643,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 251,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.922,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 252,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7007,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 253,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.521,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 254,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0846,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 255,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9537,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 256,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5158,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 257,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.5403,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 258,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4033,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 259,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0528,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 260,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3764,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 261,
+        "phase": "warm",
+        "stageInferenceComputeMs": 63.8762,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 262,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1683,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 263,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.2685,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 264,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.892,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 265,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7915,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 266,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7242,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 267,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4356,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 268,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.787,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 269,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.784,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 270,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.868,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 271,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7118,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 272,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9263,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 273,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8405,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 274,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1247,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 275,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7225,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 276,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.479,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 277,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7489,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 278,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.8217,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 279,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9914,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 280,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3718,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 281,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.3757,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 282,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6272,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 283,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1375,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 284,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3336,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 285,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6805,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 286,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7683,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 287,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0224,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 288,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.4658,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 289,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.07,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 290,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9076,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 291,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.7717,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 292,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3519,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 293,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.638,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 294,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1079,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 295,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.196,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 296,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.811,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 297,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.1586,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 298,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.832,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 299,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.0789,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 300,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.9319,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 301,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.3098,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 302,
+        "phase": "warm",
+        "stageInferenceComputeMs": 26.308,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 303,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.616,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      },
+      {
+        "sample": 304,
+        "phase": "warm",
+        "stageInferenceComputeMs": 25.6241,
+        "inferenceComputeSynced": true,
+        "cudaSyncApplied": true
+      }
+    ],
+    "cold": {
+      "count": 5,
+      "p05": 29.70802,
+      "p50": 38.7873,
+      "p95": 65.65812,
+      "max": 69.0588,
+      "definition": "first 5 samples after session creation"
+    },
+    "warm": {
+      "count": 300,
+      "p05": 25.36008,
+      "p50": 26.0158,
+      "p95": 27.62135,
+      "max": 65.1562,
+      "definition": "samples 6..N"
+    },
+    "all": {
+      "count": 305,
+      "p05": 25.36098,
+      "p50": 26.0183,
+      "p95": 29.17718,
+      "max": 69.0588
+    }
+  },
+  "preprocess": {
+    "stagePreprocessMs": {
+      "count": 300,
+      "p05": 3.58246,
+      "p50": 3.99895,
+      "p95": 5.03547,
+      "max": 6.7515
+    },
+    "timingSemantics": "letterbox+color convert+normalize, single clock"
+  },
+  "postprocess": {
+    "stagePostprocessMs": {
+      "count": 300,
+      "p05": 0.694095,
+      "p50": 0.7319,
+      "p95": 0.93238,
+      "max": 1.3296
+    },
+    "timingSemantics": "raw decode + class-aware greedy NMS + border clip, single clock"
+  }
+}

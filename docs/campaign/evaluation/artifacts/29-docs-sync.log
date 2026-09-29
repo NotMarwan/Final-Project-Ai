@@ -1,0 +1,5 @@
+
+> my-project@0.1.0 docs:sync
+> node scripts/docs-contract.mjs --write
+
+Documentation authority and local design/source snapshots are consistent. Runtime gates are not certified.

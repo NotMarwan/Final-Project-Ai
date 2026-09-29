@@ -1,0 +1,37 @@
+{
+  "validated_records": [
+    "kth-boxing-07",
+    "kth-walking-01"
+  ],
+  "windows_per_record": {
+    "kth-boxing-07": 2,
+    "kth-walking-01": 2
+  },
+  "unmatched": [],
+  "window_field_names": [
+    "calibrated_conf",
+    "end_s",
+    "ensemble_k",
+    "ensemble_score",
+    "ensemble_spread",
+    "frames_collected",
+    "frames_required",
+    "logit_margin",
+    "motion_energy",
+    "motion_gated",
+    "raw_conf",
+    "smoothed_conf",
+    "span_s",
+    "start_s",
+    "valid",
+    "violence_conf",
+    "window_id"
+  ],
+  "negative_control_sha256": "rejected as expected: output for 'kth-boxing-07' carries source_sha256 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd' but the manifest names 114049bf85580c9d5a699a09bb8971425d0c9f641b6bfd326758333672ec73a5",
+  "negative_control_live": "rejected as expected: no camera device exists in this environment; a 'live' source_mode record cannot be accepted",
+  "negative_control_conf_range": "rejected as expected: kth-boxing-07: window.violence_conf must be in [0,1]",
+  "empty_manifest_matches_nothing": {
+    "payloads": 0,
+    "unmatched": 4
+  }
+}

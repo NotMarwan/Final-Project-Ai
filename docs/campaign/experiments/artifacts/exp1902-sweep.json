@@ -1,0 +1,241 @@
+{
+  "mode": "sweep",
+  "code_sha": "e86d34b5d16abcc133ad3470c8d135d00b2423d4",
+  "weights": "C:\\Users\\PCD\\Downloads\\jobs\\sentinel-campaign\\wt-19\\backend\\best_model.pt",
+  "weights_sha256": "2c8222d3663a0ac54ed9e1c5b372378b771a8dd0f3c0ed1ed04cee4013620d01",
+  "device": "cuda",
+  "source_mode": "synthetic-30fps-stream + random windows",
+  "g04_budget_ms": {
+    "p50": 1200,
+    "p95": 2000
+  },
+  "cells": [
+    {
+      "window": 16,
+      "stride": 4,
+      "feasible_on_shipped_slowfast": false,
+      "infeasibility_reason": "input image (T: 4 H: 7 W: 7) smaller than kernel size (kT: 8 kH: 7 kW: 7)",
+      "window_span_s": 0.5,
+      "window_span_pct_of_g04_p50": 41.666666666666664,
+      "scoring_period_s": 0.13333333333333333,
+      "ema_ramp_s": 0.13333333333333333,
+      "n_of_m_confirmation_s": 0.26666666666666666,
+      "implied_glass_to_alert_floor_s_before_inference": 1.0333333333333332,
+      "model_inference_ms_median": null,
+      "model_inference_ms_p95": null,
+      "implied_floor_plus_inference_s": null,
+      "inferences_per_s": null,
+      "window_valid_rate_clean": {
+        "valid": 585,
+        "total": 585,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 182,
+        "total": 585,
+        "rate": 0.3111111111111111
+      },
+      "g04_p50_budget_met_before_fusion": null
+    },
+    {
+      "window": 16,
+      "stride": 8,
+      "feasible_on_shipped_slowfast": false,
+      "infeasibility_reason": "input image (T: 4 H: 7 W: 7) smaller than kernel size (kT: 8 kH: 7 kW: 7)",
+      "window_span_s": 0.5,
+      "window_span_pct_of_g04_p50": 41.666666666666664,
+      "scoring_period_s": 0.26666666666666666,
+      "ema_ramp_s": 0.26666666666666666,
+      "n_of_m_confirmation_s": 0.5333333333333333,
+      "implied_glass_to_alert_floor_s_before_inference": 1.5666666666666664,
+      "model_inference_ms_median": null,
+      "model_inference_ms_p95": null,
+      "implied_floor_plus_inference_s": null,
+      "inferences_per_s": null,
+      "window_valid_rate_clean": {
+        "valid": 585,
+        "total": 585,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 182,
+        "total": 585,
+        "rate": 0.3111111111111111
+      },
+      "g04_p50_budget_met_before_fusion": null
+    },
+    {
+      "window": 16,
+      "stride": 16,
+      "feasible_on_shipped_slowfast": false,
+      "infeasibility_reason": "input image (T: 4 H: 7 W: 7) smaller than kernel size (kT: 8 kH: 7 kW: 7)",
+      "window_span_s": 0.5,
+      "window_span_pct_of_g04_p50": 41.666666666666664,
+      "scoring_period_s": 0.5333333333333333,
+      "ema_ramp_s": 0.5333333333333333,
+      "n_of_m_confirmation_s": 1.0666666666666667,
+      "implied_glass_to_alert_floor_s_before_inference": 2.633333333333333,
+      "model_inference_ms_median": null,
+      "model_inference_ms_p95": null,
+      "implied_floor_plus_inference_s": null,
+      "inferences_per_s": null,
+      "window_valid_rate_clean": {
+        "valid": 585,
+        "total": 585,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 182,
+        "total": 585,
+        "rate": 0.3111111111111111
+      },
+      "g04_p50_budget_met_before_fusion": null
+    },
+    {
+      "window": 32,
+      "stride": 4,
+      "feasible_on_shipped_slowfast": true,
+      "infeasibility_reason": null,
+      "window_span_s": 1.0333333333333334,
+      "window_span_pct_of_g04_p50": 86.11111111111111,
+      "scoring_period_s": 0.13333333333333333,
+      "ema_ramp_s": 0.13333333333333333,
+      "n_of_m_confirmation_s": 0.26666666666666666,
+      "implied_glass_to_alert_floor_s_before_inference": 1.5666666666666667,
+      "model_inference_ms_median": 54.97549999563489,
+      "model_inference_ms_p95": 56.47630000021309,
+      "implied_floor_plus_inference_s": 1.6216421666623015,
+      "inferences_per_s": 18.189920966237704,
+      "window_valid_rate_clean": {
+        "valid": 569,
+        "total": 569,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 0,
+        "total": 569,
+        "rate": 0.0
+      },
+      "g04_p50_budget_met_before_fusion": false
+    },
+    {
+      "window": 32,
+      "stride": 8,
+      "feasible_on_shipped_slowfast": true,
+      "infeasibility_reason": null,
+      "window_span_s": 1.0333333333333334,
+      "window_span_pct_of_g04_p50": 86.11111111111111,
+      "scoring_period_s": 0.26666666666666666,
+      "ema_ramp_s": 0.26666666666666666,
+      "n_of_m_confirmation_s": 0.5333333333333333,
+      "implied_glass_to_alert_floor_s_before_inference": 2.1,
+      "model_inference_ms_median": 55.10569999751169,
+      "model_inference_ms_p95": 55.74390000401763,
+      "implied_floor_plus_inference_s": 2.155105699997512,
+      "inferences_per_s": 18.146943057526812,
+      "window_valid_rate_clean": {
+        "valid": 569,
+        "total": 569,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 0,
+        "total": 569,
+        "rate": 0.0
+      },
+      "g04_p50_budget_met_before_fusion": false
+    },
+    {
+      "window": 32,
+      "stride": 16,
+      "feasible_on_shipped_slowfast": true,
+      "infeasibility_reason": null,
+      "window_span_s": 1.0333333333333334,
+      "window_span_pct_of_g04_p50": 86.11111111111111,
+      "scoring_period_s": 0.5333333333333333,
+      "ema_ramp_s": 0.5333333333333333,
+      "n_of_m_confirmation_s": 1.0666666666666667,
+      "implied_glass_to_alert_floor_s_before_inference": 3.166666666666667,
+      "model_inference_ms_median": 56.519700003264006,
+      "model_inference_ms_p95": 58.13320000015665,
+      "implied_floor_plus_inference_s": 3.223186366669931,
+      "inferences_per_s": 17.69294599833775,
+      "window_valid_rate_clean": {
+        "valid": 569,
+        "total": 569,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 0,
+        "total": 569,
+        "rate": 0.0
+      },
+      "g04_p50_budget_met_before_fusion": false
+    },
+    {
+      "window": 64,
+      "stride": 16,
+      "feasible_on_shipped_slowfast": false,
+      "infeasibility_reason": "Sizes of tensors must match except in dimension 1. Expected size 9 but got size 33 for tensor number 1 in the list.",
+      "window_span_s": 2.1,
+      "window_span_pct_of_g04_p50": 175.0,
+      "scoring_period_s": 0.5333333333333333,
+      "ema_ramp_s": 0.5333333333333333,
+      "n_of_m_confirmation_s": 1.0666666666666667,
+      "implied_glass_to_alert_floor_s_before_inference": 4.233333333333333,
+      "model_inference_ms_median": null,
+      "model_inference_ms_p95": null,
+      "implied_floor_plus_inference_s": null,
+      "inferences_per_s": null,
+      "window_valid_rate_clean": {
+        "valid": 537,
+        "total": 537,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 0,
+        "total": 537,
+        "rate": 0.0
+      },
+      "g04_p50_budget_met_before_fusion": null
+    },
+    {
+      "window": 64,
+      "stride": 32,
+      "feasible_on_shipped_slowfast": false,
+      "infeasibility_reason": "Sizes of tensors must match except in dimension 1. Expected size 9 but got size 33 for tensor number 1 in the list.",
+      "window_span_s": 2.1,
+      "window_span_pct_of_g04_p50": 175.0,
+      "scoring_period_s": 1.0666666666666667,
+      "ema_ramp_s": 1.0666666666666667,
+      "n_of_m_confirmation_s": 2.1333333333333333,
+      "implied_glass_to_alert_floor_s_before_inference": 6.366666666666667,
+      "model_inference_ms_median": null,
+      "model_inference_ms_p95": null,
+      "implied_floor_plus_inference_s": null,
+      "inferences_per_s": null,
+      "window_valid_rate_clean": {
+        "valid": 537,
+        "total": 537,
+        "rate": 1.0
+      },
+      "window_valid_rate_disordered": {
+        "valid": 0,
+        "total": 537,
+        "rate": 0.0
+      },
+      "g04_p50_budget_met_before_fusion": null
+    }
+  ],
+  "overlap_variant": {
+    "name": "overlap50",
+    "window": 32,
+    "stride": 16,
+    "ensemble_k": 2,
+    "ensemble_agg": "max",
+    "note": "50% overlap via 2 half-stride-offset ensemble members",
+    "scoring_period_s": 0.5333333333333333,
+    "extra_model_forwards_per_completion": 0,
+    "note_extra": "ensemble aggregates completed window scores; no extra forward (R4 design)"
+  }
+}

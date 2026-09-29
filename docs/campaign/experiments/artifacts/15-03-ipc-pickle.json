@@ -1,0 +1,37 @@
+{
+  "measurement": "numpy FramePacket pickle round-trip at 640 max-side",
+  "frame_shape": [
+    360,
+    640,
+    3
+  ],
+  "frame_nbytes": 691200,
+  "packet_payload_bytes": {
+    "n": 300,
+    "p05": 691584,
+    "median": 691584.0,
+    "p95": 691585,
+    "min": 691584,
+    "max": 691585,
+    "mean": 691584.1466666666
+  },
+  "pickle_dumps_ms": {
+    "n": 300,
+    "p05": 0.05989999772282317,
+    "median": 0.07555000047432259,
+    "p95": 0.11719999747583643,
+    "min": 0.05660000169882551,
+    "max": 0.39600000309292227,
+    "mean": 0.08210933340402941
+  },
+  "pickle_loads_ms": {
+    "n": 300,
+    "p05": 0.0320999970426783,
+    "median": 0.0350500013155397,
+    "p95": 0.05729999975301325,
+    "min": 0.031600000511389226,
+    "max": 0.3146999952150509,
+    "mean": 0.040955666457496896
+  },
+  "note": "mp.Queue pickles in a feeder thread (producer side) and unpickles inline at get(); stageEnqueueToDequeueMs in the live worker includes transfer + bounded queue wait + scheduling, this figure is the pure serialization cost."
+}

@@ -1,0 +1,4 @@
+{
+  "disabled_optional_modules": [],
+  "reason": "These optional services are outside the local replay capture-to-alert workload."
+}
