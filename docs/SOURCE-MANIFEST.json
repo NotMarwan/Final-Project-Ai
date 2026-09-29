@@ -199,7 +199,380 @@
   "evidence_workload_valid": true,
   "meaning": "Source consistency only; no evidence of runtime acceptance. Environment/hardware must be revalidated.",
   "evidence_report": "bench/results/integration-review-2026-09-29/report.json",
-  "measured_source_normalizations": {},
-  "evidence_sha256": "838ffae70989c6e435a2ac21180583eabec5eda5aa79639b851c198a464c5160",
-  "evidence_registry_sha256": "cd04a673cd59f3f6bdbe822d6ccb7677bce07500feaecd09a7eea4992da4d8b9"
+  "measured_source_normalizations": {
+    "backend/alert_triage.py": {
+      "original_sha256": "346a93edc922aef835b16bf3d7e0f3399f71dd26ac57d35e40cc7671857830fe",
+      "current_sha256": "346a93edc922aef835b16bf3d7e0f3399f71dd26ac57d35e40cc7671857830fe",
+      "canonical_lf_sha256": "289de426a8f04c4a2385620dd73e99d14768842b152c8e2f1dbbe5f8a9696d10",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/api.py": {
+      "original_sha256": "39b38c4000f31d5c6c424dc52703dc30598b3f29776d1fe3a61e0e77ade8df89",
+      "current_sha256": "15cf2a8285d1309c6e650109e47f3b1df34cafb66a4449284bde25ca7bd9aa6a",
+      "canonical_lf_sha256": "999c40561acfcaa23c7a666898435aff7db5fcd4a8c6ea976628f67457c56ee3",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/audio.py": {
+      "original_sha256": "d691d18b1681b023687436e3c24943c080844ee2f3eb6d889b0eb49537c5d811",
+      "current_sha256": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b",
+      "canonical_lf_sha256": "a3dbafb288052162ee7305328c9a184e8e2026ce64ad2f7775d4384427f3fb6b",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/best_frame.py": {
+      "original_sha256": "2507cc6f6469c1ac251073b6a9903dbe98e5ac8cd342391b15651ac999b38f6d",
+      "current_sha256": "2507cc6f6469c1ac251073b6a9903dbe98e5ac8cd342391b15651ac999b38f6d",
+      "canonical_lf_sha256": "4fbba5d548a2a1c021272c2dc2e8777d4f5153a4164370707fd756d8c961432f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/calibration_utils.py": {
+      "original_sha256": "9c758a4a9a4176ed45bb51aceaae4319ee413f45624ff86f144e6966faef30bb",
+      "current_sha256": "9c758a4a9a4176ed45bb51aceaae4319ee413f45624ff86f144e6966faef30bb",
+      "canonical_lf_sha256": "62e5fcdb9af6760f4d66d6e91fb7e6a01617d53bacc8231b1191e6d65e26cb7f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/capture_queue.py": {
+      "original_sha256": "e309b39b25986a035e6624a75904329d2984d6f3c7bc81b70dca5b379c25c34c",
+      "current_sha256": "038ed83e37093acd819b450a8a6c359c093a2d20875dc2f2494f5007e314b0d9",
+      "canonical_lf_sha256": "ce067a6666c816e6d671427abeff037d2f8a025783afeaaa2dbc55d8eaa6adf5",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/colab_bridge_server.py": {
+      "original_sha256": "212b29a4febdb648e9980854ad617d4290e84a6f57761f244e5ba0f48c7c0458",
+      "current_sha256": "212b29a4febdb648e9980854ad617d4290e84a6f57761f244e5ba0f48c7c0458",
+      "canonical_lf_sha256": "86f8810cba31780d3d3cead6f389c45228de8aa96881427d57e6e414e412e2e9",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/counting.py": {
+      "original_sha256": "64dce00682fe65111ee9cffa5d5115ad7d2d8b4c5486fce1ee7ba9d280764ee0",
+      "current_sha256": "64dce00682fe65111ee9cffa5d5115ad7d2d8b4c5486fce1ee7ba9d280764ee0",
+      "canonical_lf_sha256": "aec6f2cd46e127ecbf6506895495f3577fa5ded38396c7f4cdb19a0e1c28468f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/datasets/__init__.py": {
+      "original_sha256": "94a7664f080c438d6b84c0bfec7a2c8b4d039c0d245c0030e9da3ea42b094471",
+      "current_sha256": "94a7664f080c438d6b84c0bfec7a2c8b4d039c0d245c0030e9da3ea42b094471",
+      "canonical_lf_sha256": "d1463ab4bf8d290026d9d8434262c5c2379cad074c3fa5e95834990ad5e6aed1",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/datasets/manifest_dataset.py": {
+      "original_sha256": "7bb9910d2d2910dc41eab725e1bed852754ecbb770aa28b4e3440274561ab626",
+      "current_sha256": "9161bd3f9432a0ca7262c3e4da537a026bff03cca84adde0e464393ad9ed244a",
+      "canonical_lf_sha256": "9161bd3f9432a0ca7262c3e4da537a026bff03cca84adde0e464393ad9ed244a",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/datasets/video_contract.py": {
+      "original_sha256": "49d6559e5e59eacacf3255f3a6b0dd0af65853080c027f2adda7f8395d61b8d7",
+      "current_sha256": "7e97458b2ea2bda8c65988345b4be49eb768e4ab7e82d42293480efb4b2725be",
+      "canonical_lf_sha256": "7e97458b2ea2bda8c65988345b4be49eb768e4ab7e82d42293480efb4b2725be",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/datasets/video_loader.py": {
+      "original_sha256": "fd1cd850a89e5adfa88d158205a438c8d556019dcf3c61294b468c05d0c0641c",
+      "current_sha256": "f4ba6f29e13940e49b4ecfefc77a5df8bc00387fe26de6d0eb71741c40dd0bf6",
+      "canonical_lf_sha256": "f4ba6f29e13940e49b4ecfefc77a5df8bc00387fe26de6d0eb71741c40dd0bf6",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/decision_config.py": {
+      "original_sha256": "b4e11a03499bc315f3d90f8f651546a4e4d06d8a12fd5efc87f4353dc6d9d5cb",
+      "current_sha256": "b4e11a03499bc315f3d90f8f651546a4e4d06d8a12fd5efc87f4353dc6d9d5cb",
+      "canonical_lf_sha256": "70563d137aceda76a6e19e197d17fceb233df1d0bc5cdc0c4bc1c9bae4923f4e",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/detection_categories.py": {
+      "original_sha256": "f3cce9d549255fdaf4627ea32d82afba280145bbb5bb855b5515861dd4a2fb9a",
+      "current_sha256": "f3cce9d549255fdaf4627ea32d82afba280145bbb5bb855b5515861dd4a2fb9a",
+      "canonical_lf_sha256": "c6158058a431e3c256bd01dd30f51ed847400986b29d49c597a50b679418dc29",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/device_config.py": {
+      "original_sha256": "aa1d023f7260d855b62cbfa6d343dda0fcbd3eb07691388b24b1c32adb2869ca",
+      "current_sha256": "4b7a344413c88a70c2bf9608c669201e8794a4a1d59d5caca1b2f71ac6f4571d",
+      "canonical_lf_sha256": "4b7a344413c88a70c2bf9608c669201e8794a4a1d59d5caca1b2f71ac6f4571d",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/device_utils.py": {
+      "original_sha256": "05a26334218ef07d2ff25b9c97d9d863160757c431abd800474a99d96c159339",
+      "current_sha256": "05a26334218ef07d2ff25b9c97d9d863160757c431abd800474a99d96c159339",
+      "canonical_lf_sha256": "04410acd82dc68688cddbc7037c2b3127edda4af3f9fa93c1d6940975a86bab2",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/enhance.py": {
+      "original_sha256": "6038234e8c26fe7b05bae9592ed6049b50a7f165a94027b91041ea27edc2c4d6",
+      "current_sha256": "6038234e8c26fe7b05bae9592ed6049b50a7f165a94027b91041ea27edc2c4d6",
+      "canonical_lf_sha256": "4c8efbdbd800d9cd9dafcd075e8c8efdcbadbb005cde06cf52a2c45be25f6fc8",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/enhance_harness.py": {
+      "original_sha256": "5bee755a264a384cbbda8bfc028e8915d11b3e768850075fe805d033ef8ab97e",
+      "current_sha256": "5bee755a264a384cbbda8bfc028e8915d11b3e768850075fe805d033ef8ab97e",
+      "canonical_lf_sha256": "f408dd1dd89cb4fff1064d8a7a299c1fdf46c07cf59b3a2f431805c1cd2f368a",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/enhance_tier1.py": {
+      "original_sha256": "31bfb78101b592bb59e3d1bcfbc268c95c887e52aeb9d0d3d3ea26952d0bb07e",
+      "current_sha256": "31bfb78101b592bb59e3d1bcfbc268c95c887e52aeb9d0d3d3ea26952d0bb07e",
+      "canonical_lf_sha256": "8363910ac1266f51fc1b44005da269c261572c5d706a7cbb5dd168aeec429075",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/eval_tracking.py": {
+      "original_sha256": "077509ce70004ff040d193fd9e42f5ae050f58d25ce438e4b14aa6b6144633bf",
+      "current_sha256": "077509ce70004ff040d193fd9e42f5ae050f58d25ce438e4b14aa6b6144633bf",
+      "canonical_lf_sha256": "abf8cf2773d90d0ac81cf18fe1d7b3dbcf707cad9a60b2134bfb19386d7cafa3",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/evidence.py": {
+      "original_sha256": "9639f4e49bfc36a53f7035c64f3fae48fe154a97b89eceb55a46ec169fb0df82",
+      "current_sha256": "9639f4e49bfc36a53f7035c64f3fae48fe154a97b89eceb55a46ec169fb0df82",
+      "canonical_lf_sha256": "c8595a5bea469a8b6420f5293958fcd86aa42671ca1ec34b0648ffd71a5444c5",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/evidence_video.py": {
+      "original_sha256": "94fd981d64c4447ddf4d385f8c8654a3d1e029e901beb24dc9ca939831863a26",
+      "current_sha256": "94fd981d64c4447ddf4d385f8c8654a3d1e029e901beb24dc9ca939831863a26",
+      "canonical_lf_sha256": "7e4211c391690ba799d9ac0c90ebd7ad23c1a99e92c2e37f4fb1360795c87672",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/export_models.py": {
+      "original_sha256": "c89ea21e7be3d7e75d73ce8fecb2f7fd0d296b47c024eba4b6f7e35c608455fd",
+      "current_sha256": "a2862f89d997698baa2838a9b99a9693b224eb55f6cb990ccaf5d1ce67d08127",
+      "canonical_lf_sha256": "a2862f89d997698baa2838a9b99a9693b224eb55f6cb990ccaf5d1ce67d08127",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/face_capture.py": {
+      "original_sha256": "5dc224382facab73af499e62fb5b09834321735355ba80cbd11936c6b2d1d0b0",
+      "current_sha256": "5dc224382facab73af499e62fb5b09834321735355ba80cbd11936c6b2d1d0b0",
+      "canonical_lf_sha256": "f2c6c3fe5ab4edfcdcbebaf6720320f3d3d1aa7e771288386d74f372f76f2e8b",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/face_detect.py": {
+      "original_sha256": "be8ee01ff94954890dbcd8af7ae58a5d0d8c03a4b311b9c36e83fa7e4b4311dd",
+      "current_sha256": "be8ee01ff94954890dbcd8af7ae58a5d0d8c03a4b311b9c36e83fa7e4b4311dd",
+      "canonical_lf_sha256": "c6407ad7009bed1fbf17f968cabd4d7cf9e9a6094494cd181bd3eefa724421d5",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/face_intel.py": {
+      "original_sha256": "55e7c449084e6f7ac8c0a118218bface9a49212732dc536d74530bc2baadfd9d",
+      "current_sha256": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598",
+      "canonical_lf_sha256": "4b0d507276073a53797c62acc9d571faeef1b661d2cf6afa37c365657ac6f598",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/frame_pipeline.py": {
+      "original_sha256": "70d09c1300f7bf155283afaa73ef79038ec91c2f185fb899b702a4b55c3b7af2",
+      "current_sha256": "70d09c1300f7bf155283afaa73ef79038ec91c2f185fb899b702a4b55c3b7af2",
+      "canonical_lf_sha256": "4fc89b802c03d8bac9cbcb1ec1b130283c3caea6bdd350510b589b80a1e966a0",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/frame_reference.py": {
+      "original_sha256": "53c78002b2a9ec31ff828ad731da09ce87c2a53d100b52ab6ae2af9e4e8be1be",
+      "current_sha256": "53c78002b2a9ec31ff828ad731da09ce87c2a53d100b52ab6ae2af9e4e8be1be",
+      "canonical_lf_sha256": "a97b7ae1ea5dc2090de6fe6d415c7e5bb4d84c62264d0a360d754b115019a6cd",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/fusion.py": {
+      "original_sha256": "73ad4ad8f4a330530368fa4967060b29d3b987591998fe4bf12d0a4e650078bd",
+      "current_sha256": "73ad4ad8f4a330530368fa4967060b29d3b987591998fe4bf12d0a4e650078bd",
+      "canonical_lf_sha256": "aa5169614060fe3148513021f248c4935bff41298b6c11953d85ba6fe3398d21",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/inference.py": {
+      "original_sha256": "5c68620a1ed805e5fe0845f01308fb83ba20c060de782cb91b16eed4c6aa82f1",
+      "current_sha256": "5c68620a1ed805e5fe0845f01308fb83ba20c060de782cb91b16eed4c6aa82f1",
+      "canonical_lf_sha256": "e687faeb285a1af3175aa6cb91bae9e88bc65464df1b2762f76ec8d8bd8dc8fa",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/inference_process.py": {
+      "original_sha256": "12605b852652db3c46bb2238fc31988f294df9a08b84e67cf27b96c361f72896",
+      "current_sha256": "92f36ad1dd114cecfce64df2e6242a5a6fb918360f357e9e46ab14391fbeab69",
+      "canonical_lf_sha256": "298bfd516b111541e60ebb7406431057cbc84a70f0ec077cc0f1271ec051167a",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/live_alert_decision.py": {
+      "original_sha256": "437c9467a8139646310bed2a31a48d59e019c2bde58417062d5b7b011cc73150",
+      "current_sha256": "a764a28808e8c033d50fa3514536d67b8a84fd03aa1e5d91e6e173c123215329",
+      "canonical_lf_sha256": "2bf954e88b6cd17c9f70f6f1c0e3c43f265ad8d2819ffb80b08dc3226102f658",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/local_forensics.py": {
+      "original_sha256": "b6c7c4f26818a1e4e0be627a6a17e042295c7e0e45a6134f5e03c19844e13452",
+      "current_sha256": "b6c7c4f26818a1e4e0be627a6a17e042295c7e0e45a6134f5e03c19844e13452",
+      "canonical_lf_sha256": "82b23ab378d334d4e3ec3cc2676b9f9dfb1bfae93a1496ebcd56f33aadb9b2bb",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/metrics.py": {
+      "original_sha256": "500a18b55c817f613823e80149c0634a918338755effbdcc38a1de865f777ba1",
+      "current_sha256": "500a18b55c817f613823e80149c0634a918338755effbdcc38a1de865f777ba1",
+      "canonical_lf_sha256": "954595cd9089ceea69c2ac40327a26c180333210683e3e9002f9b35d6f24b7e3",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/models/multi_angle_x3d.py": {
+      "original_sha256": "90a63f11601d9f32b99b2e861bae2902bdd975373eb973f47e4458ff5a8eccf1",
+      "current_sha256": "90a63f11601d9f32b99b2e861bae2902bdd975373eb973f47e4458ff5a8eccf1",
+      "canonical_lf_sha256": "9f95d7bdfad21f4b08ba46aae77a8ccd5ece7f4cad7a372912673789af8b998a",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/notifications.py": {
+      "original_sha256": "2ac6397ae382578c9d5864e0d73599eda066606addf0775d9f612e1fb8ae560b",
+      "current_sha256": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087",
+      "canonical_lf_sha256": "85986b270d96baf96de4253a60bd5c2b2ea1a823bd5c587aa72024a47dda3087",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/optimization.py": {
+      "original_sha256": "6ae67afeeb698495cf3a1bb3b19f010bc84cecbc02d3a1439785921f3a5775ad",
+      "current_sha256": "a59e5a88a7b4a2c91f44b38996e959a0f9840f6dc837a39dd3962b822c2ce158",
+      "canonical_lf_sha256": "a59e5a88a7b4a2c91f44b38996e959a0f9840f6dc837a39dd3962b822c2ce158",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/person_detector.py": {
+      "original_sha256": "e0c524b3fd78231eb1f9e462cfc817cc066bbdec7739bdd45ea9b2a2c846d8ad",
+      "current_sha256": "e0c524b3fd78231eb1f9e462cfc817cc066bbdec7739bdd45ea9b2a2c846d8ad",
+      "canonical_lf_sha256": "5645127e781576aa435c1764568a16cc3eac5f63f3e24f7a7aa0927fe4d7e154",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/pipeline_ai.py": {
+      "original_sha256": "22d6f08fd7428e1d23ac131e77442803cbb4ec01055fe768af86bc8c2b1fffb9",
+      "current_sha256": "39fc06fbd16267924bb386652c921b26eff224d6e0626c484f0f10d06d42fac7",
+      "canonical_lf_sha256": "39fc06fbd16267924bb386652c921b26eff224d6e0626c484f0f10d06d42fac7",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/pipeline_capture.py": {
+      "original_sha256": "186143fdffe27fa07788fa05ca51d68ffd0d91c101a85c7cbfd63816a0fdff6e",
+      "current_sha256": "186143fdffe27fa07788fa05ca51d68ffd0d91c101a85c7cbfd63816a0fdff6e",
+      "canonical_lf_sha256": "6b7d26595f3f093d309ccc5691c3bc09874adb028add8ad5c7f44c582354a3df",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/pipeline_render.py": {
+      "original_sha256": "4048321b4704836d9c2c793aa57a3bb1bd2c4dc59d5a6a22707dd56d77349102",
+      "current_sha256": "a388c7822b8a7584dc8641c1a8a332be482efe11c3d14b282c3307f7db365d96",
+      "canonical_lf_sha256": "a15192afcec58960eb7b9616a31a64423250e3ada5910a0444d19d87e9d9dfb1",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/prepare_colab_bundle.py": {
+      "original_sha256": "b4eccaddadb2ed6c18297a83f099e84cc5efb7493d7535ca5b6573069d1e755d",
+      "current_sha256": "b4eccaddadb2ed6c18297a83f099e84cc5efb7493d7535ca5b6573069d1e755d",
+      "canonical_lf_sha256": "94ef4b7aae67da5937f716943484c097493757239c22bbfb0bbc4e14b2c4578e",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/render_colab_notebook.py": {
+      "original_sha256": "097c240e81e3acf220c7831820fc4b2ffc1697f744bc41455d512524ef46f81a",
+      "current_sha256": "097c240e81e3acf220c7831820fc4b2ffc1697f744bc41455d512524ef46f81a",
+      "canonical_lf_sha256": "9ae058233256d9dd688b4bc64b5880d619d60f64b3b64f6a40a9a263839448e0",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/reporting.py": {
+      "original_sha256": "93682f829c1ee62639ddb2697ad30b1ed6f6e06f1b22bba4924fd72fd58a9ddd",
+      "current_sha256": "93682f829c1ee62639ddb2697ad30b1ed6f6e06f1b22bba4924fd72fd58a9ddd",
+      "canonical_lf_sha256": "617333332d2bc369ea9f096c0e7328637f5011033243240c19bc9b3e1cd7a279",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/security.py": {
+      "original_sha256": "d8e3c04eb8195c44f0f17e4d9d43b220468d13b7825e9f7907cbcf444194bcb4",
+      "current_sha256": "d8e3c04eb8195c44f0f17e4d9d43b220468d13b7825e9f7907cbcf444194bcb4",
+      "canonical_lf_sha256": "f6ca102ea925b9c4d5db4ec4d1912e0788aaeca2c5f7e1202ec8c3fcf0608d5f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/stats_service.py": {
+      "original_sha256": "af2ad078d80656e4a218cc530a1b1ff20ecdeed2b84401d7b114d813abcecaae",
+      "current_sha256": "af2ad078d80656e4a218cc530a1b1ff20ecdeed2b84401d7b114d813abcecaae",
+      "canonical_lf_sha256": "53abcb6a5703a9e4993112cf2d6dc710e10738aea39a4a8c85ec5c30542fc826",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/temporal_frames.py": {
+      "original_sha256": "1e3e4e4d49d2aedb2adcc83836d91b192c0eb02c5df911075726df60822c73ae",
+      "current_sha256": "1e3e4e4d49d2aedb2adcc83836d91b192c0eb02c5df911075726df60822c73ae",
+      "canonical_lf_sha256": "ab8b6a7dd4795485688b1c857d19b621fcf8b61a9299fa99c361cfb560821f0a",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/tracking.py": {
+      "original_sha256": "ff314763720b05e44cc7b6592286cb3558b5481a0280053aeaadfd7660a5e59c",
+      "current_sha256": "ff314763720b05e44cc7b6592286cb3558b5481a0280053aeaadfd7660a5e59c",
+      "canonical_lf_sha256": "0761c3c3d90261f136e1401ef988269c2b4b23a17b27e55416c40a4f16f5f88b",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/train_calibration.py": {
+      "original_sha256": "391db7136ea0744fe12c18f44307696461d7b24e848575b46c4bf9fc3154e663",
+      "current_sha256": "391db7136ea0744fe12c18f44307696461d7b24e848575b46c4bf9fc3154e663",
+      "canonical_lf_sha256": "87bb661f72a0ada25a8a8e1101be470649582739bb6988cb2baee3dc1a932647",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/train_finetune.py": {
+      "original_sha256": "98a5391339b6af3acafc9191345109e0ffca44994481285c1738e71e46f5fc5a",
+      "current_sha256": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb",
+      "canonical_lf_sha256": "250dd8abecb5aa29cc11ae74e4947b7fda6edb03c797e438d2c3040bc3f681fb",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/training/augmentation.py": {
+      "original_sha256": "9bf5b4f8bca6595760a13ce718dbeadc57ca7cd7406d2fba6fb6704be0f2d777",
+      "current_sha256": "dc6dfa9421fdb23466b9e11b5ad93ea8f0e108b308149d34604cd759098a0255",
+      "canonical_lf_sha256": "dc6dfa9421fdb23466b9e11b5ad93ea8f0e108b308149d34604cd759098a0255",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/training/dataset_loader.py": {
+      "original_sha256": "a8000cd4e0b56508705cc627495bdd8b1f38f8c54c28a7885b86d254aa55d88d",
+      "current_sha256": "27eeed2e0e6d30d632a40e417195cf628af1a56b472d23d54800d5fcb63d516c",
+      "canonical_lf_sha256": "27eeed2e0e6d30d632a40e417195cf628af1a56b472d23d54800d5fcb63d516c",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/training/train_config.py": {
+      "original_sha256": "ab224302164e61e63682923d4305736495b2f561c1dd02052df1de52bf78bda0",
+      "current_sha256": "1ccabada37dea983d40be1969e6499278957863c7e94bd570ea40b69d675149b",
+      "canonical_lf_sha256": "1ccabada37dea983d40be1969e6499278957863c7e94bd570ea40b69d675149b",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/training/train_multi_dataset.py": {
+      "original_sha256": "97636e27490fce0655ba12488848a2c7667ce1dda8edc92a8828c134f0fc8f8a",
+      "current_sha256": "0169646e786cc041b0c52f290e0e878da38a8451289a80f6482bc10512d1420f",
+      "canonical_lf_sha256": "0169646e786cc041b0c52f290e0e878da38a8451289a80f6482bc10512d1420f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/visual_annotator.py": {
+      "original_sha256": "8f8658efe9c9f9bbd1f2f7a9197e318f8b815e833de8bc89a253f4136561e4f8",
+      "current_sha256": "8f8658efe9c9f9bbd1f2f7a9197e318f8b815e833de8bc89a253f4136561e4f8",
+      "canonical_lf_sha256": "1cc25966a999be9f219e80e60f5259f26f9e893eca7ff93594e596a96cadec4c",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/weapon.py": {
+      "original_sha256": "3e2a494add6697ff05d0282e856a9adb3e12e4e2412f15d9e4bc9f86c5ffbcbf",
+      "current_sha256": "3e2a494add6697ff05d0282e856a9adb3e12e4e2412f15d9e4bc9f86c5ffbcbf",
+      "canonical_lf_sha256": "17275d0bd3be31aa3809d4ef5cf41437cf68df38c6ba4eb5aee6c68cf41ea577",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/weapon_calibration.py": {
+      "original_sha256": "2aa147409607cf2d1dd6114f7ff1be30ad2481e9321b2e3943dd3bcc0760be1f",
+      "current_sha256": "2aa147409607cf2d1dd6114f7ff1be30ad2481e9321b2e3943dd3bcc0760be1f",
+      "canonical_lf_sha256": "2796dde2aa16928af5782fb3b7fdd1ce891df5d1d8a4716fb84bea1b81f1cd6e",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/weapon_eval.py": {
+      "original_sha256": "596e285a37ab464809ce164238cb3037db792587f43fc5331a40319b9492310a",
+      "current_sha256": "596e285a37ab464809ce164238cb3037db792587f43fc5331a40319b9492310a",
+      "canonical_lf_sha256": "221b6df35935d9f681cf42f1ebfa46c39b6fff040af8920f022c2f299834e9a0",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/weapon_fp_log.py": {
+      "original_sha256": "fec5d202e8227188760a5f0a70d551e07f214ab566ca7672e04f3660eb985586",
+      "current_sha256": "fec5d202e8227188760a5f0a70d551e07f214ab566ca7672e04f3660eb985586",
+      "canonical_lf_sha256": "11e15329d1907fdb0a7506d9e3eddf2e62e085019c1a4f8233096e5516434de3",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/weapon_taxonomy.py": {
+      "original_sha256": "3cae6c5350af57ea700c24c9a4bba7a0708ebc746b04c87eac18ef2b708671ed",
+      "current_sha256": "3cae6c5350af57ea700c24c9a4bba7a0708ebc746b04c87eac18ef2b708671ed",
+      "canonical_lf_sha256": "93b5244eac8d707fcd1ed740de5b2eaebede9607d882df11fb4041cdc0be8382",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/webrtc_streamer.py": {
+      "original_sha256": "9d9ffcc4b2c4ef8e4b0345dc01767c3c76de80ebde9a61b04d40a316672b6fee",
+      "current_sha256": "9d9ffcc4b2c4ef8e4b0345dc01767c3c76de80ebde9a61b04d40a316672b6fee",
+      "canonical_lf_sha256": "3afc6cdcc01fcfcca39a4aeb4d85d8bd25d769c753814355ec01981e41dc611f",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    },
+    "backend/yolo_onnx.py": {
+      "original_sha256": "3570cbcea3d85bfd4e8124465eaf6b2861815db2134ee3b709209bbd9ab05e93",
+      "current_sha256": "3570cbcea3d85bfd4e8124465eaf6b2861815db2134ee3b709209bbd9ab05e93",
+      "canonical_lf_sha256": "25fa35e4c1aa346eed12e1a85f1b3b684e9cc4d681a424938b4b4f8de838b149",
+      "reason": "Verified primary Windows Git checkout LF/CRLF conversion only; all executable text matches after newline normalization."
+    }
+  },
+  "evidence_sha256": "9793cd9346676f9597587acad7fb5949e9c464548e2ccb37875cd7c45afef72b",
+  "evidence_registry_sha256": "fb1418dc9fa995eef67d2cb33893e44317a0241e41460ba492c53012465ad269"
 }

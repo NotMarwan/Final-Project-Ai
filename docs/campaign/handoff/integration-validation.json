@@ -45,5 +45,6 @@
     "Observer intentionally ends before runtime; client FPS tail includes shutdown, so render cadence is reported separately",
     "first_display_seconds is an offset relative to the model-ready measurement marker and can be negative; it is not launch-to-first-frame timing"
   ],
-  "integration_policy": "Deliver the reviewed tree through main without making credential-bearing campaign history reachable. Preserve both previous main roots and user modifications; no force push or credential rotation."
+  "integration_policy": "Deliver the reviewed tree through main without making credential-bearing campaign history reachable. Preserve both previous main roots and user modifications; no force push or credential rotation.",
+  "source_hash_interpretation": "Measured hashes are unchanged. Recorded primary checkout alternatives differ only by Git LF/CRLF conversion; canonical LF hashes were compared for all 62 runtime sources."
 }
